@@ -68,7 +68,7 @@ class OpenAIClassifier(BaseClassifier):
         )
         r = resp.choices[0].message.content
         if not r:
-            print(f"  [openrouter] empty {resp}")
+            print(f"  [openrouter] empty {resp.to_json()}")
         return r
 
 
@@ -85,7 +85,7 @@ class ClaudeClassifier(BaseClassifier):
         )
         r = resp.content[0].text
         if not r:
-            print(f"  [anthropic] empty {resp}")
+            print(f"  [anthropic] empty {resp.to_json()}")
         return r
 
 
@@ -107,7 +107,7 @@ class OpenRouterClassifier(BaseClassifier):
         )
         r = resp.choices[0].message.content
         if not r:
-            print(f"  [openrouter] empty {resp}")
+            print(f"  [openrouter] empty {resp.to_json()}")
         return r
 
 
@@ -152,8 +152,7 @@ def classify_articles(
     if not classifier:
         return []
 
-    default_cats = ["AI/ML", "Web Development", "Infrastructure",
-                    "Programming", "Security", "Business", "General Tech"]
+    default_cats = ["Tech", "Biz", "Life", "Social", "Insight", "Misc"]
     cats = categories or default_cats
 
     total_batches = (len(articles) + batch_size - 1) // batch_size
