@@ -1,0 +1,13 @@
+# External feed lists to sync. Supports OPML, TOML formats.
+# Each source is tagged with a category prefix.
+
+[[source]]
+name = "chinese-independent-blogs"
+url = "https://github.com/timqian/chinese-independent-blogs/raw/refs/heads/master/feed.opml"
+category = "Blogs"
+
+# Add more sources here:
+# [[source]]
+# name = "another-list"
+# url = "https://example.com/feeds.opml"
+# category = "Tech"

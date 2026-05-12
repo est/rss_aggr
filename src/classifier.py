@@ -1,4 +1,4 @@
-"""AI-powered article classification and scoring. Supports OpenAI and Claude."""
+"""AI-powered article classification and scoring. Supports OpenAI, Claude, and OpenRouter."""
 import json
 import os
 from abc import ABC, abstractmethod
@@ -69,12 +69,40 @@ class ClaudeClassifier(BaseClassifier):
         return json.loads(text)
 
 
+class OpenRouterClassifier(BaseClassifier):
+    def __init__(self, model: str = "google/gemma-3-1b-it:free"):
+        from openai import OpenAI
+        self.client = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=os.environ.get("OPENROUTER_API_KEY"),
+        )
+        self.model = model
+
+    def classify(self, title: str, content: str, categories: list[str]) -> dict:
+        prompt = CLASSIFICATION_PROMPT.format(categories=", ".join(categories))
+        user_msg = f"Title: {title}\n\nContent: {content[:2000]}"
+
+        resp = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": user_msg},
+            ],
+            temperature=0.3,
+            max_tokens=300,
+        )
+        text = resp.choices[0].message.content.strip()
+        return json.loads(text)
+
+
 def get_classifier(provider: str = "openai", model: str | None = None) -> BaseClassifier:
     """Factory to get the appropriate classifier."""
     if provider == "openai":
         return OpenAIClassifier(model=model or "gpt-4o-mini")
     elif provider == "claude":
         return ClaudeClassifier(model=model or "claude-3-haiku-20240307")
+    elif provider == "openrouter":
+        return OpenRouterClassifier(model=model or "google/gemma-3-1b-it:free")
     else:
         raise ValueError(f"Unknown provider: {provider}")
 

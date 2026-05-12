@@ -44,10 +44,15 @@ def fetch_feed(feed_info: dict, timeout: int = 15, max_articles: int = 20) -> di
         entry_id = entry.get("id", entry.get("link", ""))
         guid = hashlib.sha256(entry_id.encode()).hexdigest()[:16]
 
+        author = entry.get("author", "")
+        if not author and hasattr(entry, "authors") and entry.authors:
+            author = entry.authors[0].get("name", "")
+
         entries.append({
             "guid": guid,
             "title": entry.get("title", ""),
             "link": entry.get("link", ""),
+            "author": author,
             "content": content,
             "published": pub_date,
             "feed_title": feed_info.get("title", ""),

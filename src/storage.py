@@ -1,83 +1,98 @@
-"""Storage module: save results as JSON files."""
-import json
+"""Storage module: save results as markdown files (YYYYMM/DD.md)."""
+import re
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 
+def _md_escape(text: str) -> str:
+    """Escape pipes and newlines for markdown table cells."""
+    return text.replace("|", "\\|").replace("\n", " ").replace("\r", "")
+
+
 def save_daily_results(
     data: dict,
-    data_dir: str = "output/data",
+    data_dir: str = "output",
 ) -> Path:
-    """Save results as a daily JSON file. Appends articles on same-day re-runs."""
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    path = Path(data_dir)
+    """Save articles as YYYYMM/DD.md markdown table. Appends on same-day re-runs."""
+    now = datetime.now(timezone.utc)
+    yyyymm = now.strftime("%Y%m")
+    dd = now.strftime("%d")
+
+    path = Path(data_dir) / yyyymm
     path.mkdir(parents=True, exist_ok=True)
+    file_path = path / f"{dd}.md"
 
-    file_path = path / f"{today}.json"
-
-    existing = {}
+    existing_guids = set()
+    existing_lines = []
     if file_path.exists():
-        existing = json.loads(file_path.read_text(encoding="utf-8"))
+        content = file_path.read_text(encoding="utf-8")
+        for line in content.splitlines():
+            if line.startswith("|") and not line.startswith("|--") and not line.startswith("| Author"):
+                existing_lines.append(line)
+                # extract guid from link
+                m = re.search(r"\]\(([^)]+)\)", line)
+                if m:
+                    existing_guids.add(m.group(1))
 
-    existing_guids = {a["guid"] for a in existing.get("articles", []) if "guid" in a}
-    new_articles = [a for a in data.get("articles", []) if a.get("guid") not in existing_guids]
+    new_articles = data.get("articles", [])
+    rows = []
+    for a in new_articles:
+        c = a.get("classification", {})
+        author = _md_escape(a.get("author", "") or a.get("feed_title", "") or "-")
+        title = _md_escape(a.get("title", ""))
+        link = a.get("link", "")
+        summary = _md_escape(c.get("summary", "") or a.get("title", ""))
+        score = c.get("score", "?")
+        if link and link not in existing_guids:
+            rows.append(f"| {author} | [{title}]({link}) | {summary} | {score} |")
 
-    merged = {**existing}
-    merged["articles"] = existing.get("articles", []) + new_articles
-    merged["feeds_count"] = data.get("feeds_count", existing.get("feeds_count", 0))
-    merged["health"] = data.get("health", existing.get("health", []))
-    merged["stats"] = data.get("stats", existing.get("stats", {}))
-    merged["updated_at"] = datetime.now(timezone.utc).isoformat()
+    all_rows = existing_lines + rows
 
-    file_path.write_text(json.dumps(merged, indent=2, ensure_ascii=False), encoding="utf-8")
+    lines = [
+        f"# {now.strftime('%Y-%m-%d')}",
+        "",
+        f"> {len(all_rows)} articles | updated {now.strftime('%H:%M UTC')}",
+        "",
+        "| Author | Title | Summary | Score |",
+        "|--------|-------|---------|-------|",
+    ]
+    lines.extend(all_rows)
+    lines.append("")
 
+    file_path.write_text("\n".join(lines), encoding="utf-8")
     return file_path
 
 
-def load_seen_guids(data_dir: str = "output/data") -> set[str]:
-    """Load all previously seen GUIDs from past daily files."""
+def load_seen_guids(data_dir: str = "output") -> set[str]:
+    """Load all previously seen article links from past markdown files."""
     path = Path(data_dir)
     if not path.exists():
         return set()
 
     guids = set()
-    for f in sorted(path.glob("*.json")):
+    for f in path.rglob("*.md"):
         try:
-            daily = json.loads(f.read_text(encoding="utf-8"))
-            for article in daily.get("articles", []):
-                guids.add(article.get("guid", ""))
-        except (json.JSONDecodeError, KeyError):
+            content = f.read_text(encoding="utf-8")
+            for m in re.finditer(r"\]\(([^)]+)\)", content):
+                guids.add(m.group(1))
+        except OSError:
             continue
     return guids
 
 
-def load_all_results(data_dir: str = "output/data") -> list[dict]:
-    """Load all daily results, sorted by date descending."""
-    path = Path(data_dir)
-    if not path.exists():
-        return []
-
-    results = []
-    for f in sorted(path.glob("*.json"), reverse=True):
-        try:
-            results.append(json.loads(f.read_text(encoding="utf-8")))
-        except json.JSONDecodeError:
-            continue
-    return results
-
-
-def cleanup_old_data(data_dir: str = "output/data", keep_days: int = 90) -> int:
-    """Delete data files older than keep_days. Returns number of files removed."""
+def cleanup_old_data(data_dir: str = "output", keep_days: int = 90) -> int:
+    """Delete markdown files older than keep_days. Returns number of files removed."""
     path = Path(data_dir)
     if not path.exists():
         return 0
 
     cutoff = datetime.now(timezone.utc) - timedelta(days=keep_days)
     removed = 0
-    for f in path.glob("*.json"):
+    for f in path.rglob("*.md"):
         try:
-            date_str = f.stem
-            file_date = datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            yyyymm = f.parent.name
+            dd = f.stem
+            file_date = datetime.strptime(f"{yyyymm}{dd}", "%Y%m%d").replace(tzinfo=timezone.utc)
             if file_date < cutoff:
                 f.unlink()
                 removed += 1

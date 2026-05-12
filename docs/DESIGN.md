@@ -20,7 +20,7 @@
 |------|------|--------|
 | RSS 采集 | Python feedparser + GitHub Actions cron | ✅ 成熟方案 |
 | Aliveness 监控 | HTTP HEAD 请求检测端点状态 | ✅ 简单可靠 |
-| AI 分类/打分 | OpenAI GPT-4o-mini / Claude Haiku | ✅ API 稳定，成本可控 |
+| AI 分类/打分 | OpenAI / Claude / OpenRouter | ✅ API 稳定，成本可控 |
 | 结果展示 | GitHub Pages 静态站点 | ✅ 免费，零运维 |
 
 ### 成本估算
@@ -48,20 +48,20 @@
 ├─────────────────────────────────────────────────────┤
 │                                                      │
 │  ┌──────────┐   ┌──────────┐   ┌──────────────────┐│
-│  │ OPML 解析 │──→│ RSS 抓取  │──→│   Aliveness 检测  ││
-│  │          │   │ (并行)    │   │   (HTTP HEAD)    ││
+│  │TOML 解析  │──→│ RSS 抓取  │──→│   Aliveness 检测  ││
+│  │          │   │ (并行)    │   │   (HEAD+GET)     ││
 │  └──────────┘   └──────────┘   └──────────────────┘│
 │       │                              │              │
 │       ▼                              ▼              │
 │  ┌──────────┐   ┌──────────────────────────────┐  │
-│  │  去重     │──→│   AI 分类/打分 (OpenAI/Claude) │  │
-│  │ (GUID)   │   │   类别 + 标签 + 1-10分        │  │
+│  │  去重     │──→│   AI 分类/打分                 │  │
+│  │ (URL)    │   │  OpenAI / Claude / OpenRouter │  │
 │  └──────────┘   └──────────────────────────────┘  │
 │                         │                          │
 │                         ▼                          │
 │              ┌─────────────────────┐               │
-│              │  JSON 结果存储       │               │
-│              │  output/data/       │               │
+│              │  Markdown 输出       │               │
+│              │  output/YYYYMM/DD.md│               │
 │              └─────────┬───────────┘               │
 │                        │                           │
 │              ┌─────────▼───────────┐               │
@@ -73,20 +73,19 @@
                         ▼
               ┌─────────────────────┐
               │   GitHub Pages      │
-              │   (暗色主题仪表盘)   │
-              │   筛选 / 搜索 / 排序 │
+              │   Markdown 表格直接看│
               └─────────────────────┘
 ```
 
 ## 数据流
 
 ### 1. 采集阶段
-- 解析 `feeds.opml` 获取 RSS 源列表
+- 解析 `feeds.toml` 获取 RSS 源列表
 - 并行抓取所有源（ThreadPoolExecutor, max_workers=10）
-- 每个条目生成 GUID（SHA256 哈希前 16 位）
+- 提取 author、title、link、content
 
 ### 2. 去重阶段
-- 加载 `output/data/` 下所有历史 JSON 文件的 GUID
+- 加载 `output/` 下所有历史 markdown 文件的链接
 - 过滤已处理过的条目
 - 只保留新文章进入 AI 分类
 
@@ -96,37 +95,42 @@
 - 分类失败时 fallback 为 "Unclassified", score=5
 
 ### 4. 存储阶段
-- 合并到当日 JSON 文件（支持多次运行增量写入）
+- 输出 `output/YYYYMM/DD.md` markdown 表格
+- 同一天多次运行自动追加去重
 - commit 并 push 到 main 分支
 
 ### 5. 展示阶段
-- GitHub Pages 读取 `output/data/*.json`
-- 支持按类别筛选、按分数排序、关键词搜索
-- 健康状态网格展示所有 RSS 源的存活情况
+- GitHub Pages 直接渲染 markdown
+- 访问 `YYYYMM/DD.md` 查看当日文章表格
 
 ## 配置说明
 
-### feeds.opml
-标准 OPML 2.0 格式，支持嵌套分类。每个 feed 节点需要：
-- `xmlUrl` — RSS/Atom 订阅地址
-- `htmlUrl` — 网站主页
-- `text` / `title` — 显示名称
+### feeds.toml
+TOML 格式，按分类组织 RSS 源：
+```toml
+[[category]]
+name = "Tech News"
+
+[[category.feed]]
+title = "Hacker News"
+url = "https://hnrss.org/frontpage"
+site = "https://news.ycombinator.com"
+```
 
 ### config.yml
-- `ai.provider` — `openai` 或 `claude`
+- `ai.provider` — `openai`、`claude` 或 `openrouter`
 - `ai.model` — 具体模型名称
 - `categories` — 分类列表及关键词
-- `scoring.dimensions` — 评分维度和权重
 - `fetch.*` — 抓取超时、每源最大文章数
 - `storage.keep_days` — 结果保留天数
 
 ### GitHub Secrets
-- `OPENAI_API_KEY` — OpenAI API 密钥（使用 OpenAI 时）
-- `ANTHROPIC_API_KEY` — Anthropic API 密钥（使用 Claude 时）
+- `OPENAI_API_KEY` — OpenAI API 密钥
+- `ANTHROPIC_API_KEY` — Anthropic API 密钥
+- `OPENROUTER_API_KEY` — OpenRouter API 密钥
 
 ## 未来演进
 
-- [ ] 增加更多 AI provider（本地 Ollama、Google Gemini）
 - [ ] 支持邮件/Webhook 通知高分文章
 - [ ] 增加文章去重相似度检测（语义去重）
 - [ ] 支持用户自定义评分 prompt

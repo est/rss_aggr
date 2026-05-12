@@ -1,43 +1,50 @@
 # RSS Aggregator
 
-A GitHub Actions-based RSS feed aggregator with AI-powered classification and scoring.
+GitHub Actions 驱动的 RSS 采集 + AI 分类打分工具。
 
-## Features
+## 功能
 
-- **RSS Collection**: Fetches feeds from OPML-configured sources in parallel
-- **Aliveness Monitoring**: HTTP health checks for all feed endpoints
-- **AI Classification**: Categorizes articles and scores them 1-10 using OpenAI/Claude
-- **GitHub Pages Dashboard**: Dark-themed web UI with filtering and search
-- **Deduplication**: Skips already-processed articles across daily runs
+- **RSS 采集** — 从 TOML 配置的源并行抓取
+- **Aliveness 监控** — HTTP 健康检测（HEAD + GET fallback）
+- **AI 分类/打分** — 支持 OpenAI、Claude、OpenRouter
+- **Markdown 输出** — `YYYYMM/DD.md` 表格格式，GitHub Pages 直接看
 
-## Setup
-
-1. **Add your feeds**: Edit `feeds.opml` with your RSS sources
-2. **Set AI API key**: Add `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` as a repository secret
-3. **Configure**: Edit `config.yml` to change AI provider, categories, or scoring rules
-4. **Enable GitHub Pages**: Settings → Pages → Source: GitHub Actions
-
-## Usage
+## 快速开始
 
 ```bash
-# Local run
 pip install -r requirements.txt
 export OPENAI_API_KEY=sk-...
 python -m src.main
 ```
 
-## Configuration
+## 配置
 
-| File | Purpose |
-|------|---------|
-| `feeds.opml` | RSS feed sources (OPML format) |
-| `config.yml` | AI provider, categories, scoring weights |
-| `.github/workflows/collect.yml` | Cron schedule (default: daily 06:00 UTC) |
+| 文件 | 说明 |
+|------|------|
+| `feeds.toml` | RSS 源（TOML 格式） |
+| `config.yml` | AI provider、分类规则 |
 
-## Architecture
+### AI Provider
+
+```yaml
+# config.yml
+ai:
+  provider: openrouter  # openai | claude | openrouter
+  model: google/gemma-3-1b-it:free
+```
+
+GitHub Secrets 添加对应的 API key：
+- `OPENAI_API_KEY`
+- `ANTHROPIC_API_KEY`
+- `OPENROUTER_API_KEY`
+
+## 输出
 
 ```
-GitHub Actions (daily cron)
-  → Parse OPML → Fetch RSS (parallel) → Dedup → Aliveness check
-  → AI classify/score → Save JSON → Commit → GitHub Pages deploy
+output/
+  202605/
+    12.md    # # 2026-05-12
+    13.md    # | Author | Title | Summary | Score |
 ```
+
+GitHub Pages 部署后直接访问 `YYYYMM/DD.md`。
