@@ -97,7 +97,24 @@ class OpenRouterClassifier(BaseClassifier):
         return resp.choices[0].message.content
 
 
-def get_classifier(provider: str = "openai", model: str | None = None) -> BaseClassifier:
+def _check_api_key(provider: str) -> bool:
+    """Check if the required API key is set."""
+    env_keys = {
+        "openai": "OPENAI_API_KEY",
+        "claude": "ANTHROPIC_API_KEY",
+        "openrouter": "OPENROUTER_API_KEY",
+    }
+    key = env_keys.get(provider, "")
+    return bool(os.environ.get(key))
+
+
+def get_classifier(provider: str = "openai", model: str | None = None) -> BaseClassifier | None:
+    """Factory to get the appropriate classifier. Returns None if API key missing."""
+    if not _check_api_key(provider):
+        env_key = {"openai": "OPENAI_API_KEY", "claude": "ANTHROPIC_API_KEY",
+                   "openrouter": "OPENROUTER_API_KEY"}.get(provider, "")
+        print(f"  WARNING: {env_key} not set, skipping AI classification", flush=True)
+        return None
     if provider == "openai":
         return OpenAIClassifier(model=model or "gpt-4o-mini")
     elif provider == "claude":
@@ -105,7 +122,8 @@ def get_classifier(provider: str = "openai", model: str | None = None) -> BaseCl
     elif provider == "openrouter":
         return OpenRouterClassifier(model=model or "nvidia/nemotron-3-nano-30b-a3b:free")
     else:
-        raise ValueError(f"Unknown provider: {provider}")
+        print(f"  WARNING: unknown provider '{provider}', skipping AI classification", flush=True)
+        return None
 
 
 def classify_articles(
@@ -115,14 +133,17 @@ def classify_articles(
     categories: list[str] | None = None,
     batch_size: int = 10,
 ) -> list[dict]:
-    """Classify articles in batches. Failed articles get no classification."""
+    """Classify articles in batches. Skips entirely if API key missing or fails."""
     if not articles:
+        return []
+
+    classifier = get_classifier(provider, model)
+    if not classifier:
         return []
 
     default_cats = ["AI/ML", "Web Development", "Infrastructure",
                     "Programming", "Security", "Business", "General Tech"]
     cats = categories or default_cats
-    classifier = get_classifier(provider, model)
 
     total_batches = (len(articles) + batch_size - 1) // batch_size
     print(f"  {len(articles)} articles, batch_size={batch_size}, {total_batches} batches", flush=True)
