@@ -14,6 +14,7 @@ from src.aliveness import check_all_feeds
 from src.classifier import classify_articles
 from src.storage import save_daily_results, load_seen_guids, cleanup_old_data
 from src.state import load_state, save_state, mark_fed, mark_failed, get_due_feeds, prioritize_feeds, disable_stats
+from src.aggregator import is_aggregator
 
 
 def ts():
@@ -63,13 +64,24 @@ def main():
     elapsed = time.time() - t1
 
     all_entries = []
+    aggregator_feeds = 0
     for r in results:
         url = r["feed"]["xml_url"]
         if r["status"] == "ok":
             mark_fed(state, url)
-            all_entries.extend(r["entries"])
+            if is_aggregator(r["entries"]):
+                aggregator_feeds += 1
+                state["feeds"][url]["is_aggregator"] = True
+                # still track for dedup but skip AI
+                for e in r["entries"]:
+                    e["_skip_ai"] = True
+                all_entries.extend(r["entries"])
+            else:
+                all_entries.extend(r["entries"])
         else:
             mark_failed(state, url, r.get("error", "unknown"))
+    if aggregator_feeds:
+        print(f"[{ts()}]   Aggregator feeds detected: {aggregator_feeds} (will skip AI)", flush=True)
     print(f"[{ts()}]   Done ({elapsed:.0f}s): {len(all_entries)} entries from {len(results)} feeds\n", flush=True)
 
     print(f"[{ts()}] [3/5] Filtering new articles...", flush=True)
@@ -79,26 +91,30 @@ def main():
         new_entries = new_entries[:max_articles]
     print(f"[{ts()}]   {len(new_entries)} new (skipped {len(all_entries) - len(new_entries)} seen)\n", flush=True)
 
+    # Split: normal articles get AI, aggregator articles skip AI
+    ai_entries = [e for e in new_entries if not e.pop("_skip_ai", False)]
+    agg_entries = [e for e in new_entries if e.get("_skip_ai", False)]
+
     print(f"[{ts()}] [4/5] Classifying with AI...", flush=True)
     classified = []
     skipped = 0
-    if not new_entries:
-        print(f"[{ts()}]   No new articles to classify", flush=True)
+    if not ai_entries:
+        print(f"[{ts()}]   No articles to classify ({len(agg_entries)} aggregator, rest seen)", flush=True)
     else:
         t2 = time.time()
         classify_articles(
-            new_entries,
+            ai_entries,
             provider=ai_cfg.get("provider", "openai"),
             model=ai_cfg.get("model"),
             categories=categories,
         )
         elapsed = time.time() - t2
-        for a in new_entries:
+        for a in ai_entries:
             if "classification" in a:
                 classified.append(a)
             else:
                 skipped += 1
-        print(f"[{ts()}]   Done ({elapsed:.0f}s): {len(classified)} classified, {skipped} skipped\n", flush=True)
+        print(f"[{ts()}]   Done ({elapsed:.0f}s): {len(classified)} classified, {skipped} failed", flush=True)
 
     removed = cleanup_old_data(data_dir, keep_days)
     if removed:
