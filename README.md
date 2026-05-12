@@ -29,7 +29,7 @@ python -m src.main
 ## 输出
 
 ```
-docs/
+output/
   2026/
     0512.md    # # 2026-05-12
     0513.md    # | Author | Title | Summary | Score |

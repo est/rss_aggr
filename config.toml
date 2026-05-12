@@ -22,7 +22,7 @@ disable_after_failures = 3 # auto-disable feed after N consecutive failures
 
 # Storage
 [storage]
-data_dir = "docs"
+data_dir = "output"
 keep_days = 90
 
 # Scoring

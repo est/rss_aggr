@@ -61,7 +61,7 @@
 │                         ▼                          │
 │              ┌─────────────────────┐               │
 │              │  Markdown 输出       │               │
-│              │  docs/YYYYMM/DD.md│               │
+│              │  output/YYYY/MMDD.md│               │
 │              └─────────┬───────────┘               │
 │                        │                           │
 │              ┌─────────▼───────────┐               │
@@ -85,7 +85,7 @@
 - 提取 author、title、link、content
 
 ### 2. 去重阶段
-- 加载 `docs/` 下所有历史 markdown 文件的链接
+- 加载 `output/` 下所/有历 markdown 文件的链接
 - 过滤已处理过的条目
 - 只保留新文章进入 AI 分类
 
@@ -95,7 +95,7 @@
 - 分类失败时 fallback 为 "Unclassified", score=5
 
 ### 4. 存储阶段
-- 输出 `docs/YYYYMM/DD.md` markdown 表格
+- 输出 `output/YYYY/MMDD.md` markdown 表格
 - 同一天多次运行自动追加去重
 - commit 并 push 到 main 分支
 
