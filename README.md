@@ -36,3 +36,15 @@ output/
 ```
 
 GitHub Pages 部署后直接访问 `YYYYMM/DD.md`。
+
+## 来源
+
+https://www.zhblogs.net/
+https://list.travellings.cn/
+https://github.com/timqian/chinese-independent-blogs/blob/master/feed.opml
+https://www.foreverblog.cn/
+https://storeweb.cn/site
+https://bf.zzxworld.com/
+https://www.boyouquan.com/blogs
+https://bokequan.cn/boke
+https://blogtalk.org/blogs

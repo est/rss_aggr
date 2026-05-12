@@ -175,7 +175,7 @@ def classify_articles(
     if not classifier:
         return []
 
-    default_cats = ["Tech", "Biz", "Life", "Social", "Insight", "Misc"]
+    default_cats = ["Tech", "Biz", "Life", "Society", "Insight", "Misc"]
     cats = categories or default_cats
 
     total_batches = (len(articles) + batch_size - 1) // batch_size
