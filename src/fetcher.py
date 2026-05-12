@@ -8,8 +8,10 @@ import feedparser
 import requests
 
 
-def fetch_feed(feed_info: dict, timeout: int = 15, max_articles: int = 20) -> dict:
+def fetch_feed(feed_info: dict, timeout: int = None, max_articles: int = 20) -> dict:
     """Fetch a single RSS feed and return parsed entries."""
+    if not timeout:
+        timeout = (2, 5)
     try:
         resp = requests.get(
             feed_info["xml_url"],
