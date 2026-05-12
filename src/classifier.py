@@ -39,7 +39,12 @@ class BaseClassifier(ABC):
             {"role": "user", "content": user_msg},
         ], max_tokens=len(articles) * 150, timeout=self.TIMEOUT)
 
+        if text is None:
+            raise ValueError("API returned None (model unavailable or rate limited?)")
         text = text.strip()
+        if not text:
+            raise ValueError("API returned empty string")
+
         if text.startswith("```"):
             text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
 
@@ -98,18 +103,15 @@ class OpenRouterClassifier(BaseClassifier):
 
 
 def _check_api_key(provider: str) -> bool:
-    """Check if the required API key is set."""
     env_keys = {
         "openai": "OPENAI_API_KEY",
         "claude": "ANTHROPIC_API_KEY",
         "openrouter": "OPENROUTER_API_KEY",
     }
-    key = env_keys.get(provider, "")
-    return bool(os.environ.get(key))
+    return bool(os.environ.get(env_keys.get(provider, "")))
 
 
 def get_classifier(provider: str = "openai", model: str | None = None) -> BaseClassifier | None:
-    """Factory to get the appropriate classifier. Returns None if API key missing."""
     if not _check_api_key(provider):
         env_key = {"openai": "OPENAI_API_KEY", "claude": "ANTHROPIC_API_KEY",
                    "openrouter": "OPENROUTER_API_KEY"}.get(provider, "")
@@ -133,7 +135,7 @@ def classify_articles(
     categories: list[str] | None = None,
     batch_size: int = 10,
 ) -> list[dict]:
-    """Classify articles in batches. Skips entirely if API key missing or fails."""
+    """Classify articles in batches. Logs detailed errors for debugging."""
     if not articles:
         return []
 
@@ -146,9 +148,12 @@ def classify_articles(
     cats = categories or default_cats
 
     total_batches = (len(articles) + batch_size - 1) // batch_size
-    print(f"  {len(articles)} articles, batch_size={batch_size}, {total_batches} batches", flush=True)
+    print(f"  {len(articles)} articles, batch_size={batch_size}, {total_batches} batches, provider={provider}, model={model}", flush=True)
 
     classified = []
+    ok_count = 0
+    fail_count = 0
+
     for i in range(0, len(articles), batch_size):
         batch_num = i // batch_size + 1
         batch = articles[i : i + batch_size]
@@ -157,9 +162,17 @@ def classify_articles(
             for j, a in enumerate(batch):
                 if j < len(results):
                     a["classification"] = results[j]
+            ok_count += len(batch)
             print(f"  [{batch_num}/{total_batches}] OK  {len(batch)} articles", flush=True)
+        except json.JSONDecodeError as e:
+            fail_count += len(batch)
+            # log first 200 chars of raw response for debugging
+            raw = getattr(e, "doc", "") or ""
+            print(f"  [{batch_num}/{total_batches}] JSON_ERR  {e} | raw[:200]: {raw[:200]}", flush=True)
         except Exception as e:
-            print(f"  [{batch_num}/{total_batches}] SKIP  {e}", flush=True)
+            fail_count += len(batch)
+            print(f"  [{batch_num}/{total_batches}] SKIP  {type(e).__name__}: {e}", flush=True)
         classified.extend(batch)
 
+    print(f"  Summary: {ok_count} classified, {fail_count} failed", flush=True)
     return classified
