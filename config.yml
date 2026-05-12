@@ -1,0 +1,49 @@
+# RSS Aggregator Configuration
+
+# AI Provider: openai | claude
+ai:
+  provider: openai
+  model: gpt-4o-mini
+  # Set via environment variables:
+  #   OPENAI_API_KEY or ANTHROPIC_API_KEY
+
+# Classification categories
+categories:
+  - name: "AI/ML"
+    keywords: ["artificial intelligence", "machine learning", "LLM", "neural", "deep learning"]
+  - name: "Web Development"
+    keywords: ["javascript", "typescript", "react", "vue", "css", "html"]
+  - name: "Infrastructure"
+    keywords: ["kubernetes", "docker", "cloud", "aws", "gcp", "devops"]
+  - name: "Programming"
+    keywords: ["python", "rust", "golang", "algorithm", "programming"]
+  - name: "Security"
+    keywords: ["security", "vulnerability", "exploit", "CVE", "hack"]
+  - name: "Business"
+    keywords: ["startup", "funding", "IPO", "acquisition", "revenue"]
+  - name: "General Tech"
+    keywords: []
+
+# Scoring: 1-10, higher = more interesting
+scoring:
+  dimensions:
+    - name: "relevance"
+      weight: 0.3
+      description: "How relevant to current tech trends"
+    - name: "originality"
+      weight: 0.3
+      description: "Novel insights or unique perspective"
+    - name: "quality"
+      weight: 0.4
+      description: "Writing quality and depth of analysis"
+
+# Fetch settings
+fetch:
+  timeout_seconds: 15
+  max_articles_per_feed: 20
+  user_agent: "RSS-Aggregator/1.0"
+
+# Storage
+storage:
+  data_dir: "output/data"
+  keep_days: 90

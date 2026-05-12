@@ -1,0 +1,60 @@
+name: RSS Collection & Classification
+
+on:
+  schedule:
+    - cron: "0 6 * * *"  # Daily at 06:00 UTC
+  workflow_dispatch:      # Manual trigger
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run collection
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python -m src.main
+
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/data/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: daily RSS collection $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - name: Prepare Pages content
+        run: |
+          mkdir -p docs/data
+          cp -r output/data/*.json docs/data/ 2>/dev/null || true
+          # Create manifest for frontend
+          ls -1 output/data/*.json 2>/dev/null | xargs -I{} basename {} | sort -r > docs/data/manifest.txt
+
+      - name: Deploy to Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          publish_branch: gh-pages
