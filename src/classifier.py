@@ -66,7 +66,10 @@ class OpenAIClassifier(BaseClassifier):
             temperature=0.3, max_tokens=max_tokens,
             timeout=timeout,
         )
-        return resp.choices[0].message.content
+        r = resp.choices[0].message.content
+        if not r:
+            print(f"  [openrouter] empty {resp}")
+        return r
 
 
 class ClaudeClassifier(BaseClassifier):
@@ -80,7 +83,10 @@ class ClaudeClassifier(BaseClassifier):
             model=self.model, max_tokens=max_tokens, messages=messages,
             timeout=timeout,
         )
-        return resp.content[0].text
+        r = resp.content[0].text
+        if not r:
+            print(f"  [anthropic] empty {resp}")
+        return r
 
 
 class OpenRouterClassifier(BaseClassifier):
@@ -99,7 +105,10 @@ class OpenRouterClassifier(BaseClassifier):
             temperature=0.3, max_tokens=max_tokens,
             timeout=timeout,
         )
-        return resp.choices[0].message.content
+        r = resp.choices[0].message.content
+        if not r:
+            print(f"  [openrouter] empty {resp}")
+        return r
 
 
 def _check_api_key(provider: str) -> bool:
