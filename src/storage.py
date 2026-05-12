@@ -37,14 +37,14 @@ def save_daily_results(
     new_articles = data.get("articles", [])
     rows = []
     for a in new_articles:
-        c = a.get("classification", {})
+        c = a.get("classification") or {}
         author = _md_escape(a.get("author", "") or a.get("feed_title", "") or "-")
         title = _md_escape(a.get("title", ""))
         link = a.get("link", "")
-        summary = _md_escape(c.get("summary", "") or a.get("title", ""))
-        score = c.get("score", "?")
+        summary = _md_escape(c.get("summary", "") or "")
+        score = c.get("score", "—")
         if link and link not in existing_guids:
-            rows.append(f"| {author} | [{title}]({link}) | {summary} | {score} |")
+            rows.append(f"| {author} | [{title}]({link}) | {summary or '—'} | {score} |")
 
     all_rows = existing_lines + rows
 

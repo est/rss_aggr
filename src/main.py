@@ -120,7 +120,7 @@ def main():
     if removed:
         print(f"[{ts()}]   Cleaned up {removed} old files", flush=True)
 
-    output = {"articles": classified}
+    output = {"articles": new_entries}
     file_path = save_daily_results(output, data_dir)
     save_state(state)
     total = time.time() - t0
@@ -132,8 +132,9 @@ def main():
 
     print(f"[{ts()}] Total time: {total:.0f}s", flush=True)
 
-    if classified:
-        top = sorted(classified, key=lambda x: x["classification"]["score"], reverse=True)[:5]
+    scored = [a for a in new_entries if "classification" in a]
+    if scored:
+        top = sorted(scored, key=lambda x: x["classification"]["score"], reverse=True)[:5]
         print(f"\n[{ts()}] Top 5:", flush=True)
         for a in top:
             c = a["classification"]

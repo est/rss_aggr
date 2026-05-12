@@ -41,7 +41,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add output/ feeds.toml state.json
+          git add docs/ feeds.toml state.json
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
@@ -54,5 +54,5 @@ jobs:
         if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./output
+          publish_dir: ./docs
           publish_branch: gh-pages
