@@ -1,6 +1,6 @@
 """AI-powered article classification and scoring. Supports OpenAI, Claude, and OpenRouter."""
-import json
 import os
+import re
 from abc import ABC, abstractmethod
 
 
@@ -10,48 +10,83 @@ BATCH_PROMPT = """You are a blog article classifier. For each article, provide:
 3. Score: 1-10 (10 = must-read, 1 = not interesting)
 4. Summary: one-sentence summary (max 280 chars)
 
-Return ONLY a JSON array, one object per article, in the same order:
-[
-  {{"category": "...", "tags": ["t1","t2"], "score": 8, "summary": "..."}},
-  ...
-]"""
+For each article, respond in EXACTLY this format (one block per article, separated by blank lines):
+
+https://article-url
+category: xxx
+tags: t1, t2, t3
+score: 8
+summary: one sentence here
+
+Do NOT use JSON. Just plain text blocks like above."""
+
+
+def _parse_blocks(text: str) -> dict[str, dict]:
+    """Parse plain text blocks into {url: {category, tags, score, summary}}."""
+    results = {}
+    blocks = re.split(r"\n\s*\n", text.strip())
+
+    for block in blocks:
+        lines = [l.strip() for l in block.strip().splitlines() if l.strip()]
+        if not lines:
+            continue
+
+        url = lines[0].strip()
+        if not url.startswith("http"):
+            continue
+
+        info = {"category": "", "tags": [], "score": 5, "summary": ""}
+        for line in lines[1:]:
+            if line.lower().startswith("category:"):
+                info["category"] = line.split(":", 1)[1].strip()
+            elif line.lower().startswith("tags:"):
+                info["tags"] = [t.strip() for t in line.split(":", 1)[1].split(",")]
+            elif line.lower().startswith("score:"):
+                try:
+                    info["score"] = int(line.split(":", 1)[1].strip())
+                except ValueError:
+                    info["score"] = 5
+            elif line.lower().startswith("summary:"):
+                info["summary"] = line.split(":", 1)[1].strip()
+
+        results[url] = info
+    return results
 
 
 class BaseClassifier(ABC):
     BATCH_SIZE = 10
     TIMEOUT = 30
+    MAX_TOKENS = 4096
 
     @abstractmethod
     def _call_api(self, messages: list[dict], max_tokens: int, timeout: int) -> str:
         pass
 
-    def classify_batch(self, articles: list[dict], categories: list[str]) -> list[dict]:
-        """Classify multiple articles in one API call. Raises on failure."""
+    def classify_batch(self, articles: list[dict], categories: list[str]) -> dict[str, dict]:
+        """Classify articles, returns {url: classification_dict}."""
         prompt = BATCH_PROMPT.format(categories=", ".join(categories))
         items = []
-        for i, a in enumerate(articles):
+        for a in articles:
             content = (a.get("content") or "")[:1500]
-            items.append(f"[{i}] Title: {a['title']}\n{content}")
-        user_msg = "\n\n".join(items)
+            items.append(f"{a.get('link', 'unknown')}\nTitle: {a['title']}\n{content}")
+        user_msg = "\n\n---\n\n".join(items)
 
         text = self._call_api([
             {"role": "system", "content": prompt},
             {"role": "user", "content": user_msg},
-        ], max_tokens=len(articles) * 150, timeout=self.TIMEOUT)
+        ], max_tokens=self.MAX_TOKENS, timeout=self.TIMEOUT)
 
         if text is None:
-            raise ValueError("API returned None (model unavailable or rate limited?)")
+            raise ValueError("API returned None")
         text = text.strip()
         if not text:
             raise ValueError("API returned empty string")
 
+        # Strip markdown code blocks if present
         if text.startswith("```"):
             text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
 
-        results = json.loads(text)
-        if isinstance(results, dict):
-            results = list(results.values())
-        return results
+        return _parse_blocks(text)
 
 
 class OpenAIClassifier(BaseClassifier):
@@ -63,13 +98,9 @@ class OpenAIClassifier(BaseClassifier):
     def _call_api(self, messages, max_tokens, timeout):
         resp = self.client.chat.completions.create(
             model=self.model, messages=messages,
-            temperature=0.3, max_tokens=max_tokens,
-            timeout=timeout,
+            temperature=0.3, max_tokens=max_tokens, timeout=timeout,
         )
-        r = resp.choices[0].message.content
-        if not r:
-            print(f"  [openrouter] empty {resp.to_json()}")
-        return r
+        return resp.choices[0].message.content
 
 
 class ClaudeClassifier(BaseClassifier):
@@ -80,13 +111,9 @@ class ClaudeClassifier(BaseClassifier):
 
     def _call_api(self, messages, max_tokens, timeout):
         resp = self.client.messages.create(
-            model=self.model, max_tokens=max_tokens, messages=messages,
-            timeout=timeout,
+            model=self.model, max_tokens=max_tokens, messages=messages, timeout=timeout,
         )
-        r = resp.content[0].text
-        if not r:
-            print(f"  [anthropic] empty {resp.to_json()}")
-        return r
+        return resp.content[0].text
 
 
 class OpenRouterClassifier(BaseClassifier):
@@ -102,13 +129,9 @@ class OpenRouterClassifier(BaseClassifier):
     def _call_api(self, messages, max_tokens, timeout):
         resp = self.client.chat.completions.create(
             model=self.model, messages=messages,
-            temperature=0.3, max_tokens=max_tokens,
-            timeout=timeout,
+            temperature=0.3, max_tokens=max_tokens, timeout=timeout,
         )
-        r = resp.choices[0].message.content
-        if not r:
-            print(f"  [openrouter] empty {resp.to_json()}")
-        return r
+        return resp.choices[0].message.content
 
 
 def _check_api_key(provider: str) -> bool:
@@ -144,7 +167,7 @@ def classify_articles(
     categories: list[str] | None = None,
     batch_size: int = 10,
 ) -> list[dict]:
-    """Classify articles in batches. Logs detailed errors for debugging."""
+    """Classify articles in batches."""
     if not articles:
         return []
 
@@ -158,7 +181,6 @@ def classify_articles(
     total_batches = (len(articles) + batch_size - 1) // batch_size
     print(f"  {len(articles)} articles, batch_size={batch_size}, {total_batches} batches, provider={provider}, model={model}", flush=True)
 
-    classified = []
     ok_count = 0
     fail_count = 0
 
@@ -167,20 +189,19 @@ def classify_articles(
         batch = articles[i : i + batch_size]
         try:
             results = classifier.classify_batch(batch, cats)
-            for j, a in enumerate(batch):
-                if j < len(results):
-                    a["classification"] = results[j]
-            ok_count += len(batch)
-            print(f"  [{batch_num}/{total_batches}] OK  {len(batch)} articles", flush=True)
-        except json.JSONDecodeError as e:
-            fail_count += len(batch)
-            # log first 200 chars of raw response for debugging
-            raw = getattr(e, "doc", "") or ""
-            print(f"  [{batch_num}/{total_batches}] JSON_ERR  {e} | raw[:200]: {raw[:200]}", flush=True)
+            matched = 0
+            for a in batch:
+                url = a.get("link", "")
+                if url in results:
+                    a["classification"] = results[url]
+                    matched += 1
+            ok_count += matched
+            missed = len(batch) - matched
+            status = f"OK {matched}/{len(batch)}" if not missed else f"OK {matched}/{len(batch)}, {missed} unmatched"
+            print(f"  [{batch_num}/{total_batches}] {status}", flush=True)
         except Exception as e:
             fail_count += len(batch)
             print(f"  [{batch_num}/{total_batches}] SKIP  {type(e).__name__}: {e}", flush=True)
-        classified.extend(batch)
 
     print(f"  Summary: {ok_count} classified, {fail_count} failed", flush=True)
-    return classified
+    return articles
