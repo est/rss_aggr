@@ -27,25 +27,36 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Sync external feed lists
-        run: python -m src.sync
+      - name: Sync feeds
+        run: python -m src.main --sync
 
-      - name: Run collection
+      - name: Commit feeds
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add feeds.toml
+          git diff --cached --quiet || git commit -m "chore: sync feeds $(date -u +%Y-%m-%d)" && git push
+
+      - name: Fetch RSS
+        run: python -m src.main --fetch
+
+      - name: Classify articles
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: python -m src.main
+        run: python -m src.main --classify
 
-      - name: Commit results
+      - name: Save & deploy
         run: |
+          python -m src.main --save
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add output/ feeds.toml state.json
+          git add output/ state.json
           if git diff --cached --quiet; then
-            echo "No changes to commit"
+            echo "No changes"
           else
-            git commit -m "chore: daily RSS collection $(date -u +%Y-%m-%d)"
+            git commit -m "chore: RSS collection $(date -u +%Y-%m-%d)"
             git push
           fi
 
