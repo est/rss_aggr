@@ -2,8 +2,8 @@
 
 # AI Provider: openai | claude | openrouter
 [ai]
-provider = "openai"
-model = "gpt-4o-mini"
+provider = "openrouter"
+model = "nvidia/nemotron-3-nano-30b-a3b:free"
 # Set via environment variables:
 #   OPENAI_API_KEY, ANTHROPIC_API_KEY, or OPENROUTER_API_KEY
 
@@ -11,7 +11,7 @@ model = "gpt-4o-mini"
 [fetch]
 timeout_seconds = 15
 max_articles_per_feed = 20
-user_agent = "RSS-Aggregator/1.0"
+user_agent = "rss_aggr/1.0 (https://github.com/est/rss_aggr/)"
 
 # Limits: control per-run scope (0 = no limit)
 [limits]
