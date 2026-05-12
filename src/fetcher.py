@@ -16,10 +16,11 @@ def fetch_feed(feed_info: dict, timeout: int = None, max_articles: int = 20) -> 
         resp = requests.get(
             feed_info["xml_url"],
             timeout=timeout,
-            headers={"User-Agent": "RSS-Aggregator/1.0"},
+            headers={"User-Agent": "rss_aggr/1.0"},
         )
         resp.raise_for_status()
-        parsed = feedparser.parse(resp.content)
+        resp.encoding = resp.apparent_encoding or resp.encoding or "utf-8"
+        parsed = feedparser.parse(resp.text)
     except Exception as e:
         return {
             "feed": feed_info,
