@@ -19,13 +19,14 @@ Return ONLY a JSON array, one object per article, in the same order:
 
 class BaseClassifier(ABC):
     BATCH_SIZE = 10
+    TIMEOUT = 30
 
     @abstractmethod
-    def _call_api(self, messages: list[dict], max_tokens: int) -> str:
+    def _call_api(self, messages: list[dict], max_tokens: int, timeout: int) -> str:
         pass
 
     def classify_batch(self, articles: list[dict], categories: list[str]) -> list[dict]:
-        """Classify multiple articles in one API call."""
+        """Classify multiple articles in one API call. Raises on failure."""
         prompt = BATCH_PROMPT.format(categories=", ".join(categories))
         items = []
         for i, a in enumerate(articles):
@@ -36,9 +37,8 @@ class BaseClassifier(ABC):
         text = self._call_api([
             {"role": "system", "content": prompt},
             {"role": "user", "content": user_msg},
-        ], max_tokens=len(articles) * 150)
+        ], max_tokens=len(articles) * 150, timeout=self.TIMEOUT)
 
-        # Parse JSON array, handle markdown code blocks
         text = text.strip()
         if text.startswith("```"):
             text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
@@ -52,13 +52,14 @@ class BaseClassifier(ABC):
 class OpenAIClassifier(BaseClassifier):
     def __init__(self, model: str = "gpt-4o-mini"):
         from openai import OpenAI
-        self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+        self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"), timeout=self.TIMEOUT)
         self.model = model
 
-    def _call_api(self, messages, max_tokens):
+    def _call_api(self, messages, max_tokens, timeout):
         resp = self.client.chat.completions.create(
             model=self.model, messages=messages,
             temperature=0.3, max_tokens=max_tokens,
+            timeout=timeout,
         )
         return resp.choices[0].message.content
 
@@ -66,12 +67,13 @@ class OpenAIClassifier(BaseClassifier):
 class ClaudeClassifier(BaseClassifier):
     def __init__(self, model: str = "claude-3-haiku-20240307"):
         import anthropic
-        self.client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+        self.client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"), timeout=self.TIMEOUT)
         self.model = model
 
-    def _call_api(self, messages, max_tokens):
+    def _call_api(self, messages, max_tokens, timeout):
         resp = self.client.messages.create(
             model=self.model, max_tokens=max_tokens, messages=messages,
+            timeout=timeout,
         )
         return resp.content[0].text
 
@@ -82,13 +84,15 @@ class OpenRouterClassifier(BaseClassifier):
         self.client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=os.environ.get("OPENROUTER_API_KEY"),
+            timeout=self.TIMEOUT,
         )
         self.model = model
 
-    def _call_api(self, messages, max_tokens):
+    def _call_api(self, messages, max_tokens, timeout):
         resp = self.client.chat.completions.create(
             model=self.model, messages=messages,
             temperature=0.3, max_tokens=max_tokens,
+            timeout=timeout,
         )
         return resp.choices[0].message.content
 
@@ -111,7 +115,7 @@ def classify_articles(
     categories: list[str] | None = None,
     batch_size: int = 10,
 ) -> list[dict]:
-    """Classify articles in batches."""
+    """Classify articles in batches. Failed articles get no classification."""
     if not articles:
         return []
 
@@ -120,30 +124,21 @@ def classify_articles(
     cats = categories or default_cats
     classifier = get_classifier(provider, model)
 
+    total_batches = (len(articles) + batch_size - 1) // batch_size
+    print(f"  {len(articles)} articles, batch_size={batch_size}, {total_batches} batches", flush=True)
+
     classified = []
     for i in range(0, len(articles), batch_size):
+        batch_num = i // batch_size + 1
         batch = articles[i : i + batch_size]
         try:
             results = classifier.classify_batch(batch, cats)
             for j, a in enumerate(batch):
                 if j < len(results):
                     a["classification"] = results[j]
-                else:
-                    a["classification"] = _fallback(a)
+            print(f"  [{batch_num}/{total_batches}] OK  {len(batch)} articles", flush=True)
         except Exception as e:
-            print(f"  Batch {i//batch_size + 1} failed: {e}")
-            for a in batch:
-                a["classification"] = _fallback(a, str(e))
+            print(f"  [{batch_num}/{total_batches}] SKIP  {e}", flush=True)
         classified.extend(batch)
 
     return classified
-
-
-def _fallback(article: dict, error: str = "") -> dict:
-    return {
-        "category": "Unclassified",
-        "tags": [],
-        "score": 5,
-        "summary": article.get("title", ""),
-        "reasoning": f"Classification failed: {error}" if error else "",
-    }

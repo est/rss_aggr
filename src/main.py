@@ -1,4 +1,6 @@
 """Main entry point: orchestrate fetch → classify → store."""
+import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 try:
@@ -14,12 +16,17 @@ from src.storage import save_daily_results, load_seen_guids, cleanup_old_data
 from src.state import load_state, save_state, mark_fed, mark_failed, get_due_feeds, prioritize_feeds
 
 
+def ts():
+    return datetime.now(timezone.utc).strftime("%H:%M:%S")
+
+
 def load_config(path: str = "config.toml") -> dict:
     with open(path, "rb") as f:
         return tomllib.load(f)
 
 
 def main():
+    t0 = time.time()
     config = load_config()
     fetch_cfg = config.get("fetch", {})
     ai_cfg = config.get("ai", {})
@@ -30,30 +37,29 @@ def main():
     max_articles = config.get("limits", {}).get("max_articles", 0)
     fetch_interval = config.get("limits", {}).get("fetch_interval_hours", 24)
 
-    # 1. Parse feeds
-    print("[1/5] Parsing feeds config...")
+    print(f"[{ts()}] [1/5] Parsing feeds config...", flush=True)
     all_feeds = parse_feeds("feeds.toml")
-    print(f"  Total: {len(all_feeds)} feeds")
+    print(f"[{ts()}]   Total: {len(all_feeds)} feeds", flush=True)
 
-    # 2. Load state, filter due feeds, apply priority
     state = load_state()
     due_feeds = get_due_feeds(all_feeds, state, fetch_interval)
     due_feeds = prioritize_feeds(due_feeds)
     if max_feeds > 0:
         due_feeds = due_feeds[:max_feeds]
-    print(f"  Due for fetch: {len(due_feeds)} (interval={fetch_interval}h, limit={max_feeds or 'none'})")
+    print(f"[{ts()}]   Due: {len(due_feeds)} (interval={fetch_interval}h, limit={max_feeds or 'none'})", flush=True)
 
     if not due_feeds:
-        print("  No feeds to process, exiting")
+        print(f"[{ts()}] No feeds to process, exiting", flush=True)
         return
 
-    # 3. Check aliveness & fetch
-    print("[2/5] Checking aliveness & fetching...")
+    print(f"\n[{ts()}] [2/5] Fetching RSS...", flush=True)
+    t1 = time.time()
     results = fetch_all_feeds(
         due_feeds,
         timeout=fetch_cfg.get("timeout_seconds", 15),
         max_articles=fetch_cfg.get("max_articles_per_feed", 20),
     )
+    elapsed = time.time() - t1
 
     all_entries = []
     for r in results:
@@ -63,47 +69,48 @@ def main():
             all_entries.extend(r["entries"])
         else:
             mark_failed(state, url, r.get("error", "unknown"))
-    print(f"  Fetched {len(all_entries)} entries from {len(results)} feeds")
+    print(f"[{ts()}]   Done ({elapsed:.0f}s): {len(all_entries)} entries from {len(results)} feeds\n", flush=True)
 
-    # 4. Dedup
-    print("[3/5] Filtering new articles...")
+    print(f"[{ts()}] [3/5] Filtering new articles...", flush=True)
     seen_links = load_seen_guids(data_dir)
     new_entries = [e for e in all_entries if e.get("link") not in seen_links]
     if max_articles > 0:
         new_entries = new_entries[:max_articles]
-    print(f"  {len(new_entries)} new articles (limit={max_articles or 'none'})")
+    print(f"[{ts()}]   {len(new_entries)} new (skipped {len(all_entries) - len(new_entries)} seen)\n", flush=True)
 
-    # 5. Classify
-    print("[4/5] Classifying articles with AI...")
+    print(f"[{ts()}] [4/5] Classifying with AI...", flush=True)
     if not new_entries:
-        print("  No new articles to classify")
+        print(f"[{ts()}]   No new articles to classify", flush=True)
     else:
+        t2 = time.time()
         new_entries = classify_articles(
             new_entries,
             provider=ai_cfg.get("provider", "openai"),
             model=ai_cfg.get("model"),
             categories=categories,
         )
+        elapsed = time.time() - t2
         avg_score = sum(e["classification"]["score"] for e in new_entries) / len(new_entries)
-        print(f"  Classified {len(new_entries)} articles, avg score: {avg_score:.1f}")
+        print(f"[{ts()}]   Done ({elapsed:.0f}s): avg score {avg_score:.1f}\n", flush=True)
 
-    # 6. Save
     removed = cleanup_old_data(data_dir, keep_days)
     if removed:
-        print(f"  Cleaned up {removed} old files")
+        print(f"[{ts()}]   Cleaned up {removed} old files", flush=True)
 
     output = {"articles": new_entries}
     file_path = save_daily_results(output, data_dir)
     save_state(state)
-    print(f"\nSaved to {file_path} + state.json updated")
+    total = time.time() - t0
+    print(f"\n[{ts()}] [5/5] Saved to {file_path}", flush=True)
+    print(f"[{ts()}] Total time: {total:.0f}s", flush=True)
 
     if new_entries:
         top = sorted(new_entries, key=lambda x: x["classification"]["score"], reverse=True)[:5]
-        print("\nTop 5:")
+        print(f"\n[{ts()}] Top 5:", flush=True)
         for a in top:
             c = a["classification"]
-            print(f"  [{c['score']}/10] {a['title']}")
-            print(f"         {c.get('summary', '')}")
+            print(f"  [{c['score']}/10] {a['title']}", flush=True)
+            print(f"         {c.get('summary', '')}", flush=True)
             print()
 
 

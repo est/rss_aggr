@@ -70,13 +70,30 @@ def fetch_feed(feed_info: dict, timeout: int = None, max_articles: int = 20) -> 
 
 
 def fetch_all_feeds(feeds: list[dict], timeout: int = 15, max_articles: int = 20) -> list[dict]:
-    """Fetch all feeds in parallel."""
+    """Fetch all feeds in parallel with progress logging."""
+    total = len(feeds)
+    done = 0
+    ok = 0
+    err = 0
     results = []
+    print(f"  Starting {total} feeds (10 workers)...", flush=True)
+
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = {
             executor.submit(fetch_feed, f, timeout, max_articles): f
             for f in feeds
         }
         for future in as_completed(futures):
-            results.append(future.result())
+            r = future.result()
+            results.append(r)
+            done += 1
+            if r["status"] == "ok":
+                ok += 1
+                n = len(r["entries"])
+                print(f"  [{done}/{total}] OK  {r['feed']['title']} ({n} entries)", flush=True)
+            else:
+                err += 1
+                print(f"  [{done}/{total}] ERR {r['feed']['title']}: {r.get('error', '')[:60]}", flush=True)
+
+    print(f"  Fetch done: {ok} ok, {err} errors", flush=True)
     return results
