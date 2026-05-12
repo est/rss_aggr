@@ -4,11 +4,11 @@ import os
 from abc import ABC, abstractmethod
 
 
-CLASSIFICATION_PROMPT = """You are a tech article classifier. Given an article's title and content snippet, provide:
+CLASSIFICATION_PROMPT = """You are a blog article classifier. Given an article's title and content snippet, provide:
 1. Category: one of {categories}
 2. Tags: 3-5 relevant tags
 3. Score: 1-10 (10 = must-read, 1 = not interesting)
-4. Summary: one-sentence summary (max 100 chars)
+4. Summary: one-sentence summary (max 280 chars)
 5. Reasoning: brief explanation for the score
 
 Return ONLY valid JSON in this format:
@@ -22,6 +22,8 @@ Return ONLY valid JSON in this format:
 
 
 class BaseClassifier(ABC):
+    MAX_TOKENS = 500
+
     @abstractmethod
     def classify(self, title: str, content: str, categories: list[str]) -> dict:
         pass
@@ -44,7 +46,7 @@ class OpenAIClassifier(BaseClassifier):
                 {"role": "user", "content": user_msg},
             ],
             temperature=0.3,
-            max_tokens=300,
+            max_tokens=self.MAX_TOKENS,
         )
         text = resp.choices[0].message.content.strip()
         return json.loads(text)
@@ -62,7 +64,7 @@ class ClaudeClassifier(BaseClassifier):
 
         resp = self.client.messages.create(
             model=self.model,
-            max_tokens=300,
+            max_tokens=self.MAX_TOKENS,
             messages=[{"role": "user", "content": f"{prompt}\n\n{user_msg}"}],
         )
         text = resp.content[0].text.strip()
@@ -70,7 +72,7 @@ class ClaudeClassifier(BaseClassifier):
 
 
 class OpenRouterClassifier(BaseClassifier):
-    def __init__(self, model: str = "google/gemma-3-1b-it:free"):
+    def __init__(self, model: str = "nvidia/nemotron-3-nano-30b-a3b:free"):
         from openai import OpenAI
         self.client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
@@ -89,7 +91,7 @@ class OpenRouterClassifier(BaseClassifier):
                 {"role": "user", "content": user_msg},
             ],
             temperature=0.3,
-            max_tokens=300,
+            max_tokens=self.MAX_TOKENS,
         )
         text = resp.choices[0].message.content.strip()
         return json.loads(text)
