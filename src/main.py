@@ -13,7 +13,7 @@ from src.fetcher import fetch_all_feeds
 from src.aliveness import check_all_feeds
 from src.classifier import classify_articles
 from src.storage import save_daily_results, load_seen_guids, cleanup_old_data
-from src.state import load_state, save_state, mark_fed, mark_failed, get_due_feeds, prioritize_feeds
+from src.state import load_state, save_state, mark_fed, mark_failed, get_due_feeds, prioritize_feeds, disable_stats
 
 
 def ts():
@@ -36,17 +36,18 @@ def main():
     max_feeds = config.get("limits", {}).get("max_feeds", 0)
     max_articles = config.get("limits", {}).get("max_articles", 0)
     fetch_interval = config.get("limits", {}).get("fetch_interval_hours", 24)
+    max_failures = config.get("limits", {}).get("disable_after_failures", 3)
 
     print(f"[{ts()}] [1/5] Parsing feeds config...", flush=True)
     all_feeds = parse_feeds("feeds.toml")
     print(f"[{ts()}]   Total: {len(all_feeds)} feeds", flush=True)
 
     state = load_state()
-    due_feeds = get_due_feeds(all_feeds, state, fetch_interval)
+    due_feeds = get_due_feeds(all_feeds, state, fetch_interval, max_failures)
     due_feeds = prioritize_feeds(due_feeds)
     if max_feeds > 0:
         due_feeds = due_feeds[:max_feeds]
-    print(f"[{ts()}]   Due: {len(due_feeds)} (interval={fetch_interval}h, limit={max_feeds or 'none'})", flush=True)
+    print(f"[{ts()}]   Due: {len(due_feeds)} (interval={fetch_interval}h, limit={max_feeds or 'none'}, disable_after={max_failures} failures)", flush=True)
 
     if not due_feeds:
         print(f"[{ts()}] No feeds to process, exiting", flush=True)
@@ -108,6 +109,11 @@ def main():
     save_state(state)
     total = time.time() - t0
     print(f"\n[{ts()}] [5/5] Saved to {file_path}", flush=True)
+
+    stats = disable_stats(state)
+    if stats["disabled"] or stats["failing"]:
+        print(f"[{ts()}]   Feeds: {stats['total']} total, {stats['disabled']} disabled, {stats['failing']} failing", flush=True)
+
     print(f"[{ts()}] Total time: {total:.0f}s", flush=True)
 
     if classified:

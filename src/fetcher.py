@@ -93,7 +93,7 @@ def fetch_all_feeds(feeds: list[dict], timeout: int = 15, max_articles: int = 20
                 print(f"  [{done}/{total}] OK  {r['feed']['title']} ({n} entries)", flush=True)
             else:
                 err += 1
-                print(f"  [{done}/{total}] ERR {r['feed']['title']}: {r.get('error', '')[:60]}", flush=True)
+                print(f"  [{done}/{total}] ERR {r['feed']['title']}: {r.get('error', '')[:100]}", flush=True)
 
     print(f"  Fetch done: {ok} ok, {err} errors", flush=True)
     return results

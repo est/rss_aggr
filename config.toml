@@ -18,6 +18,7 @@ user_agent = "rss_aggr/1.0 (https://github.com/est/rss_aggr/)"
 max_feeds = 0          # max feeds to fetch per run
 max_articles = 0       # max articles to classify per run
 fetch_interval_hours = 24  # skip feeds fetched within this window
+disable_after_failures = 3 # auto-disable feed after N consecutive failures
 
 # Storage
 [storage]
