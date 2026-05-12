@@ -4,29 +4,49 @@ import os
 from abc import ABC, abstractmethod
 
 
-CLASSIFICATION_PROMPT = """You are a blog article classifier. Given an article's title and content snippet, provide:
+BATCH_PROMPT = """You are a blog article classifier. For each article, provide:
 1. Category: one of {categories}
 2. Tags: 3-5 relevant tags
 3. Score: 1-10 (10 = must-read, 1 = not interesting)
 4. Summary: one-sentence summary (max 280 chars)
-5. Reasoning: brief explanation for the score
 
-Return ONLY valid JSON in this format:
-{{
-  "category": "...",
-  "tags": ["tag1", "tag2"],
-  "score": 8,
-  "summary": "...",
-  "reasoning": "..."
-}}"""
+Return ONLY a JSON array, one object per article, in the same order:
+[
+  {{"category": "...", "tags": ["t1","t2"], "score": 8, "summary": "..."}},
+  ...
+]"""
 
 
 class BaseClassifier(ABC):
-    MAX_TOKENS = 500
+    BATCH_SIZE = 10
 
     @abstractmethod
-    def classify(self, title: str, content: str, categories: list[str]) -> dict:
+    def _call_api(self, messages: list[dict], max_tokens: int) -> str:
         pass
+
+    def classify_batch(self, articles: list[dict], categories: list[str]) -> list[dict]:
+        """Classify multiple articles in one API call."""
+        prompt = BATCH_PROMPT.format(categories=", ".join(categories))
+        items = []
+        for i, a in enumerate(articles):
+            content = (a.get("content") or "")[:1500]
+            items.append(f"[{i}] Title: {a['title']}\n{content}")
+        user_msg = "\n\n".join(items)
+
+        text = self._call_api([
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": user_msg},
+        ], max_tokens=len(articles) * 150)
+
+        # Parse JSON array, handle markdown code blocks
+        text = text.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+
+        results = json.loads(text)
+        if isinstance(results, dict):
+            results = list(results.values())
+        return results
 
 
 class OpenAIClassifier(BaseClassifier):
@@ -35,21 +55,12 @@ class OpenAIClassifier(BaseClassifier):
         self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
         self.model = model
 
-    def classify(self, title: str, content: str, categories: list[str]) -> dict:
-        prompt = CLASSIFICATION_PROMPT.format(categories=", ".join(categories))
-        user_msg = f"Title: {title}\n\nContent: {content[:2000]}"
-
+    def _call_api(self, messages, max_tokens):
         resp = self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": user_msg},
-            ],
-            temperature=0.3,
-            max_tokens=self.MAX_TOKENS,
+            model=self.model, messages=messages,
+            temperature=0.3, max_tokens=max_tokens,
         )
-        text = resp.choices[0].message.content.strip()
-        return json.loads(text)
+        return resp.choices[0].message.content
 
 
 class ClaudeClassifier(BaseClassifier):
@@ -58,17 +69,11 @@ class ClaudeClassifier(BaseClassifier):
         self.client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
         self.model = model
 
-    def classify(self, title: str, content: str, categories: list[str]) -> dict:
-        prompt = CLASSIFICATION_PROMPT.format(categories=", ".join(categories))
-        user_msg = f"Title: {title}\n\nContent: {content[:2000]}"
-
+    def _call_api(self, messages, max_tokens):
         resp = self.client.messages.create(
-            model=self.model,
-            max_tokens=self.MAX_TOKENS,
-            messages=[{"role": "user", "content": f"{prompt}\n\n{user_msg}"}],
+            model=self.model, max_tokens=max_tokens, messages=messages,
         )
-        text = resp.content[0].text.strip()
-        return json.loads(text)
+        return resp.content[0].text
 
 
 class OpenRouterClassifier(BaseClassifier):
@@ -80,31 +85,21 @@ class OpenRouterClassifier(BaseClassifier):
         )
         self.model = model
 
-    def classify(self, title: str, content: str, categories: list[str]) -> dict:
-        prompt = CLASSIFICATION_PROMPT.format(categories=", ".join(categories))
-        user_msg = f"Title: {title}\n\nContent: {content[:2000]}"
-
+    def _call_api(self, messages, max_tokens):
         resp = self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": user_msg},
-            ],
-            temperature=0.3,
-            max_tokens=self.MAX_TOKENS,
+            model=self.model, messages=messages,
+            temperature=0.3, max_tokens=max_tokens,
         )
-        text = resp.choices[0].message.content.strip()
-        return json.loads(text)
+        return resp.choices[0].message.content
 
 
 def get_classifier(provider: str = "openai", model: str | None = None) -> BaseClassifier:
-    """Factory to get the appropriate classifier."""
     if provider == "openai":
         return OpenAIClassifier(model=model or "gpt-4o-mini")
     elif provider == "claude":
         return ClaudeClassifier(model=model or "claude-3-haiku-20240307")
     elif provider == "openrouter":
-        return OpenRouterClassifier(model=model or "google/gemma-3-1b-it:free")
+        return OpenRouterClassifier(model=model or "nvidia/nemotron-3-nano-30b-a3b:free")
     else:
         raise ValueError(f"Unknown provider: {provider}")
 
@@ -114,8 +109,9 @@ def classify_articles(
     provider: str = "openai",
     model: str | None = None,
     categories: list[str] | None = None,
+    batch_size: int = 10,
 ) -> list[dict]:
-    """Classify a batch of articles, returning enriched versions."""
+    """Classify articles in batches."""
     if not articles:
         return []
 
@@ -125,18 +121,29 @@ def classify_articles(
     classifier = get_classifier(provider, model)
 
     classified = []
-    for article in articles:
+    for i in range(0, len(articles), batch_size):
+        batch = articles[i : i + batch_size]
         try:
-            result = classifier.classify(article["title"], article["content"], cats)
-            article["classification"] = result
+            results = classifier.classify_batch(batch, cats)
+            for j, a in enumerate(batch):
+                if j < len(results):
+                    a["classification"] = results[j]
+                else:
+                    a["classification"] = _fallback(a)
         except Exception as e:
-            article["classification"] = {
-                "category": "Unclassified",
-                "tags": [],
-                "score": 5,
-                "summary": article.get("title", ""),
-                "reasoning": f"Classification failed: {e}",
-            }
-        classified.append(article)
+            print(f"  Batch {i//batch_size + 1} failed: {e}")
+            for a in batch:
+                a["classification"] = _fallback(a, str(e))
+        classified.extend(batch)
 
     return classified
+
+
+def _fallback(article: dict, error: str = "") -> dict:
+    return {
+        "category": "Unclassified",
+        "tags": [],
+        "score": 5,
+        "summary": article.get("title", ""),
+        "reasoning": f"Classification failed: {error}" if error else "",
+    }

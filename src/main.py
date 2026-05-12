@@ -1,5 +1,4 @@
 """Main entry point: orchestrate fetch → classify → store."""
-import sys
 from pathlib import Path
 
 try:
@@ -12,6 +11,7 @@ from src.fetcher import fetch_all_feeds
 from src.aliveness import check_all_feeds
 from src.classifier import classify_articles
 from src.storage import save_daily_results, load_seen_guids, cleanup_old_data
+from src.state import load_state, save_state, mark_fed, mark_failed, get_due_feeds, prioritize_feeds
 
 
 def load_config(path: str = "config.toml") -> dict:
@@ -26,34 +26,55 @@ def main():
     categories = [c["name"] for c in config.get("category", [])]
     data_dir = config.get("storage", {}).get("data_dir", "output")
     keep_days = config.get("storage", {}).get("keep_days", 90)
+    max_feeds = config.get("limits", {}).get("max_feeds", 0)
+    max_articles = config.get("limits", {}).get("max_articles", 0)
+    fetch_interval = config.get("limits", {}).get("fetch_interval_hours", 24)
 
+    # 1. Parse feeds
     print("[1/5] Parsing feeds config...")
-    feeds = parse_feeds("feeds.toml")
-    print(f"  Found {len(feeds)} feeds")
+    all_feeds = parse_feeds("feeds.toml")
+    print(f"  Total: {len(all_feeds)} feeds")
 
-    print("[2/5] Checking feed aliveness...")
-    health = check_all_feeds(feeds, timeout=fetch_cfg.get("timeout_seconds", 15))
-    alive_count = sum(1 for h in health if h["status"] == "alive")
-    print(f"  {alive_count}/{len(feeds)} feeds alive")
+    # 2. Load state, filter due feeds, apply priority
+    state = load_state()
+    due_feeds = get_due_feeds(all_feeds, state, fetch_interval)
+    due_feeds = prioritize_feeds(due_feeds)
+    if max_feeds > 0:
+        due_feeds = due_feeds[:max_feeds]
+    print(f"  Due for fetch: {len(due_feeds)} (interval={fetch_interval}h, limit={max_feeds or 'none'})")
 
-    print("[3/5] Fetching RSS entries...")
+    if not due_feeds:
+        print("  No feeds to process, exiting")
+        return
+
+    # 3. Check aliveness & fetch
+    print("[2/5] Checking aliveness & fetching...")
     results = fetch_all_feeds(
-        feeds,
+        due_feeds,
         timeout=fetch_cfg.get("timeout_seconds", 15),
         max_articles=fetch_cfg.get("max_articles_per_feed", 20),
     )
+
     all_entries = []
     for r in results:
+        url = r["feed"]["xml_url"]
         if r["status"] == "ok":
+            mark_fed(state, url)
             all_entries.extend(r["entries"])
-    print(f"  Fetched {len(all_entries)} entries total")
+        else:
+            mark_failed(state, url, r.get("error", "unknown"))
+    print(f"  Fetched {len(all_entries)} entries from {len(results)} feeds")
 
-    print("[4/5] Filtering new articles...")
+    # 4. Dedup
+    print("[3/5] Filtering new articles...")
     seen_links = load_seen_guids(data_dir)
     new_entries = [e for e in all_entries if e.get("link") not in seen_links]
-    print(f"  {len(new_entries)} new articles (skipped {len(all_entries) - len(new_entries)} seen)")
+    if max_articles > 0:
+        new_entries = new_entries[:max_articles]
+    print(f"  {len(new_entries)} new articles (limit={max_articles or 'none'})")
 
-    print("[5/5] Classifying articles with AI...")
+    # 5. Classify
+    print("[4/5] Classifying articles with AI...")
     if not new_entries:
         print("  No new articles to classify")
     else:
@@ -63,18 +84,18 @@ def main():
             model=ai_cfg.get("model"),
             categories=categories,
         )
-        avg_score = sum(
-            e["classification"]["score"] for e in new_entries
-        ) / len(new_entries)
+        avg_score = sum(e["classification"]["score"] for e in new_entries) / len(new_entries)
         print(f"  Classified {len(new_entries)} articles, avg score: {avg_score:.1f}")
 
+    # 6. Save
     removed = cleanup_old_data(data_dir, keep_days)
     if removed:
-        print(f"  Cleaned up {removed} old files (keep_days={keep_days})")
+        print(f"  Cleaned up {removed} old files")
 
     output = {"articles": new_entries}
     file_path = save_daily_results(output, data_dir)
-    print(f"\nSaved to {file_path}")
+    save_state(state)
+    print(f"\nSaved to {file_path} + state.json updated")
 
     if new_entries:
         top = sorted(new_entries, key=lambda x: x["classification"]["score"], reverse=True)[:5]

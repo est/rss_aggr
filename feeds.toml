@@ -5,16 +5,19 @@ name = "Tech News"
 title = "Hacker News"
 url = "https://hnrss.org/frontpage"
 site = "https://news.ycombinator.com"
+priority = 1
 
 [[category.feed]]
 title = "TechCrunch"
 url = "https://techcrunch.com/feed/"
 site = "https://techcrunch.com"
+priority = 1
 
 [[category.feed]]
 title = "The Verge"
 url = "https://www.theverge.com/rss/index.xml"
 site = "https://www.theverge.com"
+priority = 2
 
 [[category]]
 name = "AI"
@@ -23,11 +26,13 @@ name = "AI"
 title = "OpenAI Blog"
 url = "https://openai.com/blog/rss.xml"
 site = "https://openai.com/blog"
+priority = 1
 
 [[category.feed]]
 title = "Anthropic"
 url = "https://www.anthropic.com/rss.xml"
 site = "https://www.anthropic.com"
+priority = 1
 
 [[category]]
 name = "Blogs"

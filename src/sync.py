@@ -105,6 +105,8 @@ def save_feeds_toml(data: dict, path: Path):
             lines.append(f'url = "{feed["url"]}"')
             if feed.get("site"):
                 lines.append(f'site = "{feed["site"]}"')
+            if feed.get("priority"):
+                lines.append(f'priority = {feed["priority"]}')
             lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")
 
@@ -144,6 +146,7 @@ def sync(sources_path: str = "sources.toml", feeds_path: str = "feeds.toml"):
                 "title": f["title"],
                 "url": f["url"],
                 "site": f.get("site", ""),
+                "priority": source.get("priority", 10),
             })
             total_new += 1
 

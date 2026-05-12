@@ -13,6 +13,12 @@ timeout_seconds = 15
 max_articles_per_feed = 20
 user_agent = "RSS-Aggregator/1.0"
 
+# Limits: control per-run scope (0 = no limit)
+[limits]
+max_feeds = 0          # max feeds to fetch per run
+max_articles = 0       # max articles to classify per run
+fetch_interval_hours = 24  # skip feeds fetched within this window
+
 # Storage
 [storage]
 data_dir = "output"
