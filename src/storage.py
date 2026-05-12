@@ -4,67 +4,116 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 
+KEEP_DAYS = 7
+
+
 def _md_escape(text: str) -> str:
-    """Escape pipes and newlines for markdown table cells."""
     return text.replace("|", "\\|").replace("\n", " ").replace("\r", "")
+
+
+def _parse_published(published: str) -> datetime | None:
+    """Parse published date string to datetime."""
+    if not published:
+        return None
+    for fmt in ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%M:%S%z", "%Y-%m-%d"):
+        try:
+            dt = datetime.strptime(published, fmt)
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt
+        except ValueError:
+            continue
+    return None
+
+
+def _article_date(article: dict) -> datetime | None:
+    """Get the publish date of an article."""
+    return _parse_published(article.get("published", ""))
 
 
 def save_daily_results(
     data: dict,
-    data_dir: str = "docs",
-) -> Path:
-    """Save articles as YYYY/MMDD.md markdown table. Appends on same-day re-runs."""
+    data_dir: str = "output",
+) -> list[Path]:
+    """Save articles grouped by their published date. Returns list of written files."""
     now = datetime.now(timezone.utc)
-    yyyy = now.strftime("%Y")
-    mmdd = now.strftime("%m%d")
+    cutoff_old = now - timedelta(days=KEEP_DAYS)
+    written = []
 
-    path = Path(data_dir) / yyyy
-    path.mkdir(parents=True, exist_ok=True)
-    file_path = path / f"{mmdd}.md"
+    # Group valid articles by date
+    by_date: dict[str, list[dict]] = {}
+    skipped = 0
+    for a in data.get("articles", []):
+        dt = _article_date(a)
+        if dt is None:
+            skipped += 1
+            continue
+        if dt < cutoff_old:
+            skipped += 1
+            continue
+        if dt > now + timedelta(hours=1):
+            skipped += 1
+            continue
+        key = dt.strftime("%Y/%m%d")
+        by_date.setdefault(key, []).append(a)
 
-    existing_guids = set()
-    existing_lines = []
-    if file_path.exists():
-        content = file_path.read_text(encoding="utf-8")
-        for line in content.splitlines():
-            if line.startswith("|") and not line.startswith("|--") and not line.startswith("| Author"):
-                existing_lines.append(line)
-                m = re.search(r"\]\(([^)]+)\)", line)
-                if m:
-                    existing_guids.add(m.group(1))
+    if skipped:
+        print(f"  Skipped {skipped} articles (no date / >{KEEP_DAYS}d old / future)", flush=True)
 
-    new_articles = data.get("articles", [])
-    rows = []
-    for a in new_articles:
-        c = a.get("classification") or {}
-        author = _md_escape(a.get("author", "") or a.get("feed_title", "") or "-")
-        title = _md_escape(a.get("title", ""))
-        link = a.get("link", "")
-        summary = _md_escape(c.get("summary", "") or "")
-        score = c.get("score", "—")
-        if link and link not in existing_guids:
-            rows.append(f"| {author} | [{title}]({link}) | {summary or '—'} | {score} |")
+    for key, articles in by_date.items():
+        yyyy, mmdd = key.split("/")
+        path = Path(data_dir) / yyyy
+        path.mkdir(parents=True, exist_ok=True)
+        file_path = path / f"{mmdd}.md"
 
-    all_rows = existing_lines + rows
+        existing_guids = set()
+        existing_lines = []
+        if file_path.exists():
+            content = file_path.read_text(encoding="utf-8")
+            for line in content.splitlines():
+                if line.startswith("|") and not line.startswith("|--") and not line.startswith("| Author"):
+                    existing_lines.append(line)
+                    m = re.search(r"\]\(([^)]+)\)", line)
+                    if m:
+                        existing_guids.add(m.group(1))
 
-    lines = [
-        f"# {now.strftime('%Y-%m-%d')}",
-        "",
-        f"> {len(all_rows)} articles | updated {now.strftime('%H:%M UTC')}",
-        "",
-        "| Author | Title | Summary | Score |",
-        "|--------|-------|---------|-------|",
-    ]
-    lines.extend(all_rows)
-    lines.append("")
+        new_rows = []
+        for a in articles:
+            c = a.get("classification") or {}
+            author = _md_escape(a.get("author", "") or a.get("feed_title", "") or "-")
+            title = _md_escape(a.get("title", ""))
+            link = a.get("link", "")
+            summary = _md_escape(c.get("summary", "") or "")
+            score = c.get("score", "—")
+            if link and link not in existing_guids:
+                new_rows.append(f"| {author} | [{title}]({link}) | {summary or '—'} | {score} |")
 
-    file_path.write_text("\n".join(lines), encoding="utf-8")
+        all_rows = existing_lines + new_rows
+        if not all_rows:
+            continue
+
+        dt = _parse_published(f"{yyyy}-{mmdd[:2]}-{mmdd[2:]}T00:00:00Z")
+        display_date = dt.strftime("%Y-%m-%d") if dt else key
+
+        lines = [
+            f"# {display_date}",
+            "",
+            f"> {len(all_rows)} articles",
+            "",
+            "| Author | Title | Summary | Score |",
+            "|--------|-------|---------|-------|",
+        ]
+        lines.extend(all_rows)
+        lines.append("")
+
+        file_path.write_text("\n".join(lines), encoding="utf-8")
+        written.append(file_path)
 
     _update_index(data_dir)
-    return file_path
+    return written
 
 
-def _update_index(data_dir: str = "docs"):
+def _update_index(data_dir: str = "output"):
     """Regenerate index.md listing all daily files, newest first."""
     base = Path(data_dir)
     if not base.exists():
@@ -99,7 +148,7 @@ def _update_index(data_dir: str = "docs"):
     (base / "index.md").write_text("\n".join(lines), encoding="utf-8")
 
 
-def load_seen_guids(data_dir: str = "docs") -> set[str]:
+def load_seen_guids(data_dir: str = "output") -> set[str]:
     """Load all previously seen article links from past markdown files."""
     path = Path(data_dir)
     if not path.exists():
@@ -118,8 +167,8 @@ def load_seen_guids(data_dir: str = "docs") -> set[str]:
     return guids
 
 
-def cleanup_old_data(data_dir: str = "docs", keep_days: int = 90) -> int:
-    """Delete markdown files older than keep_days. Returns number of files removed."""
+def cleanup_old_data(data_dir: str = "output", keep_days: int = 90) -> int:
+    """Delete markdown files older than keep_days."""
     path = Path(data_dir)
     if not path.exists():
         return 0

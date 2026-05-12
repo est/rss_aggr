@@ -121,10 +121,11 @@ def main():
         print(f"[{ts()}]   Cleaned up {removed} old files", flush=True)
 
     output = {"articles": new_entries}
-    file_path = save_daily_results(output, data_dir)
+    written = save_daily_results(output, data_dir)
     save_state(state)
     total = time.time() - t0
-    print(f"\n[{ts()}] [5/5] Saved to {file_path}", flush=True)
+    files_str = ", ".join(str(f) for f in written) if written else "none"
+    print(f"\n[{ts()}] [5/5] Saved: {files_str}", flush=True)
 
     stats = disable_stats(state)
     if stats["disabled"] or stats["failing"]:
