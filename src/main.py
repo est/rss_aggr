@@ -79,33 +79,39 @@ def main():
     print(f"[{ts()}]   {len(new_entries)} new (skipped {len(all_entries) - len(new_entries)} seen)\n", flush=True)
 
     print(f"[{ts()}] [4/5] Classifying with AI...", flush=True)
+    classified = []
+    skipped = 0
     if not new_entries:
         print(f"[{ts()}]   No new articles to classify", flush=True)
     else:
         t2 = time.time()
-        new_entries = classify_articles(
+        classify_articles(
             new_entries,
             provider=ai_cfg.get("provider", "openai"),
             model=ai_cfg.get("model"),
             categories=categories,
         )
         elapsed = time.time() - t2
-        avg_score = sum(e["classification"]["score"] for e in new_entries) / len(new_entries)
-        print(f"[{ts()}]   Done ({elapsed:.0f}s): avg score {avg_score:.1f}\n", flush=True)
+        for a in new_entries:
+            if "classification" in a:
+                classified.append(a)
+            else:
+                skipped += 1
+        print(f"[{ts()}]   Done ({elapsed:.0f}s): {len(classified)} classified, {skipped} skipped\n", flush=True)
 
     removed = cleanup_old_data(data_dir, keep_days)
     if removed:
         print(f"[{ts()}]   Cleaned up {removed} old files", flush=True)
 
-    output = {"articles": new_entries}
+    output = {"articles": classified}
     file_path = save_daily_results(output, data_dir)
     save_state(state)
     total = time.time() - t0
     print(f"\n[{ts()}] [5/5] Saved to {file_path}", flush=True)
     print(f"[{ts()}] Total time: {total:.0f}s", flush=True)
 
-    if new_entries:
-        top = sorted(new_entries, key=lambda x: x["classification"]["score"], reverse=True)[:5]
+    if classified:
+        top = sorted(classified, key=lambda x: x["classification"]["score"], reverse=True)[:5]
         print(f"\n[{ts()}] Top 5:", flush=True)
         for a in top:
             c = a["classification"]
