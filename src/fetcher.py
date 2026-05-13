@@ -8,7 +8,7 @@ import feedparser
 import requests
 
 
-def fetch_feed(feed_info: dict, timeout: int = None, max_articles: int = 20) -> dict:
+def fetch_feed(feed_info: dict, timeout: int = None, max_articles: int = 20, user_agent: str = "rss_aggr/1.0") -> dict:
     """Fetch a single RSS feed and return parsed entries."""
     if not timeout:
         timeout = (2, 5)
@@ -16,7 +16,7 @@ def fetch_feed(feed_info: dict, timeout: int = None, max_articles: int = 20) -> 
         resp = requests.get(
             feed_info["xml_url"],
             timeout=timeout,
-            headers={"User-Agent": "rss_aggr/1.0"},
+            headers={"User-Agent": user_agent},
         )
         resp.raise_for_status()
         resp.encoding = resp.apparent_encoding or resp.encoding or "utf-8"
@@ -70,7 +70,7 @@ def fetch_feed(feed_info: dict, timeout: int = None, max_articles: int = 20) -> 
     }
 
 
-def fetch_all_feeds(feeds: list[dict], timeout: int = 15, max_articles: int = 20) -> list[dict]:
+def fetch_all_feeds(feeds: list[dict], timeout: int = 15, max_articles: int = 20, user_agent: str = "rss_aggr/1.0") -> list[dict]:
     """Fetch all feeds in parallel with progress logging."""
     total = len(feeds)
     done = 0
@@ -81,7 +81,7 @@ def fetch_all_feeds(feeds: list[dict], timeout: int = 15, max_articles: int = 20
 
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = {
-            executor.submit(fetch_feed, f, timeout, max_articles): f
+            executor.submit(fetch_feed, f, timeout, max_articles, user_agent): f
             for f in feeds
         }
         for future in as_completed(futures):

@@ -6,11 +6,11 @@ from datetime import datetime, timezone
 import requests
 
 
-def check_feed_health(feed_info: dict, timeout: int = 15) -> dict:
+def check_feed_health(feed_info: dict, timeout: int = 15, user_agent: str = "rss_aggr/1.0") -> dict:
     """Check if a feed is reachable and healthy."""
     url = feed_info["xml_url"]
     start = time.time()
-    headers = {"User-Agent": "RSS-Aggregator/1.0"}
+    headers = {"User-Agent": user_agent}
     try:
         resp = requests.head(url, timeout=timeout, allow_redirects=True, headers=headers)
         if resp.status_code == 405:
@@ -45,11 +45,11 @@ def check_feed_health(feed_info: dict, timeout: int = 15) -> dict:
         }
 
 
-def check_all_feeds(feeds: list[dict], timeout: int = 15) -> list[dict]:
+def check_all_feeds(feeds: list[dict], timeout: int = 15, user_agent: str = "rss_aggr/1.0") -> list[dict]:
     """Check health of all feeds in parallel."""
     results = []
     with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = {executor.submit(check_feed_health, f, timeout): f for f in feeds}
+        futures = {executor.submit(check_feed_health, f, timeout, user_agent): f for f in feeds}
         for future in as_completed(futures):
             results.append(future.result())
     return results

@@ -8,7 +8,7 @@ BATCH_PROMPT = """You are a blog article classifier. For each article, provide:
 1. Category: one of {categories}
 2. Tags: 3-5 relevant tags
 3. Score: 1-10 (10 = must-read, 1 = not interesting)
-4. Summary: one-sentence summary (max 280 chars)
+4. Summary: one-sentence summary in zh-CN (max 280 chars)
 
 For each article, respond in EXACTLY this format (one block per article, separated by blank lines):
 

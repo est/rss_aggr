@@ -60,9 +60,11 @@ def load_config(path: str = "config.toml") -> dict:
 
 def step_sync():
     """Sync external feed lists into feeds.toml."""
+    config = load_config()
+    user_agent = config.get("fetch", {}).get("user_agent", "rss_aggr/1.0")
     print(f"[{ts()}] Syncing external feeds...", flush=True)
     from src.sync import sync
-    sync()
+    sync(user_agent=user_agent)
     print(f"[{ts()}] Sync done", flush=True)
 
 
@@ -70,6 +72,7 @@ def step_fetch():
     """Fetch RSS entries, update state, save to cache."""
     config = load_config()
     fetch_cfg = config.get("fetch", {})
+    user_agent = fetch_cfg.get("user_agent", "rss_aggr/1.0")
     data_dir = config.get("storage", {}).get("data_dir", "output")
     max_feeds = config.get("limits", {}).get("max_feeds", 0)
     fetch_interval = config.get("limits", {}).get("fetch_interval_hours", 24)
@@ -94,6 +97,7 @@ def step_fetch():
         due_feeds,
         timeout=fetch_cfg.get("timeout_seconds", 15),
         max_articles=fetch_cfg.get("max_articles_per_feed", 20),
+        user_agent=user_agent,
     )
 
     all_entries = []

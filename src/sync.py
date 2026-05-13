@@ -44,13 +44,13 @@ def parse_opml_bytes(content: bytes) -> list[dict]:
     return feeds
 
 
-def parse_remote(source: dict) -> list[dict]:
+def parse_remote(source: dict, user_agent: str = "rss_aggr/1.0") -> list[dict]:
     """Fetch and parse a remote feed list (OPML or TOML)."""
     url = source["url"]
     print(f"  Fetching {source['name']}... ", end="", flush=True)
 
     try:
-        resp = requests.get(url, timeout=30, headers={"User-Agent": "RSS-Aggregator/1.0"})
+        resp = requests.get(url, timeout=30, headers={"User-Agent": user_agent})
         resp.raise_for_status()
     except Exception as e:
         print(f"FAILED: {e}")
@@ -111,7 +111,7 @@ def save_feeds_toml(data: dict, path: Path):
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
-def sync(sources_path: str = "sources.toml", feeds_path: str = "feeds.toml"):
+def sync(sources_path: str = "sources.toml", feeds_path: str = "feeds.toml", user_agent: str = "rss_aggr/1.0"):
     """Main sync: fetch external sources → merge into feeds.toml."""
     with open(sources_path, "rb") as f:
         config = tomllib.load(f)
@@ -134,7 +134,7 @@ def sync(sources_path: str = "sources.toml", feeds_path: str = "feeds.toml"):
     total_skipped = 0
 
     for source in sources:
-        feeds = parse_remote(source)
+        feeds = parse_remote(source, user_agent)
         target_cat = source.get("category", "Imported")
 
         for f in feeds:
