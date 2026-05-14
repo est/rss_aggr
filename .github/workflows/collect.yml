@@ -18,10 +18,12 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v4
 
-      - name: Restore state from gh-pages
+      - name: Restore state & output from gh-pages
         run: |
           git fetch origin gh-pages:gh-pages || true
           git show gh-pages:state.json > state.json 2>/dev/null || echo '{}' > state.json
+          mkdir -p output
+          git show gh-pages:output/ >/dev/null 2>&1 && git checkout gh-pages -- output/ || true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -52,36 +54,26 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: python -m src.main --classify
 
-      - name: Commit output
+      - name: Deploy to gh-pages
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add output/
+          # Build orphan branch with only output + state
+          TMPDIR=$(mktemp -d)
+          cd "$TMPDIR"
+          git init
+          git remote add origin "https://github.com/${{ github.repository }}.git"
+          # Fetch existing gh-pages to keep history
+          git fetch origin gh-pages --depth=1 2>/dev/null || true
+          git checkout gh-pages 2>/dev/null || git checkout --orphan gh-pages
+          # Copy output and state
+          rm -rf output state.json
+          cp -r "${{ github.workspace }}/output" .
+          cp "${{ github.workspace }}/state.json" .
+          git add -f output/ state.json
           if git diff --cached --quiet; then
-            echo "No output changes"
+            echo "No changes to deploy"
           else
-            git commit -m "chore: RSS collection $(date -u +%Y-%m-%d)"
-            git push
-          fi
-
-      - name: Deploy to Pages
-        uses: peaceiris/actions-gh-pages@v4
-        if: github.ref == 'refs/heads/main'
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./output
-          enable_jekyll: true
-          publish_branch: gh-pages
-
-      - name: Commit state to gh-pages
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout gh-pages || git checkout --orphan gh-pages
-          git add -f state.json
-          if git diff --cached --quiet; then
-            echo "No state changes"
-          else
-            git commit -m "chore: update state $(date -u +%Y-%m-%d)"
+            git commit -m "chore: deploy $(date -u +%Y-%m-%d)"
             git push origin gh-pages
           fi
