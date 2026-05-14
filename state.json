@@ -96,8 +96,8 @@
       "consecutive_failures": 0
     },
     "https://www.phodal.com/blog/feeds/rss/": {
-      "last_ok": "2026-05-13T14:50:36.294372+00:00",
-      "consecutive_failures": 1,
+      "last_ok": "2026-05-14T03:31:02.568023+00:00",
+      "consecutive_failures": 0,
       "last_error": "HTTPSConnectionPool(host='www.phodal.com', port=443): Max retries exceeded with url: /blog/feeds/rss/ (Caused by NameResolutionError(\"HTTPSConnection(host='www.phodal.com', port=443): Failed to resolve 'www.phodal.com' ([Errno -2] Name or service not known)\"))",
       "failed_at": "2026-05-14T03:13:25.427031+00:00"
     },
@@ -3768,9 +3768,9 @@
     },
     "https://www.congcong.us/feed": {
       "last_ok": "2026-05-13T14:50:36.336780+00:00",
-      "consecutive_failures": 1,
+      "consecutive_failures": 2,
       "last_error": "HTTPSConnectionPool(host='www.congcong.us', port=443): Max retries exceeded with url: /feed (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1010)')))",
-      "failed_at": "2026-05-14T03:13:25.430247+00:00"
+      "failed_at": "2026-05-14T03:31:02.568012+00:00"
     },
     "http://elmagnifico.tech/feed.xml": {
       "last_ok": "2026-05-14T03:13:25.430317+00:00",
@@ -4561,7 +4561,10 @@
       "last_ok": "2026-05-13T02:21:53.839505+00:00",
       "last_error": "404 Client Error: Not Found for url: https://supereggs.cn/index.xml",
       "failed_at": "2026-05-14T03:13:25.430365+00:00",
-      "consecutive_failures": 3
+      "consecutive_failures": 3,
+      "disabled": true,
+      "disabled_at": "2026-05-14T03:31:00.318114+00:00",
+      "disabled_reason": "failed 3x consecutively"
     },
     "https://whrss.com/feed": {
       "last_ok": "2026-05-13T20:04:54.477428+00:00",
@@ -5297,7 +5300,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.cmyr.ltd/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.339597+00:00",
+      "last_ok": "2026-05-14T03:31:02.567978+00:00",
       "consecutive_failures": 0
     },
     "https://yusank.space/index.xml": {
@@ -5431,16 +5434,16 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://rangotec.com/feed": {
-      "last_ok": "2026-05-13T02:21:53.841778+00:00",
-      "consecutive_failures": 1,
+      "last_ok": "2026-05-14T03:31:02.568045+00:00",
+      "consecutive_failures": 0,
       "last_error": "HTTPSConnectionPool(host='rangotec.com', port=443): Max retries exceeded with url: /feed (Caused by NewConnectionError(\"HTTPSConnection(host='rangotec.com', port=443): Failed to establish a new connection: [Errno 111] Connection refused\"))",
       "failed_at": "2026-05-13T20:04:54.486138+00:00"
     },
     "https://blog.thatcoder.cn/atom.xml": {
       "last_ok": "2026-05-13T05:12:21.386433+00:00",
       "last_error": "HTTPSConnectionPool(host='log.cns.red', port=443): Max retries exceeded with url: /atom.xml (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'log.cns.red'. (_ssl.c:1010)\")))",
-      "failed_at": "2026-05-13T20:04:54.486606+00:00",
-      "consecutive_failures": 1
+      "failed_at": "2026-05-14T03:31:02.568019+00:00",
+      "consecutive_failures": 2
     },
     "https://blog.ikeno.top/rss.xml": {
       "last_ok": "2026-05-13T20:04:54.486613+00:00",
@@ -5792,7 +5795,7 @@
       "consecutive_failures": 0
     },
     "https://smj.im/rss.xml": {
-      "last_ok": "2026-05-13T08:17:01.748593+00:00",
+      "last_ok": "2026-05-14T03:31:02.567994+00:00",
       "last_error": "502 Server Error: Bad Gateway for url: https://smj.im/rss.xml",
       "failed_at": "2026-05-13T05:12:21.386739+00:00",
       "consecutive_failures": 0
@@ -5993,8 +5996,8 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://garymeng.com/feed/": {
-      "last_ok": "2026-05-13T05:12:21.387361+00:00",
-      "consecutive_failures": 1,
+      "last_ok": "2026-05-14T03:31:02.568035+00:00",
+      "consecutive_failures": 0,
       "last_error": "530 Server Error: <none> for url: https://garymeng.com/feed/",
       "failed_at": "2026-05-13T20:04:54.492000+00:00"
     },
@@ -6113,8 +6116,8 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://changshiban.com/index.xml": {
-      "last_ok": "2026-05-13T05:12:21.389495+00:00",
-      "consecutive_failures": 1,
+      "last_ok": "2026-05-14T03:31:02.568040+00:00",
+      "consecutive_failures": 0,
       "last_error": "404 Client Error: Not Found for url: https://changshiban.com/index.xml",
       "failed_at": "2026-05-13T20:04:54.493494+00:00"
     },
@@ -6894,7 +6897,7 @@
       "consecutive_failures": 0
     },
     "https://fallzhang.top/sitemap.xml": {
-      "last_ok": "2026-05-13T08:17:01.749159+00:00",
+      "last_ok": "2026-05-14T03:31:02.568030+00:00",
       "last_error": "HTTPSConnectionPool(host='fallzhang.top', port=443): Max retries exceeded with url: /sitemap.xml (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1010)')))",
       "failed_at": "2026-05-13T05:12:21.399050+00:00",
       "consecutive_failures": 0
@@ -7165,9 +7168,9 @@
     },
     "https://giserlab.cn/feed.xml": {
       "last_ok": "2026-05-13T05:12:21.402642+00:00",
-      "consecutive_failures": 1,
+      "consecutive_failures": 2,
       "last_error": "502 Server Error: Bad Gateway for url: https://giserlab.cn/feed.xml",
-      "failed_at": "2026-05-13T20:04:54.507638+00:00"
+      "failed_at": "2026-05-14T03:31:02.568004+00:00"
     },
     "https://rokcso.com/index.xml": {
       "last_ok": "2026-05-13T20:04:54.507902+00:00",
