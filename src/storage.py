@@ -167,6 +167,92 @@ def load_seen_guids(data_dir: str = "output") -> set[str]:
     return guids
 
 
+def load_unclassified_links(data_dir: str = "output") -> set[str]:
+    """Load links that have score '—' (unclassified) from output markdown."""
+    links = set()
+    base = Path(data_dir)
+    if not base.exists():
+        return links
+
+    for f in base.rglob("*.md"):
+        if f.name == "index.md":
+            continue
+        try:
+            for line in f.read_text(encoding="utf-8").splitlines():
+                if not line.startswith("|") or line.startswith("|--") or line.startswith("| Author"):
+                    continue
+                m = re.search(r"\]\(([^)]+)\)", line)
+                if not m:
+                    continue
+                link = m.group(1)
+                cols = [c.strip() for c in line.split("|")]
+                if len(cols) >= 5 and cols[4] in ("—", ""):
+                    links.add(link)
+        except OSError:
+            continue
+    return links
+
+
+def update_classifications(data_dir: str, updates: dict[str, dict]) -> int:
+    """Update classification for articles in-place by link.
+
+    Args:
+        data_dir: output directory
+        updates: {link: {category, tags, score, summary}}
+
+    Returns:
+        Number of lines updated.
+    """
+    base = Path(data_dir)
+    if not base.exists():
+        return 0
+
+    updated = 0
+    for f in base.rglob("*.md"):
+        if f.name == "index.md":
+            continue
+        try:
+            lines = f.read_text(encoding="utf-8").splitlines()
+        except OSError:
+            continue
+
+        new_lines = []
+        for line in lines:
+            if not line.startswith("|") or line.startswith("|--") or line.startswith("| Author"):
+                new_lines.append(line)
+                continue
+
+            m = re.search(r"\]\(([^)]+)\)", line)
+            if not m:
+                new_lines.append(line)
+                continue
+
+            link = m.group(1)
+            if link not in updates:
+                new_lines.append(line)
+                continue
+
+            info = updates[link]
+            cols = [c.strip() for c in line.split("|")]
+            if len(cols) < 6:
+                new_lines.append(line)
+                continue
+
+            # cols: ['', author, title_link, summary, score, '']
+            author = cols[1]
+            title_link = cols[2]
+            summary = _md_escape(info.get("summary", "") or "")
+            score = info.get("score", "—")
+            new_line = f"| {author} | {title_link} | {summary or '—'} | {score} |"
+            new_lines.append(new_line)
+            updated += 1
+
+        if updated:
+            f.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+
+    return updated
+
+
 def cleanup_old_data(data_dir: str = "output", keep_days: int = 90) -> int:
     """Delete markdown files older than keep_days."""
     path = Path(data_dir)

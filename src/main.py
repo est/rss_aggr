@@ -1,4 +1,4 @@
-"""Main entry point with step-based CLI for retryable Actions."""
+"""Main entry point with decoupled fetch/classify/save steps."""
 import argparse
 import json
 import re
@@ -14,43 +14,16 @@ except ModuleNotFoundError:
 from src.opml_parser import parse_feeds
 from src.fetcher import fetch_all_feeds
 from src.classifier import classify_articles
-from src.storage import save_daily_results, load_seen_guids, cleanup_old_data, _update_index
+from src.storage import (
+    save_daily_results, load_seen_guids, load_unclassified_links,
+    update_classifications, cleanup_old_data, _update_index,
+)
 from src.state import load_state, save_state, mark_fed, mark_failed, get_due_feeds, prioritize_feeds, disable_stats
 from src.aggregator import is_aggregator
-
-ENTRIES_FILE = ".cache/entries.json"
 
 
 def ts():
     return datetime.now(timezone.utc).strftime("%H:%M:%S")
-
-
-def _load_classified_links(data_dir: str = "output") -> set[str]:
-    """Load links that already have a classification score in output markdown."""
-    links = set()
-    base = Path(data_dir)
-    if not base.exists():
-        return links
-
-    for f in base.rglob("*.md"):
-        if f.name == "index.md":
-            continue
-        try:
-            for line in f.read_text(encoding="utf-8").splitlines():
-                if not line.startswith("|") or line.startswith("|--") or line.startswith("| Author"):
-                    continue
-                # Extract link
-                m = re.search(r"\]\(([^)]+)\)", line)
-                if not m:
-                    continue
-                link = m.group(1)
-                # Check if score column is not "—"
-                cols = [c.strip() for c in line.split("|")]
-                if len(cols) >= 5 and cols[4] not in ("—", ""):
-                    links.add(link)
-        except OSError:
-            continue
-    return links
 
 
 def load_config(path: str = "config.toml") -> dict:
@@ -69,7 +42,7 @@ def step_sync():
 
 
 def step_fetch():
-    """Fetch RSS entries, update state, save to cache."""
+    """Fetch RSS entries, save unclassified to output markdown."""
     config = load_config()
     fetch_cfg = config.get("fetch", {})
     user_agent = fetch_cfg.get("user_agent", "rss_aggr/1.0")
@@ -91,7 +64,6 @@ def step_fetch():
 
     if not due_feeds:
         print(f"[{ts()}] No feeds to fetch", flush=True)
-        Path(ENTRIES_FILE).write_text("[]", encoding="utf-8")
         return
 
     results = fetch_all_feeds(
@@ -110,8 +82,6 @@ def step_fetch():
             if is_aggregator(r["entries"]):
                 aggregator_feeds += 1
                 state["feeds"][url]["is_aggregator"] = True
-                for e in r["entries"]:
-                    e["_skip_ai"] = True
             all_entries.extend(r["entries"])
         else:
             mark_failed(state, url, r.get("error", "unknown"))
@@ -119,100 +89,74 @@ def step_fetch():
     if aggregator_feeds:
         print(f"[{ts()}] Aggregator feeds: {aggregator_feeds}", flush=True)
 
-    # Dedup
+    # Dedup against output
     seen_links = load_seen_guids(data_dir)
     new_entries = [e for e in all_entries if e.get("link") not in seen_links]
-    max_articles = config.get("limits", {}).get("max_articles", 0)
-    if max_articles > 0:
-        new_entries = new_entries[:max_articles]
-    print(f"[{ts()}] {len(new_entries)} new articles ({len(all_entries) - len(new_entries)} seen)", flush=True)
+    print(f"[{ts()}] {len(new_entries)} new articles", flush=True)
 
-    Path(".cache").mkdir(exist_ok=True)
-    Path(ENTRIES_FILE).write_text(json.dumps(new_entries, ensure_ascii=False, indent=2), encoding="utf-8")
+    if new_entries:
+        written = save_daily_results({"articles": new_entries}, data_dir)
+        files_str = ", ".join(str(f) for f in written) if written else "none"
+        print(f"[{ts()}] Saved: {files_str}", flush=True)
+
     save_state(state)
-    print(f"[{ts()}] Saved {ENTRIES_FILE}", flush=True)
 
 
 def step_classify():
-    """Classify cached entries, skip already-classified ones."""
+    """Classify unclassified articles in output markdown."""
     config = load_config()
     ai_cfg = config.get("ai", {})
     categories = [c["name"] for c in config.get("category", [])]
     data_dir = config.get("storage", {}).get("data_dir", "output")
 
-    cache = Path(ENTRIES_FILE)
-    if not cache.exists():
-        print(f"[{ts()}] No entries to classify", flush=True)
+    # Find unclassified links
+    unclassified = load_unclassified_links(data_dir)
+    print(f"[{ts()}] {len(unclassified)} unclassified articles in output", flush=True)
+
+    if not unclassified:
+        print(f"[{ts()}] Nothing to classify", flush=True)
         return
 
-    entries = json.loads(cache.read_text(encoding="utf-8"))
-    if not entries:
-        print(f"[{ts()}] Empty entries cache", flush=True)
-        return
-
-    # Load already-classified links from output
-    classified_links = _load_classified_links(data_dir)
-    print(f"[{ts()}] {len(entries)} articles, {len(classified_links)} already classified in output", flush=True)
-
-    # Split aggregator vs normal
-    ai_entries = []
-    skipped_already = 0
-    for e in entries:
-        if e.get("_skip_ai"):
+    # Build article dicts from links (need title for AI)
+    articles = []
+    base = Path(data_dir)
+    for f in base.rglob("*.md"):
+        if f.name == "index.md":
             continue
-        if e.get("link") in classified_links:
-            skipped_already += 1
+        try:
+            for line in f.read_text(encoding="utf-8").splitlines():
+                if not line.startswith("|") or line.startswith("|--") or line.startswith("| Author"):
+                    continue
+                m = re.search(r"\[([^\]]+)\]\(([^)]+)\)", line)
+                if not m:
+                    continue
+                title, link = m.group(1), m.group(2)
+                if link in unclassified:
+                    articles.append({"title": title, "link": link})
+        except OSError:
             continue
-        ai_entries.append(e)
 
-    if skipped_already:
-        print(f"[{ts()}] Skipped {skipped_already} already classified", flush=True)
-    print(f"[{ts()}] {len(ai_entries)} to classify", flush=True)
+    print(f"[{ts()}] {len(articles)} articles to classify", flush=True)
 
-    if ai_entries:
-        classify_articles(
-            ai_entries,
-            provider=ai_cfg.get("provider", "openai"),
-            model=ai_cfg.get("model"),
-            categories=categories,
-        )
-
-    cache.write_text(json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"[{ts()}] Classification done", flush=True)
-
-
-def step_save():
-    """Save cached entries to markdown."""
-    config = load_config()
-    data_dir = config.get("storage", {}).get("data_dir", "output")
-    keep_days = config.get("storage", {}).get("keep_days", 90)
-
-    cache = Path(ENTRIES_FILE)
-    if not cache.exists():
-        print(f"[{ts()}] No entries to save", flush=True)
+    if not articles:
         return
 
-    entries = json.loads(cache.read_text(encoding="utf-8"))
-    if not entries:
-        print(f"[{ts()}] Empty entries cache", flush=True)
-        return
+    classify_articles(
+        articles,
+        provider=ai_cfg.get("provider", "openai"),
+        model=ai_cfg.get("model"),
+        categories=categories,
+    )
 
-    removed = cleanup_old_data(data_dir, keep_days)
-    if removed:
-        print(f"[{ts()}] Cleaned {removed} old files", flush=True)
+    # Build updates dict
+    updates = {}
+    for a in articles:
+        if "classification" in a:
+            updates[a["link"]] = a["classification"]
 
-    written = save_daily_results({"articles": entries}, data_dir)
-    files_str = ", ".join(str(f) for f in written) if written else "none"
-    print(f"[{ts()}] Saved: {files_str}", flush=True)
-
-    scored = [a for a in entries if "classification" in a]
-    if scored:
-        top = sorted(scored, key=lambda x: x["classification"]["score"], reverse=True)[:5]
-        print(f"\n[{ts()}] Top 5:", flush=True)
-        for a in top:
-            c = a["classification"]
-            print(f"  [{c['score']}/10] {a['title']}")
-            print(f"         {c.get('summary', '')}")
+    if updates:
+        count = update_classifications(data_dir, updates)
+        print(f"[{ts()}] Updated {count} articles in output", flush=True)
 
 
 def main():
@@ -220,15 +164,12 @@ def main():
     parser.add_argument("--sync", action="store_true", help="Sync external feeds")
     parser.add_argument("--fetch", action="store_true", help="Fetch RSS entries")
     parser.add_argument("--classify", action="store_true", help="Classify with AI")
-    parser.add_argument("--save", action="store_true", help="Save to markdown")
     args = parser.parse_args()
 
-    # No args = run all steps
-    if not any([args.sync, args.fetch, args.classify, args.save]):
+    if not any([args.sync, args.fetch, args.classify]):
         step_sync()
         step_fetch()
         step_classify()
-        step_save()
     else:
         if args.sync:
             step_sync()
@@ -236,8 +177,6 @@ def main():
             step_fetch()
         if args.classify:
             step_classify()
-        if args.save:
-            step_save()
 
 
 if __name__ == "__main__":
