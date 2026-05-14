@@ -100,7 +100,10 @@ class OpenAIClassifier(BaseClassifier):
             model=self.model, messages=messages,
             temperature=0.3, max_tokens=max_tokens, timeout=timeout,
         )
-        return resp.choices[0].message.content
+        r = resp.choices[0].message.content
+        if not r:
+            print(f"  [openai] empty response: {resp}", flush=True)
+        return r
 
 
 class ClaudeClassifier(BaseClassifier):
@@ -113,7 +116,10 @@ class ClaudeClassifier(BaseClassifier):
         resp = self.client.messages.create(
             model=self.model, max_tokens=max_tokens, messages=messages, timeout=timeout,
         )
-        return resp.content[0].text
+        r = resp.content[0].text
+        if not r:
+            print(f"  [anthropic] empty response: {resp}", flush=True)
+        return r
 
 
 class OpenRouterClassifier(BaseClassifier):
@@ -131,7 +137,10 @@ class OpenRouterClassifier(BaseClassifier):
             model=self.model, messages=messages,
             temperature=0.3, max_tokens=max_tokens, timeout=timeout,
         )
-        return resp.choices[0].message.content
+        r = resp.choices[0].message.content
+        if not r:
+            print(f"  [openrouter] empty response: {resp}", flush=True)
+        return r
 
 
 def _check_api_key(provider: str) -> bool:
@@ -199,6 +208,9 @@ def classify_articles(
             missed = len(batch) - matched
             status = f"OK {matched}/{len(batch)}" if not missed else f"OK {matched}/{len(batch)}, {missed} unmatched"
             print(f"  [{batch_num}/{total_batches}] {status}", flush=True)
+        except ValueError as e:
+            fail_count += len(batch)
+            print(f"  [{batch_num}/{total_batches}] SKIP  {e}", flush=True)
         except Exception as e:
             fail_count += len(batch)
             print(f"  [{batch_num}/{total_batches}] SKIP  {type(e).__name__}: {e}", flush=True)
