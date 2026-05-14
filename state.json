@@ -309,8 +309,8 @@
       "consecutive_failures": 0
     },
     "http://www.the5fire.com/rss": {
-      "last_ok": "2026-05-13T20:04:54.476074+00:00",
-      "consecutive_failures": 1,
+      "last_ok": "2026-05-14T14:36:18.144662+00:00",
+      "consecutive_failures": 0,
       "last_error": "HTTPSConnectionPool(host='www.the5fire.com', port=443): Read timed out. (read timeout=15)",
       "failed_at": "2026-05-14T08:47:01.312270+00:00"
     },
@@ -1446,8 +1446,8 @@
       "consecutive_failures": 0
     },
     "https://www.cyhone.com/atom.xml": {
-      "last_ok": "2026-05-13T20:04:54.473805+00:00",
-      "consecutive_failures": 1,
+      "last_ok": "2026-05-14T14:36:18.144655+00:00",
+      "consecutive_failures": 0,
       "last_error": "HTTPSConnectionPool(host='www.cyhone.com', port=443): Max retries exceeded with url: /atom.xml (Caused by NewConnectionError(\"HTTPSConnection(host='www.cyhone.com', port=443): Failed to establish a new connection: [Errno 111] Connection refused\"))",
       "failed_at": "2026-05-14T08:47:01.311783+00:00"
     },
@@ -6883,8 +6883,8 @@
       "consecutive_failures": 0
     },
     "https://www.vvhan.com/rss.xml": {
-      "last_ok": "2026-05-13T20:04:54.503949+00:00",
-      "consecutive_failures": 1,
+      "last_ok": "2026-05-14T14:36:18.144636+00:00",
+      "consecutive_failures": 0,
       "last_error": "HTTPSConnectionPool(host='www.vvhan.com', port=443): Max retries exceeded with url: /rss.xml (Caused by NewConnectionError(\"HTTPSConnection(host='www.vvhan.com', port=443): Failed to establish a new connection: [Errno 111] Connection refused\"))",
       "failed_at": "2026-05-14T08:47:01.315809+00:00"
     },
@@ -7311,5 +7311,8 @@
       "last_ok": "2026-05-14T08:47:01.316383+00:00",
       "consecutive_failures": 0
     }
+  },
+  "skipped_links": {
+    "https://www.xianrenlife.com/2026/05/blog-post.html": "2026-05-14T14:36:48.217373+00:00"
   }
 }
