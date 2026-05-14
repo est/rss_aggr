@@ -15,8 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     environment: github-pages
     steps:
-      - name: Checkout
+      - name: Checkout main
         uses: actions/checkout@v4
+
+      - name: Restore state from gh-pages
+        run: |
+          git fetch origin gh-pages:gh-pages || true
+          git show gh-pages:state.json > state.json 2>/dev/null || echo '{}' > state.json
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -47,14 +52,14 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: python -m src.main --classify
 
-      - name: Save & deploy
+      - name: Save & commit output
         run: |
           python -m src.main --save
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add output/ state.json
+          git add output/
           if git diff --cached --quiet; then
-            echo "No changes"
+            echo "No output changes"
           else
             git commit -m "chore: RSS collection $(date -u +%Y-%m-%d)"
             git push
@@ -68,3 +73,16 @@ jobs:
           publish_dir: ./output
           enable_jekyll: true
           publish_branch: gh-pages
+
+      - name: Commit state to gh-pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout gh-pages || git checkout --orphan gh-pages
+          git add -f state.json
+          if git diff --cached --quiet; then
+            echo "No state changes"
+          else
+            git commit -m "chore: update state $(date -u +%Y-%m-%d)"
+            git push origin gh-pages
+          fi
