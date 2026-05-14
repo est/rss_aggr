@@ -20,10 +20,13 @@ def parse_feeds(path: str | Path = "feeds.toml") -> list[dict]:
     for cat in data.get("category", []):
         category = cat.get("name", "Uncategorized")
         for feed in cat.get("feed", []):
+            if feed.get("skip"):
+                continue
             feeds.append({
                 "title": feed.get("title", ""),
                 "xml_url": feed.get("url", ""),
                 "html_url": feed.get("site", ""),
                 "category": category,
+                "priority": feed.get("priority", 99),
             })
     return feeds

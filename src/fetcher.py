@@ -10,10 +10,12 @@ import requests
 DEFAULT_KEEP_DAYS = 7
 
 
-def fetch_feed(feed_info: dict, timeout: int = None, keep_days: int = DEFAULT_KEEP_DAYS, user_agent: str = "rss_aggr/1.0") -> dict:
-    """Fetch a single RSS feed, return entries within keep_days."""
+def fetch_feed(feed_info: dict, timeout: int = None, keep_days: int = DEFAULT_KEEP_DAYS,
+               user_agent: str = "rss_aggr/1.0", skip_titles: list[str] = None) -> dict:
+    """Fetch a single RSS feed, return entries within keep_days, filtered by rules."""
     if not timeout:
         timeout = (2, 5)
+    skip_patterns = [s.lower() for s in (skip_titles or [])]
     try:
         resp = requests.get(
             feed_info["xml_url"],
@@ -65,9 +67,15 @@ def fetch_feed(feed_info: dict, timeout: int = None, keep_days: int = DEFAULT_KE
         if not author and hasattr(entry, "authors") and entry.authors:
             author = entry.authors[0].get("name", "")
 
+        title = entry.get("title", "")
+
+        # Filter: skip by title keywords
+        if skip_patterns and any(p in title.lower() for p in skip_patterns):
+            continue
+
         entries.append({
             "guid": guid,
-            "title": entry.get("title", ""),
+            "title": title,
             "link": entry.get("link", ""),
             "author": author,
             "content": content,
@@ -84,7 +92,8 @@ def fetch_feed(feed_info: dict, timeout: int = None, keep_days: int = DEFAULT_KE
     }
 
 
-def fetch_all_feeds(feeds: list[dict], timeout: int = 15, keep_days: int = DEFAULT_KEEP_DAYS, user_agent: str = "rss_aggr/1.0") -> list[dict]:
+def fetch_all_feeds(feeds: list[dict], timeout: int = 15, keep_days: int = DEFAULT_KEEP_DAYS,
+                    user_agent: str = "rss_aggr/1.0", skip_titles: list[str] = None) -> list[dict]:
     """Fetch all feeds in parallel with progress logging."""
     total = len(feeds)
     done = 0
@@ -95,7 +104,7 @@ def fetch_all_feeds(feeds: list[dict], timeout: int = 15, keep_days: int = DEFAU
 
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures = {
-            executor.submit(fetch_feed, f, timeout, keep_days, user_agent): f
+            executor.submit(fetch_feed, f, timeout, keep_days, user_agent, skip_titles): f
             for f in feeds
         }
         for future in as_completed(futures):

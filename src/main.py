@@ -3,7 +3,7 @@ import argparse
 import json
 import re
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 try:
@@ -45,12 +45,14 @@ def step_fetch():
     """Fetch RSS entries, save unclassified to output markdown."""
     config = load_config()
     fetch_cfg = config.get("fetch", {})
+    filter_cfg = config.get("filter", {})
     user_agent = fetch_cfg.get("user_agent", "rss_aggr/1.0")
     keep_days = fetch_cfg.get("keep_days", 7)
     data_dir = config.get("storage", {}).get("data_dir", "output")
     max_feeds = config.get("limits", {}).get("max_feeds", 0)
     fetch_interval = config.get("limits", {}).get("fetch_interval_hours", 24)
     max_failures = config.get("limits", {}).get("disable_after_failures", 3)
+    skip_titles = filter_cfg.get("skip_titles", [])
 
     all_feeds = parse_feeds("feeds.toml")
     print(f"[{ts()}] {len(all_feeds)} feeds total", flush=True)
@@ -71,6 +73,7 @@ def step_fetch():
         timeout=fetch_cfg.get("timeout_seconds", 15),
         keep_days=keep_days,
         user_agent=user_agent,
+        skip_titles=skip_titles,
     )
 
     all_entries = []
@@ -106,18 +109,24 @@ def step_classify():
     """Classify unclassified articles in output markdown."""
     config = load_config()
     ai_cfg = config.get("ai", {})
+    filter_cfg = config.get("filter", {})
     categories = [c["name"] for c in config.get("category", [])]
     data_dir = config.get("storage", {}).get("data_dir", "output")
+    skip_prompt = filter_cfg.get("skip_prompt", "")
 
-    # Find unclassified links
+    state = load_state()
+    skipped_links = set(state.get("skipped_links", {}))
+
+    # Find unclassified links, exclude already-skipped
     unclassified = load_unclassified_links(data_dir)
-    print(f"[{ts()}] {len(unclassified)} unclassified articles in output", flush=True)
+    unclassified -= skipped_links
+    print(f"[{ts()}] {len(unclassified)} unclassified (excluded {len(skipped_links)} previously skipped)", flush=True)
 
     if not unclassified:
         print(f"[{ts()}] Nothing to classify", flush=True)
         return
 
-    # Build article dicts from links (need title for AI)
+    # Build article dicts from links
     articles = []
     base = Path(data_dir)
     for f in base.rglob("*.md"):
@@ -146,13 +155,26 @@ def step_classify():
         provider=ai_cfg.get("provider", "openai"),
         model=ai_cfg.get("model"),
         categories=categories,
+        skip_prompt=skip_prompt,
     )
 
-    # Build updates dict
+    # Build updates dict, track skipped
     updates = {}
+    newly_skipped = {}
     for a in articles:
-        if "classification" in a:
+        cls = a.get("classification", {})
+        if cls.get("category", "").lower() == "skip":
+            newly_skipped[a["link"]] = datetime.now(timezone.utc).isoformat()
+        elif "classification" in a:
             updates[a["link"]] = a["classification"]
+
+    # Save skipped links to state (prune old ones >7 days)
+    if newly_skipped:
+        all_skipped = {**state.get("skipped_links", {}), **newly_skipped}
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+        state["skipped_links"] = {k: v for k, v in all_skipped.items() if v > cutoff}
+        save_state(state)
+        print(f"[{ts()}] Skipped {len(newly_skipped)} articles (saved to state)", flush=True)
 
     if updates:
         count = update_classifications(data_dir, updates)

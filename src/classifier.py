@@ -18,7 +18,8 @@ tags: t1, t2, t3
 score: 8
 summary: one sentence here
 
-Do NOT use JSON. Just plain text blocks like above."""
+Do NOT use JSON. Just plain text blocks like above.
+{skip_prompt}"""
 
 
 def _parse_blocks(text: str) -> dict[str, dict]:
@@ -62,9 +63,12 @@ class BaseClassifier(ABC):
     def _call_api(self, messages: list[dict], max_tokens: int, timeout: int) -> str:
         pass
 
-    def classify_batch(self, articles: list[dict], categories: list[str]) -> dict[str, dict]:
+    def classify_batch(self, articles: list[dict], categories: list[str], skip_prompt: str = "") -> dict[str, dict]:
         """Classify articles, returns {url: classification_dict}."""
-        prompt = BATCH_PROMPT.format(categories=", ".join(categories))
+        prompt = BATCH_PROMPT.format(
+            categories=", ".join(categories),
+            skip_prompt=skip_prompt,
+        )
         items = []
         for a in articles:
             content = (a.get("content") or "")[:1500]
@@ -175,6 +179,7 @@ def classify_articles(
     model: str | None = None,
     categories: list[str] | None = None,
     batch_size: int = 10,
+    skip_prompt: str = "",
 ) -> list[dict]:
     """Classify articles in batches."""
     if not articles:
@@ -197,7 +202,7 @@ def classify_articles(
         batch_num = i // batch_size + 1
         batch = articles[i : i + batch_size]
         try:
-            results = classifier.classify_batch(batch, cats)
+            results = classifier.classify_batch(batch, cats, skip_prompt=skip_prompt)
             matched = 0
             for a in batch:
                 url = a.get("link", "")

@@ -13,6 +13,11 @@ timeout_seconds = 15
 keep_days = 7
 user_agent = "rss_aggr/1.0 (https://github.com/est/rss_aggr/)"
 
+# Filters: deterministic rules (free, fast) + AI prompt (cheap)
+[filter]
+skip_titles = ["weekly digest", "周报", "link list", "newsletter", "周刊", "每日速递", "月报", "monthly", "daily links"]
+skip_prompt = "If this article is a news digest, link roundup, personal diary, or off-topic life update, set category to 'skip'."
+
 # Limits: control per-run scope (0 = no limit)
 [limits]
 max_feeds = 500          # max feeds to fetch per run

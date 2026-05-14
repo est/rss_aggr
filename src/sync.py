@@ -107,6 +107,8 @@ def save_feeds_toml(data: dict, path: Path):
                 lines.append(f'site = "{feed["site"]}"')
             if feed.get("priority"):
                 lines.append(f'priority = {feed["priority"]}')
+            if feed.get("skip"):
+                lines.append('skip = true')
             lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")
 
