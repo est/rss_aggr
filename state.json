@@ -1,21 +1,23 @@
 {
   "feeds": {
     "https://hnrss.org/frontpage": {
-      "last_ok": "2026-05-13T14:50:36.293479+00:00",
+      "last_ok": "2026-05-14T03:13:25.426836+00:00",
       "consecutive_failures": 0,
       "is_aggregator": true
     },
     "https://techcrunch.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.293084+00:00",
+      "last_ok": "2026-05-14T03:13:25.426662+00:00",
       "consecutive_failures": 0
     },
     "https://www.theverge.com/rss/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.292953+00:00",
-      "consecutive_failures": 0
+      "last_ok": "2026-05-14T03:13:25.426515+00:00",
+      "consecutive_failures": 0,
+      "is_aggregator": true
     },
     "https://openai.com/blog/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.293978+00:00",
-      "consecutive_failures": 0
+      "last_ok": "2026-05-14T03:13:25.427044+00:00",
+      "consecutive_failures": 0,
+      "is_aggregator": true
     },
     "https://www.anthropic.com/rss.xml": {
       "last_ok": null,
@@ -36,19 +38,19 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.t9t.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.293240+00:00",
+      "last_ok": "2026-05-14T03:13:25.426832+00:00",
       "consecutive_failures": 0
     },
     "http://feeds.feedburner.com/ruanyifeng": {
-      "last_ok": "2026-05-13T14:50:36.293636+00:00",
+      "last_ok": "2026-05-14T03:13:25.427024+00:00",
       "consecutive_failures": 0
     },
     "http://coolshell.cn/feed": {
-      "last_ok": "2026-05-13T14:50:36.294111+00:00",
+      "last_ok": "2026-05-14T03:13:25.427041+00:00",
       "consecutive_failures": 0
     },
     "http://www.zhangxinxu.com/wordpress/?feed=rss2": {
-      "last_ok": "2026-05-13T14:50:36.295921+00:00",
+      "last_ok": "2026-05-14T03:13:25.427498+00:00",
       "consecutive_failures": 0
     },
     "https://alili.tech/index.xml": {
@@ -61,7 +63,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.xiabingbao.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.295257+00:00",
+      "last_ok": "2026-05-14T03:13:25.427215+00:00",
       "consecutive_failures": 0
     },
     "https://diygod.me/atom.xml": {
@@ -74,35 +76,37 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://macshuo.com/?feed=rss2": {
-      "last_ok": "2026-05-13T14:50:36.295184+00:00",
+      "last_ok": "2026-05-14T03:13:25.427201+00:00",
       "consecutive_failures": 0
     },
     "http://shrekshao.github.io/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.293377+00:00",
+      "last_ok": "2026-05-14T03:13:25.426828+00:00",
       "consecutive_failures": 0
     },
     "http://blog.codingnow.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.294207+00:00",
+      "last_ok": "2026-05-14T03:13:25.427179+00:00",
       "consecutive_failures": 0
     },
     "https://reorx.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.293844+00:00",
+      "last_ok": "2026-05-14T03:13:25.427189+00:00",
       "consecutive_failures": 0
     },
     "https://zddhub.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.293684+00:00",
+      "last_ok": "2026-05-14T03:13:25.427034+00:00",
       "consecutive_failures": 0
     },
     "https://www.phodal.com/blog/feeds/rss/": {
       "last_ok": "2026-05-13T14:50:36.294372+00:00",
-      "consecutive_failures": 0
+      "consecutive_failures": 1,
+      "last_error": "HTTPSConnectionPool(host='www.phodal.com', port=443): Max retries exceeded with url: /blog/feeds/rss/ (Caused by NameResolutionError(\"HTTPSConnection(host='www.phodal.com', port=443): Failed to resolve 'www.phodal.com' ([Errno -2] Name or service not known)\"))",
+      "failed_at": "2026-05-14T03:13:25.427031+00:00"
     },
     "https://www.piglei.com/feeds/latest/": {
-      "last_ok": "2026-05-13T14:50:36.295470+00:00",
+      "last_ok": "2026-05-14T03:13:25.427212+00:00",
       "consecutive_failures": 0
     },
     "https://windard.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.293840+00:00",
+      "last_ok": "2026-05-14T03:13:25.427038+00:00",
       "consecutive_failures": 0
     },
     "https://www.lichong.work/atom.xml": {
@@ -115,15 +119,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://luolei.org/feed/": {
-      "last_ok": "2026-05-13T14:50:36.294304+00:00",
+      "last_ok": "2026-05-14T03:13:25.427186+00:00",
       "consecutive_failures": 0
     },
     "https://dfine.tech/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.294524+00:00",
+      "last_ok": "2026-05-14T03:13:25.427195+00:00",
       "consecutive_failures": 0
     },
     "https://daimajia.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.294648+00:00",
+      "last_ok": "2026-05-14T03:13:25.427192+00:00",
       "consecutive_failures": 0
     },
     "https://www.kymjs.com/feed.xml": {
@@ -136,27 +140,27 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://droidyue.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.294717+00:00",
+      "last_ok": "2026-05-14T03:13:25.427204+00:00",
       "consecutive_failures": 0
     },
     "https://vzardlloo.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.295052+00:00",
+      "last_ok": "2026-05-14T03:13:25.427218+00:00",
       "consecutive_failures": 0
     },
     "https://rowkey.cn/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.295603+00:00",
+      "last_ok": "2026-05-14T03:13:25.427220+00:00",
       "consecutive_failures": 0
     },
     "https://blog.lui8.cn/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.295379+00:00",
+      "last_ok": "2026-05-14T03:13:25.427210+00:00",
       "consecutive_failures": 0
     },
     "https://blog.lilydjwg.me/posts.rss": {
-      "last_ok": "2026-05-13T14:50:36.294846+00:00",
+      "last_ok": "2026-05-14T03:13:25.427198+00:00",
       "consecutive_failures": 0
     },
     "https://hundren.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.294926+00:00",
+      "last_ok": "2026-05-14T03:13:25.427207+00:00",
       "consecutive_failures": 0
     },
     "https://xiuer.medium.com/feed": {
@@ -187,43 +191,43 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://toweave.github.io/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.296025+00:00",
+      "last_ok": "2026-05-14T03:13:25.427240+00:00",
       "consecutive_failures": 0
     },
     "https://ghost.mout.me/rss/": {
-      "last_ok": "2026-05-13T14:50:36.296151+00:00",
+      "last_ok": "2026-05-14T03:13:25.427234+00:00",
       "consecutive_failures": 0
     },
     "https://dumplingbao.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.295729+00:00",
+      "last_ok": "2026-05-14T03:13:25.427223+00:00",
       "consecutive_failures": 0
     },
     "https://greatdk.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.296824+00:00",
+      "last_ok": "2026-05-14T03:13:25.427245+00:00",
       "consecutive_failures": 0
     },
     "https://chai2010.cn/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.296314+00:00",
+      "last_ok": "2026-05-14T03:13:25.427232+00:00",
       "consecutive_failures": 0
     },
     "https://www.cnfeat.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.295959+00:00",
+      "last_ok": "2026-05-14T03:13:25.427225+00:00",
       "consecutive_failures": 0
     },
     "https://jimmysong.io/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.296700+00:00",
+      "last_ok": "2026-05-14T03:13:25.427367+00:00",
       "consecutive_failures": 0
     },
     "http://hawstein.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.295854+00:00",
+      "last_ok": "2026-05-14T03:13:25.427228+00:00",
       "consecutive_failures": 0
     },
     "http://www.skywind.me/blog/feed": {
-      "last_ok": "2026-05-13T14:50:36.296248+00:00",
+      "last_ok": "2026-05-14T03:13:25.427237+00:00",
       "consecutive_failures": 0
     },
     "http://www.shuizilong.com/house/feed/": {
-      "last_ok": "2026-05-13T14:50:36.302647+00:00",
+      "last_ok": "2026-05-14T03:13:25.428106+00:00",
       "consecutive_failures": 0
     },
     "http://www.chenshake.com/feed/": {
@@ -236,33 +240,33 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://chinese.catchen.me/feeds/posts/default": {
-      "last_ok": "2026-05-13T14:50:36.296459+00:00",
+      "last_ok": "2026-05-14T03:13:25.427242+00:00",
       "consecutive_failures": 0
     },
     "https://lutaonan.com/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.297140+00:00",
+      "last_ok": "2026-05-14T03:13:25.427371+00:00",
       "consecutive_failures": 0
     },
     "https://xiaozhou.net/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.297866+00:00",
+      "last_ok": "2026-05-14T03:13:25.427411+00:00",
       "consecutive_failures": 0
     },
     "http://www.ideawu.net/blog/feed": {
-      "last_ok": "2026-05-13T14:50:36.296595+00:00",
+      "last_ok": "2026-05-14T03:13:25.428048+00:00",
       "last_error": "HTTPConnectionPool(host='www.ideawu.net', port=80): Max retries exceeded with url: /blog/feed (Caused by NameResolutionError(\"HTTPConnection(host='www.ideawu.net', port=80): Failed to resolve 'www.ideawu.net' ([Errno -3] Temporary failure in name resolution)\"))",
       "failed_at": "2026-05-12T04:03:20.973055+00:00",
       "consecutive_failures": 0
     },
     "http://xiaix.me/rss/": {
-      "last_ok": "2026-05-13T14:50:36.297263+00:00",
+      "last_ok": "2026-05-14T03:13:25.427381+00:00",
       "consecutive_failures": 0
     },
     "http://teddy-chen-tw.blogspot.com/feeds/posts/default": {
-      "last_ok": "2026-05-13T14:50:36.297014+00:00",
+      "last_ok": "2026-05-14T03:13:25.427378+00:00",
       "consecutive_failures": 0
     },
     "https://feeds.feedburner.com/TheWillWillWeb": {
-      "last_ok": "2026-05-13T14:50:36.296599+00:00",
+      "last_ok": "2026-05-14T03:13:25.427248+00:00",
       "consecutive_failures": 0
     },
     "http://www.techug.com/feed": {
@@ -284,11 +288,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://www.barretlee.com/rss2.xml": {
-      "last_ok": "2026-05-13T14:50:36.296890+00:00",
+      "last_ok": "2026-05-14T03:13:25.427375+00:00",
       "consecutive_failures": 0
     },
     "https://www.jeffjade.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.298117+00:00",
+      "last_ok": "2026-05-14T03:13:25.427405+00:00",
       "consecutive_failures": 0
     },
     "http://feed.immmmm.com/": {
@@ -301,7 +305,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://wsgzao.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.297306+00:00",
+      "last_ok": "2026-05-14T03:13:25.427397+00:00",
       "consecutive_failures": 0
     },
     "http://www.the5fire.com/rss": {
@@ -311,15 +315,15 @@
       "failed_at": "2026-05-13T14:50:36.304776+00:00"
     },
     "https://hfdavidyu.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.298859+00:00",
+      "last_ok": "2026-05-14T03:13:25.427414+00:00",
       "consecutive_failures": 0
     },
     "http://mercurychong.blogspot.com/feeds/posts/default": {
-      "last_ok": "2026-05-13T14:50:36.297644+00:00",
+      "last_ok": "2026-05-14T03:13:25.427390+00:00",
       "consecutive_failures": 0
     },
     "http://feeds.feedburner.com/pmmustknow": {
-      "last_ok": "2026-05-13T14:50:36.297266+00:00",
+      "last_ok": "2026-05-14T03:13:25.427384+00:00",
       "consecutive_failures": 0
     },
     "http://iamsujie.com/feed/": {
@@ -332,47 +336,47 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://blog.turn.tw/?feed=rss2": {
-      "last_ok": "2026-05-13T14:50:36.297447+00:00",
+      "last_ok": "2026-05-14T03:13:25.427394+00:00",
       "consecutive_failures": 0
     },
     "http://feeds.feedburner.com/yuguo": {
-      "last_ok": "2026-05-13T14:50:36.297302+00:00",
+      "last_ok": "2026-05-14T03:13:25.427387+00:00",
       "consecutive_failures": 0
     },
     "https://feeds.feedburner.com/othree": {
-      "last_ok": "2026-05-13T14:50:36.297769+00:00",
+      "last_ok": "2026-05-14T03:13:25.427403+00:00",
       "consecutive_failures": 0
     },
     "https://vivaxyblog.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.297514+00:00",
+      "last_ok": "2026-05-14T03:13:25.427400+00:00",
       "consecutive_failures": 0
     },
     "https://blog.debuginn.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.301381+00:00",
+      "last_ok": "2026-05-14T03:13:25.427562+00:00",
       "consecutive_failures": 0
     },
     "http://www.isaced.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.297991+00:00",
+      "last_ok": "2026-05-14T03:13:25.427408+00:00",
       "consecutive_failures": 0
     },
     "https://atjason.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.298374+00:00",
+      "last_ok": "2026-05-14T03:13:25.427417+00:00",
       "consecutive_failures": 0
     },
     "https://blog.forecho.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.298534+00:00",
+      "last_ok": "2026-05-14T03:13:25.427428+00:00",
       "consecutive_failures": 0
     },
     "https://www.jack-liu.com/rss.php": {
-      "last_ok": "2026-05-13T14:50:36.298791+00:00",
+      "last_ok": "2026-05-14T03:13:25.427420+00:00",
       "consecutive_failures": 0
     },
     "https://geekplux.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.298247+00:00",
+      "last_ok": "2026-05-14T03:13:25.427425+00:00",
       "consecutive_failures": 0
     },
     "https://jysperm.me/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.298665+00:00",
+      "last_ok": "2026-05-14T03:13:25.427422+00:00",
       "consecutive_failures": 0
     },
     "https://rsshub.app/blogs/wangyin": {
@@ -385,15 +389,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://weiwuhui.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.299391+00:00",
+      "last_ok": "2026-05-14T03:13:25.427437+00:00",
       "consecutive_failures": 0
     },
     "https://blog.yxwang.me/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.298992+00:00",
+      "last_ok": "2026-05-14T03:13:25.427501+00:00",
       "consecutive_failures": 0
     },
     "http://lukefan.com/?feed=rss2": {
-      "last_ok": "2026-05-13T14:50:36.299223+00:00",
+      "last_ok": "2026-05-14T03:13:25.427440+00:00",
       "consecutive_failures": 0
     },
     "http://blog.xiayf.cn/feeds/rss.xml": {
@@ -406,35 +410,35 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://hufangyun.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.298862+00:00",
+      "last_ok": "2026-05-14T03:13:25.427431+00:00",
       "consecutive_failures": 0
     },
     "https://jiongks.name/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.299857+00:00",
+      "last_ok": "2026-05-14T03:13:25.427536+00:00",
       "consecutive_failures": 0
     },
     "http://www.btorange.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.299116+00:00",
+      "last_ok": "2026-05-14T03:13:25.427435+00:00",
       "consecutive_failures": 0
     },
     "http://www.fengtang.com/blog/?feed=rss2": {
-      "last_ok": "2026-05-13T14:50:36.299388+00:00",
+      "last_ok": "2026-05-14T03:13:25.427510+00:00",
       "consecutive_failures": 0
     },
     "https://lucifr.com/rss/": {
-      "last_ok": "2026-05-13T14:50:36.299291+00:00",
+      "last_ok": "2026-05-14T03:13:25.427508+00:00",
       "consecutive_failures": 0
     },
     "https://zhang.ge/feed": {
-      "last_ok": "2026-05-13T14:50:36.299560+00:00",
+      "last_ok": "2026-05-14T03:13:25.427522+00:00",
       "consecutive_failures": 0
     },
     "https://blog.ichr.me/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.299154+00:00",
+      "last_ok": "2026-05-14T03:13:25.427505+00:00",
       "consecutive_failures": 0
     },
     "https://www.mifengtd.cn/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.299490+00:00",
+      "last_ok": "2026-05-14T03:13:25.427519+00:00",
       "consecutive_failures": 0
     },
     "http://www.52nlp.cn/feed": {
@@ -447,31 +451,31 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.devtang.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.299732+00:00",
+      "last_ok": "2026-05-14T03:13:25.427525+00:00",
       "consecutive_failures": 0
     },
     "https://onevcat.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.299695+00:00",
+      "last_ok": "2026-05-14T03:13:25.427513+00:00",
       "consecutive_failures": 0
     },
     "https://blog.ibireme.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.299627+00:00",
+      "last_ok": "2026-05-14T03:13:25.427516+00:00",
       "consecutive_failures": 0
     },
     "http://feeds.kenengba.com/kenengbarss": {
-      "last_ok": "2026-05-13T14:50:36.300112+00:00",
+      "last_ok": "2026-05-14T03:13:25.427527+00:00",
       "consecutive_failures": 0
     },
     "https://colobu.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.300379+00:00",
+      "last_ok": "2026-05-14T03:13:25.427545+00:00",
       "consecutive_failures": 0
     },
     "http://feihu.me/blog/feed.atom": {
-      "last_ok": "2026-05-13T14:50:36.301256+00:00",
+      "last_ok": "2026-05-14T03:13:25.427568+00:00",
       "consecutive_failures": 0
     },
     "https://blog.niclin.tw/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.300179+00:00",
+      "last_ok": "2026-05-14T03:13:25.427533+00:00",
       "consecutive_failures": 0
     },
     "http://halfrost.com/rss/": {
@@ -484,11 +488,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://feeds.feedburner.com/lzyy": {
-      "last_ok": "2026-05-13T14:50:36.299984+00:00",
+      "last_ok": "2026-05-14T03:13:25.427530+00:00",
       "consecutive_failures": 0
     },
     "http://blog.sunnyxx.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.300550+00:00",
+      "last_ok": "2026-05-14T03:13:25.427559+00:00",
       "consecutive_failures": 0
     },
     "https://xiangwangfeng.com/atom.xml": {
@@ -501,27 +505,28 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.kevinzhow.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.300805+00:00",
+      "last_ok": "2026-05-14T03:13:25.427547+00:00",
       "consecutive_failures": 0
     },
     "http://blog.cnbang.net/feed/": {
-      "last_ok": "2026-05-13T14:50:36.300936+00:00",
+      "last_ok": "2026-05-14T03:13:25.427550+00:00",
       "consecutive_failures": 0
     },
     "http://feeds.feedburner.com/tualatrix": {
-      "last_ok": "2026-05-13T14:50:36.300307+00:00",
+      "last_ok": "2026-05-14T03:13:25.427542+00:00",
       "consecutive_failures": 0
     },
     "https://wujunze.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.300376+00:00",
+      "last_ok": "2026-05-14T03:13:25.427539+00:00",
       "consecutive_failures": 0
     },
     "https://wwj718.github.io/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.301130+00:00",
-      "consecutive_failures": 0
+      "last_ok": "2026-05-14T03:13:25.427574+00:00",
+      "consecutive_failures": 0,
+      "is_aggregator": true
     },
     "http://feeds.feedburner.com/initiative": {
-      "last_ok": "2026-05-13T14:50:36.300678+00:00",
+      "last_ok": "2026-05-14T03:13:25.427553+00:00",
       "consecutive_failures": 0
     },
     "https://www.hehuapei.com/feed": {
@@ -534,11 +539,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://zh.fyi/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.301003+00:00",
+      "last_ok": "2026-05-14T03:13:25.427556+00:00",
       "consecutive_failures": 0
     },
     "https://wocai.de/index.xml/": {
-      "last_ok": "2026-05-13T14:50:36.301006+00:00",
+      "last_ok": "2026-05-14T03:13:25.427565+00:00",
       "consecutive_failures": 0
     },
     "https://www.wujingquan.com/atom.xml": {
@@ -551,11 +556,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://jaredtao.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.301856+00:00",
+      "last_ok": "2026-05-14T03:13:25.428094+00:00",
       "consecutive_failures": 0
     },
     "https://persumi.com/u/fredwu/feed/rss": {
-      "last_ok": "2026-05-13T14:50:36.301725+00:00",
+      "last_ok": "2026-05-14T03:13:25.428045+00:00",
       "consecutive_failures": 0
     },
     "https://youngxhui.top/index.xml": {
@@ -577,7 +582,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.frytea.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.303458+00:00",
+      "last_ok": "2026-05-14T03:13:25.428149+00:00",
       "consecutive_failures": 0
     },
     "https://lailin.xyz/atom.xml": {
@@ -599,11 +604,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://1a23.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.301658+00:00",
+      "last_ok": "2026-05-14T03:13:25.428037+00:00",
       "consecutive_failures": 0
     },
     "https://jiajunhuang.com/rss": {
-      "last_ok": "2026-05-13T14:50:36.302120+00:00",
+      "last_ok": "2026-05-14T03:13:25.428085+00:00",
       "consecutive_failures": 0
     },
     "https://stackoverflow.wiki/blog/rss.xml": {
@@ -625,43 +630,43 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.ixiqin.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.302430+00:00",
+      "last_ok": "2026-05-14T03:13:25.428074+00:00",
       "consecutive_failures": 0
     },
     "https://hateonion.me/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.301377+00:00",
+      "last_ok": "2026-05-14T03:13:25.427571+00:00",
       "consecutive_failures": 0
     },
     "https://nicksxs.me/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.301526+00:00",
+      "last_ok": "2026-05-14T03:13:25.428041+00:00",
       "consecutive_failures": 0
     },
     "https://www.capallen.top/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.302781+00:00",
+      "last_ok": "2026-05-14T03:13:25.428115+00:00",
       "consecutive_failures": 0
     },
     "http://yihui.name/cn/feed/": {
-      "last_ok": "2026-05-13T14:50:36.302249+00:00",
+      "last_ok": "2026-05-14T03:13:25.428082+00:00",
       "consecutive_failures": 0
     },
     "https://blog.farmostwood.net/feed": {
-      "last_ok": "2026-05-13T14:50:36.303710+00:00",
+      "last_ok": "2026-05-14T03:13:25.428088+00:00",
       "consecutive_failures": 0
     },
     "https://www.changhai.org/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.301989+00:00",
+      "last_ok": "2026-05-14T03:13:25.428091+00:00",
       "consecutive_failures": 0
     },
     "https://ssshooter.com/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.302520+00:00",
+      "last_ok": "2026-05-14T03:13:25.428109+00:00",
       "consecutive_failures": 0
     },
     "https://alxddh.github.io/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.302315+00:00",
+      "last_ok": "2026-05-14T03:13:25.428097+00:00",
       "consecutive_failures": 0
     },
     "https://kaix.in/feed/": {
-      "last_ok": "2026-05-13T14:50:36.302387+00:00",
+      "last_ok": "2026-05-14T03:13:25.428104+00:00",
       "consecutive_failures": 0
     },
     "https://ii74.com/feed.php": {
@@ -683,11 +688,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://livid.v2ex.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.302318+00:00",
+      "last_ok": "2026-05-14T03:13:25.428100+00:00",
       "consecutive_failures": 0
     },
     "https://www.imhanjm.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.302977+00:00",
+      "last_ok": "2026-05-14T03:13:25.428120+00:00",
       "consecutive_failures": 0
     },
     "https://www.kingname.info/atom.xml": {
@@ -709,31 +714,31 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://igaojin.me/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.303176+00:00",
+      "last_ok": "2026-05-14T03:13:25.428124+00:00",
       "consecutive_failures": 0
     },
     "https://keelii.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.304005+00:00",
+      "last_ok": "2026-05-14T03:13:25.428144+00:00",
       "consecutive_failures": 0
     },
     "https://xilidou.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.306991+00:00",
+      "last_ok": "2026-05-14T03:13:25.428218+00:00",
       "consecutive_failures": 0
     },
     "https://kuricat.com/rss": {
-      "last_ok": "2026-05-13T14:50:36.302910+00:00",
+      "last_ok": "2026-05-14T03:13:25.428112+00:00",
       "consecutive_failures": 0
     },
     "https://h-cheung.gitlab.io/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.303780+00:00",
+      "last_ok": "2026-05-14T03:13:25.428135+00:00",
       "consecutive_failures": 0
     },
     "https://tingtalk.me/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.305875+00:00",
+      "last_ok": "2026-05-14T03:13:25.428212+00:00",
       "consecutive_failures": 0
     },
     "https://charlesliuyx.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.303871+00:00",
+      "last_ok": "2026-05-14T03:13:25.428141+00:00",
       "consecutive_failures": 0
     },
     "https://zkqiang.cn/atom.xml": {
@@ -746,7 +751,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.xulihang.me/feed/": {
-      "last_ok": "2026-05-13T14:50:36.303108+00:00",
+      "last_ok": "2026-05-14T03:13:25.428118+00:00",
       "consecutive_failures": 0
     },
     "https://hiwannz.com/feed": {
@@ -759,15 +764,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://102no.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.303584+00:00",
+      "last_ok": "2026-05-14T03:13:25.428130+00:00",
       "consecutive_failures": 0
     },
     "https://mebtte.com/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.303309+00:00",
+      "last_ok": "2026-05-14T03:13:25.428127+00:00",
       "consecutive_failures": 0
     },
     "https://blog.joouis.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.304257+00:00",
+      "last_ok": "2026-05-14T03:13:25.428146+00:00",
       "consecutive_failures": 0
     },
     "https://www.devashen.com/atom.xml": {
@@ -780,35 +785,36 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://blog.hanschen.site/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.304651+00:00",
+      "last_ok": "2026-05-14T03:13:25.428152+00:00",
       "consecutive_failures": 0
     },
     "https://iphysresearch.github.io/blog/post/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.308265+00:00",
-      "consecutive_failures": 0
+      "last_ok": "2026-05-14T03:13:25.428247+00:00",
+      "consecutive_failures": 0,
+      "is_aggregator": true
     },
     "https://desvl.xyz/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.304132+00:00",
+      "last_ok": "2026-05-14T03:13:25.428133+00:00",
       "consecutive_failures": 0
     },
     "https://hkvision.cn/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.304382+00:00",
+      "last_ok": "2026-05-14T03:13:25.428138+00:00",
       "consecutive_failures": 0
     },
     "https://deepzz.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.304973+00:00",
+      "last_ok": "2026-05-14T03:13:25.428157+00:00",
       "consecutive_failures": 0
     },
     "https://lucifer.ren/blog/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.304525+00:00",
+      "last_ok": "2026-05-14T03:13:25.428155+00:00",
       "consecutive_failures": 0
     },
     "https://glumes.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.304848+00:00",
+      "last_ok": "2026-05-14T03:13:25.428166+00:00",
       "consecutive_failures": 0
     },
     "https://www.josherich.me/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.305228+00:00",
+      "last_ok": "2026-05-14T03:13:25.428171+00:00",
       "consecutive_failures": 0
     },
     "https://xzhsh.ch/index.xml": {
@@ -839,15 +845,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://anran758.github.io/blog/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.305100+00:00",
+      "last_ok": "2026-05-14T03:13:25.428164+00:00",
       "consecutive_failures": 0
     },
     "https://www.ioiox.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.304780+00:00",
+      "last_ok": "2026-05-14T03:13:25.428160+00:00",
       "consecutive_failures": 0
     },
     "https://axionl.me/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.305442+00:00",
+      "last_ok": "2026-05-14T03:13:25.428177+00:00",
       "consecutive_failures": 0
     },
     "https://darmau.co/zh/article/rss.xml": {
@@ -860,7 +866,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.cxyxiaowu.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.305728+00:00",
+      "last_ok": "2026-05-14T03:13:25.428188+00:00",
       "consecutive_failures": 0
     },
     "https://jyzhu.top/atom.xml": {
@@ -873,15 +879,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://zofun.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.306196+00:00",
+      "last_ok": "2026-05-14T03:13:25.428199+00:00",
       "consecutive_failures": 0
     },
     "https://www.ttalk.im/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.305300+00:00",
+      "last_ok": "2026-05-14T03:13:25.428169+00:00",
       "consecutive_failures": 0
     },
     "https://amonxu.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.305560+00:00",
+      "last_ok": "2026-05-14T03:13:25.428182+00:00",
       "consecutive_failures": 0
     },
     "https://blog.xiaoi.me/feed.xml": {
@@ -912,7 +918,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://leovan.me/cn/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.309175+00:00",
+      "last_ok": "2026-05-14T03:13:25.428607+00:00",
       "consecutive_failures": 0
     },
     "https://ifttl.com/index.xml": {
@@ -934,7 +940,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://objcoding.github.io/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.305367+00:00",
+      "last_ok": "2026-05-14T03:13:25.428174+00:00",
       "consecutive_failures": 0
     },
     "https://yuexun.me/rss.xml": {
@@ -956,11 +962,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.iyouhun.com/rss.php": {
-      "last_ok": "2026-05-13T14:50:36.305691+00:00",
+      "last_ok": "2026-05-14T03:13:25.428180+00:00",
       "consecutive_failures": 0
     },
     "https://www.lanka.cn/feed/": {
-      "last_ok": "2026-05-13T14:50:36.305807+00:00",
+      "last_ok": "2026-05-14T03:13:25.428185+00:00",
       "consecutive_failures": 0
     },
     "https://blog.fxcdev.com/atom.xml": {
@@ -982,23 +988,23 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://xsky.me/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.306328+00:00",
+      "last_ok": "2026-05-14T03:13:25.428194+00:00",
       "consecutive_failures": 0
     },
     "https://claude-ray.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.306535+00:00",
+      "last_ok": "2026-05-14T03:13:25.428204+00:00",
       "consecutive_failures": 0
     },
     "https://lepture.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.306002+00:00",
+      "last_ok": "2026-05-14T03:13:25.428196+00:00",
       "consecutive_failures": 0
     },
     "https://quaily.com/lyric/feed/atom": {
-      "last_ok": "2026-05-13T14:50:36.306663+00:00",
+      "last_ok": "2026-05-14T03:13:25.428207+00:00",
       "consecutive_failures": 0
     },
     "https://iphyer.github.io/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.306128+00:00",
+      "last_ok": "2026-05-14T03:13:25.428190+00:00",
       "consecutive_failures": 0
     },
     "https://sword.studio/feed/": {
@@ -1011,11 +1017,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.lacia.cn/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.306919+00:00",
+      "last_ok": "2026-05-14T03:13:25.428209+00:00",
       "consecutive_failures": 0
     },
     "https://idealclover.top/feed": {
-      "last_ok": "2026-05-13T14:50:36.306468+00:00",
+      "last_ok": "2026-05-14T03:13:25.428201+00:00",
       "consecutive_failures": 0
     },
     "https://blog.ixk.me/feed": {
@@ -1055,7 +1061,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://www.z16388.top/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.307116+00:00",
+      "last_ok": "2026-05-14T03:13:25.428224+00:00",
       "consecutive_failures": 0
     },
     "https://chawyehsu.com/feed/atom.xml": {
@@ -1068,7 +1074,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://mednoter.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.306794+00:00",
+      "last_ok": "2026-05-14T03:13:25.428221+00:00",
       "consecutive_failures": 0
     },
     "https://gaficat.com/atom.xml": {
@@ -1081,11 +1087,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://hutusi.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.307708+00:00",
+      "last_ok": "2026-05-14T03:13:25.428241+00:00",
       "consecutive_failures": 0
     },
     "http://blog.jiayuanzhang.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.306790+00:00",
+      "last_ok": "2026-05-14T03:13:25.428215+00:00",
       "consecutive_failures": 0
     },
     "https://www.zsythink.net/feed/": {
@@ -1098,11 +1104,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://huhuhang.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.307244+00:00",
+      "last_ok": "2026-05-14T03:13:25.428233+00:00",
       "consecutive_failures": 0
     },
     "https://www.dongwm.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.307511+00:00",
+      "last_ok": "2026-05-14T03:13:25.428238+00:00",
       "consecutive_failures": 0
     },
     "https://www.lfhacks.com/rss/": {
@@ -1115,15 +1121,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://oldj.net/feed": {
-      "last_ok": "2026-05-13T14:50:36.307836+00:00",
+      "last_ok": "2026-05-14T03:13:25.428236+00:00",
       "consecutive_failures": 0
     },
     "https://zdyxry.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.307579+00:00",
+      "last_ok": "2026-05-14T03:13:25.428230+00:00",
       "consecutive_failures": 0
     },
     "https://blog.guowenfh.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.307971+00:00",
+      "last_ok": "2026-05-14T03:13:25.428539+00:00",
       "consecutive_failures": 0
     },
     "https://huiweishijie.com/feed.xml": {
@@ -1136,11 +1142,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.itbob.cn/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.309440+00:00",
+      "last_ok": "2026-05-14T03:13:25.428587+00:00",
       "consecutive_failures": 0
     },
     "https://blog.mute-g.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.307374+00:00",
+      "last_ok": "2026-05-14T03:13:25.428227+00:00",
       "consecutive_failures": 0
     },
     "https://callmesoul.cn/rss.xml": {
@@ -1153,11 +1159,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://laogongshuo.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.307903+00:00",
+      "last_ok": "2026-05-14T03:13:25.428244+00:00",
       "consecutive_failures": 0
     },
     "https://blog.diqigan.cn/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.310569+00:00",
+      "last_ok": "2026-05-14T03:13:25.428717+00:00",
       "consecutive_failures": 0
     },
     "https://kinnoukabokudo.com/feed": {
@@ -1170,15 +1176,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.codewoody.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.308790+00:00",
+      "last_ok": "2026-05-14T03:13:25.428572+00:00",
       "consecutive_failures": 0
     },
     "https://blog.crimx.com/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.308189+00:00",
+      "last_ok": "2026-05-14T03:13:25.428549+00:00",
       "consecutive_failures": 0
     },
     "https://xiaophy.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.308099+00:00",
+      "last_ok": "2026-05-14T03:13:25.428543+00:00",
       "consecutive_failures": 0
     },
     "https://michael728.github.io/atom.xml": {
@@ -1191,55 +1197,55 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://dosk.win/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.308394+00:00",
+      "last_ok": "2026-05-14T03:13:25.428546+00:00",
       "consecutive_failures": 0
     },
     "https://blog.lushuyu.site/feed/": {
-      "last_ok": "2026-05-13T14:50:36.308724+00:00",
+      "last_ok": "2026-05-14T03:13:25.428560+00:00",
       "consecutive_failures": 0
     },
     "https://www.xiejingyang.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.309573+00:00",
+      "last_ok": "2026-05-14T03:13:25.428566+00:00",
       "consecutive_failures": 0
     },
     "https://zhengzexin.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.308530+00:00",
+      "last_ok": "2026-05-14T03:13:25.428563+00:00",
       "consecutive_failures": 0
     },
     "https://www.wyr.me/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.308916+00:00",
+      "last_ok": "2026-05-14T03:13:25.428578+00:00",
       "consecutive_failures": 0
     },
     "https://blog.vadxq.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.309303+00:00",
+      "last_ok": "2026-05-14T03:13:25.428598+00:00",
       "consecutive_failures": 0
     },
     "http://scottyeung.top/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.308656+00:00",
+      "last_ok": "2026-05-14T03:13:25.428552+00:00",
       "consecutive_failures": 0
     },
     "https://www.larscheng.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.311253+00:00",
+      "last_ok": "2026-05-14T03:13:25.428730+00:00",
       "consecutive_failures": 0
     },
     "https://blog.singee.me/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.309047+00:00",
+      "last_ok": "2026-05-14T03:13:25.428584+00:00",
       "consecutive_failures": 0
     },
     "https://articles.singee.me/feed/xml": {
-      "last_ok": "2026-05-13T14:50:36.309570+00:00",
+      "last_ok": "2026-05-14T03:13:25.428569+00:00",
       "consecutive_failures": 0
     },
     "https://mazhuang.org/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.309643+00:00",
+      "last_ok": "2026-05-14T03:13:25.428575+00:00",
       "consecutive_failures": 0
     },
     "https://www.bmqy.net/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.309714+00:00",
+      "last_ok": "2026-05-14T03:13:25.428581+00:00",
       "consecutive_failures": 0
     },
     "https://hijiangtao.github.io/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.309836+00:00",
+      "last_ok": "2026-05-14T03:13:25.428595+00:00",
       "consecutive_failures": 0
     },
     "https://yuechuanx.top/atom.xml": {
@@ -1252,11 +1258,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://z.arlmy.me/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.312509+00:00",
+      "last_ok": "2026-05-14T03:13:25.428895+00:00",
       "consecutive_failures": 0
     },
     "https://www.wikimoe.com/rss.php": {
-      "last_ok": "2026-05-13T14:50:36.309905+00:00",
+      "last_ok": "2026-05-14T03:13:25.428603+00:00",
       "consecutive_failures": 0
     },
     "https://blog.strongwong.top/atom.xml": {
@@ -1269,7 +1275,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://paugram.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.310098+00:00",
+      "last_ok": "2026-05-14T03:13:25.428600+00:00",
       "consecutive_failures": 0
     },
     "https://typeblog.net/rss/": {
@@ -1282,11 +1288,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://jhuo.ca/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.309711+00:00",
+      "last_ok": "2026-05-14T03:13:25.428590+00:00",
       "consecutive_failures": 0
     },
     "http://blog.mikeoperfect.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.309972+00:00",
+      "last_ok": "2026-05-14T03:13:25.428592+00:00",
       "consecutive_failures": 0
     },
     "https://www.kai666666.top/atom.xml": {
@@ -1299,11 +1305,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://lichuanyang.top/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.310867+00:00",
+      "last_ok": "2026-05-14T03:13:25.428711+00:00",
       "consecutive_failures": 0
     },
     "https://notlsd.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.310444+00:00",
+      "last_ok": "2026-05-14T03:13:25.428698+00:00",
       "consecutive_failures": 0
     },
     "https://blog.imalan.cn/feed.xml": {
@@ -1316,19 +1322,19 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.duyaoss.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.310990+00:00",
+      "last_ok": "2026-05-14T03:13:25.428714+00:00",
       "consecutive_failures": 0
     },
     "https://blog.k8s.li/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.311528+00:00",
+      "last_ok": "2026-05-14T03:13:25.428728+00:00",
       "consecutive_failures": 0
     },
     "https://wuxinhua.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.310165+00:00",
+      "last_ok": "2026-05-14T03:13:25.428612+00:00",
       "consecutive_failures": 0
     },
     "https://innei.ren/feed": {
-      "last_ok": "2026-05-13T14:50:36.310366+00:00",
+      "last_ok": "2026-05-14T03:13:25.428609+00:00",
       "consecutive_failures": 0
     },
     "https://tumutanzi.com/feed": {
@@ -1359,43 +1365,44 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.lujun9972.win/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.310291+00:00",
-      "consecutive_failures": 0
+      "last_ok": "2026-05-14T03:13:25.428615+00:00",
+      "consecutive_failures": 0,
+      "is_aggregator": true
     },
     "https://jw1.dev/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.310698+00:00",
+      "last_ok": "2026-05-14T03:13:25.428702+00:00",
       "consecutive_failures": 0
     },
     "https://wangxin.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.310739+00:00",
+      "last_ok": "2026-05-14T03:13:25.428708+00:00",
       "consecutive_failures": 0
     },
     "http://jartto.wang/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.311595+00:00",
+      "last_ok": "2026-05-14T03:13:25.428733+00:00",
       "consecutive_failures": 0
     },
     "https://www.scarsu.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.310736+00:00",
+      "last_ok": "2026-05-14T03:13:25.428705+00:00",
       "consecutive_failures": 0
     },
     "https://blog.lucien.ink/feed/": {
-      "last_ok": "2026-05-13T14:50:36.310993+00:00",
+      "last_ok": "2026-05-14T03:13:25.428719+00:00",
       "consecutive_failures": 0
     },
     "https://blog.pushihao.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.311923+00:00",
+      "last_ok": "2026-05-14T03:13:25.428892+00:00",
       "consecutive_failures": 0
     },
     "https://www.ouorz.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.311059+00:00",
+      "last_ok": "2026-05-14T03:13:25.428725+00:00",
       "consecutive_failures": 0
     },
     "https://liqiang.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.311181+00:00",
+      "last_ok": "2026-05-14T03:13:25.428722+00:00",
       "consecutive_failures": 0
     },
     "https://knightyun.github.io/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.314005+00:00",
+      "last_ok": "2026-05-14T03:13:25.429017+00:00",
       "consecutive_failures": 0
     },
     "https://www.yangzhiping.com/feed.xml": {
@@ -1435,7 +1442,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.skrskrskrskr.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.311383+00:00",
+      "last_ok": "2026-05-14T03:13:25.428739+00:00",
       "consecutive_failures": 0
     },
     "https://www.cyhone.com/atom.xml": {
@@ -1445,23 +1452,23 @@
       "failed_at": "2026-05-13T14:50:36.311250+00:00"
     },
     "https://www.liesauer.net/blog/feed/": {
-      "last_ok": "2026-05-13T14:50:36.316191+00:00",
+      "last_ok": "2026-05-14T03:13:25.429001+00:00",
       "consecutive_failures": 0
     },
     "http://www.blogofmusic.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.312173+00:00",
+      "last_ok": "2026-05-14T03:13:25.428882+00:00",
       "consecutive_failures": 0
     },
     "https://www.byvoid.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.311845+00:00",
+      "last_ok": "2026-05-14T03:13:25.428736+00:00",
       "consecutive_failures": 0
     },
     "https://wangyi.ai/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.312243+00:00",
+      "last_ok": "2026-05-14T03:13:25.428885+00:00",
       "consecutive_failures": 0
     },
     "https://1byte.io/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.312636+00:00",
+      "last_ok": "2026-05-14T03:13:25.428955+00:00",
       "consecutive_failures": 0
     },
     "https://www.inevitable.tech/atom.xml": {
@@ -1474,23 +1481,24 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.bmpi.dev/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.311717+00:00",
-      "consecutive_failures": 0
+      "last_ok": "2026-05-14T03:13:25.428741+00:00",
+      "consecutive_failures": 0,
+      "is_aggregator": true
     },
     "https://61.life/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.312373+00:00",
+      "last_ok": "2026-05-14T03:13:25.428949+00:00",
       "consecutive_failures": 0
     },
     "https://wiki-power.com/feed_rss_updated.xml": {
-      "last_ok": "2026-05-13T14:50:36.316855+00:00",
+      "last_ok": "2026-05-14T03:13:25.429128+00:00",
       "consecutive_failures": 0
     },
     "https://tripper.press/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.312045+00:00",
+      "last_ok": "2026-05-14T03:13:25.428889+00:00",
       "consecutive_failures": 0
     },
     "http://lulalap.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.312370+00:00",
+      "last_ok": "2026-05-14T03:13:25.428952+00:00",
       "consecutive_failures": 0
     },
     "https://shingle.me/index.xml": {
@@ -1503,23 +1511,23 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://lenciel.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.312877+00:00",
+      "last_ok": "2026-05-14T03:13:25.428961+00:00",
       "consecutive_failures": 0
     },
     "https://chriszheng.science/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.312943+00:00",
+      "last_ok": "2026-05-14T03:13:25.428975+00:00",
       "consecutive_failures": 0
     },
     "https://blog.star7th.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.313071+00:00",
+      "last_ok": "2026-05-14T03:13:25.428972+00:00",
       "consecutive_failures": 0
     },
     "https://chinomars.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.312760+00:00",
+      "last_ok": "2026-05-14T03:13:25.428958+00:00",
       "consecutive_failures": 0
     },
     "https://chattymoney.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.313470+00:00",
+      "last_ok": "2026-05-14T03:13:25.428964+00:00",
       "consecutive_failures": 0
     },
     "https://tcpgnl.com/feed/": {
@@ -1532,15 +1540,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://weirane.github.io/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.312810+00:00",
+      "last_ok": "2026-05-14T03:13:25.428967+00:00",
       "consecutive_failures": 0
     },
     "https://blog.joway.io/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.313335+00:00",
+      "last_ok": "2026-05-14T03:13:25.428984+00:00",
       "consecutive_failures": 0
     },
     "https://mabbs.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.313136+00:00",
+      "last_ok": "2026-05-14T03:13:25.428969+00:00",
       "consecutive_failures": 0
     },
     "https://rapiz.me/atom.xml": {
@@ -1553,11 +1561,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://idle.systems/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.313589+00:00",
+      "last_ok": "2026-05-14T03:13:25.428987+00:00",
       "consecutive_failures": 0
     },
     "https://www.jitao.tech/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.313202+00:00",
+      "last_ok": "2026-05-14T03:13:25.428978+00:00",
       "consecutive_failures": 0
     },
     "https://blog.shuziyimin.org/feed": {
@@ -1570,11 +1578,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.bobjiang.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.315323+00:00",
+      "last_ok": "2026-05-14T03:13:25.429086+00:00",
       "consecutive_failures": 0
     },
     "https://plausistory.blog/feed/": {
-      "last_ok": "2026-05-13T14:50:36.313522+00:00",
+      "last_ok": "2026-05-14T03:13:25.428995+00:00",
       "consecutive_failures": 0
     },
     "https://earture.org/atom.xml": {
@@ -1587,15 +1595,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.9hz.club/feed/": {
-      "last_ok": "2026-05-13T14:50:36.313331+00:00",
+      "last_ok": "2026-05-14T03:13:25.428981+00:00",
       "consecutive_failures": 0
     },
     "https://leftshadow.com/?call_custom_simple_rss=1&csrp_cat=11": {
-      "last_ok": "2026-05-13T14:50:36.314002+00:00",
+      "last_ok": "2026-05-14T03:13:25.428990+00:00",
       "consecutive_failures": 0
     },
     "https://wzyboy.im/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.313714+00:00",
+      "last_ok": "2026-05-14T03:13:25.428992+00:00",
       "consecutive_failures": 0
     },
     "https://beyondstars.xyz/api/feeds/atom": {
@@ -1608,23 +1616,23 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://ipotato.me/feed": {
-      "last_ok": "2026-05-13T14:50:36.314579+00:00",
+      "last_ok": "2026-05-14T03:13:25.429012+00:00",
       "consecutive_failures": 0
     },
     "https://blog.vvzero.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.313750+00:00",
+      "last_ok": "2026-05-14T03:13:25.428998+00:00",
       "consecutive_failures": 0
     },
     "https://blog.hclonely.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.313878+00:00",
+      "last_ok": "2026-05-14T03:13:25.429003+00:00",
       "consecutive_failures": 0
     },
     "https://geofftools.cn/blog/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.314857+00:00",
+      "last_ok": "2026-05-14T03:13:25.429041+00:00",
       "consecutive_failures": 0
     },
     "https://www.sund.site/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.314130+00:00",
+      "last_ok": "2026-05-14T03:13:25.429006+00:00",
       "consecutive_failures": 0
     },
     "https://tomotoes.com/blog/atom.xml": {
@@ -1637,7 +1645,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://zhangdinghao.cn/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.314326+00:00",
+      "last_ok": "2026-05-14T03:13:25.429015+00:00",
       "consecutive_failures": 0
     },
     "http://weisenhui.top/atom.xml": {
@@ -1650,7 +1658,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://miaotony.xyz/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.314200+00:00",
+      "last_ok": "2026-05-14T03:13:25.429009+00:00",
       "consecutive_failures": 0
     },
     "https://ryank231231.top/feed/": {
@@ -1672,59 +1680,59 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://juemuren4449.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.317130+00:00",
+      "last_ok": "2026-05-14T03:13:25.429097+00:00",
       "consecutive_failures": 0
     },
     "https://hwchiu.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.315167+00:00",
+      "last_ok": "2026-05-14T03:13:25.429038+00:00",
       "consecutive_failures": 0
     },
     "https://blog.jiejiss.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.316388+00:00",
+      "last_ok": "2026-05-14T03:13:25.429088+00:00",
       "consecutive_failures": 0
     },
     "https://thewanderingpotato.github.io/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.314460+00:00",
+      "last_ok": "2026-05-14T03:13:25.429020+00:00",
       "consecutive_failures": 0
     },
     "https://jicki.cn/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.314971+00:00",
+      "last_ok": "2026-05-14T03:13:25.429028+00:00",
       "consecutive_failures": 0
     },
     "https://www.evennotes.cn/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.315040+00:00",
+      "last_ok": "2026-05-14T03:13:25.429035+00:00",
       "consecutive_failures": 0
     },
     "https://justpic.org/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.314722+00:00",
+      "last_ok": "2026-05-14T03:13:25.429023+00:00",
       "consecutive_failures": 0
     },
     "https://codechina.org/feed/": {
-      "last_ok": "2026-05-13T14:50:36.314789+00:00",
+      "last_ok": "2026-05-14T03:13:25.429025+00:00",
       "consecutive_failures": 0
     },
     "https://muyun.work/feed/": {
-      "last_ok": "2026-05-13T14:50:36.316529+00:00",
+      "last_ok": "2026-05-14T03:13:25.429046+00:00",
       "consecutive_failures": 0
     },
     "https://wineso.me/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.315299+00:00",
+      "last_ok": "2026-05-14T03:13:25.429030+00:00",
       "consecutive_failures": 0
     },
     "https://www.aceact.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.315036+00:00",
+      "last_ok": "2026-05-14T03:13:25.429032+00:00",
       "consecutive_failures": 0
     },
     "https://wiki.eryajf.net/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.318389+00:00",
+      "last_ok": "2026-05-14T03:13:25.429130+00:00",
       "consecutive_failures": 0
     },
     "https://wulu.zone/feed/post.xml": {
-      "last_ok": "2026-05-13T14:50:36.316260+00:00",
+      "last_ok": "2026-05-14T03:13:25.429091+00:00",
       "consecutive_failures": 0
     },
     "https://ai.renyuzhuo.cn/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.315486+00:00",
+      "last_ok": "2026-05-14T03:13:25.429043+00:00",
       "consecutive_failures": 0
     },
     "https://www.l1yu.com/feed/feed.xml": {
@@ -1764,7 +1772,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://jayzangwill.github.io/blog/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.315655+00:00",
+      "last_ok": "2026-05-14T03:13:25.429077+00:00",
       "consecutive_failures": 0
     },
     "https://dawner.top/atom.xml": {
@@ -1786,11 +1794,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://frost-lee.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.315784+00:00",
+      "last_ok": "2026-05-14T03:13:25.429049+00:00",
       "consecutive_failures": 0
     },
     "https://kerminate.me/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.315926+00:00",
+      "last_ok": "2026-05-14T03:13:25.429080+00:00",
       "consecutive_failures": 0
     },
     "https://blog.mk1.io/api/feed": {
@@ -1803,7 +1811,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.chungzh.cn/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.319738+00:00",
+      "last_ok": "2026-05-14T03:13:25.429209+00:00",
       "consecutive_failures": 0
     },
     "https://guhub.cn/feed/": {
@@ -1816,11 +1824,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://lineuman.github.io/blog/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.316139+00:00",
+      "last_ok": "2026-05-14T03:13:25.429083+00:00",
       "consecutive_failures": 0
     },
     "https://zsqk.github.io/news/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.316728+00:00",
+      "last_ok": "2026-05-14T03:13:25.429100+00:00",
       "consecutive_failures": 0
     },
     "https://nalaginrut.com/feed/atom": {
@@ -1833,11 +1841,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://i.lckiss.com/?feed=rss2": {
-      "last_ok": "2026-05-13T14:50:36.318600+00:00",
+      "last_ok": "2026-05-14T03:13:25.429105+00:00",
       "consecutive_failures": 0
     },
     "https://numb.tech/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.316599+00:00",
+      "last_ok": "2026-05-14T03:13:25.429094+00:00",
       "consecutive_failures": 0
     },
     "https://zedex.cn/feed": {
@@ -1859,7 +1867,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://twistoy.cn/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.317546+00:00",
+      "last_ok": "2026-05-14T03:13:25.429122+00:00",
       "consecutive_failures": 0
     },
     "https://www.zuoyu.top/atom.xml": {
@@ -1872,7 +1880,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.aeilot.top/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.320413+00:00",
+      "last_ok": "2026-05-14T03:13:25.429215+00:00",
       "consecutive_failures": 0
     },
     "https://www.clckblog.space/blog/rss.xml": {
@@ -1885,7 +1893,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.yunyoujun.cn/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.317001+00:00",
+      "last_ok": "2026-05-14T03:13:25.429103+00:00",
       "consecutive_failures": 0
     },
     "https://www.ybusad.com/rss": {
@@ -1898,23 +1906,23 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://wusiyu.me/feed/": {
-      "last_ok": "2026-05-13T14:50:36.317463+00:00",
+      "last_ok": "2026-05-14T03:13:25.429111+00:00",
       "consecutive_failures": 0
     },
     "https://blog.zhengzi.me/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.317895+00:00",
+      "last_ok": "2026-05-14T03:13:25.429119+00:00",
       "consecutive_failures": 0
     },
     "https://www.feidaoboke.com/feed.php": {
-      "last_ok": "2026-05-13T14:50:36.319533+00:00",
+      "last_ok": "2026-05-14T03:13:25.429133+00:00",
       "consecutive_failures": 0
     },
     "https://www.physixfan.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.318084+00:00",
+      "last_ok": "2026-05-14T03:13:25.429114+00:00",
       "consecutive_failures": 0
     },
     "https://cyril3.github.io/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.317298+00:00",
+      "last_ok": "2026-05-14T03:13:25.429108+00:00",
       "consecutive_failures": 0
     },
     "https://ralf.ren/feed": {
@@ -1927,11 +1935,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.mutoo.im/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.317744+00:00",
+      "last_ok": "2026-05-14T03:13:25.429117+00:00",
       "consecutive_failures": 0
     },
     "https://ourai.ws/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.318690+00:00",
+      "last_ok": "2026-05-14T03:13:25.429139+00:00",
       "consecutive_failures": 0
     },
     "https://victrid.dev/feed.xml": {
@@ -1944,11 +1952,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://asazero.blogspot.com/feeds/posts/default": {
-      "last_ok": "2026-05-13T14:50:36.318300+00:00",
+      "last_ok": "2026-05-14T03:13:25.429125+00:00",
       "consecutive_failures": 0
     },
     "https://ddadaal.me/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.319601+00:00",
+      "last_ok": "2026-05-14T03:13:25.429175+00:00",
       "consecutive_failures": 0
     },
     "https://wuzhuti.cn/feed": {
@@ -1979,51 +1987,51 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://luyuhuang.github.io/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.318980+00:00",
+      "last_ok": "2026-05-14T03:13:25.429159+00:00",
       "consecutive_failures": 0
     },
     "https://feizhaojun.com/?feed=rss2": {
-      "last_ok": "2026-05-13T14:50:36.318758+00:00",
+      "last_ok": "2026-05-14T03:13:25.429151+00:00",
       "consecutive_failures": 0
     },
     "https://blog.xiaket.org/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.318305+00:00",
+      "last_ok": "2026-05-14T03:13:25.429136+00:00",
       "consecutive_failures": 0
     },
     "https://blog.ponder.work/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.319176+00:00",
+      "last_ok": "2026-05-14T03:13:25.429154+00:00",
       "consecutive_failures": 0
     },
     "https://blog.wangxuan.name/feed/": {
-      "last_ok": "2026-05-13T14:50:36.319303+00:00",
+      "last_ok": "2026-05-14T03:13:25.429156+00:00",
       "consecutive_failures": 0
     },
     "https://blog.gotocoding.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.319371+00:00",
+      "last_ok": "2026-05-14T03:13:25.429170+00:00",
       "consecutive_failures": 0
     },
     "https://www.mihu.live/feed/": {
-      "last_ok": "2026-05-13T14:50:36.318841+00:00",
+      "last_ok": "2026-05-14T03:13:25.429145+00:00",
       "consecutive_failures": 0
     },
     "https://tianheg.co/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.318909+00:00",
+      "last_ok": "2026-05-14T03:13:25.429143+00:00",
       "consecutive_failures": 0
     },
     "https://jingyig01.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.319047+00:00",
+      "last_ok": "2026-05-14T03:13:25.429148+00:00",
       "consecutive_failures": 0
     },
     "https://fourhappylions.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.320114+00:00",
+      "last_ok": "2026-05-14T03:13:25.429180+00:00",
       "consecutive_failures": 0
     },
     "https://chegva.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.320241+00:00",
+      "last_ok": "2026-05-14T03:13:25.429191+00:00",
       "consecutive_failures": 0
     },
     "https://leonson.me/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.319466+00:00",
+      "last_ok": "2026-05-14T03:13:25.429165+00:00",
       "consecutive_failures": 0
     },
     "https://blog.happyhack.io/atom.xml": {
@@ -2036,7 +2044,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.ofo.moe/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.319463+00:00",
+      "last_ok": "2026-05-14T03:13:25.429167+00:00",
       "consecutive_failures": 0
     },
     "https://owomoe.net/feed/": {
@@ -2049,19 +2057,19 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://cdn.jsdelivr.net/gh/ljcbaby/ljcbaby.github.io@latest/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.321231+00:00",
+      "last_ok": "2026-05-14T03:13:25.429162+00:00",
       "consecutive_failures": 0
     },
     "https://www.velasx.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.320277+00:00",
+      "last_ok": "2026-05-14T03:13:25.429178+00:00",
       "consecutive_failures": 0
     },
     "https://yjalifebook.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.319866+00:00",
+      "last_ok": "2026-05-14T03:13:25.429172+00:00",
       "consecutive_failures": 0
     },
     "https://zu1k.com/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.320709+00:00",
+      "last_ok": "2026-05-14T03:13:25.429185+00:00",
       "consecutive_failures": 0
     },
     "https://jalenz.cn/atom.xml": {
@@ -2092,17 +2100,17 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://pt.plus/rss/": {
-      "last_ok": "2026-05-13T08:17:01.749082+00:00",
+      "last_ok": "2026-05-14T03:13:25.429199+00:00",
       "consecutive_failures": 0,
       "last_error": "HTTPSConnectionPool(host='pt.plus', port=443): Read timed out. (read timeout=15)",
       "failed_at": "2026-05-13T05:12:21.379073+00:00"
     },
     "https://mathpretty.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.320546+00:00",
+      "last_ok": "2026-05-14T03:13:25.429194+00:00",
       "consecutive_failures": 0
     },
     "https://www.luozhiyun.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.321889+00:00",
+      "last_ok": "2026-05-14T03:13:25.429201+00:00",
       "consecutive_failures": 0
     },
     "https://www.frank.hk/rss.xml": {
@@ -2115,7 +2123,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://h.cjh0613.com/zh/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.319986+00:00",
+      "last_ok": "2026-05-14T03:13:25.429183+00:00",
       "consecutive_failures": 0
     },
     "https://blog.dugulingping.com/feed": {
@@ -2128,35 +2136,35 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://maxoxo.me/rss/": {
-      "last_ok": "2026-05-13T14:50:36.320930+00:00",
+      "last_ok": "2026-05-14T03:13:25.429221+00:00",
       "consecutive_failures": 0
     },
     "https://yuukoamamiya.github.io/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.321032+00:00",
+      "last_ok": "2026-05-14T03:13:25.429250+00:00",
       "consecutive_failures": 0
     },
     "https://jubeny.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.320613+00:00",
+      "last_ok": "2026-05-14T03:13:25.429188+00:00",
       "consecutive_failures": 0
     },
     "https://lhymwm.github.io//atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.320346+00:00",
+      "last_ok": "2026-05-14T03:13:25.429196+00:00",
       "consecutive_failures": 0
     },
     "https://jiayiliu.me/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.320768+00:00",
+      "last_ok": "2026-05-14T03:13:25.429207+00:00",
       "consecutive_failures": 0
     },
     "https://blog.henix.info/rss2.0.xml": {
-      "last_ok": "2026-05-13T14:50:36.320864+00:00",
+      "last_ok": "2026-05-14T03:13:25.429204+00:00",
       "consecutive_failures": 0
     },
     "https://imzm.im/feed": {
-      "last_ok": "2026-05-13T14:50:36.321558+00:00",
+      "last_ok": "2026-05-14T03:13:25.429232+00:00",
       "consecutive_failures": 0
     },
     "https://musenxi.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.321029+00:00",
+      "last_ok": "2026-05-14T03:13:25.429212+00:00",
       "consecutive_failures": 0
     },
     "https://ngzhio.github.io/feed.xml": {
@@ -2169,7 +2177,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://wsdjeg.net/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.322707+00:00",
+      "last_ok": "2026-05-14T03:13:25.429344+00:00",
       "consecutive_failures": 0
     },
     "https://painso.com/posts/index.xml": {
@@ -2182,11 +2190,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://xiaozhu.dev/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.321160+00:00",
+      "last_ok": "2026-05-14T03:13:25.429224+00:00",
       "consecutive_failures": 0
     },
     "https://blog.251.sh/feed/": {
-      "last_ok": "2026-05-13T14:50:36.321492+00:00",
+      "last_ok": "2026-05-14T03:13:25.429235+00:00",
       "consecutive_failures": 0
     },
     "https://www.luxianpo.com/rss.xml": {
@@ -2199,7 +2207,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://xugaoxiang.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.321163+00:00",
+      "last_ok": "2026-05-14T03:13:25.429227+00:00",
       "consecutive_failures": 0
     },
     "https://xuyisheng.top/rss/": {
@@ -2221,15 +2229,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://diff.im/blog/?feed=rss2": {
-      "last_ok": "2026-05-13T14:50:36.321026+00:00",
+      "last_ok": "2026-05-14T03:13:25.429218+00:00",
       "consecutive_failures": 0
     },
     "https://cdjax.com/?feed=rss2": {
-      "last_ok": "2026-05-13T14:50:36.322223+00:00",
+      "last_ok": "2026-05-14T03:13:25.429256+00:00",
       "consecutive_failures": 0
     },
     "https://zxs.io/feed": {
-      "last_ok": "2026-05-13T14:50:36.321760+00:00",
+      "last_ok": "2026-05-14T03:13:25.429238+00:00",
       "consecutive_failures": 0
     },
     "https://masuit.com/rss": {
@@ -2242,7 +2250,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://geektutu.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.321357+00:00",
+      "last_ok": "2026-05-14T03:13:25.429230+00:00",
       "consecutive_failures": 0
     },
     "https://www.geekzl.com/feed": {
@@ -2255,7 +2263,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.chenshaowen.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.322571+00:00",
+      "last_ok": "2026-05-14T03:13:25.429271+00:00",
       "consecutive_failures": 0
     },
     "https://kubesphereio.com/tags/index.xml": {
@@ -2286,43 +2294,43 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.eriqua.com/index.php/feed": {
-      "last_ok": "2026-05-13T14:50:36.322426+00:00",
+      "last_ok": "2026-05-14T03:13:25.429263+00:00",
       "consecutive_failures": 0
     },
     "https://yishi.io/feed": {
-      "last_ok": "2026-05-13T14:50:36.321692+00:00",
+      "last_ok": "2026-05-14T03:13:25.429244+00:00",
       "consecutive_failures": 0
     },
     "https://blog.triplez.cn/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.322024+00:00",
+      "last_ok": "2026-05-14T03:13:25.429253+00:00",
       "consecutive_failures": 0
     },
     "https://ambroseren.github.io": {
-      "last_ok": "2026-05-13T14:50:36.321688+00:00",
+      "last_ok": "2026-05-14T03:13:25.429241+00:00",
       "consecutive_failures": 0
     },
     "https://tingfei.space/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.322704+00:00",
+      "last_ok": "2026-05-14T03:13:25.429268+00:00",
       "consecutive_failures": 0
     },
     "https://www.tony-bro.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.322429+00:00",
+      "last_ok": "2026-05-14T03:13:25.429274+00:00",
       "consecutive_failures": 0
     },
     "https://blog.lxdlam.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.321957+00:00",
+      "last_ok": "2026-05-14T03:13:25.429247+00:00",
       "consecutive_failures": 0
     },
     "https://bubuzou.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.323260+00:00",
+      "last_ok": "2026-05-14T03:13:25.429353+00:00",
       "consecutive_failures": 0
     },
     "https://holmesian.org/feed": {
-      "last_ok": "2026-05-13T14:50:36.323651+00:00",
+      "last_ok": "2026-05-14T03:13:25.429341+00:00",
       "consecutive_failures": 0
     },
     "https://jasonkayzk.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.322292+00:00",
+      "last_ok": "2026-05-14T03:13:25.429266+00:00",
       "consecutive_failures": 0
     },
     "https://dingzeyu.li/blog/feed.xml": {
@@ -2335,11 +2343,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.jimmylv.info/pages/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.322093+00:00",
+      "last_ok": "2026-05-14T03:13:25.429259+00:00",
       "consecutive_failures": 0
     },
     "https://qiangwaikan.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.323222+00:00",
+      "last_ok": "2026-05-14T03:13:25.429277+00:00",
       "consecutive_failures": 0
     },
     "https://www.kirito41dd.cn/index.xml": {
@@ -2361,7 +2369,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://awsl.blog/feed": {
-      "last_ok": "2026-05-13T14:50:36.322966+00:00",
+      "last_ok": "2026-05-14T03:13:25.429329+00:00",
       "consecutive_failures": 0
     },
     "https://teobler.com/rss.xml": {
@@ -2392,21 +2400,21 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://chengpeiquan.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.329076+00:00",
+      "last_ok": "2026-05-14T03:13:25.429501+00:00",
       "last_error": "HTTPSConnectionPool(host='chengpeiquan.com', port=443): Read timed out. (read timeout=15)",
       "failed_at": "2026-05-12T06:34:58.254262+00:00",
       "consecutive_failures": 0
     },
     "https://blog.othing.xyz/feed/": {
-      "last_ok": "2026-05-13T14:50:36.323037+00:00",
+      "last_ok": "2026-05-14T03:13:25.429332+00:00",
       "consecutive_failures": 0
     },
     "https://blog.skyju.cc/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.325193+00:00",
+      "last_ok": "2026-05-14T03:13:25.429512+00:00",
       "consecutive_failures": 0
     },
     "https://lihui.net/feed": {
-      "last_ok": "2026-05-13T14:50:36.322836+00:00",
+      "last_ok": "2026-05-14T03:13:25.429325+00:00",
       "consecutive_failures": 0
     },
     "https://blog.186526.xyz/atom.xml": {
@@ -2428,11 +2436,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://shenyongfan.com/rss/": {
-      "last_ok": "2026-05-13T14:50:36.323848+00:00",
+      "last_ok": "2026-05-14T03:13:25.429363+00:00",
       "consecutive_failures": 0
     },
     "https://anillc.cn/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.323034+00:00",
+      "last_ok": "2026-05-14T03:13:25.429335+00:00",
       "consecutive_failures": 0
     },
     "https://moshou.me/?feed=rss2": {
@@ -2445,7 +2453,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://thiscute.world/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.324898+00:00",
+      "last_ok": "2026-05-14T03:13:25.429478+00:00",
       "consecutive_failures": 0
     },
     "https://shenzilong.cn/blog/feed": {
@@ -2458,15 +2466,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://owent.net/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.323107+00:00",
+      "last_ok": "2026-05-14T03:13:25.429338+00:00",
       "consecutive_failures": 0
     },
     "https://www.androidperformance.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.326745+00:00",
+      "last_ok": "2026-05-14T03:13:25.429573+00:00",
       "consecutive_failures": 0
     },
     "https://www.nansey.me/feeds/posts/default": {
-      "last_ok": "2026-05-13T14:50:36.324459+00:00",
+      "last_ok": "2026-05-14T03:13:25.429481+00:00",
       "consecutive_failures": 0
     },
     "https://fanyi.news/feed.xml": {
@@ -2497,7 +2505,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://cyrusyip.org/zh-cn/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.325777+00:00",
+      "last_ok": "2026-05-14T03:13:25.429498+00:00",
       "consecutive_failures": 0
     },
     "https://www.blueskyxn.com/feed/": {
@@ -2519,47 +2527,48 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://timemachine.icu/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.323387+00:00",
+      "last_ok": "2026-05-14T03:13:25.429347+00:00",
       "consecutive_failures": 0
     },
     "http://blog.kuangjux.top/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.323522+00:00",
+      "last_ok": "2026-05-14T03:13:25.429350+00:00",
       "consecutive_failures": 0
     },
     "https://5ime.cn/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.323719+00:00",
+      "last_ok": "2026-05-14T03:13:25.429355+00:00",
       "consecutive_failures": 0
     },
     "https://superpung.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.324129+00:00",
+      "last_ok": "2026-05-14T03:13:25.429358+00:00",
       "consecutive_failures": 0
     },
     "https://www.leavesongs.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.323948+00:00",
+      "last_ok": "2026-05-14T03:13:25.429371+00:00",
       "consecutive_failures": 0
     },
     "https://blog.cal1.cn/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.323844+00:00",
+      "last_ok": "2026-05-14T03:13:25.429360+00:00",
       "consecutive_failures": 0
     },
     "https://evilcos.me/?feed=rss2": {
-      "last_ok": "2026-05-13T14:50:36.324016+00:00",
+      "last_ok": "2026-05-14T03:13:25.429369+00:00",
       "consecutive_failures": 0
     },
     "https://blog.lyunvy.top/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.324258+00:00",
+      "last_ok": "2026-05-14T03:13:25.429374+00:00",
       "consecutive_failures": 0
     },
     "https://blog.priewienv.me/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.324086+00:00",
+      "last_ok": "2026-05-14T03:13:25.429366+00:00",
       "consecutive_failures": 0
     },
     "https://www.yystv.cn/rss/feed": {
-      "last_ok": "2026-05-13T14:50:36.324752+00:00",
-      "consecutive_failures": 0
+      "last_ok": "2026-05-14T03:13:25.429383+00:00",
+      "consecutive_failures": 0,
+      "is_aggregator": true
     },
     "https://ksmeow.moe/feed/": {
-      "last_ok": "2026-05-13T14:50:36.324831+00:00",
+      "last_ok": "2026-05-14T03:13:25.429469+00:00",
       "consecutive_failures": 0
     },
     "http://kevinnan.org.cn/feed": {
@@ -2572,7 +2581,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://qq52o.me/feed": {
-      "last_ok": "2026-05-13T14:50:36.324384+00:00",
+      "last_ok": "2026-05-14T03:13:25.429377+00:00",
       "consecutive_failures": 0
     },
     "https://2hu.net/feed.xml": {
@@ -2612,7 +2621,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.junz.org/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.324624+00:00",
+      "last_ok": "2026-05-14T03:13:25.429380+00:00",
       "consecutive_failures": 0
     },
     "https://wushuo.me/atom.xml": {
@@ -2625,11 +2634,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://blog.fivest.one/feed": {
-      "last_ok": "2026-05-13T14:50:36.325113+00:00",
+      "last_ok": "2026-05-14T03:13:25.429472+00:00",
       "consecutive_failures": 0
     },
     "http://anthropology.fivest.one/feed": {
-      "last_ok": "2026-05-13T14:50:36.325037+00:00",
+      "last_ok": "2026-05-14T03:13:25.429475+00:00",
       "consecutive_failures": 0
     },
     "https://blog.rxliuli.com/atom.xml": {
@@ -2642,19 +2651,19 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.zackwu.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.325465+00:00",
+      "last_ok": "2026-05-14T03:13:25.429490+00:00",
       "consecutive_failures": 0
     },
     "https://markonreview.com/rss/": {
-      "last_ok": "2026-05-13T14:50:36.325641+00:00",
+      "last_ok": "2026-05-14T03:13:25.429484+00:00",
       "consecutive_failures": 0
     },
     "https://kaopubear.top/blog/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.326077+00:00",
+      "last_ok": "2026-05-14T03:13:25.429526+00:00",
       "consecutive_failures": 0
     },
     "https://www.gaoyuanshi.com/?feed=rss2": {
-      "last_ok": "2026-05-13T14:50:36.326875+00:00",
+      "last_ok": "2026-05-14T03:13:25.429487+00:00",
       "consecutive_failures": 0
     },
     "https://www.mghio.cn/atom.xml": {
@@ -2676,7 +2685,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.riichiie.net/feed/": {
-      "last_ok": "2026-05-13T14:50:36.325599+00:00",
+      "last_ok": "2026-05-14T03:13:25.429495+00:00",
       "consecutive_failures": 0
     },
     "https://astrianzheng.cn/atom.xml": {
@@ -2698,7 +2707,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://nyan.im/feed": {
-      "last_ok": "2026-05-13T14:50:36.325324+00:00",
+      "last_ok": "2026-05-14T03:13:25.429493+00:00",
       "consecutive_failures": 0
     },
     "https://robotkang.cc/feed": {
@@ -2711,7 +2720,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://afoo.me/feeds.xml": {
-      "last_ok": "2026-05-13T14:50:36.326403+00:00",
+      "last_ok": "2026-05-14T03:13:25.429532+00:00",
       "consecutive_failures": 0
     },
     "https://zhurongshuo.com/index.xml": {
@@ -2733,23 +2742,23 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://wakzz.cn/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.330194+00:00",
+      "last_ok": "2026-05-14T03:13:25.429537+00:00",
       "consecutive_failures": 0
     },
     "https://www.liurongxing.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.325739+00:00",
+      "last_ok": "2026-05-14T03:13:25.429504+00:00",
       "consecutive_failures": 0
     },
     "https://phuker.github.io/feeds/all.atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.325906+00:00",
+      "last_ok": "2026-05-14T03:13:25.429506+00:00",
       "consecutive_failures": 0
     },
     "https://blog.chenjt.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.326206+00:00",
+      "last_ok": "2026-05-14T03:13:25.429520+00:00",
       "consecutive_failures": 0
     },
     "https://kefan.me/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.325943+00:00",
+      "last_ok": "2026-05-14T03:13:25.429509+00:00",
       "consecutive_failures": 0
     },
     "https://amore.ink/feed/": {
@@ -2771,35 +2780,35 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://renny.ren/feed": {
-      "last_ok": "2026-05-13T14:50:36.326946+00:00",
+      "last_ok": "2026-05-14T03:13:25.429534+00:00",
       "consecutive_failures": 0
     },
     "https://bouquetrender.space/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.326277+00:00",
+      "last_ok": "2026-05-14T03:13:25.429523+00:00",
       "consecutive_failures": 0
     },
     "https://lorexxar.cn/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.327468+00:00",
+      "last_ok": "2026-05-14T03:13:25.429560+00:00",
       "consecutive_failures": 0
     },
     "https://feeds.feedburner.com/blogspot/Aohx": {
-      "last_ok": "2026-05-13T14:50:36.326485+00:00",
+      "last_ok": "2026-05-14T03:13:25.429515+00:00",
       "consecutive_failures": 0
     },
     "https://lcx.cc/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.327337+00:00",
+      "last_ok": "2026-05-14T03:13:25.429599+00:00",
       "consecutive_failures": 0
     },
     "https://www.bboy.app/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.326614+00:00",
+      "last_ok": "2026-05-14T03:13:25.429518+00:00",
       "consecutive_failures": 0
     },
     "https://dantezy.xyz/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.327073+00:00",
+      "last_ok": "2026-05-14T03:13:25.429529+00:00",
       "consecutive_failures": 0
     },
     "http://museradio.net/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.328386+00:00",
+      "last_ok": "2026-05-14T03:13:25.429579+00:00",
       "consecutive_failures": 0
     },
     "https://www.sulinehk.com/index.xml": {
@@ -2812,15 +2821,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://www.wuqiwen.cn/feed/": {
-      "last_ok": "2026-05-13T14:50:36.327269+00:00",
+      "last_ok": "2026-05-14T03:13:25.429546+00:00",
       "consecutive_failures": 0
     },
     "https://www.justzht.com/rss/": {
-      "last_ok": "2026-05-13T14:50:36.327163+00:00",
+      "last_ok": "2026-05-14T03:13:25.429543+00:00",
       "consecutive_failures": 0
     },
     "https://www.mokeyjay.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.327910+00:00",
+      "last_ok": "2026-05-14T03:13:25.429568+00:00",
       "consecutive_failures": 0
     },
     "https://qq.md/feed/": {
@@ -2851,23 +2860,23 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://codeyang.pages.dev/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.327266+00:00",
+      "last_ok": "2026-05-14T03:13:25.429540+00:00",
       "consecutive_failures": 0
     },
     "https://blog.whuzfb.cn/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.327791+00:00",
+      "last_ok": "2026-05-14T03:13:25.429565+00:00",
       "consecutive_failures": 0
     },
     "https://blog.eastonman.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.328036+00:00",
+      "last_ok": "2026-05-14T03:13:25.429549+00:00",
       "consecutive_failures": 0
     },
     "https://lawrenceli.me/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.327594+00:00",
+      "last_ok": "2026-05-14T03:13:25.429555+00:00",
       "consecutive_failures": 0
     },
     "https://zivlog.io/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.327661+00:00",
+      "last_ok": "2026-05-14T03:13:25.429552+00:00",
       "consecutive_failures": 0
     },
     "http://sht2019.cn/atom.xml": {
@@ -2880,7 +2889,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://frankorz.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.328833+00:00",
+      "last_ok": "2026-05-14T03:13:25.429610+00:00",
       "consecutive_failures": 0
     },
     "https://imhan.cn/feed.xml": {
@@ -2893,11 +2902,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://noionion.top/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.327665+00:00",
+      "last_ok": "2026-05-14T03:13:25.429557+00:00",
       "consecutive_failures": 0
     },
     "https://zeqiang.fun/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.327860+00:00",
+      "last_ok": "2026-05-14T03:13:25.429562+00:00",
       "consecutive_failures": 0
     },
     "https://blog.cyfan.top/atom.xml": {
@@ -2928,11 +2937,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://hin.cool/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.328139+00:00",
+      "last_ok": "2026-05-14T03:13:25.429591+00:00",
       "consecutive_failures": 0
     },
     "https://kongfandong.cn/blog/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.328532+00:00",
+      "last_ok": "2026-05-14T03:13:25.429576+00:00",
       "consecutive_failures": 0
     },
     "https://yousazoe.top/atom.xml": {
@@ -2945,11 +2954,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.jinreal.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.328265+00:00",
+      "last_ok": "2026-05-14T03:13:25.429593+00:00",
       "consecutive_failures": 0
     },
     "http://haoxiang.org/rss": {
-      "last_ok": "2026-05-13T14:50:36.328104+00:00",
+      "last_ok": "2026-05-14T03:13:25.429571+00:00",
       "consecutive_failures": 0
     },
     "https://blog.lihaoya.com/rss": {
@@ -2971,11 +2980,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://surager.pub/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.328639+00:00",
+      "last_ok": "2026-05-14T03:13:25.429582+00:00",
       "consecutive_failures": 0
     },
     "https://controlnet.space/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.329701+00:00",
+      "last_ok": "2026-05-14T03:13:25.429641+00:00",
       "consecutive_failures": 0
     },
     "https://iaarwu.github.io/index.xml": {
@@ -2988,11 +2997,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.eluyee.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.329203+00:00",
+      "last_ok": "2026-05-14T03:13:25.429596+00:00",
       "consecutive_failures": 0
     },
     "https://vim0.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.328709+00:00",
+      "last_ok": "2026-05-14T03:13:25.429585+00:00",
       "consecutive_failures": 0
     },
     "https://sanzo.top/atom.xml": {
@@ -3005,7 +3014,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://hellodk.cn/feed/": {
-      "last_ok": "2026-05-13T14:50:36.329011+00:00",
+      "last_ok": "2026-05-14T03:13:25.429612+00:00",
       "consecutive_failures": 0
     },
     "https://www.7gugu.com/feed/": {
@@ -3018,11 +3027,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.bodunhu.com/blog/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.330327+00:00",
+      "last_ok": "2026-05-14T03:13:25.429627+00:00",
       "consecutive_failures": 0
     },
     "https://www.developerastrid.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.332375+00:00",
+      "last_ok": "2026-05-14T03:13:25.429616+00:00",
       "consecutive_failures": 0
     },
     "https://www.bugcatt.com/feed": {
@@ -3035,7 +3044,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.quarticcat.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.328961+00:00",
+      "last_ok": "2026-05-14T03:13:25.429588+00:00",
       "consecutive_failures": 0
     },
     "https://zkpeace.com/blog-cn/atom.xml": {
@@ -3048,19 +3057,19 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://fetchrss.com/rss/60e1767cf877a4023a2caee260e176387504cf483957bf43.xml": {
-      "last_ok": "2026-05-13T14:50:36.329501+00:00",
+      "last_ok": "2026-05-14T03:13:25.429601+00:00",
       "consecutive_failures": 0
     },
     "https://weepingdogel.github.io/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.329504+00:00",
+      "last_ok": "2026-05-14T03:13:25.429619+00:00",
       "consecutive_failures": 0
     },
     "https://blog.lss233.com/rss/": {
-      "last_ok": "2026-05-13T14:50:36.329953+00:00",
+      "last_ok": "2026-05-14T03:13:25.429630+00:00",
       "consecutive_failures": 0
     },
     "https://ioerr.github.io/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.329272+00:00",
+      "last_ok": "2026-05-14T03:13:25.429607+00:00",
       "consecutive_failures": 0
     },
     "https://www.kxit.net/blog/feed/": {
@@ -3073,11 +3082,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://f2h2h1.github.io/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.329351+00:00",
+      "last_ok": "2026-05-14T03:13:25.429604+00:00",
       "consecutive_failures": 0
     },
     "https://fidel.js.org/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.330597+00:00",
+      "last_ok": "2026-05-14T03:13:25.429644+00:00",
       "consecutive_failures": 0
     },
     "https://java4u.cn/feed": {
@@ -3090,7 +3099,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://easonyang.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.330052+00:00",
+      "last_ok": "2026-05-14T03:13:25.429633+00:00",
       "consecutive_failures": 0
     },
     "https://ifmet.cn/atom.xml": {
@@ -3121,7 +3130,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.waynerv.com/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.331608+00:00",
+      "last_ok": "2026-05-14T03:13:25.429989+00:00",
       "consecutive_failures": 0
     },
     "https://huzizi.com/feed/": {
@@ -3134,11 +3143,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.4async.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.329574+00:00",
+      "last_ok": "2026-05-14T03:13:25.429622+00:00",
       "consecutive_failures": 0
     },
     "https://misfork.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.329828+00:00",
+      "last_ok": "2026-05-14T03:13:25.429625+00:00",
       "consecutive_failures": 0
     },
     "https://blog.halberd.cn/rss.xml": {
@@ -3169,11 +3178,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://aemoncao.github.io/rss2.xml": {
-      "last_ok": "2026-05-13T14:50:36.330467+00:00",
+      "last_ok": "2026-05-14T03:13:25.429638+00:00",
       "consecutive_failures": 0
     },
     "https://siwei.io/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.330867+00:00",
+      "last_ok": "2026-05-14T03:13:25.429661+00:00",
       "consecutive_failures": 0
     },
     "https://marwin.cn/rss2.xml": {
@@ -3186,11 +3195,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.mmbkz.cn/feed": {
-      "last_ok": "2026-05-13T14:50:36.330799+00:00",
+      "last_ok": "2026-05-14T03:13:25.429655+00:00",
       "consecutive_failures": 0
     },
     "https://www.nosuchfield.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.333048+00:00",
+      "last_ok": "2026-05-14T03:13:25.430017+00:00",
       "consecutive_failures": 0
     },
     "https://acmic.top/feed": {
@@ -3203,7 +3212,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://dianjiaogit.github.io/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.330190+00:00",
+      "last_ok": "2026-05-14T03:13:25.429635+00:00",
       "consecutive_failures": 0
     },
     "https://imzhanghao.com/atom.xml": {
@@ -3216,7 +3225,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.zhukang.tech/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.330652+00:00",
+      "last_ok": "2026-05-14T03:13:25.429650+00:00",
       "consecutive_failures": 0
     },
     "https://lowin.li/atom.xml": {
@@ -3229,23 +3238,23 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://hocassian.cn/feed/": {
-      "last_ok": "2026-05-13T14:50:36.331541+00:00",
+      "last_ok": "2026-05-14T03:13:25.429994+00:00",
       "consecutive_failures": 0
     },
     "https://woodloch.blog/feed/": {
-      "last_ok": "2026-05-13T14:50:36.330727+00:00",
+      "last_ok": "2026-05-14T03:13:25.429652+00:00",
       "consecutive_failures": 0
     },
     "https://imzl.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.330796+00:00",
+      "last_ok": "2026-05-14T03:13:25.429647+00:00",
       "consecutive_failures": 0
     },
     "https://dgideas.net/feed/": {
-      "last_ok": "2026-05-13T14:50:36.331268+00:00",
+      "last_ok": "2026-05-14T03:13:25.429969+00:00",
       "consecutive_failures": 0
     },
     "https://www.miaoer.net/feed": {
-      "last_ok": "2026-05-13T14:50:36.331199+00:00",
+      "last_ok": "2026-05-14T03:13:25.429965+00:00",
       "consecutive_failures": 0
     },
     "https://nojsja.github.io/blogs/atom.xml": {
@@ -3294,83 +3303,83 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://taoshu.in/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.330934+00:00",
+      "last_ok": "2026-05-14T03:13:25.429658+00:00",
       "consecutive_failures": 0
     },
     "https://www.hiczp.com/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.331065+00:00",
+      "last_ok": "2026-05-14T03:13:25.429664+00:00",
       "consecutive_failures": 0
     },
     "https://www.imaegoo.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.330994+00:00",
+      "last_ok": "2026-05-14T03:13:25.429972+00:00",
       "consecutive_failures": 0
     },
     "https://eallion.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.332870+00:00",
+      "last_ok": "2026-05-14T03:13:25.430020+00:00",
       "consecutive_failures": 0
     },
     "https://baiyun.me/feed": {
-      "last_ok": "2026-05-13T14:50:36.331735+00:00",
+      "last_ok": "2026-05-14T03:13:25.429997+00:00",
       "consecutive_failures": 0
     },
     "https://blog.baoshuo.ren/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.332774+00:00",
+      "last_ok": "2026-05-14T03:13:25.430011+00:00",
       "consecutive_failures": 0
     },
     "https://springwood.me/feed/": {
-      "last_ok": "2026-05-13T14:50:36.331473+00:00",
+      "last_ok": "2026-05-14T03:13:25.429981+00:00",
       "consecutive_failures": 0
     },
     "http://yibie.github.io/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.331335+00:00",
+      "last_ok": "2026-05-14T03:13:25.429975+00:00",
       "consecutive_failures": 0
     },
     "https://ednovas.xyz/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.331339+00:00",
+      "last_ok": "2026-05-14T03:13:25.429978+00:00",
       "consecutive_failures": 0
     },
     "https://wentao.org/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.333245+00:00",
+      "last_ok": "2026-05-14T03:13:25.430031+00:00",
       "consecutive_failures": 0
     },
     "https://www.jiayuehua.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.331862+00:00",
+      "last_ok": "2026-05-14T03:13:25.429983+00:00",
       "consecutive_failures": 0
     },
     "https://www.qtmuniao.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.331929+00:00",
+      "last_ok": "2026-05-14T03:13:25.429986+00:00",
       "consecutive_failures": 0
     },
     "https://xdym11235.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.334063+00:00",
+      "last_ok": "2026-05-14T03:13:25.430077+00:00",
       "consecutive_failures": 0
     },
     "https://iamgodot.com/posts/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.332057+00:00",
+      "last_ok": "2026-05-14T03:13:25.429991+00:00",
       "consecutive_failures": 0
     },
     "https://zinglix.xyz/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.332060+00:00",
+      "last_ok": "2026-05-14T03:13:25.430000+00:00",
       "consecutive_failures": 0
     },
     "https://gyrojeff.top/index.php/feed": {
-      "last_ok": "2026-05-13T14:50:36.333312+00:00",
+      "last_ok": "2026-05-14T03:13:25.430034+00:00",
       "consecutive_failures": 0
     },
     "https://blog.drpika.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.332126+00:00",
+      "last_ok": "2026-05-14T03:13:25.430028+00:00",
       "consecutive_failures": 0
     },
     "https://whyes.org/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.332381+00:00",
+      "last_ok": "2026-05-14T03:13:25.430008+00:00",
       "consecutive_failures": 0
     },
     "https://blog.xsot.cn/feed": {
-      "last_ok": "2026-05-13T14:50:36.332249+00:00",
+      "last_ok": "2026-05-14T03:13:25.430003+00:00",
       "consecutive_failures": 0
     },
     "https://www.linchangyu.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.332378+00:00",
+      "last_ok": "2026-05-14T03:13:25.430005+00:00",
       "consecutive_failures": 0
     },
     "https://whites.space/feed": {
@@ -3383,23 +3392,23 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://fxpai.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.333177+00:00",
+      "last_ok": "2026-05-14T03:13:25.430025+00:00",
       "consecutive_failures": 0
     },
     "https://imayx.top/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.332514+00:00",
+      "last_ok": "2026-05-14T03:13:25.430022+00:00",
       "consecutive_failures": 0
     },
     "https://wangyou233.wang/rss": {
-      "last_ok": "2026-05-13T14:50:36.333939+00:00",
+      "last_ok": "2026-05-14T03:13:25.430112+00:00",
       "consecutive_failures": 0
     },
     "https://www.packetmania.net/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.332643+00:00",
+      "last_ok": "2026-05-14T03:13:25.430014+00:00",
       "consecutive_failures": 0
     },
     "https://shellc.cn/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.332999+00:00",
+      "last_ok": "2026-05-14T03:13:25.430041+00:00",
       "consecutive_failures": 0
     },
     "https://www.icebreaker.top/rss.xml": {
@@ -3421,15 +3430,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.tortorse.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.334668+00:00",
+      "last_ok": "2026-05-14T03:13:25.430127+00:00",
       "consecutive_failures": 0
     },
     "https://www.librehat.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.333687+00:00",
+      "last_ok": "2026-05-14T03:13:25.430044+00:00",
       "consecutive_failures": 0
     },
     "https://fengmengzhao.github.io/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.333401+00:00",
+      "last_ok": "2026-05-14T03:13:25.430047+00:00",
       "consecutive_failures": 0
     },
     "https://zuopin.jingluole.com/feed": {
@@ -3442,23 +3451,23 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.didispace.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.334794+00:00",
+      "last_ok": "2026-05-14T03:13:25.430104+00:00",
       "consecutive_failures": 0
     },
     "https://www.buzhangjiuzhou.com/index.php/feed/": {
-      "last_ok": "2026-05-13T14:50:36.333619+00:00",
+      "last_ok": "2026-05-14T03:13:25.430037+00:00",
       "consecutive_failures": 0
     },
     "https://www.skyue.com/feed/": {
-      "last_ok": "2026-05-13T14:50:36.333871+00:00",
+      "last_ok": "2026-05-14T03:13:25.430093+00:00",
       "consecutive_failures": 0
     },
     "https://www.bbing.com.cn/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.333805+00:00",
+      "last_ok": "2026-05-14T03:13:25.430098+00:00",
       "consecutive_failures": 0
     },
     "https://lzw-723.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.333480+00:00",
+      "last_ok": "2026-05-14T03:13:25.430109+00:00",
       "consecutive_failures": 0
     },
     "https://2bab.me/atom.xml": {
@@ -3471,7 +3480,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.ypingcn.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.333547+00:00",
+      "last_ok": "2026-05-14T03:13:25.430084+00:00",
       "consecutive_failures": 0
     },
     "https://blog.licaoz.com/feed/": {
@@ -3484,11 +3493,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://surmon.me/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.334273+00:00",
+      "last_ok": "2026-05-14T03:13:25.430118+00:00",
       "consecutive_failures": 0
     },
     "https://blog.fyun.org/feed": {
-      "last_ok": "2026-05-13T14:50:36.334600+00:00",
+      "last_ok": "2026-05-14T03:13:25.430124+00:00",
       "consecutive_failures": 0
     },
     "https://qianguyihao.com/atom.xml": {
@@ -3510,7 +3519,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.xlab.app/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.333756+00:00",
+      "last_ok": "2026-05-14T03:13:25.430089+00:00",
       "consecutive_failures": 0
     },
     "https://mantyke.icu/index.xml": {
@@ -3541,27 +3550,27 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://jdhao.github.io/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.334145+00:00",
+      "last_ok": "2026-05-14T03:13:25.430131+00:00",
       "consecutive_failures": 0
     },
     "https://sogola.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.334396+00:00",
+      "last_ok": "2026-05-14T03:13:25.430115+00:00",
       "consecutive_failures": 0
     },
     "https://eurychen.me/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.335132+00:00",
+      "last_ok": "2026-05-14T03:13:25.430145+00:00",
       "consecutive_failures": 0
     },
     "https://icys.top/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.334474+00:00",
+      "last_ok": "2026-05-14T03:13:25.430121+00:00",
       "consecutive_failures": 0
     },
     "https://www.iots.vip/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.336853+00:00",
+      "last_ok": "2026-05-14T03:13:25.430139+00:00",
       "consecutive_failures": 0
     },
     "https://itcharge.cn/feed/": {
-      "last_ok": "2026-05-13T14:50:36.336587+00:00",
+      "last_ok": "2026-05-14T03:13:25.430137+00:00",
       "consecutive_failures": 0
     },
     "https://blog.yuk7.com/atom.xml": {
@@ -3574,19 +3583,19 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.domon.cn/rss/": {
-      "last_ok": "2026-05-13T14:50:36.335036+00:00",
+      "last_ok": "2026-05-14T03:13:25.430134+00:00",
       "consecutive_failures": 0
     },
     "https://s5s5.me/feed/": {
-      "last_ok": "2026-05-13T14:50:36.335776+00:00",
+      "last_ok": "2026-05-14T03:13:25.430168+00:00",
       "consecutive_failures": 0
     },
     "https://dvel.me/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.336030+00:00",
+      "last_ok": "2026-05-14T03:13:25.430239+00:00",
       "consecutive_failures": 0
     },
     "https://blog.thetbw.xyz/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.335531+00:00",
+      "last_ok": "2026-05-14T03:13:25.430159+00:00",
       "consecutive_failures": 0
     },
     "https://sanguok.com/feed/": {
@@ -3599,7 +3608,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.himiku.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.337114+00:00",
+      "last_ok": "2026-05-14T03:13:25.430257+00:00",
       "consecutive_failures": 0
     },
     "https://lllgoyour.com/feed/": {
@@ -3612,7 +3621,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://zhul.in/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.335903+00:00",
+      "last_ok": "2026-05-14T03:13:25.430251+00:00",
       "consecutive_failures": 0
     },
     "https://yeshu.cloud/atom.xml": {
@@ -3625,19 +3634,19 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://fucktheworld.top/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.334917+00:00",
+      "last_ok": "2026-05-14T03:13:25.430142+00:00",
       "consecutive_failures": 0
     },
     "https://moeci.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.335390+00:00",
+      "last_ok": "2026-05-14T03:13:25.430157+00:00",
       "consecutive_failures": 0
     },
     "http://7400.me/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.335264+00:00",
+      "last_ok": "2026-05-14T03:13:25.430154+00:00",
       "consecutive_failures": 0
     },
     "https://hermine.in/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.335260+00:00",
+      "last_ok": "2026-05-14T03:13:25.430148+00:00",
       "consecutive_failures": 0
     },
     "https://www.jtr109.com/index.xml": {
@@ -3650,11 +3659,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://lifeodyssey.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.335661+00:00",
+      "last_ok": "2026-05-14T03:13:25.430151+00:00",
       "consecutive_failures": 0
     },
     "https://yinji.org/feed": {
-      "last_ok": "2026-05-13T14:50:36.336195+00:00",
+      "last_ok": "2026-05-14T03:13:25.430242+00:00",
       "consecutive_failures": 0
     },
     "https://www.xiaozonglin.cn/feed/": {
@@ -3667,11 +3676,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://xieguanglei.github.io/blog/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.336157+00:00",
+      "last_ok": "2026-05-14T03:13:25.430166+00:00",
       "consecutive_failures": 0
     },
     "https://w.toomore.us/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.338314+00:00",
+      "last_ok": "2026-05-14T03:13:25.430304+00:00",
       "consecutive_failures": 0
     },
     "https://www.whexy.com/feed/feed.xml": {
@@ -3684,7 +3693,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.iccat.cn/feed": {
-      "last_ok": "2026-05-13T14:50:36.338130+00:00",
+      "last_ok": "2026-05-14T03:13:25.430292+00:00",
       "consecutive_failures": 0
     },
     "https://xsn123.top/feed/": {
@@ -3706,11 +3715,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://zincnode.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.336262+00:00",
+      "last_ok": "2026-05-14T03:13:25.430163+00:00",
       "consecutive_failures": 0
     },
     "https://lorde627.xyz/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.336850+00:00",
+      "last_ok": "2026-05-14T03:13:25.430260+00:00",
       "consecutive_failures": 0
     },
     "https://blog.noicdi.com/atom.xml": {
@@ -3723,12 +3732,13 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://u.sb/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.336396+00:00",
+      "last_ok": "2026-05-14T03:13:25.430171+00:00",
       "consecutive_failures": 0
     },
     "https://leimao.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.336265+00:00",
-      "consecutive_failures": 0
+      "last_ok": "2026-05-14T03:13:25.430174+00:00",
+      "consecutive_failures": 0,
+      "is_aggregator": true
     },
     "https://blog.gd1214b.icu/atom.xml": {
       "last_ok": null,
@@ -3740,11 +3750,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.yeefire.com/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.336653+00:00",
+      "last_ok": "2026-05-14T03:13:25.430278+00:00",
       "consecutive_failures": 0
     },
     "https://blog.7wate.com/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.336519+00:00",
+      "last_ok": "2026-05-14T03:13:25.430254+00:00",
       "consecutive_failures": 0
     },
     "https://www.luckydesigner.space/feed": {
@@ -3758,10 +3768,12 @@
     },
     "https://www.congcong.us/feed": {
       "last_ok": "2026-05-13T14:50:36.336780+00:00",
-      "consecutive_failures": 0
+      "consecutive_failures": 1,
+      "last_error": "HTTPSConnectionPool(host='www.congcong.us', port=443): Max retries exceeded with url: /feed (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1010)')))",
+      "failed_at": "2026-05-14T03:13:25.430247+00:00"
     },
     "http://elmagnifico.tech/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.339347+00:00",
+      "last_ok": "2026-05-14T03:13:25.430317+00:00",
       "consecutive_failures": 0
     },
     "https://blog.yuhang.ch/index.xml": {
@@ -3783,19 +3795,19 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.frankindev.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.337185+00:00",
+      "last_ok": "2026-05-14T03:13:25.430273+00:00",
       "consecutive_failures": 0
     },
     "https://muyesq.cn/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.337254+00:00",
+      "last_ok": "2026-05-14T03:13:25.430268+00:00",
       "consecutive_failures": 0
     },
     "https://zahui.fan/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.337458+00:00",
+      "last_ok": "2026-05-14T03:13:25.430270+00:00",
       "consecutive_failures": 0
     },
     "https://conge.github.io/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.337379+00:00",
+      "last_ok": "2026-05-14T03:13:25.430265+00:00",
       "consecutive_failures": 0
     },
     "https://blog.zhangda.xyz/feed/": {
@@ -3808,15 +3820,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://sumsec.me/resources/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.336984+00:00",
+      "last_ok": "2026-05-14T03:13:25.430262+00:00",
       "consecutive_failures": 0
     },
     "https://roy.wang/feed/": {
-      "last_ok": "2026-05-13T14:50:36.338458+00:00",
+      "last_ok": "2026-05-14T03:13:25.430295+00:00",
       "consecutive_failures": 0
     },
     "https://gh0st.cn/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.337874+00:00",
+      "last_ok": "2026-05-14T03:13:25.430290+00:00",
       "consecutive_failures": 0
     },
     "https://blog.zjun.info/rss.xml": {
@@ -3856,7 +3868,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://catcoding.me/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.337585+00:00",
+      "last_ok": "2026-05-14T03:13:25.430281+00:00",
       "consecutive_failures": 0
     },
     "https://hdgcs.com/feed.xml": {
@@ -3878,7 +3890,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://nickchenyx.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.337711+00:00",
+      "last_ok": "2026-05-14T03:13:25.430276+00:00",
       "consecutive_failures": 0
     },
     "https://mattia88.com/feed/": {
@@ -3891,11 +3903,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://www.edony.ink/rss/": {
-      "last_ok": "2026-05-13T14:50:36.337998+00:00",
+      "last_ok": "2026-05-14T03:13:25.430301+00:00",
       "consecutive_failures": 0
     },
     "https://hujingnb.com/feed": {
-      "last_ok": "2026-05-13T14:50:36.338848+00:00",
+      "last_ok": "2026-05-14T03:13:25.430324+00:00",
       "consecutive_failures": 0
     },
     "https://blog.spacetimee.xyz/atom.xml": {
@@ -3935,7 +3947,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://icodeq.com/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.337461+00:00",
+      "last_ok": "2026-05-14T03:13:25.430284+00:00",
       "consecutive_failures": 0
     },
     "https://blog.redish101.top/atom.xml": {
@@ -3948,11 +3960,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://my-rssh-gwb5d33jd-amicoyuan.vercel.app/hexo/fluid/xingyuanjie.top": {
-      "last_ok": "2026-05-13T14:50:36.337838+00:00",
+      "last_ok": "2026-05-14T03:13:25.430287+00:00",
       "consecutive_failures": 0
     },
     "https://shiina18.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.338247+00:00",
+      "last_ok": "2026-05-14T03:13:25.430306+00:00",
       "consecutive_failures": 0
     },
     "https://shicheng.cool/atom.xml": {
@@ -3965,7 +3977,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://suse.org.cn/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.338197+00:00",
+      "last_ok": "2026-05-14T03:13:25.430298+00:00",
       "consecutive_failures": 0
     },
     "https://d2pe.com/atom.xml": {
@@ -3996,19 +4008,19 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://lishuangquan.cn/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.339262+00:00",
+      "last_ok": "2026-05-14T03:13:25.430327+00:00",
       "consecutive_failures": 0
     },
     "https://icodex.me/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.339857+00:00",
+      "last_ok": "2026-05-14T03:13:25.430350+00:00",
       "consecutive_failures": 0
     },
     "https://shrik3.com/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.340300+00:00",
+      "last_ok": "2026-05-14T03:13:25.430367+00:00",
       "consecutive_failures": 0
     },
     "https://megamu.icu/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.338844+00:00",
+      "last_ok": "2026-05-14T03:13:25.430315+00:00",
       "consecutive_failures": 0
     },
     "https://rei.ac/index.xml": {
@@ -4039,11 +4051,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://liupj.top/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.338588+00:00",
+      "last_ok": "2026-05-14T03:13:25.430309+00:00",
       "consecutive_failures": 0
     },
     "https://vra.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.338717+00:00",
+      "last_ok": "2026-05-14T03:13:25.430312+00:00",
       "consecutive_failures": 0
     },
     "https://blog.laoliu.eu.org/atom.xml": {
@@ -4056,35 +4068,35 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.qaiu.top/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.339060+00:00",
+      "last_ok": "2026-05-14T03:13:25.430329+00:00",
       "consecutive_failures": 0
     },
     "https://bestxtools.github.io/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.339468+00:00",
+      "last_ok": "2026-05-14T03:13:25.430338+00:00",
       "consecutive_failures": 0
     },
     "https://www.ezindie.com/feed/rss.xml": {
-      "last_ok": "2026-05-13T14:50:36.339188+00:00",
+      "last_ok": "2026-05-14T03:13:25.430335+00:00",
       "consecutive_failures": 0
     },
     "https://blog.ops-coffee.cn/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.338887+00:00",
+      "last_ok": "2026-05-14T03:13:25.430321+00:00",
       "consecutive_failures": 0
     },
     "https://eindex.me/feed.xml": {
-      "last_ok": "2026-05-13T14:50:36.339018+00:00",
+      "last_ok": "2026-05-14T03:13:25.430332+00:00",
       "consecutive_failures": 0
     },
     "https://wumanho.cn/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.339412+00:00",
+      "last_ok": "2026-05-14T03:13:25.430340+00:00",
       "consecutive_failures": 0
     },
     "https://leonhe.cn/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.339730+00:00",
+      "last_ok": "2026-05-14T03:13:25.430358+00:00",
       "consecutive_failures": 0
     },
     "https://www.pseudoyu.com/zh/index.xml": {
-      "last_ok": "2026-05-13T14:50:36.340175+00:00",
+      "last_ok": "2026-05-14T03:13:25.430355+00:00",
       "consecutive_failures": 0
     },
     "http://starfury.tech/feed": {
@@ -4243,7 +4255,7 @@
       "consecutive_failures": 0
     },
     "https://lhcy.org/feed": {
-      "last_ok": "2026-05-13T08:17:01.748371+00:00",
+      "last_ok": "2026-05-14T03:13:25.430343+00:00",
       "consecutive_failures": 0,
       "last_error": "HTTPSConnectionPool(host='lhcy.org', port=443): Max retries exceeded with url: /feed (Caused by ConnectTimeoutError(<HTTPSConnection(host='lhcy.org', port=443) at 0x7efda99f25d0>, 'Connection to lhcy.org timed out. (connect timeout=15)'))",
       "failed_at": "2026-05-13T05:12:21.381200+00:00"
@@ -4496,8 +4508,8 @@
       "consecutive_failures": 0
     },
     "https://www.sunnyfly.com/feed": {
-      "last_ok": "2026-05-13T05:12:21.378248+00:00",
-      "consecutive_failures": 1,
+      "last_ok": "2026-05-14T03:13:25.430346+00:00",
+      "consecutive_failures": 0,
       "last_error": "HTTPSConnectionPool(host='www.sunnyfly.com', port=443): Read timed out. (read timeout=15)",
       "failed_at": "2026-05-13T20:04:54.482471+00:00"
     },
@@ -4548,8 +4560,8 @@
     "https://www.supereggs.cn/index.xml": {
       "last_ok": "2026-05-13T02:21:53.839505+00:00",
       "last_error": "404 Client Error: Not Found for url: https://supereggs.cn/index.xml",
-      "failed_at": "2026-05-13T20:04:54.477424+00:00",
-      "consecutive_failures": 2
+      "failed_at": "2026-05-14T03:13:25.430365+00:00",
+      "consecutive_failures": 3
     },
     "https://whrss.com/feed": {
       "last_ok": "2026-05-13T20:04:54.477428+00:00",
@@ -4629,7 +4641,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.cpen.top/atom.xml": {
-      "last_ok": "2026-05-13T14:50:36.339985+00:00",
+      "last_ok": "2026-05-14T03:13:25.430353+00:00",
       "last_error": "HTTPSConnectionPool(host='blog.cpen.top', port=443): Read timed out. (read timeout=15)",
       "failed_at": "2026-05-12T08:42:06.578245+00:00",
       "consecutive_failures": 0
@@ -4931,7 +4943,7 @@
       "consecutive_failures": 0
     },
     "http://hugeterry.cn/feed": {
-      "last_ok": "2026-05-13T14:50:36.340109+00:00",
+      "last_ok": "2026-05-14T03:13:25.430361+00:00",
       "last_error": "HTTPConnectionPool(host='hugeterry.cn', port=80): Max retries exceeded with url: /feed (Caused by NameResolutionError(\"HTTPConnection(host='hugeterry.cn', port=80): Failed to resolve 'hugeterry.cn' ([Errno -3] Temporary failure in name resolution)\"))",
       "failed_at": "2026-05-12T08:42:06.580762+00:00",
       "consecutive_failures": 0
