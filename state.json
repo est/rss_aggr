@@ -3768,9 +3768,9 @@
     },
     "https://www.congcong.us/feed": {
       "last_ok": "2026-05-13T14:50:36.336780+00:00",
-      "consecutive_failures": 2,
+      "consecutive_failures": 3,
       "last_error": "HTTPSConnectionPool(host='www.congcong.us', port=443): Max retries exceeded with url: /feed (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1010)')))",
-      "failed_at": "2026-05-14T03:31:02.568012+00:00"
+      "failed_at": "2026-05-14T05:08:46.348611+00:00"
     },
     "http://elmagnifico.tech/feed.xml": {
       "last_ok": "2026-05-14T03:13:25.430317+00:00",
@@ -5440,10 +5440,10 @@
       "failed_at": "2026-05-13T20:04:54.486138+00:00"
     },
     "https://blog.thatcoder.cn/atom.xml": {
-      "last_ok": "2026-05-13T05:12:21.386433+00:00",
+      "last_ok": "2026-05-14T05:08:46.348618+00:00",
       "last_error": "HTTPSConnectionPool(host='log.cns.red', port=443): Max retries exceeded with url: /atom.xml (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'log.cns.red'. (_ssl.c:1010)\")))",
       "failed_at": "2026-05-14T03:31:02.568019+00:00",
-      "consecutive_failures": 2
+      "consecutive_failures": 0
     },
     "https://blog.ikeno.top/rss.xml": {
       "last_ok": "2026-05-13T20:04:54.486613+00:00",
@@ -7168,9 +7168,9 @@
     },
     "https://giserlab.cn/feed.xml": {
       "last_ok": "2026-05-13T05:12:21.402642+00:00",
-      "consecutive_failures": 2,
+      "consecutive_failures": 3,
       "last_error": "502 Server Error: Bad Gateway for url: https://giserlab.cn/feed.xml",
-      "failed_at": "2026-05-14T03:31:02.568004+00:00"
+      "failed_at": "2026-05-14T05:08:46.348596+00:00"
     },
     "https://rokcso.com/index.xml": {
       "last_ok": "2026-05-13T20:04:54.507902+00:00",
