@@ -1,11 +1,10 @@
-"""Detect aggregator feeds by link domain diversity."""
+"""Detect aggregator feeds by link domain and author diversity."""
 from urllib.parse import urlparse
 
 
 def _extract_domain(url: str) -> str:
     try:
         host = urlparse(url).hostname or ""
-        # strip www.
         if host.startswith("www."):
             host = host[4:]
         return host
@@ -14,28 +13,28 @@ def _extract_domain(url: str) -> str:
 
 
 def is_aggregator(entries: list[dict], threshold: float = 0.7, min_articles: int = 5) -> bool:
-    """Check if a feed is an aggregator (articles link to many different domains).
+    """Check if a feed is an aggregator.
 
-    Args:
-        entries: list of article dicts with 'link' key
-        threshold: unique_domain_ratio above which we consider it an aggregator
-        min_articles: need at least this many articles to judge
-
-    Returns:
-        True if the feed looks like an aggregator (Hacker News, Reddit, etc.)
+    Returns True only if BOTH domain diversity AND author diversity are high.
+    - Many different domains linking = likely aggregator
+    - Many different authors = confirms it's not a single blogger on multiple platforms
     """
     if len(entries) < min_articles:
         return False
 
-    feed_domain = _extract_domain(entries[0].get("link", ""))  # not used for comparison
     domains = set()
-    same_domain = 0
+    authors = set()
 
     for e in entries:
-        link = e.get("link", "")
-        domain = _extract_domain(link)
+        domain = _extract_domain(e.get("link", ""))
         if domain:
             domains.add(domain)
 
-    unique_ratio = len(domains) / len(entries) if entries else 0
-    return unique_ratio >= threshold
+        author = (e.get("author") or "").strip()
+        if author:
+            authors.add(author.lower())
+
+    domain_ratio = len(domains) / len(entries) if entries else 0
+    author_ratio = len(authors) / len(entries) if authors else 1  # no authors = not aggregator
+    # 如果文章域名很分散，或者作者很分散，判定为聚合RSS。
+    return domain_ratio >= threshold or author_ratio >= threshold
