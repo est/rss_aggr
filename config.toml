@@ -30,47 +30,18 @@ disable_after_failures = 3 # auto-disable feed after N consecutive failures
 data_dir = "output"
 keep_days = 90
 
-# Scoring
-[[scoring.dimension]]
-name = "relevance"
-weight = 0.3
-description = "How relevant to current tech trends"
-
-[[scoring.dimension]]
-name = "originality"
-weight = 0.3
-description = "Novel insights or unique perspective"
-
-[[scoring.dimension]]
-name = "quality"
-weight = 0.4
-description = "Writing quality and depth of analysis"
-
-# Classification categories
+# Classification categories (passed to AI)
 [[category]]
-name = "AI/ML"
-keywords = ["artificial intelligence", "machine learning", "LLM", "neural", "deep learning"]
+name = "Tech"
 
 [[category]]
-name = "Web Development"
-keywords = ["javascript", "typescript", "react", "vue", "css", "html"]
+name = "Biz"
 
 [[category]]
-name = "Infrastructure"
-keywords = ["kubernetes", "docker", "cloud", "aws", "gcp", "devops"]
+name = "Life"
 
 [[category]]
-name = "Programming"
-keywords = ["python", "rust", "golang", "algorithm", "programming"]
+name = "Insight"
 
 [[category]]
-name = "Security"
-keywords = ["security", "vulnerability", "exploit", "CVE", "hack"]
-
-[[category]]
-name = "Business"
-keywords = ["startup", "funding", "IPO", "acquisition", "revenue"]
-
-[[category]]
-name = "General Tech"
-keywords = []
+name = "Misc"
