@@ -54,9 +54,9 @@ def _parse_blocks(text: str) -> dict[str, dict]:
 
 
 class BaseClassifier(ABC):
-    BATCH_SIZE = 10
+    BATCH_SIZE = 20
     TIMEOUT = 30
-    MAX_TOKENS = 4096
+    MAX_TOKENS = 65535
 
     @abstractmethod
     def _call_api(self, messages: list[dict], max_tokens: int, timeout: int) -> str:
