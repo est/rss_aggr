@@ -73,6 +73,7 @@ def step_fetch():
     config = load_config()
     fetch_cfg = config.get("fetch", {})
     user_agent = fetch_cfg.get("user_agent", "rss_aggr/1.0")
+    keep_days = fetch_cfg.get("keep_days", 7)
     data_dir = config.get("storage", {}).get("data_dir", "output")
     max_feeds = config.get("limits", {}).get("max_feeds", 0)
     fetch_interval = config.get("limits", {}).get("fetch_interval_hours", 24)
@@ -96,7 +97,7 @@ def step_fetch():
     results = fetch_all_feeds(
         due_feeds,
         timeout=fetch_cfg.get("timeout_seconds", 15),
-        max_articles=fetch_cfg.get("max_articles_per_feed", 20),
+        keep_days=keep_days,
         user_agent=user_agent,
     )
 
