@@ -1,40 +1,4 @@
 [[category]]
-name = "Tech News"
-
-[[category.feed]]
-title = "Hacker News"
-url = "https://hnrss.org/frontpage"
-site = "https://news.ycombinator.com"
-priority = 1
-
-[[category.feed]]
-title = "TechCrunch"
-url = "https://techcrunch.com/feed/"
-site = "https://techcrunch.com"
-priority = 1
-
-[[category.feed]]
-title = "The Verge"
-url = "https://www.theverge.com/rss/index.xml"
-site = "https://www.theverge.com"
-priority = 2
-
-[[category]]
-name = "AI"
-
-[[category.feed]]
-title = "OpenAI Blog"
-url = "https://openai.com/blog/rss.xml"
-site = "https://openai.com/blog"
-priority = 1
-
-[[category.feed]]
-title = "Anthropic"
-url = "https://www.anthropic.com/rss.xml"
-site = "https://www.anthropic.com"
-priority = 1
-
-[[category]]
 name = "Blogs"
 
 [[category.feed]]
@@ -406,6 +370,7 @@ site = "https://blog.yxwang.me/"
 title = "硕鼠的博客站"
 url = "http://lukefan.com/?feed=rss2"
 site = "http://lukefan.com/"
+skip = true
 
 [[category.feed]]
 title = "黑·白"
@@ -2168,9 +2133,9 @@ url = "https://blog.jimmylv.info/pages/feed.xml"
 site = "https://blog.jimmylv.info"
 
 [[category.feed]]
-title = "墙外看的博客"
 url = "https://qiangwaikan.com/feed/"
 site = "https://qiangwaikan.com/"
+skip = true
 
 [[category.feed]]
 title = "kirito的博客"
@@ -2351,6 +2316,7 @@ site = "https://blog.priewienv.me"
 title = "游戏研究社"
 url = "https://www.yystv.cn/rss/feed"
 site = "https://www.yystv.cn/"
+skip = true
 
 [[category.feed]]
 title = "KSkun's Blog"
