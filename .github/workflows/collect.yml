@@ -37,7 +37,7 @@ jobs:
       - name: Sync feeds
         run: python -m src.main --sync
 
-      - name: Commit feeds
+      - name: Commit feeds to main
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -54,25 +54,22 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: python -m src.main --classify
 
-      - name: Deploy to gh-pages
+      - name: Deploy output + state to gh-pages
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # Build orphan branch with only output + state
-          TMPDIR=$(mktemp -d)
-          cd "$TMPDIR"
-          git init
-          git remote add origin "https://github.com/${{ github.repository }}.git"
-          # Fetch existing gh-pages to keep history
-          git fetch origin gh-pages --depth=1 2>/dev/null || true
-          git checkout gh-pages 2>/dev/null || git checkout --orphan gh-pages
-          # Copy output and state
+          # Save workspace state
+          cp -r output /tmp/output
+          cp state.json /tmp/state.json
+          # Switch to gh-pages
+          git checkout gh-pages || git checkout --orphan gh-pages
+          # Replace content
           rm -rf output state.json
-          cp -r "${{ github.workspace }}/output" .
-          cp "${{ github.workspace }}/state.json" .
+          cp -r /tmp/output .
+          cp /tmp/state.json .
           git add -f output/ state.json
           if git diff --cached --quiet; then
-            echo "No changes to deploy"
+            echo "No changes"
           else
             git commit -m "chore: deploy $(date -u +%Y-%m-%d)"
             git push origin gh-pages
