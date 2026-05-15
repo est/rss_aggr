@@ -1,0 +1,47 @@
+# RSS Aggregator Configuration
+
+# AI Provider: openai | claude | openrouter
+[ai]
+provider = "openrouter"
+model = "nvidia/nemotron-3-nano-30b-a3b:free"
+# Set via environment variables:
+#   OPENAI_API_KEY, ANTHROPIC_API_KEY, or OPENROUTER_API_KEY
+
+# Fetch settings
+[fetch]
+timeout_seconds = 15
+keep_days = 7
+user_agent = "rss_aggr/1.0 (https://github.com/est/rss_aggr/)"
+
+# Filters: deterministic rules (free, fast) + AI prompt (cheap)
+[filter]
+skip_titles = ["weekly digest", "周报", "link list", "newsletter", "周刊", "每日速递", "月报", "monthly", "daily links"]
+skip_prompt = "If this article is a news digest, link roundup, personal diary, or off-topic life update, set category to 'skip'."
+
+# Limits: control per-run scope (0 = no limit)
+[limits]
+max_feeds = 500          # max feeds to fetch per run
+max_articles = 200       # max articles to classify per run
+fetch_interval_hours = 12  # skip feeds fetched within this window
+disable_after_failures = 3 # auto-disable feed after N consecutive failures
+
+# Storage
+[storage]
+data_dir = "output"
+keep_days = 90
+
+# Classification categories (passed to AI)
+[[category]]
+name = "Tech"
+
+[[category]]
+name = "Biz"
+
+[[category]]
+name = "Life"
+
+[[category]]
+name = "Insight"
+
+[[category]]
+name = "Misc"

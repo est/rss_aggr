@@ -1,0 +1,79 @@
+name: RSS Collection & Classification
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    environment: github-pages
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Restore state & output from gh-pages
+        run: |
+          git fetch origin gh-pages:gh-pages || true
+          git show gh-pages:state.json > state.json 2>/dev/null || echo '{}' > state.json
+          mkdir -p output
+          git show gh-pages:output/ >/dev/null 2>&1 && git checkout gh-pages -- output/ || true
+          git reset HEAD output/ 2>/dev/null || true
+          git rm -r --cached output/ 2>/dev/null || true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Sync feeds
+        run: python -m src.main --sync
+
+      - name: Commit feeds to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git reset HEAD output/ 2>/dev/null || true
+          git add feeds.toml
+          git diff --cached --quiet || git commit -m "chore: sync feeds $(date -u +%Y-%m-%d)" && git push
+
+      - name: Fetch RSS
+        run: python -m src.main --fetch
+
+      - name: Classify articles
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: python -m src.main --classify
+
+      - name: Deploy output + state to gh-pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Save workspace state
+          cp -r output /tmp/output
+          cp state.json /tmp/state.json
+          # Switch to gh-pages
+          git checkout gh-pages || git checkout --orphan gh-pages
+          # Replace content
+          rm -rf output state.json
+          cp -r /tmp/output .
+          cp /tmp/state.json .
+          git add -f output/ state.json
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "chore: deploy $(date -u +%Y-%m-%d)"
+            git push origin gh-pages
+          fi
