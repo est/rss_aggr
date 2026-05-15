@@ -13,25 +13,15 @@ permissions:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    environment: github-pages
     steps:
       - name: Checkout main
         uses: actions/checkout@v4
 
-      - name: Restore state & output from gh-pages
-        run: |
-          git fetch origin gh-pages:gh-pages || true
-          git show gh-pages:state.json > state.json 2>/dev/null || echo '{}' > state.json
-          mkdir -p output
-          # Restore files from gh-pages root to output directory
-          git ls-tree -r --name-only gh-pages | while read f; do
-            if [ "$f" != "state.json" ] && [ "$f" != ".git" ]; then
-              mkdir -p "output/$(dirname "$f")"
-              git show "gh-pages:$f" > "output/$f" 2>/dev/null || true
-            fi
-          done
-          git reset HEAD output/ 2>/dev/null || true
-          git rm -r --cached output/ 2>/dev/null || true
+      - name: Restore state
+        uses: actions/cache@v4
+        with:
+          path: state.json
+          key: rss-state
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -49,7 +39,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git reset HEAD output/ 2>/dev/null || true
           git add feeds.toml
           git diff --cached --quiet || git commit -m "chore: sync feeds $(date -u +%Y-%m-%d)" && git push
 
@@ -63,24 +52,13 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: python -m src.main --classify
 
-      - name: Deploy output + state to gh-pages
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          # Save workspace state
-          cp -r output/* /tmp/output/ 2>/dev/null || mkdir -p /tmp/output
-          cp state.json /tmp/state.json
-          # Switch to gh-pages
-          git checkout gh-pages || git checkout --orphan gh-pages
-          # Remove all tracked files except .git
-          git rm -rf . || true
-          # Copy output contents to root
-          cp -r /tmp/output/* . 2>/dev/null || true
-          cp /tmp/state.json .
-          git add -f .
-          if git diff --cached --quiet; then
-            echo "No changes"
-          else
-            git commit -m "chore: deploy $(date -u +%Y-%m-%d)"
-            git push origin gh-pages
-          fi
+      - name: Add Jekyll config
+        run: touch output/_config.yml
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: output
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
