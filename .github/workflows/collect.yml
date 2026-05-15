@@ -52,8 +52,16 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: python -m src.main --classify
 
-      - name: Add Jekyll config
-        run: touch output/_config.yml
+      - name: Convert markdown to HTML
+        run: |
+          sudo apt-get install -y pandoc
+          # Fix links in index.md: .md -> .html
+          sed -i 's/\.md/.html/g' output/index.md
+          # Convert all .md to .html
+          find output -name '*.md' | while read f; do
+            pandoc "$f" -o "${f%.md}.html" --standalone
+            rm "$f"
+          done
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
