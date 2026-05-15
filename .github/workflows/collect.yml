@@ -24,6 +24,8 @@ jobs:
           git show gh-pages:state.json > state.json 2>/dev/null || echo '{}' > state.json
           mkdir -p output
           git show gh-pages:output/ >/dev/null 2>&1 && git checkout gh-pages -- output/ || true
+          git reset HEAD output/ 2>/dev/null || true
+          git rm -r --cached output/ 2>/dev/null || true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -41,6 +43,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git reset HEAD output/ 2>/dev/null || true
           git add feeds.toml
           git diff --cached --quiet || git commit -m "chore: sync feeds $(date -u +%Y-%m-%d)" && git push
 
