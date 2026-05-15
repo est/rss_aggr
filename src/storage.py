@@ -34,6 +34,7 @@ def _article_date(article: dict) -> datetime | None:
 def save_daily_results(
     data: dict,
     data_dir: str = "output",
+    last_fetched: str = "",
 ) -> list[Path]:
     """Save articles grouped by their published date. Returns list of written files."""
     now = datetime.now(timezone.utc)
@@ -109,11 +110,11 @@ def save_daily_results(
         file_path.write_text("\n".join(lines), encoding="utf-8")
         written.append(file_path)
 
-    _update_index(data_dir)
+    _update_index(data_dir, last_fetched=last_fetched)
     return written
 
 
-def _update_index(data_dir: str = "output"):
+def _update_index(data_dir: str = "output", last_fetched: str = ""):
     """Regenerate index.md listing all daily files, newest first."""
     base = Path(data_dir)
     if not base.exists():
@@ -133,10 +134,16 @@ def _update_index(data_dir: str = "output"):
             rel = f"{yyyy_dir.name}/{f.name}"
             entries.append((display, rel))
 
+    now = last_fetched or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     lines = [
         "# RSS Aggregator",
         "",
-        f"> {len(entries)} days of collected articles",
+        f"> {len(entries)} days | last fetched: <span id='lf'>{now}</span>",
+        "",
+        "<script>",
+        "try{var e=document.getElementById('lf'),d=new Date(e.textContent);",
+        "if(!isNaN(d))e.textContent=d.toLocaleString()+' ('+((Date.now()-d)/3600000).toFixed(1)+'h ago)'}catch(x){}",
+        "</script>",
         "",
         "| Date | Link |",
         "|------|------|",

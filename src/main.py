@@ -98,7 +98,8 @@ def step_fetch():
     print(f"[{ts()}] {len(new_entries)} new articles", flush=True)
 
     if new_entries:
-        written = save_daily_results({"articles": new_entries}, data_dir)
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        written = save_daily_results({"articles": new_entries}, data_dir, last_fetched=now)
         files_str = ", ".join(str(f) for f in written) if written else "none"
         print(f"[{ts()}] Saved: {files_str}", flush=True)
 
