@@ -1,6 +1,11 @@
 # RSS Aggregator
 
-> 8 days of collected articles
+> 8 days | last fetched: <span id='lf'>2026-05-15T04:01:07Z</span>
+
+<script>
+try{var e=document.getElementById('lf'),d=new Date(e.textContent);
+if(!isNaN(d))e.textContent=d.toLocaleString()+' ('+((Date.now()-d)/3600000).toFixed(1)+'h ago)'}catch(x){}
+</script>
 
 | Date | Link |
 |------|------|
