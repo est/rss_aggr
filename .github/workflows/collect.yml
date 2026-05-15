@@ -23,7 +23,13 @@ jobs:
           git fetch origin gh-pages:gh-pages || true
           git show gh-pages:state.json > state.json 2>/dev/null || echo '{}' > state.json
           mkdir -p output
-          git show gh-pages:output/ >/dev/null 2>&1 && git checkout gh-pages -- output/ || true
+          # Restore files from gh-pages root to output directory
+          git ls-tree -r --name-only gh-pages | while read f; do
+            if [ "$f" != "state.json" ] && [ "$f" != ".git" ]; then
+              mkdir -p "output/$(dirname "$f")"
+              git show "gh-pages:$f" > "output/$f" 2>/dev/null || true
+            fi
+          done
           git reset HEAD output/ 2>/dev/null || true
           git rm -r --cached output/ 2>/dev/null || true
 
@@ -62,15 +68,16 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           # Save workspace state
-          cp -r output /tmp/output
+          cp -r output/* /tmp/output/ 2>/dev/null || mkdir -p /tmp/output
           cp state.json /tmp/state.json
           # Switch to gh-pages
           git checkout gh-pages || git checkout --orphan gh-pages
-          # Replace content
-          rm -rf output state.json
-          cp -r /tmp/output .
+          # Remove all tracked files except .git
+          git rm -rf . || true
+          # Copy output contents to root
+          cp -r /tmp/output/* . 2>/dev/null || true
           cp /tmp/state.json .
-          git add -f output/ state.json
+          git add -f .
           if git diff --cached --quiet; then
             echo "No changes"
           else
