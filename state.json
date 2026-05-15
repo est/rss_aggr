@@ -1566,9 +1566,9 @@
     },
     "https://www.jitao.tech/rss.xml": {
       "last_ok": "2026-05-14T19:55:43.277554+00:00",
-      "consecutive_failures": 1,
-      "last_error": "HTTPSConnectionPool(host='www.jitao.tech', port=443): Max retries exceeded with url: /rss.xml (Caused by ConnectTimeoutError(<HTTPSConnection(host='www.jitao.tech', port=443) at 0x7feb7c3aff50>, 'Connection to www.jitao.tech timed out. (connect timeout=15)'))",
-      "failed_at": "2026-05-15T08:40:50.254996+00:00"
+      "consecutive_failures": 2,
+      "last_error": "HTTPSConnectionPool(host='www.jitao.tech', port=443): Max retries exceeded with url: /rss.xml (Caused by ConnectTimeoutError(<HTTPSConnection(host='www.jitao.tech', port=443) at 0x7f1e42e7a120>, 'Connection to www.jitao.tech timed out. (connect timeout=15)'))",
+      "failed_at": "2026-05-15T08:49:53.090438+00:00"
     },
     "https://blog.shuziyimin.org/feed": {
       "last_ok": null,
@@ -2875,7 +2875,10 @@
       "last_ok": "2026-05-14T03:13:25.429549+00:00",
       "consecutive_failures": 3,
       "last_error": "403 Client Error: Forbidden for url: https://blog.eastonman.com/feed",
-      "failed_at": "2026-05-15T08:40:50.254468+00:00"
+      "failed_at": "2026-05-15T08:40:50.254468+00:00",
+      "disabled": true,
+      "disabled_at": "2026-05-15T08:49:07.247802+00:00",
+      "disabled_reason": "failed 3x consecutively"
     },
     "https://lawrenceli.me/atom.xml": {
       "last_ok": "2026-05-15T08:40:50.254474+00:00",
@@ -5453,9 +5456,9 @@
     },
     "https://blog.thatcoder.cn/atom.xml": {
       "last_ok": "2026-05-14T19:55:43.278743+00:00",
-      "last_error": "HTTPSConnectionPool(host='log.cns.red', port=443): Max retries exceeded with url: /atom.xml (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'log.cns.red'. (_ssl.c:1010)\")))",
-      "failed_at": "2026-05-15T08:40:50.255233+00:00",
-      "consecutive_failures": 1
+      "last_error": "HTTPSConnectionPool(host='log.cns.red', port=443): Max retries exceeded with url: /atom.xml (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1010)')))",
+      "failed_at": "2026-05-15T08:49:53.090432+00:00",
+      "consecutive_failures": 2
     },
     "https://blog.ikeno.top/rss.xml": {
       "last_ok": "2026-05-15T04:01:07.408233+00:00",
@@ -5612,8 +5615,8 @@
       "consecutive_failures": 0
     },
     "https://xlog.me/feed": {
-      "last_ok": "2026-05-14T08:47:01.315291+00:00",
-      "consecutive_failures": 2,
+      "last_ok": "2026-05-15T08:49:53.090419+00:00",
+      "consecutive_failures": 0,
       "last_error": "HTTPSConnectionPool(host='xlog.me', port=443): Read timed out. (read timeout=15)",
       "failed_at": "2026-05-15T08:40:50.255252+00:00"
     },
@@ -6216,9 +6219,9 @@
     },
     "https://ibcl.us/atom.xml": {
       "last_ok": "2026-05-14T08:47:01.315523+00:00",
-      "consecutive_failures": 2,
+      "consecutive_failures": 3,
       "last_error": "HTTPSConnectionPool(host='ibcl.us', port=443): Max retries exceeded with url: /atom.xml (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'ibcl.us'. (_ssl.c:1010)\")))",
-      "failed_at": "2026-05-15T08:40:50.255224+00:00"
+      "failed_at": "2026-05-15T08:49:53.090405+00:00"
     },
     "https://blog.oyyko.com/index.xml": {
       "last_ok": "2026-05-15T04:01:07.411377+00:00",
