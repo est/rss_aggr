@@ -1566,9 +1566,9 @@
     },
     "https://www.jitao.tech/rss.xml": {
       "last_ok": "2026-05-14T19:55:43.277554+00:00",
-      "consecutive_failures": 2,
-      "last_error": "HTTPSConnectionPool(host='www.jitao.tech', port=443): Max retries exceeded with url: /rss.xml (Caused by ConnectTimeoutError(<HTTPSConnection(host='www.jitao.tech', port=443) at 0x7f1e42e7a120>, 'Connection to www.jitao.tech timed out. (connect timeout=15)'))",
-      "failed_at": "2026-05-15T08:49:53.090438+00:00"
+      "consecutive_failures": 3,
+      "last_error": "HTTPSConnectionPool(host='www.jitao.tech', port=443): Max retries exceeded with url: /rss.xml (Caused by ConnectTimeoutError(<HTTPSConnection(host='www.jitao.tech', port=443) at 0x7f7b8485da30>, 'Connection to www.jitao.tech timed out. (connect timeout=15)'))",
+      "failed_at": "2026-05-15T08:57:07.852724+00:00"
     },
     "https://blog.shuziyimin.org/feed": {
       "last_ok": null,
@@ -5455,10 +5455,10 @@
       "failed_at": "2026-05-14T19:55:43.278717+00:00"
     },
     "https://blog.thatcoder.cn/atom.xml": {
-      "last_ok": "2026-05-14T19:55:43.278743+00:00",
+      "last_ok": "2026-05-15T08:57:07.852697+00:00",
       "last_error": "HTTPSConnectionPool(host='log.cns.red', port=443): Max retries exceeded with url: /atom.xml (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1010)')))",
       "failed_at": "2026-05-15T08:49:53.090432+00:00",
-      "consecutive_failures": 2
+      "consecutive_failures": 0
     },
     "https://blog.ikeno.top/rss.xml": {
       "last_ok": "2026-05-15T04:01:07.408233+00:00",
@@ -6221,7 +6221,10 @@
       "last_ok": "2026-05-14T08:47:01.315523+00:00",
       "consecutive_failures": 3,
       "last_error": "HTTPSConnectionPool(host='ibcl.us', port=443): Max retries exceeded with url: /atom.xml (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'ibcl.us'. (_ssl.c:1010)\")))",
-      "failed_at": "2026-05-15T08:49:53.090405+00:00"
+      "failed_at": "2026-05-15T08:49:53.090405+00:00",
+      "disabled": true,
+      "disabled_at": "2026-05-15T08:56:22.105469+00:00",
+      "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.oyyko.com/index.xml": {
       "last_ok": "2026-05-15T04:01:07.411377+00:00",
