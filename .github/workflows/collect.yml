@@ -53,21 +53,19 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: python -m src.main --classify
 
-      - name: Convert markdown to HTML
-        run: |
-          sudo apt-get install -y pandoc
-          # Fix links in index.md: .md -> .html
-          sed -i 's/\.md/.html/g' output/index.md
-          # Convert all .md to .html
-          find output -name '*.md' | while read f; do
-            pandoc "$f" -o "${f%.md}.html" --standalone
-            rm "$f"
-          done
+      - name: Fix links for Jekyll
+        run: sed -i 's/\.md)/.html)/g' output/index.md
+
+      - name: Build with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./output
+          destination: ./_site
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: output
+          path: _site
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
