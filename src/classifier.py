@@ -106,7 +106,7 @@ class OpenAIClassifier(BaseClassifier):
         )
         r = resp.choices[0].message.content
         if not r:
-            print(f"  [openai] empty response: {resp}", flush=True)
+            print(f"  [openai] empty response: {resp.to_json()}", flush=True)
         return r
 
 
@@ -122,7 +122,7 @@ class ClaudeClassifier(BaseClassifier):
         )
         r = resp.content[0].text
         if not r:
-            print(f"  [anthropic] empty response: {resp}", flush=True)
+            print(f"  [anthropic] empty response: {resp.to_json()}", flush=True)
         return r
 
 
@@ -143,7 +143,7 @@ class OpenRouterClassifier(BaseClassifier):
         )
         r = resp.choices[0].message.content
         if not r:
-            print(f"  [openrouter] empty response: {resp}", flush=True)
+            print(f"  [openrouter] empty response: {resp.to_json()}", flush=True)
         return r
 
 
