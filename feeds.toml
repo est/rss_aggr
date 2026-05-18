@@ -1242,7 +1242,6 @@ site = "https://www.javatang.com/"
 title = "暗无天日"
 url = "https://www.lujun9972.win/rss.xml"
 site = "https://www.lujun9972.win"
-skip_prompt = "if title starts with 读 or TIL then skip"
 
 [[category.feed]]
 title = "Jacky's Blog"
@@ -6475,4 +6474,10 @@ site = "https://qingccl.github.io/"
 title = "謝懿Shine"
 url = "https://www.futseyi.com/rss.xml"
 site = "https://www.futseyi.com/"
+priority = 10
+
+[[category.feed]]
+title = "所谓空想"
+url = "https://www.alxh.page/feed.rss"
+site = "https://alxh.page/"
 priority = 10
