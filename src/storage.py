@@ -4,9 +4,6 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 
-KEEP_DAYS = 7
-
-
 def _md_escape(text: str) -> str:
     return text.replace("|", "\\|").replace("\n", " ").replace("\r", "")
 
@@ -35,10 +32,11 @@ def save_daily_results(
     data: dict,
     data_dir: str = "output",
     last_fetched: str = "",
+    keep_days: int = 14,
 ) -> list[Path]:
     """Save articles grouped by their published date. Returns list of written files."""
     now = datetime.now(timezone.utc)
-    cutoff_old = now - timedelta(days=KEEP_DAYS)
+    cutoff_old = now - timedelta(days=keep_days) if keep_days > 0 else datetime.min.replace(tzinfo=timezone.utc)
     written = []
 
     # Group valid articles by date
@@ -59,7 +57,7 @@ def save_daily_results(
         by_date.setdefault(key, []).append(a)
 
     if skipped:
-        print(f"  Skipped {skipped} articles (no date / >{KEEP_DAYS}d old / future)", flush=True)
+        print(f"  Skipped {skipped} articles (no date / >{keep_days}d old / future)", flush=True)
 
     for key, articles in by_date.items():
         yyyy, mmdd = key.split("/")
@@ -260,10 +258,10 @@ def update_classifications(data_dir: str, updates: dict[str, dict]) -> int:
     return updated
 
 
-def cleanup_old_data(data_dir: str = "output", keep_days: int = 90) -> int:
-    """Delete markdown files older than keep_days."""
+def cleanup_old_data(data_dir: str = "output", keep_days: int = 0) -> int:
+    """Delete markdown files older than keep_days. 0 = never delete."""
     path = Path(data_dir)
-    if not path.exists():
+    if not path.exists() or keep_days <= 0:
         return 0
 
     cutoff = datetime.now(timezone.utc) - timedelta(days=keep_days)
