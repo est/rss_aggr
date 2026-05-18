@@ -99,7 +99,7 @@ def step_fetch():
 
     if new_entries:
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        written = save_daily_results({"articles": new_entries}, data_dir, last_fetched=now)
+        written = save_daily_results({"articles": new_entries}, data_dir, last_fetched=now, keep_days=keep_days)
         files_str = ", ".join(str(f) for f in written) if written else "none"
         print(f"[{ts()}] Saved: {files_str}", flush=True)
 

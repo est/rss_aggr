@@ -43,6 +43,19 @@ jobs:
           git add feeds.toml
           git diff --cached --quiet || git commit -m "chore: sync feeds $(date -u +%Y-%m-%d)" && git push
 
+      - name: Restore previous output from gh-pages
+        run: |
+          git fetch origin gh-pages:gh-pages || true
+          if git show gh-pages:output/ >/dev/null 2>&1; then
+            echo "Restoring previous output from gh-pages..."
+            mkdir -p /tmp/old_output
+            git archive gh-pages -- output/ | tar -x -C /tmp/old_output
+            cp -rn /tmp/old_output/output/* output/ 2>/dev/null || true
+            echo "Restored $(find output/ -name '*.md' | wc -l) files"
+          else
+            echo "No previous output found"
+          fi
+
       - name: Fetch RSS
         run: python -m src.main --fetch
 

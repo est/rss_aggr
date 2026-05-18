@@ -10,7 +10,7 @@ model = "nvidia/nemotron-3-nano-30b-a3b:free"
 # Fetch settings
 [fetch]
 timeout_seconds = 15
-keep_days = 7
+keep_days = 14
 user_agent = "rss_aggr/1.0 (https://github.com/est/rss_aggr/)"
 
 # Filters: deterministic rules (free, fast) + AI prompt (cheap)
@@ -28,7 +28,7 @@ disable_after_failures = 3 # auto-disable feed after N consecutive failures
 # Storage
 [storage]
 data_dir = "output"
-keep_days = 90
+keep_days = 0          # 0 = never delete old output
 
 # Classification categories (passed to AI)
 [[category]]
