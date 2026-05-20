@@ -258,6 +258,38 @@ def update_classifications(data_dir: str, updates: dict[str, dict]) -> int:
     return updated
 
 
+def remove_articles(data_dir: str, links: set[str]) -> int:
+    """Remove articles by link from output markdown files. Returns count removed."""
+    base = Path(data_dir)
+    if not base.exists() or not links:
+        return 0
+
+    removed = 0
+    for f in base.rglob("*.md"):
+        if f.name == "index.md":
+            continue
+        try:
+            lines = f.read_text(encoding="utf-8").splitlines()
+        except OSError:
+            continue
+
+        new_lines = []
+        for line in lines:
+            if not line.startswith("|") or line.startswith("|--") or line.startswith("| Author"):
+                new_lines.append(line)
+                continue
+            m = re.search(r"\]\(([^)]+)\)", line)
+            if m and m.group(1) in links:
+                removed += 1
+                continue
+            new_lines.append(line)
+
+        if len(new_lines) != len(lines):
+            f.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+
+    return removed
+
+
 def cleanup_old_data(data_dir: str = "output", keep_days: int = 0) -> int:
     """Delete markdown files older than keep_days. 0 = never delete."""
     path = Path(data_dir)

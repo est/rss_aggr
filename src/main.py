@@ -16,7 +16,7 @@ from src.fetcher import fetch_all_feeds
 from src.classifier import classify_articles
 from src.storage import (
     save_daily_results, load_seen_guids, load_unclassified_links,
-    update_classifications, cleanup_old_data, _update_index,
+    update_classifications, remove_articles, cleanup_old_data, _update_index,
 )
 from src.state import load_state, save_state, mark_fed, mark_failed, get_due_feeds, prioritize_feeds, disable_stats
 from src.aggregator import is_aggregator
@@ -113,6 +113,7 @@ def step_classify():
     filter_cfg = config.get("filter", {})
     categories = [c["name"] for c in config.get("category", [])]
     data_dir = config.get("storage", {}).get("data_dir", "output")
+    keep_days = config.get("fetch", {}).get("keep_days", 14)
     skip_prompt = filter_cfg.get("skip_prompt", "")
 
     state = load_state()
@@ -172,10 +173,11 @@ def step_classify():
     # Save skipped links to state (prune old ones >7 days)
     if newly_skipped:
         all_skipped = {**state.get("skipped_links", {}), **newly_skipped}
-        cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=keep_days)).isoformat()
         state["skipped_links"] = {k: v for k, v in all_skipped.items() if v > cutoff}
         save_state(state)
-        print(f"[{ts()}] Skipped {len(newly_skipped)} articles (saved to state)", flush=True)
+        removed = remove_articles(data_dir, set(newly_skipped.keys()))
+        print(f"[{ts()}] Removed {removed} skipped articles from output", flush=True)
 
     if updates:
         count = update_classifications(data_dir, updates)
