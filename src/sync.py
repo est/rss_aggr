@@ -98,17 +98,29 @@ def save_feeds_toml(data: dict, path: Path):
     for cat in data.get("category", []):
         lines.append('[[category]]')
         lines.append(f'name = "{cat["name"]}"')
+        for key, value in cat.items():
+            if key == "name" or key == "feed":
+                continue
+            if value is True:
+                lines.append(f'{key} = true')
+            elif value is False:
+                lines.append(f'{key} = false')
+            elif isinstance(value, int):
+                lines.append(f'{key} = {value}')
+            elif isinstance(value, str):
+                lines.append(f'{key} = "{value}"')
         lines.append("")
         for feed in cat.get("feed", []):
             lines.append('[[category.feed]]')
-            lines.append(f'title = "{feed["title"]}"')
-            lines.append(f'url = "{feed["url"]}"')
-            if feed.get("site"):
-                lines.append(f'site = "{feed["site"]}"')
-            if feed.get("priority"):
-                lines.append(f'priority = {feed["priority"]}')
-            if feed.get("skip"):
-                lines.append('skip = true')
+            for key, value in feed.items():
+                if value is True:
+                    lines.append(f'{key} = true')
+                elif value is False:
+                    lines.append(f'{key} = false')
+                elif isinstance(value, int):
+                    lines.append(f'{key} = {value}')
+                elif isinstance(value, str):
+                    lines.append(f'{key} = "{value}"')
             lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")
 
@@ -126,10 +138,12 @@ def sync(sources_path: str = "sources.toml", feeds_path: str = "feeds.toml", use
     print(f"[sync] {len(sources)} sources to sync")
     existing = load_feeds_toml(Path(feeds_path))
 
-    existing_urls = set()
+    existing_feeds_by_url: dict[str, dict] = {}
     for cat in existing.get("category", []):
         for feed in cat.get("feed", []):
-            existing_urls.add(feed.get("url", ""))
+            url = feed.get("url", "")
+            if url:
+                existing_feeds_by_url[url] = feed
 
     new_by_cat: dict[str, list[dict]] = {}
     total_new = 0
@@ -140,30 +154,35 @@ def sync(sources_path: str = "sources.toml", feeds_path: str = "feeds.toml", use
         target_cat = source.get("category", "Imported")
 
         for f in feeds:
-            if f["url"] in existing_urls:
+            if f["url"] in existing_feeds_by_url:
                 total_skipped += 1
                 continue
-            existing_urls.add(f["url"])
-            new_by_cat.setdefault(target_cat, []).append({
+            existing_feeds_by_url[f["url"]] = {
                 "title": f["title"],
                 "url": f["url"],
                 "site": f.get("site", ""),
                 "priority": source.get("priority", 10),
-            })
+            }
+            new_by_cat.setdefault(target_cat, []).append(f["url"])
             total_new += 1
 
-    cat_map = {c["name"]: c for c in existing.get("category", [])}
-    for cat_name, new_feeds in new_by_cat.items():
-        if cat_name in cat_map:
-            cat_map[cat_name]["feed"].extend(new_feeds)
-        else:
-            existing.setdefault("category", []).append({
-                "name": cat_name,
-                "feed": new_feeds,
-            })
+    for cat_name, new_urls in new_by_cat.items():
+        for url in new_urls:
+            feed = existing_feeds_by_url[url]
+            found = False
+            for cat in existing.get("category", []):
+                if cat["name"] == cat_name:
+                    cat.setdefault("feed", []).append(feed)
+                    found = True
+                    break
+            if not found:
+                existing.setdefault("category", []).append({
+                    "name": cat_name,
+                    "feed": [feed],
+                })
 
     save_feeds_toml(existing, Path(feeds_path))
-    print(f"\n[sync] Done: +{total_new} new, {total_skipped} skipped (dup), {len(existing_urls)} total")
+    print(f"\n[sync] Done: +{total_new} new, {total_skipped} skipped (dup), {len(existing_feeds_by_url)} total")
 
 
 if __name__ == "__main__":
