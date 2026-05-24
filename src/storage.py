@@ -8,6 +8,28 @@ def _md_escape(text: str) -> str:
     return text.replace("|", "\\|").replace("\n", " ").replace("\r", "")
 
 
+def _split_md_row(line: str) -> list[str]:
+    """Split markdown table row by unescaped '|' and return trimmed cells."""
+    if not line.startswith("|"):
+        return []
+    cells = []
+    cur = []
+    escaped = False
+    for ch in line:
+        if ch == "\\" and not escaped:
+            escaped = True
+            cur.append(ch)
+            continue
+        if ch == "|" and not escaped:
+            cells.append("".join(cur).strip())
+            cur = []
+        else:
+            cur.append(ch)
+        escaped = False
+    cells.append("".join(cur).strip())
+    return cells
+
+
 def _parse_published(published: str) -> datetime | None:
     """Parse published date string to datetime."""
     if not published:
@@ -190,12 +212,43 @@ def load_unclassified_links(data_dir: str = "output") -> set[str]:
                 if not m:
                     continue
                 link = m.group(1)
-                cols = [c.strip() for c in line.split("|")]
+                cols = _split_md_row(line)
                 if len(cols) >= 5 and cols[4] in ("—", ""):
                     links.add(link)
         except OSError:
             continue
     return links
+
+
+def collect_articles_for_links(data_dir: str, links: set[str]) -> list[dict]:
+    """Collect unique {title, link} rows from markdown files for given links."""
+    if not links:
+        return []
+
+    articles = []
+    seen_links = set()
+    base = Path(data_dir)
+    if not base.exists():
+        return articles
+
+    for f in base.rglob("*.md"):
+        if f.name == "index.md":
+            continue
+        try:
+            for line in f.read_text(encoding="utf-8").splitlines():
+                if not line.startswith("|") or line.startswith("|--") or line.startswith("| Author"):
+                    continue
+                m = re.search(r"\[([^\]]+)\]\(([^)]+)\)", line)
+                if not m:
+                    continue
+                title, link = m.group(1), m.group(2)
+                if link not in links or link in seen_links:
+                    continue
+                seen_links.add(link)
+                articles.append({"title": title, "link": link})
+        except OSError:
+            continue
+    return articles
 
 
 def update_classifications(data_dir: str, updates: dict[str, dict]) -> int:
@@ -238,7 +291,7 @@ def update_classifications(data_dir: str, updates: dict[str, dict]) -> int:
                 continue
 
             info = updates[link]
-            cols = [c.strip() for c in line.split("|")]
+            cols = _split_md_row(line)
             if len(cols) < 6:
                 new_lines.append(line)
                 continue

@@ -1,10 +1,6 @@
 """Main entry point with decoupled fetch/classify/save steps."""
 import argparse
-import json
-import re
-import time
 from datetime import datetime, timezone, timedelta
-from pathlib import Path
 
 try:
     import tomllib
@@ -16,9 +12,10 @@ from src.fetcher import fetch_all_feeds
 from src.classifier import classify_articles
 from src.storage import (
     save_daily_results, load_seen_guids, load_unclassified_links,
-    update_classifications, remove_articles, cleanup_old_data, _update_index,
+    update_classifications, remove_articles,
+    collect_articles_for_links,
 )
-from src.state import load_state, save_state, mark_fed, mark_failed, get_due_feeds, prioritize_feeds, disable_stats
+from src.state import load_state, save_state, mark_fed, mark_failed, get_due_feeds, prioritize_feeds
 from src.aggregator import is_aggregator
 
 
@@ -128,24 +125,8 @@ def step_classify():
         print(f"[{ts()}] Nothing to classify", flush=True)
         return
 
-    # Build article dicts from links
-    articles = []
-    base = Path(data_dir)
-    for f in base.rglob("*.md"):
-        if f.name == "index.md":
-            continue
-        try:
-            for line in f.read_text(encoding="utf-8").splitlines():
-                if not line.startswith("|") or line.startswith("|--") or line.startswith("| Author"):
-                    continue
-                m = re.search(r"\[([^\]]+)\]\(([^)]+)\)", line)
-                if not m:
-                    continue
-                title, link = m.group(1), m.group(2)
-                if link in unclassified:
-                    articles.append({"title": title, "link": link})
-        except OSError:
-            continue
+    # Build unique article dicts from links.
+    articles = collect_articles_for_links(data_dir, unclassified)
 
     print(f"[{ts()}] {len(articles)} articles to classify", flush=True)
 
