@@ -9,7 +9,7 @@ except ModuleNotFoundError:
 
 from src.opml_parser import parse_feeds
 from src.fetcher import fetch_all_feeds
-from src.classifier import classify_articles
+from src.classifier import classify_articles, is_skip_category
 from src.storage import (
     save_daily_results, load_seen_guids, load_unclassified_links,
     update_classifications, remove_articles,
@@ -146,7 +146,7 @@ def step_classify():
     newly_skipped = {}
     for a in articles:
         cls = a.get("classification", {})
-        if cls.get("category", "").lower() == "skip":
+        if is_skip_category(cls.get("category", "")):
             newly_skipped[a["link"]] = datetime.now(timezone.utc).isoformat()
         elif "classification" in a:
             updates[a["link"]] = a["classification"]

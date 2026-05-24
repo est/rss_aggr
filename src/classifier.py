@@ -54,6 +54,23 @@ def _parse_blocks(text: str) -> dict[str, dict]:
     return results
 
 
+def normalize_category(category: str) -> str:
+    """Normalize classifier category labels for robust comparisons."""
+    if not category:
+        return ""
+    s = category.strip().strip("`\"'").strip().lower()
+    # Keep only leading token before obvious commentary markers.
+    for sep in ("(", ":", "-", ",", ";"):
+        if sep in s:
+            s = s.split(sep, 1)[0].strip()
+    return s
+
+
+def is_skip_category(category: str) -> bool:
+    """Whether a category should be treated as skip/removal."""
+    return normalize_category(category) == "skip"
+
+
 class BaseClassifier(ABC):
     BATCH_SIZE = 20
     TIMEOUT = 30

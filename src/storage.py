@@ -3,6 +3,11 @@ import re
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
+OLD_HEADER = "| Author | Title | Summary | Score |"
+OLD_SEP = "|--------|-------|---------|-------|"
+NEW_HEADER = "| Author | Title | Category | Summary | Score |"
+NEW_SEP = "|--------|-------|----------|---------|-------|"
+
 
 def _md_escape(text: str) -> str:
     return text.replace("|", "\\|").replace("\n", " ").replace("\r", "")
@@ -28,6 +33,43 @@ def _split_md_row(line: str) -> list[str]:
         escaped = False
     cells.append("".join(cur).strip())
     return cells
+
+
+def _is_data_row(line: str) -> bool:
+    if not line.startswith("|"):
+        return False
+    cells = _split_md_row(line)
+    if len(cells) < 2:
+        return False
+    # Header/separator rows.
+    if cells[1].lower() == "author":
+        return False
+    if all((not c) or set(c) <= {"-"} for c in cells[1:-1]):
+        return False
+    return True
+
+
+def _extract_score(cols: list[str]) -> str:
+    """Extract score cell from markdown row cells (supports old/new formats)."""
+    for i in range(len(cols) - 2, 0, -1):
+        if cols[i] != "":
+            return cols[i]
+    return ""
+
+
+def _upgrade_old_row_to_category(line: str) -> str:
+    """Upgrade old 4-column row to 5-column row by inserting empty category."""
+    if not _is_data_row(line):
+        return line
+    cols = _split_md_row(line)
+    # old format: ['', author, title, summary, score, '']
+    if len(cols) == 6:
+        author = cols[1]
+        title_link = cols[2]
+        summary = cols[3]
+        score = cols[4]
+        return f"| {author} | {title_link} | — | {summary or '—'} | {score or '—'} |"
+    return line
 
 
 def _parse_published(published: str) -> datetime | None:
@@ -92,8 +134,8 @@ def save_daily_results(
         if file_path.exists():
             content = file_path.read_text(encoding="utf-8")
             for line in content.splitlines():
-                if line.startswith("|") and not line.startswith("|--") and not line.startswith("| Author"):
-                    existing_lines.append(line)
+                if _is_data_row(line):
+                    existing_lines.append(_upgrade_old_row_to_category(line))
                     m = re.search(r"\]\(([^)]+)\)", line)
                     if m:
                         existing_guids.add(m.group(1))
@@ -104,10 +146,11 @@ def save_daily_results(
             author = _md_escape(a.get("author", "") or a.get("feed_title", "") or "-")
             title = _md_escape(a.get("title", ""))
             link = a.get("link", "")
+            category = _md_escape(c.get("category", "") or "")
             summary = _md_escape(c.get("summary", "") or "")
             score = c.get("score", "—")
             if link and link not in existing_guids:
-                new_rows.append(f"| {author} | [{title}]({link}) | {summary or '—'} | {score} |")
+                new_rows.append(f"| {author} | [{title}]({link}) | {category or '—'} | {summary or '—'} | {score} |")
 
         all_rows = existing_lines + new_rows
         if not all_rows:
@@ -121,8 +164,8 @@ def save_daily_results(
             "",
             f"> {len(all_rows)} articles",
             "",
-            "| Author | Title | Summary | Score |",
-            "|--------|-------|---------|-------|",
+            NEW_HEADER,
+            NEW_SEP,
         ]
         lines.extend(all_rows)
         lines.append("")
@@ -206,14 +249,15 @@ def load_unclassified_links(data_dir: str = "output") -> set[str]:
             continue
         try:
             for line in f.read_text(encoding="utf-8").splitlines():
-                if not line.startswith("|") or line.startswith("|--") or line.startswith("| Author"):
+                if not _is_data_row(line):
                     continue
                 m = re.search(r"\]\(([^)]+)\)", line)
                 if not m:
                     continue
                 link = m.group(1)
                 cols = _split_md_row(line)
-                if len(cols) >= 5 and cols[4] in ("—", ""):
+                score = _extract_score(cols)
+                if score in ("—", ""):
                     links.add(link)
         except OSError:
             continue
@@ -236,7 +280,7 @@ def collect_articles_for_links(data_dir: str, links: set[str]) -> list[dict]:
             continue
         try:
             for line in f.read_text(encoding="utf-8").splitlines():
-                if not line.startswith("|") or line.startswith("|--") or line.startswith("| Author"):
+                if not _is_data_row(line):
                     continue
                 m = re.search(r"\[([^\]]+)\]\(([^)]+)\)", line)
                 if not m:
@@ -276,7 +320,13 @@ def update_classifications(data_dir: str, updates: dict[str, dict]) -> int:
 
         new_lines = []
         for line in lines:
-            if not line.startswith("|") or line.startswith("|--") or line.startswith("| Author"):
+            if line.strip() == OLD_HEADER:
+                new_lines.append(NEW_HEADER)
+                continue
+            if line.strip() == OLD_SEP:
+                new_lines.append(NEW_SEP)
+                continue
+            if not _is_data_row(line):
                 new_lines.append(line)
                 continue
 
@@ -287,21 +337,23 @@ def update_classifications(data_dir: str, updates: dict[str, dict]) -> int:
 
             link = m.group(1)
             if link not in updates:
-                new_lines.append(line)
+                new_lines.append(_upgrade_old_row_to_category(line))
                 continue
 
             info = updates[link]
             cols = _split_md_row(line)
-            if len(cols) < 6:
+            if len(cols) < 5:
                 new_lines.append(line)
                 continue
 
-            # cols: ['', author, title_link, summary, score, '']
+            # old format: ['', author, title, summary, score, '']
+            # new format: ['', author, title, category, summary, score, '']
             author = cols[1]
             title_link = cols[2]
+            category = _md_escape(info.get("category", "") or "")
             summary = _md_escape(info.get("summary", "") or "")
             score = info.get("score", "—")
-            new_line = f"| {author} | {title_link} | {summary or '—'} | {score} |"
+            new_line = f"| {author} | {title_link} | {category or '—'} | {summary or '—'} | {score} |"
             new_lines.append(new_line)
             updated += 1
 
@@ -328,7 +380,7 @@ def remove_articles(data_dir: str, links: set[str]) -> int:
 
         new_lines = []
         for line in lines:
-            if not line.startswith("|") or line.startswith("|--") or line.startswith("| Author"):
+            if not _is_data_row(line):
                 new_lines.append(line)
                 continue
             m = re.search(r"\]\(([^)]+)\)", line)

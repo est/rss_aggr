@@ -54,6 +54,7 @@ class StorageMarkdownParsingTests(unittest.TestCase):
                 tmp,
                 {
                     "https://example.com/a": {
+                        "category": "Tech",
                         "summary": "new | summary",
                         "score": 8,
                     }
@@ -62,7 +63,32 @@ class StorageMarkdownParsingTests(unittest.TestCase):
 
             self.assertEqual(updated, 1)
             text = f.read_text(encoding="utf-8")
-            self.assertIn("| A | [T](https://example.com/a) | new \\| summary | 8 |", text)
+            self.assertIn("| A | [T](https://example.com/a) | Tech | new \\| summary | 8 |", text)
+
+    def test_load_unclassified_links_supports_new_category_column(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            day = Path(tmp) / "2026"
+            day.mkdir(parents=True, exist_ok=True)
+            f = day / "0512.md"
+            f.write_text(
+                "\n".join(
+                    [
+                        "# 2026-05-12",
+                        "",
+                        "| Author | Title | Category | Summary | Score |",
+                        "|--------|-------|----------|---------|-------|",
+                        "| A | [U](https://example.com/u) | Tech | sum | — |",
+                        "| B | [C](https://example.com/c) | Biz | sum | 7 |",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            links = load_unclassified_links(tmp)
+
+            self.assertIn("https://example.com/u", links)
+            self.assertNotIn("https://example.com/c", links)
 
 
 if __name__ == "__main__":
