@@ -46,11 +46,21 @@ jobs:
       - name: Restore previous output from gh-pages
         run: |
           git fetch origin gh-pages:gh-pages || true
-          if git show gh-pages:output/ >/dev/null 2>&1; then
-            echo "Restoring previous output from gh-pages..."
+          if git rev-parse --verify gh-pages >/dev/null 2>&1; then
+            echo "Restoring previous output/state from gh-pages..."
             mkdir -p /tmp/old_output
-            git archive gh-pages -- output/ | tar -x -C /tmp/old_output
-            cp -rn /tmp/old_output/output/* output/ 2>/dev/null || true
+            git archive gh-pages -- output/ state.json 2>/dev/null | tar -x -C /tmp/old_output || true
+            # Preferred layout: gh-pages has output/YYYY...
+            if [ -d /tmp/old_output/output ]; then
+              cp -rn /tmp/old_output/output/* output/ 2>/dev/null || true
+            fi
+            # Backward compatibility: historical layout output/output/YYYY...
+            if [ -d /tmp/old_output/output/output ]; then
+              cp -rn /tmp/old_output/output/output/* output/ 2>/dev/null || true
+            fi
+            if [ -f /tmp/old_output/state.json ]; then
+              cp /tmp/old_output/state.json state.json
+            fi
             echo "Restored $(find output/ -name '*.md' | wc -l) files"
           else
             echo "No previous output found"
@@ -82,3 +92,35 @@ jobs:
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
+
+      - name: Persist output/state to gh-pages branch
+        run: |
+          rm -rf /tmp/new_output /tmp/gh-pages-wt
+          mkdir -p /tmp/new_output
+          cp -R output/. /tmp/new_output/
+          if [ -f state.json ]; then
+            cp state.json /tmp/new_state.json
+          fi
+
+          git fetch origin gh-pages:gh-pages || true
+          if git show-ref --verify --quiet refs/heads/gh-pages; then
+            git worktree add /tmp/gh-pages-wt gh-pages
+          else
+            git worktree add -b gh-pages /tmp/gh-pages-wt
+          fi
+
+          rm -rf /tmp/gh-pages-wt/output
+          mkdir -p /tmp/gh-pages-wt/output
+          cp -R /tmp/new_output/. /tmp/gh-pages-wt/output/
+          if [ -f /tmp/new_state.json ]; then
+            cp /tmp/new_state.json /tmp/gh-pages-wt/state.json
+          fi
+
+          cd /tmp/gh-pages-wt
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output state.json
+          git diff --cached --quiet || git commit -m "chore: persist output $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push origin gh-pages
+          cd -
+          git worktree remove /tmp/gh-pages-wt --force

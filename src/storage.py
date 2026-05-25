@@ -264,6 +264,35 @@ def load_unclassified_links(data_dir: str = "output") -> set[str]:
     return links
 
 
+def load_unclassified_links_map(data_dir: str = "output") -> dict[str, set[str]]:
+    """Load unclassified links per file path."""
+    result: dict[str, set[str]] = {}
+    base = Path(data_dir)
+    if not base.exists():
+        return result
+
+    for f in base.rglob("*.md"):
+        if f.name == "index.md":
+            continue
+        links = set()
+        try:
+            for line in f.read_text(encoding="utf-8").splitlines():
+                if not _is_data_row(line):
+                    continue
+                m = re.search(r"\]\(([^)]+)\)", line)
+                if not m:
+                    continue
+                cols = _split_md_row(line)
+                score = _extract_score(cols)
+                if score in ("—", ""):
+                    links.add(m.group(1))
+        except OSError:
+            continue
+        if links:
+            result[str(f)] = links
+    return result
+
+
 def collect_articles_for_links(data_dir: str, links: set[str]) -> list[dict]:
     """Collect unique {title, link, feed_title} rows from markdown files for given links."""
     if not links:
@@ -298,7 +327,7 @@ def collect_articles_for_links(data_dir: str, links: set[str]) -> list[dict]:
     return articles
 
 
-def update_classifications(data_dir: str, updates: dict[str, dict]) -> int:
+def update_classifications(data_dir: str, updates: dict[str, dict], only_links: set[str] | None = None) -> int:
     """Update classification for articles in-place by link.
 
     Args:
@@ -339,11 +368,17 @@ def update_classifications(data_dir: str, updates: dict[str, dict]) -> int:
                 continue
 
             link = m.group(1)
+            if only_links is not None and link not in only_links:
+                new_lines.append(_upgrade_old_row_to_category(line))
+                continue
             if link not in updates:
                 new_lines.append(_upgrade_old_row_to_category(line))
                 continue
 
             info = updates[link]
+            if not info.get("category") or not info.get("summary") or "score" not in info:
+                new_lines.append(_upgrade_old_row_to_category(line))
+                continue
             cols = _split_md_row(line)
             if len(cols) < 5:
                 new_lines.append(line)

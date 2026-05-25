@@ -8,10 +8,9 @@ except ModuleNotFoundError:
     import tomli as tomllib
 
 from src.opml_parser import parse_feeds
-from src.fetcher import fetch_all_feeds
 from src.classifier import classify_articles, is_skip_category
 from src.storage import (
-    save_daily_results, load_seen_guids, load_unclassified_links,
+    save_daily_results, load_seen_guids, load_unclassified_links, load_unclassified_links_map,
     update_classifications, remove_articles,
     collect_articles_for_links,
 )
@@ -24,13 +23,41 @@ def ts():
 
 
 def _extract_site(url: str) -> str:
-    """Extract netloc+path prefix from URL for matching (without scheme)."""
+    """Extract netloc+path prefix from URL for matching.
+
+    Note: scheme is intentionally dropped, so both http://example.com
+    and https://example.com normalize to the same prefix.
+    """
     from urllib.parse import urlparse
     try:
         parsed = urlparse(url)
         return f"{parsed.netloc}{parsed.path.rstrip('/')}"
     except Exception:
         return ""
+
+
+def _build_site_skip_prompt_rules(feeds: list[dict]) -> list[tuple[str, str]]:
+    """Build site->skip_prompt rules sorted by most-specific site prefix first."""
+    rules = []
+    for f in feeds:
+        sp = (f.get("skip_prompt") or "").strip()
+        site = (f.get("html_url") or "").strip()
+        site_norm = _extract_site(site)
+        if site_norm and sp:
+            rules.append((site_norm, sp))
+    rules.sort(key=lambda x: len(x[0]), reverse=True)
+    return rules
+
+
+def _resolve_site_skip_prompt(article_link: str, rules: list[tuple[str, str]]) -> tuple[str, str]:
+    """Resolve per-site skip_prompt for an article link."""
+    article_site = _extract_site(article_link)
+    if not article_site:
+        return "", ""
+    for site_norm, skip_prompt in rules:
+        if article_site == site_norm or article_site.startswith(site_norm + "/"):
+            return site_norm, skip_prompt
+    return "", ""
 
 
 def load_config(path: str = "config.toml") -> dict:
@@ -51,6 +78,7 @@ def step_sync():
 def step_fetch():
     """Fetch RSS entries, save unclassified to output markdown."""
     config = load_config()
+    from src.fetcher import fetch_all_feeds
     fetch_cfg = config.get("fetch", {})
     filter_cfg = config.get("filter", {})
     user_agent = fetch_cfg.get("user_agent", "rss_aggr/1.0")
@@ -65,6 +93,7 @@ def step_fetch():
     print(f"[{ts()}] {len(all_feeds)} feeds total", flush=True)
 
     state = load_state()
+    skipped_links = set(state.get("skipped_links", {}))
     due_feeds = get_due_feeds(all_feeds, state, fetch_interval, max_failures)
     due_feeds = prioritize_feeds(due_feeds)
     if max_feeds > 0:
@@ -101,8 +130,15 @@ def step_fetch():
 
     # Dedup against output
     seen_links = load_seen_guids(data_dir)
-    new_entries = [e for e in all_entries if e.get("link") not in seen_links]
-    print(f"[{ts()}] {len(new_entries)} new articles", flush=True)
+    new_entries = [
+        e for e in all_entries
+        if e.get("link") not in seen_links and e.get("link") not in skipped_links
+    ]
+    print(
+        f"[{ts()}] {len(new_entries)} new articles "
+        f"(excluded {len(skipped_links)} skipped links)",
+        flush=True,
+    )
 
     if new_entries:
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -117,20 +153,23 @@ def step_classify():
     """Classify unclassified articles in output markdown."""
     config = load_config()
     ai_cfg = config.get("ai", {})
-    filter_cfg = config.get("filter", {})
     categories = [c["name"] for c in config.get("category", [])]
     data_dir = config.get("storage", {}).get("data_dir", "output")
     keep_days = config.get("fetch", {}).get("keep_days", 14)
-    default_skip_prompt = filter_cfg.get("skip_prompt", "")
 
     feeds = parse_feeds("feeds.toml")
-    feed_skip_prompts = {f["html_url"]: f["skip_prompt"] for f in feeds if f.get("skip_prompt")}
+    site_skip_prompt_rules = _build_site_skip_prompt_rules(feeds)
 
     state = load_state()
     skipped_links = set(state.get("skipped_links", {}))
 
     unclassified = load_unclassified_links(data_dir)
+    unclassified_map = load_unclassified_links_map(data_dir)
+    only_unclassified_links = set()
+    for links in unclassified_map.values():
+        only_unclassified_links.update(links)
     unclassified -= skipped_links
+    only_unclassified_links -= skipped_links
     print(f"[{ts()}] {len(unclassified)} unclassified (excluded {len(skipped_links)} previously skipped)", flush=True)
 
     if not unclassified:
@@ -144,25 +183,17 @@ def step_classify():
     if not articles:
         return
 
-    by_author: dict[str, list[dict]] = {}
+    by_site_rule: dict[tuple[str, str], list[dict]] = {}
     for a in articles:
-        author = a.get("author", "")
-        by_author.setdefault(author, []).append(a)
+        rule = _resolve_site_skip_prompt(a.get("link", ""), site_skip_prompt_rules)
+        by_site_rule.setdefault(rule, []).append(a)
 
     all_updates = {}
     all_newly_skipped = {}
 
-    for arts in by_author.values():
-        sample_link = arts[0].get("link", "")
-        article_url = _extract_site(sample_link)
-        skip_prompt = default_skip_prompt
-        for feed_url, sp in feed_skip_prompts.items():
-            feed_url_norm = _extract_site(feed_url)
-            if feed_url_norm and article_url.startswith(feed_url_norm):
-                skip_prompt = sp
-                break
-        if skip_prompt and skip_prompt != default_skip_prompt:
-            print(f"  [{article_url}] skip_prompt: {skip_prompt}", flush=True)
+    for (site_norm, skip_prompt), arts in by_site_rule.items():
+        if skip_prompt:
+            print(f"  [{site_norm}] skip_prompt: {skip_prompt}", flush=True)
 
         classify_articles(
             arts,
@@ -188,7 +219,7 @@ def step_classify():
         print(f"[{ts()}] Removed {removed} skipped articles from output", flush=True)
 
     if all_updates:
-        count = update_classifications(data_dir, all_updates)
+        count = update_classifications(data_dir, all_updates, only_links=only_unclassified_links)
         print(f"[{ts()}] Updated {count} articles in output", flush=True)
 
 
