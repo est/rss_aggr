@@ -23,6 +23,16 @@ def ts():
     return datetime.now(timezone.utc).strftime("%H:%M:%S")
 
 
+def _extract_site(url: str) -> str:
+    """Extract netloc+path prefix from URL for matching (without scheme)."""
+    from urllib.parse import urlparse
+    try:
+        parsed = urlparse(url)
+        return f"{parsed.netloc}{parsed.path.rstrip('/')}"
+    except Exception:
+        return ""
+
+
 def load_config(path: str = "config.toml") -> dict:
     with open(path, "rb") as f:
         return tomllib.load(f)
@@ -114,7 +124,7 @@ def step_classify():
     default_skip_prompt = filter_cfg.get("skip_prompt", "")
 
     feeds = parse_feeds("feeds.toml")
-    feed_skip_prompts = {f["title"]: f["skip_prompt"] for f in feeds if f.get("skip_prompt")}
+    feed_skip_prompts = {f["html_url"]: f["skip_prompt"] for f in feeds if f.get("skip_prompt")}
 
     state = load_state()
     skipped_links = set(state.get("skipped_links", {}))
@@ -142,10 +152,17 @@ def step_classify():
     all_updates = {}
     all_newly_skipped = {}
 
-    for author, arts in by_author.items():
-        skip_prompt = feed_skip_prompts.get(author, default_skip_prompt)
-        if skip_prompt:
-            print(f"  [{author}] skip_prompt: {skip_prompt}", flush=True)
+    for arts in by_author.values():
+        sample_link = arts[0].get("link", "")
+        article_url = _extract_site(sample_link)
+        skip_prompt = default_skip_prompt
+        for feed_url, sp in feed_skip_prompts.items():
+            feed_url_norm = _extract_site(feed_url)
+            if feed_url_norm and article_url.startswith(feed_url_norm):
+                skip_prompt = sp
+                break
+        if skip_prompt and skip_prompt != default_skip_prompt:
+            print(f"  [{article_url}] skip_prompt: {skip_prompt}", flush=True)
 
         classify_articles(
             arts,

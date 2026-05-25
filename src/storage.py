@@ -42,7 +42,7 @@ def _is_data_row(line: str) -> bool:
     if len(cells) < 2:
         return False
     # Header/separator rows.
-    if cells[1].lower() == "author":
+    if cells[1].lower() in ("author", "feed"):
         return False
     if all((not c) or set(c) <= {"-"} for c in cells[1:-1]):
         return False
@@ -265,7 +265,7 @@ def load_unclassified_links(data_dir: str = "output") -> set[str]:
 
 
 def collect_articles_for_links(data_dir: str, links: set[str]) -> list[dict]:
-    """Collect unique {title, link, author} rows from markdown files for given links."""
+    """Collect unique {title, link, feed_title} rows from markdown files for given links."""
     if not links:
         return []
 
