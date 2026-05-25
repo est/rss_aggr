@@ -1242,7 +1242,7 @@ site = "https://www.javatang.com/"
 title = "暗无天日"
 url = "https://www.lujun9972.win/rss.xml"
 site = "https://www.lujun9972.win"
-skip_prompt = "if title starts with 读 or TIL then skip"
+skip_prompt = "if title starts with 读 or TIL then 'skip'"
 
 [[category.feed]]
 title = "Jacky's Blog"

@@ -4,22 +4,23 @@ import re
 from abc import ABC, abstractmethod
 
 
-BATCH_PROMPT = """You are a blog article classifier. For each article, provide:
-1. Category: one of {categories}
-2. Tags: 3-5 relevant tags
-3. Score: 1-10 (10 = must-read, 1 = not interesting)
-4. Summary: one-sentence summary in zh-CN (max 280 chars)
+BATCH_PROMPT = """You are a blog article classifier.
+
+The user will provide some blog URLs with content
 
 For each article, respond in EXACTLY this format (one block per article, separated by blank lines):
 
 https://article-url
 category: xxx
-tags: t1, t2, t3
-score: 8
-summary: one sentence here
+score: 1-10 (10 = must-read, 1 = not interesting)
+summary: one-sentence summary in zh-CN (max 280 chars)
 
 Do NOT use JSON. Just plain text blocks like above.
-{skip_prompt}"""
+
+For the category:
+  - Usually one of {categories}
+  - For certain blogs there's a special "category" requirement from the user's input, Evaluate it accordingly
+"""
 
 
 def _parse_blocks(text: str) -> dict[str, dict]:
@@ -75,6 +76,7 @@ class BaseClassifier(ABC):
     BATCH_SIZE = 20
     TIMEOUT = 30
     MAX_TOKENS = 4096  # BATCH_SIZE * 200 tokens == around 4k should be enough
+    ARTICLE_LEN = 1500
 
     @abstractmethod
     def _call_api(self, messages: list[dict], max_tokens: int, timeout: int) -> str:
@@ -84,12 +86,19 @@ class BaseClassifier(ABC):
         """Classify articles, returns {url: classification_dict}."""
         prompt = BATCH_PROMPT.format(
             categories=", ".join(categories),
-            skip_prompt=skip_prompt,
         )
         items = []
         for a in articles:
-            content = (a.get("content") or "")[:1500]
-            items.append(f"{a.get('link', 'unknown')}\nTitle: {a['title']}\n{content}")
+            if not a.get('link'):
+                continue
+            content = (a.get("content") or "")[:self.ARTICLE_LEN].replace('\n', '\n> ')
+            items.append('\n'.join([
+                a['link'],
+                f"Title: {a['title']}",
+                f"Category: {skip_prompt}" if skip_prompt else '',
+                f"\n> {content}"
+                
+            ]))
         user_msg = "\n\n---\n\n".join(items)
 
         text = self._call_api([
