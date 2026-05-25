@@ -10,7 +10,7 @@ except ModuleNotFoundError:
 def parse_feeds(path: str | Path = "feeds.toml") -> list[dict]:
     """Parse a TOML feeds file and return a flat list of RSS feeds.
 
-    Returns list of dicts with keys: title, xml_url, html_url, category
+    Returns list of dicts with keys: title, xml_url, html_url, category, skip_prompt
     """
     p = Path(path)
     with open(p, "rb") as f:
@@ -28,5 +28,6 @@ def parse_feeds(path: str | Path = "feeds.toml") -> list[dict]:
                 "html_url": feed.get("site", ""),
                 "category": category,
                 "priority": feed.get("priority", 99),
+                "skip_prompt": feed.get("skip_prompt", ""),
             })
     return feeds

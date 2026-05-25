@@ -111,12 +111,14 @@ def step_classify():
     categories = [c["name"] for c in config.get("category", [])]
     data_dir = config.get("storage", {}).get("data_dir", "output")
     keep_days = config.get("fetch", {}).get("keep_days", 14)
-    skip_prompt = filter_cfg.get("skip_prompt", "")
+    default_skip_prompt = filter_cfg.get("skip_prompt", "")
+
+    feeds = parse_feeds("feeds.toml")
+    feed_skip_prompts = {f["title"]: f["skip_prompt"] for f in feeds if f.get("skip_prompt")}
 
     state = load_state()
     skipped_links = set(state.get("skipped_links", {}))
 
-    # Find unclassified links, exclude already-skipped
     unclassified = load_unclassified_links(data_dir)
     unclassified -= skipped_links
     print(f"[{ts()}] {len(unclassified)} unclassified (excluded {len(skipped_links)} previously skipped)", flush=True)
@@ -125,7 +127,6 @@ def step_classify():
         print(f"[{ts()}] Nothing to classify", flush=True)
         return
 
-    # Build unique article dicts from links.
     articles = collect_articles_for_links(data_dir, unclassified)
 
     print(f"[{ts()}] {len(articles)} articles to classify", flush=True)
@@ -133,35 +134,44 @@ def step_classify():
     if not articles:
         return
 
-    classify_articles(
-        articles,
-        provider=ai_cfg.get("provider", "openai"),
-        model=ai_cfg.get("model"),
-        categories=categories,
-        skip_prompt=skip_prompt,
-    )
-
-    # Build updates dict, track skipped
-    updates = {}
-    newly_skipped = {}
+    by_author: dict[str, list[dict]] = {}
     for a in articles:
-        cls = a.get("classification", {})
-        if is_skip_category(cls.get("category", "")):
-            newly_skipped[a["link"]] = datetime.now(timezone.utc).isoformat()
-        elif "classification" in a:
-            updates[a["link"]] = a["classification"]
+        author = a.get("author", "")
+        by_author.setdefault(author, []).append(a)
 
-    # Save skipped links to state (prune old ones >7 days)
-    if newly_skipped:
-        all_skipped = {**state.get("skipped_links", {}), **newly_skipped}
+    all_updates = {}
+    all_newly_skipped = {}
+
+    for author, arts in by_author.items():
+        skip_prompt = feed_skip_prompts.get(author, default_skip_prompt)
+        if skip_prompt:
+            print(f"  [{author}] skip_prompt: {skip_prompt}", flush=True)
+
+        classify_articles(
+            arts,
+            provider=ai_cfg.get("provider", "openai"),
+            model=ai_cfg.get("model"),
+            categories=categories,
+            skip_prompt=skip_prompt,
+        )
+
+        for a in arts:
+            cls = a.get("classification", {})
+            if is_skip_category(cls.get("category", "")):
+                all_newly_skipped[a["link"]] = datetime.now(timezone.utc).isoformat()
+            elif "classification" in a:
+                all_updates[a["link"]] = a["classification"]
+
+    if all_newly_skipped:
+        all_skipped = {**state.get("skipped_links", {}), **all_newly_skipped}
         cutoff = (datetime.now(timezone.utc) - timedelta(days=keep_days)).isoformat()
         state["skipped_links"] = {k: v for k, v in all_skipped.items() if v > cutoff}
         save_state(state)
-        removed = remove_articles(data_dir, set(newly_skipped.keys()))
+        removed = remove_articles(data_dir, set(all_newly_skipped.keys()))
         print(f"[{ts()}] Removed {removed} skipped articles from output", flush=True)
 
-    if updates:
-        count = update_classifications(data_dir, updates)
+    if all_updates:
+        count = update_classifications(data_dir, all_updates)
         print(f"[{ts()}] Updated {count} articles in output", flush=True)
 
 

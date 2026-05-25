@@ -265,7 +265,7 @@ def load_unclassified_links(data_dir: str = "output") -> set[str]:
 
 
 def collect_articles_for_links(data_dir: str, links: set[str]) -> list[dict]:
-    """Collect unique {title, link} rows from markdown files for given links."""
+    """Collect unique {title, link, author} rows from markdown files for given links."""
     if not links:
         return []
 
@@ -282,14 +282,17 @@ def collect_articles_for_links(data_dir: str, links: set[str]) -> list[dict]:
             for line in f.read_text(encoding="utf-8").splitlines():
                 if not _is_data_row(line):
                     continue
-                m = re.search(r"\[([^\]]+)\]\(([^)]+)\)", line)
+                cols = _split_md_row(line)
+                m = re.search(r"\]\(([^)]+)\)", line)
                 if not m:
                     continue
-                title, link = m.group(1), m.group(2)
+                title = m.group(1)
+                link = m.group(2)
+                author = cols[1] if len(cols) > 1 else ""
                 if link not in links or link in seen_links:
                     continue
                 seen_links.add(link)
-                articles.append({"title": title, "link": link})
+                articles.append({"title": title, "link": link, "author": author})
         except OSError:
             continue
     return articles
