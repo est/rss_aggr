@@ -283,7 +283,7 @@ def collect_articles_for_links(data_dir: str, links: set[str]) -> list[dict]:
                 if not _is_data_row(line):
                     continue
                 cols = _split_md_row(line)
-                m = re.search(r"\]\(([^)]+)\)", line)
+                m = re.search(r"\[([^\]]+)\]\(([^)]+)\)", line)
                 if not m:
                     continue
                 title = m.group(1)
