@@ -36,5 +36,5 @@ def is_aggregator(entries: list[dict], threshold: float = 0.7, min_articles: int
 
     domain_ratio = len(domains) / len(entries) if entries else 0
     author_ratio = len(authors) / len(entries) if authors else 1  # no authors = not aggregator
-    # 如果文章域名很分散，或者作者很分散，判定为聚合RSS。
+    # 域名分散 或 作者分散，判定为聚合RSS。多作者博客属于非个人类，也不要
     return domain_ratio >= threshold or author_ratio >= threshold

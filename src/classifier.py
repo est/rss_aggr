@@ -73,7 +73,7 @@ def is_skip_category(category: str) -> bool:
 
 
 class BaseClassifier(ABC):
-    BATCH_SIZE = 20
+    BATCH_SIZE = 10
     TIMEOUT = 30
     MAX_TOKENS = 4096  # BATCH_SIZE * 200 tokens == around 4k should be enough
     ARTICLE_LEN = 1500
@@ -97,7 +97,7 @@ class BaseClassifier(ABC):
                 f"Title: {a['title']}",
                 f"Category: {skip_prompt}" if skip_prompt else '',
                 f"\n> {content}"
-                
+
             ]))
         user_msg = "\n\n---\n\n".join(items)
 
@@ -204,7 +204,7 @@ def classify_articles(
     provider: str = "openai",
     model: str | None = None,
     categories: list[str] | None = None,
-    batch_size: int = 10,
+    batch_size: int = BaseClassifier.BATCH_SIZE,
     skip_prompt: str = "",
 ) -> list[dict]:
     """Classify articles in batches."""

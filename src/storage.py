@@ -50,10 +50,15 @@ def _is_data_row(line: str) -> bool:
 
 
 def _extract_score(cols: list[str]) -> str:
-    """Extract score cell from markdown row cells (supports old/new formats)."""
-    for i in range(len(cols) - 2, 0, -1):
-        if cols[i] != "":
-            return cols[i]
+    """Extract score cell from markdown row cells (supports old/new formats).
+
+    New format (7 cols): ['', author, title, category, summary, score, '']
+    Old format (6 cols): ['', author, title, summary, score, '']
+    """
+    if len(cols) >= 7:
+        return cols[5]  # new format with category column
+    if len(cols) >= 6:
+        return cols[4]  # old format without category
     return ""
 
 
@@ -350,13 +355,16 @@ def update_classifications(data_dir: str, updates: dict[str, dict], only_links: 
         except OSError:
             continue
 
+        header_changed = False
         new_lines = []
         for line in lines:
             if line.strip() == OLD_HEADER:
                 new_lines.append(NEW_HEADER)
+                header_changed = True
                 continue
             if line.strip() == OLD_SEP:
                 new_lines.append(NEW_SEP)
+                header_changed = True
                 continue
             if not _is_data_row(line):
                 new_lines.append(line)
@@ -395,7 +403,7 @@ def update_classifications(data_dir: str, updates: dict[str, dict], only_links: 
             new_lines.append(new_line)
             updated += 1
 
-        if updated:
+        if updated or header_changed:
             f.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 
     return updated

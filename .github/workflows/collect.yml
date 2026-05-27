@@ -18,12 +18,6 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v4
 
-      - name: Restore state
-        uses: actions/cache@v4
-        with:
-          path: state.json
-          key: rss-state
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
