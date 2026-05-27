@@ -126,15 +126,14 @@ def step_fetch():
             if is_aggregator(r["entries"]):
                 aggregator_feeds += 1
                 state["feeds"][url]["is_aggregator"] = True
-            else:
-                all_entries.extend(r["entries"])
+            all_entries.extend(r["entries"])
         elif r["status"] == "not_modified":
             mark_fed(state, url)
         else:
             mark_failed(state, url, r.get("error", "unknown"))
 
     if aggregator_feeds:
-        print(f"[{ts()}] Aggregator feeds: {aggregator_feeds} (excluded)", flush=True)
+        print(f"[{ts()}] Aggregator feeds: {aggregator_feeds}", flush=True)
 
     # Dedup against output (normalized links)
     seen_links = load_seen_links(data_dir)

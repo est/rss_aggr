@@ -71,7 +71,7 @@ jobs:
         run: python -m src.main --classify
 
       - name: Fix links for Jekyll
-        run: sed -i 's/\.md)/.html)/g' output/index.md
+        run: test -f output/index.md && sed -i 's/\.md)/.html)/g' output/index.md || echo "No index.md, skipping"
 
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
