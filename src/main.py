@@ -13,6 +13,7 @@ from src.storage import (
     save_daily_results, load_seen_guids, load_unclassified_links, load_unclassified_links_map,
     update_classifications, remove_articles,
     collect_articles_for_links,
+    save_pending_content, load_pending_content, clear_pending_content,
 )
 from src.state import load_state, save_state, mark_fed, mark_failed, get_due_feeds, prioritize_feeds
 from src.aggregator import is_aggregator
@@ -145,6 +146,8 @@ def step_fetch():
         written = save_daily_results({"articles": new_entries}, data_dir, last_fetched=now, keep_days=keep_days)
         files_str = ", ".join(str(f) for f in written) if written else "none"
         print(f"[{ts()}] Saved: {files_str}", flush=True)
+        save_pending_content(new_entries, data_dir)
+        print(f"[{ts()}] Cached content for {len(new_entries)} articles", flush=True)
 
     save_state(state)
 
@@ -156,6 +159,7 @@ def step_classify():
     categories = [c["name"] for c in config.get("category", [])]
     data_dir = config.get("storage", {}).get("data_dir", "output")
     keep_days = config.get("fetch", {}).get("keep_days", 14)
+    max_articles = config.get("limits", {}).get("max_articles", 0)
 
     feeds = parse_feeds("feeds.toml")
     site_skip_prompt_rules = _build_site_skip_prompt_rules(feeds)
@@ -178,10 +182,21 @@ def step_classify():
 
     articles = collect_articles_for_links(data_dir, unclassified)
 
+    pending_content = load_pending_content(data_dir)
+    if pending_content:
+        for a in articles:
+            if a.get("link") in pending_content and not a.get("content"):
+                a["content"] = pending_content[a["link"]]
+        print(f"  Merged content for {len(pending_content)} pending articles", flush=True)
+
     print(f"[{ts()}] {len(articles)} articles to classify", flush=True)
 
     if not articles:
         return
+
+    if max_articles > 0 and len(articles) > max_articles:
+        articles = articles[:max_articles]
+        print(f"  Limited to {max_articles} articles", flush=True)
 
     by_site_rule: dict[tuple[str, str], list[dict]] = {}
     for a in articles:
@@ -221,6 +236,8 @@ def step_classify():
     if all_updates:
         count = update_classifications(data_dir, all_updates, only_links=only_unclassified_links)
         print(f"[{ts()}] Updated {count} articles in output", flush=True)
+
+    clear_pending_content(data_dir)
 
 
 def main():

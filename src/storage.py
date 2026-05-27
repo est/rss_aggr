@@ -1,4 +1,5 @@
 """Storage module: save results as markdown files (YYYY/MMDD.md) + index."""
+import json
 import re
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -7,6 +8,37 @@ OLD_HEADER = "| Author | Title | Summary | Score |"
 OLD_SEP = "|--------|-------|---------|-------|"
 NEW_HEADER = "| Author | Title | Category | Summary | Score |"
 NEW_SEP = "|--------|-------|----------|---------|-------|"
+
+PENDING_CONTENT_FILE = ".pending_content.json"
+
+
+def save_pending_content(articles: list[dict], data_dir: str = "output") -> Path:
+    """Save article content for classify step. Returns path to the file."""
+    base = Path(data_dir)
+    base.mkdir(parents=True, exist_ok=True)
+    path = base / PENDING_CONTENT_FILE
+    # Only save link and content to keep file small
+    data = {a["link"]: a.get("content", "") for a in articles if a.get("link")}
+    path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    return path
+
+
+def load_pending_content(data_dir: str = "output") -> dict[str, str]:
+    """Load pending article content. Returns {link: content}."""
+    path = Path(data_dir) / PENDING_CONTENT_FILE
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def clear_pending_content(data_dir: str = "output"):
+    """Delete the pending content file."""
+    path = Path(data_dir) / PENDING_CONTENT_FILE
+    if path.exists():
+        path.unlink()
 
 
 def _md_escape(text: str) -> str:
