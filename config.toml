@@ -12,6 +12,7 @@ model = "nvidia/nemotron-3-nano-30b-a3b:free"
 timeout_seconds = 15
 keep_days = 14
 user_agent = "rss_aggr/1.0 (https://github.com/est/rss_aggr/)"
+max_workers = 10
 
 # Filters: deterministic rules (free, fast) + AI prompt (cheap)
 [filter]

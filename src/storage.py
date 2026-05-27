@@ -12,14 +12,28 @@ NEW_SEP = "|--------|-------|----------|---------|-------|"
 PENDING_CONTENT_FILE = ".pending_content.json"
 
 
+def _normalize_link(url: str) -> str:
+    """Normalize URL for dedup: strip scheme and trailing slash."""
+    if not url:
+        return ""
+    for scheme in ("https://", "http://"):
+        if url.startswith(scheme):
+            url = url[len(scheme):]
+            break
+    return url.rstrip("/")
+
+
 def save_pending_content(articles: list[dict], data_dir: str = "output") -> Path:
-    """Save article content for classify step. Returns path to the file."""
+    """Save article content for classify step (merge with existing). Returns path to the file."""
     base = Path(data_dir)
     base.mkdir(parents=True, exist_ok=True)
     path = base / PENDING_CONTENT_FILE
-    # Only save link and content to keep file small
-    data = {a["link"]: a.get("content", "") for a in articles if a.get("link")}
-    path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    existing = load_pending_content(data_dir)
+    for a in articles:
+        link = a.get("link")
+        if link:
+            existing[link] = a.get("content", "")
+    path.write_text(json.dumps(existing, ensure_ascii=False), encoding="utf-8")
     return path
 
 
@@ -166,7 +180,7 @@ def save_daily_results(
         path.mkdir(parents=True, exist_ok=True)
         file_path = path / f"{mmdd}.md"
 
-        existing_guids = set()
+        existing_links = set()
         existing_lines = []
         if file_path.exists():
             content = file_path.read_text(encoding="utf-8")
@@ -175,7 +189,7 @@ def save_daily_results(
                     existing_lines.append(_upgrade_old_row_to_category(line))
                     m = re.search(r"\]\(([^)]+)\)", line)
                     if m:
-                        existing_guids.add(m.group(1))
+                        existing_links.add(_normalize_link(m.group(1)))
 
         new_rows = []
         for a in articles:
@@ -186,7 +200,7 @@ def save_daily_results(
             category = _md_escape(c.get("category", "") or "")
             summary = _md_escape(c.get("summary", "") or "")
             score = c.get("score", "—")
-            if link and link not in existing_guids:
+            if link and _normalize_link(link) not in existing_links:
                 new_rows.append(f"| {author} | [{title}]({link}) | {category or '—'} | {summary or '—'} | {score} |")
 
         all_rows = existing_lines + new_rows
@@ -255,27 +269,27 @@ def _update_index(data_dir: str = "output", last_fetched: str = ""):
     (base / "index.md").write_text("\n".join(lines), encoding="utf-8")
 
 
-def load_seen_guids(data_dir: str = "output") -> set[str]:
-    """Load all previously seen article links from past markdown files."""
+def load_seen_links(data_dir: str = "output") -> set[str]:
+    """Load all previously seen article links (normalized) from past markdown files."""
     path = Path(data_dir)
     if not path.exists():
         return set()
 
-    guids = set()
+    links = set()
     for f in path.rglob("*.md"):
         if f.name == "index.md":
             continue
         try:
             content = f.read_text(encoding="utf-8")
             for m in re.finditer(r"\]\(([^)]+)\)", content):
-                guids.add(m.group(1))
+                links.add(_normalize_link(m.group(1)))
         except OSError:
             continue
-    return guids
+    return links
 
 
 def load_unclassified_links(data_dir: str = "output") -> set[str]:
-    """Load links that have score '—' (unclassified) from output markdown."""
+    """Load normalized links that have score '—' (unclassified) from output markdown."""
     links = set()
     base = Path(data_dir)
     if not base.exists():
@@ -291,18 +305,17 @@ def load_unclassified_links(data_dir: str = "output") -> set[str]:
                 m = re.search(r"\]\(([^)]+)\)", line)
                 if not m:
                     continue
-                link = m.group(1)
                 cols = _split_md_row(line)
                 score = _extract_score(cols)
                 if score in ("—", ""):
-                    links.add(link)
+                    links.add(_normalize_link(m.group(1)))
         except OSError:
             continue
     return links
 
 
 def load_unclassified_links_map(data_dir: str = "output") -> dict[str, set[str]]:
-    """Load unclassified links per file path."""
+    """Load normalized unclassified links per file path."""
     result: dict[str, set[str]] = {}
     base = Path(data_dir)
     if not base.exists():
@@ -322,7 +335,7 @@ def load_unclassified_links_map(data_dir: str = "output") -> dict[str, set[str]]
                 cols = _split_md_row(line)
                 score = _extract_score(cols)
                 if score in ("—", ""):
-                    links.add(m.group(1))
+                    links.add(_normalize_link(m.group(1)))
         except OSError:
             continue
         if links:
@@ -331,9 +344,16 @@ def load_unclassified_links_map(data_dir: str = "output") -> dict[str, set[str]]
 
 
 def collect_articles_for_links(data_dir: str, links: set[str]) -> list[dict]:
-    """Collect unique {title, link, feed_title} rows from markdown files for given links."""
+    """Collect unique {title, link, feed_title} rows from markdown files for given links.
+
+    Args:
+        links: set of links (will be normalized for matching).
+    """
     if not links:
         return []
+
+    # Normalize input links for matching
+    norm_links = {_normalize_link(l) for l in links}
 
     articles = []
     seen_links = set()
@@ -354,10 +374,11 @@ def collect_articles_for_links(data_dir: str, links: set[str]) -> list[dict]:
                     continue
                 title = m.group(1)
                 link = m.group(2)
+                norm = _normalize_link(link)
                 author = cols[1] if len(cols) > 1 else ""
-                if link not in links or link in seen_links:
+                if norm not in norm_links or norm in seen_links:
                     continue
-                seen_links.add(link)
+                seen_links.add(norm)
                 articles.append({"title": title, "link": link, "author": author})
         except OSError:
             continue
@@ -369,7 +390,8 @@ def update_classifications(data_dir: str, updates: dict[str, dict], only_links: 
 
     Args:
         data_dir: output directory
-        updates: {link: {category, tags, score, summary}}
+        updates: {normalized_link: {category, tags, score, summary}}
+        only_links: set of normalized links to restrict updates to
 
     Returns:
         Number of lines updated.
@@ -377,6 +399,9 @@ def update_classifications(data_dir: str, updates: dict[str, dict], only_links: 
     base = Path(data_dir)
     if not base.exists():
         return 0
+
+    # Build normalized -> original key mapping for updates
+    updates_norm = {_normalize_link(k): v for k, v in updates.items()}
 
     updated = 0
     for f in base.rglob("*.md"):
@@ -408,14 +433,15 @@ def update_classifications(data_dir: str, updates: dict[str, dict], only_links: 
                 continue
 
             link = m.group(1)
-            if only_links is not None and link not in only_links:
+            norm = _normalize_link(link)
+            if only_links is not None and norm not in only_links:
                 new_lines.append(_upgrade_old_row_to_category(line))
                 continue
-            if link not in updates:
+            if norm not in updates_norm:
                 new_lines.append(_upgrade_old_row_to_category(line))
                 continue
 
-            info = updates[link]
+            info = updates_norm[norm]
             if not info.get("category") or not info.get("summary") or "score" not in info:
                 new_lines.append(_upgrade_old_row_to_category(line))
                 continue
@@ -442,7 +468,7 @@ def update_classifications(data_dir: str, updates: dict[str, dict], only_links: 
 
 
 def remove_articles(data_dir: str, links: set[str]) -> int:
-    """Remove articles by link from output markdown files. Returns count removed."""
+    """Remove articles by normalized link from output markdown files. Returns count removed."""
     base = Path(data_dir)
     if not base.exists() or not links:
         return 0
@@ -462,7 +488,7 @@ def remove_articles(data_dir: str, links: set[str]) -> int:
                 new_lines.append(line)
                 continue
             m = re.search(r"\]\(([^)]+)\)", line)
-            if m and m.group(1) in links:
+            if m and _normalize_link(m.group(1)) in links:
                 removed += 1
                 continue
             new_lines.append(line)

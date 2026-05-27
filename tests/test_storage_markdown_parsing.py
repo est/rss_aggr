@@ -28,8 +28,8 @@ class StorageMarkdownParsingTests(unittest.TestCase):
 
             links = load_unclassified_links(tmp)
 
-            self.assertIn("https://example.com/u", links)
-            self.assertNotIn("https://example.com/c", links)
+            self.assertIn("example.com/u", links)
+            self.assertNotIn("example.com/c", links)
 
     def test_update_classifications_updates_row_with_escaped_pipe_summary(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -87,8 +87,8 @@ class StorageMarkdownParsingTests(unittest.TestCase):
 
             links = load_unclassified_links(tmp)
 
-            self.assertIn("https://example.com/u", links)
-            self.assertNotIn("https://example.com/c", links)
+            self.assertIn("example.com/u", links)
+            self.assertNotIn("example.com/c", links)
 
 
 if __name__ == "__main__":

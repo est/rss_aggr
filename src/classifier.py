@@ -4,6 +4,23 @@ import re
 from abc import ABC, abstractmethod
 
 
+def _smart_truncate(text: str, max_len: int) -> str:
+    """Truncate text at sentence/paragraph boundary near max_len."""
+    if len(text) <= max_len:
+        return text
+    truncated = text[:max_len]
+    # Try to cut at paragraph boundary
+    last_para = truncated.rfind("\n\n")
+    if last_para > max_len * 0.6:
+        return truncated[:last_para]
+    # Try to cut at sentence boundary (Chinese and English)
+    for sep in ("。", ".", "\n", "！", "!", "？", "?"):
+        last_sep = truncated.rfind(sep)
+        if last_sep > max_len * 0.6:
+            return truncated[:last_sep + 1]
+    return truncated
+
+
 BATCH_PROMPT = """You are a blog article classifier.
 
 The user will provide some blog URLs with content
@@ -37,10 +54,10 @@ def _parse_blocks(text: str) -> dict[str, dict]:
         if not url.startswith("http"):
             continue
 
-        info = {"category": "", "tags": [], "score": 5, "summary": ""}
+        info = {"category": "Misc", "tags": [], "score": 5, "summary": ""}
         for line in lines[1:]:
             if line.lower().startswith("category:"):
-                info["category"] = line.split(":", 1)[1].strip()
+                info["category"] = line.split(":", 1)[1].strip() or "Misc"
             elif line.lower().startswith("tags:"):
                 info["tags"] = [t.strip() for t in line.split(":", 1)[1].split(",")]
             elif line.lower().startswith("score:"):
@@ -91,7 +108,7 @@ class BaseClassifier(ABC):
         for a in articles:
             if not a.get('link'):
                 continue
-            content = (a.get("content") or "")[:self.ARTICLE_LEN].replace('\n', '\n> ')
+            content = _smart_truncate(a.get("content") or "", self.ARTICLE_LEN).replace('\n', '\n> ')
             items.append('\n'.join([
                 a['link'],
                 f"Title: {a['title']}",
@@ -207,7 +224,7 @@ def classify_articles(
     batch_size: int = BaseClassifier.BATCH_SIZE,
     skip_prompt: str = "",
 ) -> list[dict]:
-    """Classify articles in batches."""
+    """Classify articles in batches. On batch failure, retry each article individually."""
     if not articles:
         return []
 
@@ -239,12 +256,22 @@ def classify_articles(
             missed = len(batch) - matched
             status = f"OK {matched}/{len(batch)}" if not missed else f"OK {matched}/{len(batch)}, {missed} unmatched"
             print(f"  [{batch_num}/{total_batches}] {status}", flush=True)
-        except ValueError as e:
-            fail_count += len(batch)
-            print(f"  [{batch_num}/{total_batches}] SKIP  {e}", flush=True)
         except Exception as e:
-            fail_count += len(batch)
-            print(f"  [{batch_num}/{total_batches}] SKIP  {type(e).__name__}: {e}", flush=True)
+            # Batch failed — retry each article individually
+            print(f"  [{batch_num}/{total_batches}] Batch failed ({type(e).__name__}: {e}), retrying individually...", flush=True)
+            for a in batch:
+                try:
+                    results = classifier.classify_batch([a], cats, skip_prompt=skip_prompt)
+                    url = a.get("link", "")
+                    if url in results:
+                        a["classification"] = results[url]
+                        ok_count += 1
+                    else:
+                        fail_count += 1
+                        print(f"    SKIP {a.get('title', '')[:50]}: unmatched", flush=True)
+                except Exception as e2:
+                    fail_count += 1
+                    print(f"    SKIP {a.get('title', '')[:50]}: {type(e2).__name__}: {e2}", flush=True)
 
     print(f"  Summary: {ok_count} classified, {fail_count} failed", flush=True)
     return articles

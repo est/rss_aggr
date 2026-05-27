@@ -10,10 +10,11 @@ except ModuleNotFoundError:
 from src.opml_parser import parse_feeds
 from src.classifier import classify_articles, is_skip_category
 from src.storage import (
-    save_daily_results, load_seen_guids, load_unclassified_links, load_unclassified_links_map,
+    save_daily_results, load_seen_links, load_unclassified_links, load_unclassified_links_map,
     update_classifications, remove_articles,
     collect_articles_for_links,
     save_pending_content, load_pending_content, clear_pending_content,
+    _normalize_link,
 )
 from src.state import load_state, save_state, mark_fed, mark_failed, get_due_feeds, prioritize_feeds
 from src.aggregator import is_aggregator
@@ -88,13 +89,14 @@ def step_fetch():
     max_feeds = config.get("limits", {}).get("max_feeds", 0)
     fetch_interval = config.get("limits", {}).get("fetch_interval_hours", 24)
     max_failures = config.get("limits", {}).get("disable_after_failures", 3)
+    max_workers = config.get("fetch", {}).get("max_workers", 10)
     skip_titles = filter_cfg.get("skip_titles", [])
 
     all_feeds = parse_feeds("feeds.toml")
     print(f"[{ts()}] {len(all_feeds)} feeds total", flush=True)
 
     state = load_state()
-    skipped_links = set(state.get("skipped_links", {}))
+    skipped_links = {_normalize_link(k) for k in state.get("skipped_links", {})}
     due_feeds = get_due_feeds(all_feeds, state, fetch_interval, max_failures)
     due_feeds = prioritize_feeds(due_feeds)
     if max_feeds > 0:
@@ -111,6 +113,8 @@ def step_fetch():
         keep_days=keep_days,
         user_agent=user_agent,
         skip_titles=skip_titles,
+        max_workers=max_workers,
+        feeds_state=state.get("feeds"),
     )
 
     all_entries = []
@@ -122,18 +126,22 @@ def step_fetch():
             if is_aggregator(r["entries"]):
                 aggregator_feeds += 1
                 state["feeds"][url]["is_aggregator"] = True
-            all_entries.extend(r["entries"])
+            else:
+                all_entries.extend(r["entries"])
+        elif r["status"] == "not_modified":
+            mark_fed(state, url)
         else:
             mark_failed(state, url, r.get("error", "unknown"))
 
     if aggregator_feeds:
-        print(f"[{ts()}] Aggregator feeds: {aggregator_feeds}", flush=True)
+        print(f"[{ts()}] Aggregator feeds: {aggregator_feeds} (excluded)", flush=True)
 
-    # Dedup against output
-    seen_links = load_seen_guids(data_dir)
+    # Dedup against output (normalized links)
+    seen_links = load_seen_links(data_dir)
     new_entries = [
         e for e in all_entries
-        if e.get("link") not in seen_links and e.get("link") not in skipped_links
+        if _normalize_link(e.get("link", "")) not in seen_links
+        and _normalize_link(e.get("link", "")) not in skipped_links
     ]
     print(
         f"[{ts()}] {len(new_entries)} new articles "
@@ -165,7 +173,9 @@ def step_classify():
     site_skip_prompt_rules = _build_site_skip_prompt_rules(feeds)
 
     state = load_state()
-    skipped_links = set(state.get("skipped_links", {}))
+    # Normalize skipped links for matching
+    skipped_raw = state.get("skipped_links", {})
+    skipped_links = {_normalize_link(k) for k in skipped_raw}
 
     unclassified = load_unclassified_links(data_dir)
     unclassified_map = load_unclassified_links_map(data_dir)
@@ -226,11 +236,14 @@ def step_classify():
                 all_updates[a["link"]] = a["classification"]
 
     if all_newly_skipped:
-        all_skipped = {**state.get("skipped_links", {}), **all_newly_skipped}
-        cutoff = (datetime.now(timezone.utc) - timedelta(days=keep_days)).isoformat()
-        state["skipped_links"] = {k: v for k, v in all_skipped.items() if v > cutoff}
+        all_skipped = {**skipped_raw, **all_newly_skipped}
+        cutoff_dt = datetime.now(timezone.utc) - timedelta(days=keep_days)
+        state["skipped_links"] = {
+            k: v for k, v in all_skipped.items()
+            if _parse_iso(v) > cutoff_dt
+        }
         save_state(state)
-        removed = remove_articles(data_dir, set(all_newly_skipped.keys()))
+        removed = remove_articles(data_dir, {_normalize_link(k) for k in all_newly_skipped})
         print(f"[{ts()}] Removed {removed} skipped articles from output", flush=True)
 
     if all_updates:
@@ -238,6 +251,14 @@ def step_classify():
         print(f"[{ts()}] Updated {count} articles in output", flush=True)
 
     clear_pending_content(data_dir)
+
+
+def _parse_iso(s: str) -> datetime:
+    """Parse ISO datetime string, fallback to epoch."""
+    try:
+        return datetime.fromisoformat(s)
+    except (ValueError, TypeError):
+        return datetime.min.replace(tzinfo=timezone.utc)
 
 
 def main():
