@@ -16,8 +16,16 @@ max_workers = 10
 
 # Filters: deterministic rules (free, fast) + AI prompt (cheap)
 [filter]
-skip_titles = ["weekly digest", "周报", "link list", "newsletter", "周刊", "每日速递", "月报", "monthly", "daily links"]
-skip_prompt = "If this article is a news digest, link roundup, personal diary, or off-topic life update, set category to 'skip'."
+skip_titles = ["weekly digest", "周报", "link list", "newsletter", "周刊", "每日速递", "月报", "monthly", "daily links", "资源汇总", "合集", "值得阅读", "本周推荐", "reading list"]
+skip_prompt = "If this article is a news digest, link roundup, personal diary, or off-topic life update, set category to 'skip'. Only classify substantive technical articles, business insights, or thoughtful personal essays."
+
+# Quality filter settings
+[quality]
+min_heuristic_score = 3
+auto_disable_junk_feeds = true
+min_articles_for_tier = 10
+junk_skip_ratio = 0.7
+junk_avg_score = 3.0
 
 # Limits: control per-run scope (0 = no limit)
 [limits]
@@ -25,6 +33,12 @@ max_feeds = 500          # max feeds to fetch per run
 max_articles = 200       # max articles to classify per run
 fetch_interval_hours = 12  # skip feeds fetched within this window
 disable_after_failures = 3 # auto-disable feed after N consecutive failures
+
+# Digest settings
+[digest]
+min_score = 7
+days_back = 1
+output_dir = "output/digests"
 
 # Storage
 [storage]
