@@ -1,7 +1,6 @@
 [[category]]
 name = "Blogs"
 
-
 [[category.feed]]
 title = "透明创业实验"
 url = "https://blog.t9t.io/atom.xml"
@@ -8596,3 +8595,39 @@ site = "https://fav0.com"
 title = "childeyouyu.github.io 提交收录"
 url = "https://childeyouyu.github.io/atom.xml"
 site = "https://childeyouyu.github.io"
+
+[[category.feed]]
+title = "Kevin Blog"
+url = "https://blog.kevinzhow.com/feed.xml"
+site = "https://blog.kevinzhow.com"
+priority = 10
+
+[[category.feed]]
+title = "wuxinhua's Blog"
+url = "https://wuxinhua.com/atom.xml"
+site = "https://wuxinhua.com/"
+priority = 10
+
+[[category.feed]]
+title = "[米随随] s5s5"
+url = "https://s5s5.me/feed/"
+site = "https://s5s5.me/"
+priority = 10
+
+[[category.feed]]
+title = "7Wate`s Blog"
+url = "https://blog.7wate.com/rss.xml"
+site = "https://blog.7wate.com"
+priority = 10
+
+[[category.feed]]
+title = "Macin"
+url = "https://www.macin.org/atom.xml"
+site = "https://macin.org"
+priority = 10
+
+[[category.feed]]
+title = "任霏博客"
+url = "https://blog.renfei.net/rss.xml"
+site = "https://blog.renfei.net/"
+priority = 10
