@@ -1,6 +1,7 @@
 [[category]]
 name = "Blogs"
 
+
 [[category.feed]]
 title = "透明创业实验"
 url = "https://blog.t9t.io/atom.xml"
@@ -300,11 +301,6 @@ site = "https://blog.niclin.tw/"
 title = "sunnyxx的技术博客"
 url = "http://blog.sunnyxx.com/atom.xml"
 site = "https://blog.sunnyxx.com/"
-
-[[category.feed]]
-title = "Kevin Blog"
-url = "https://blog.kevinzhow.com/feed.xml"
-site = "https://blog.kevinzhow.com"
 
 [[category.feed]]
 title = "bang's blog"
@@ -820,11 +816,6 @@ site = "https://blog.imalan.cn"
 title = "木子"
 url = "https://blog.k8s.li/atom.xml"
 site = "https://blog.k8s.li/"
-
-[[category.feed]]
-title = "wuxinhua's Blog"
-url = "https://wuxinhua.com/atom.xml"
-site = "https://wuxinhua.com/"
 
 [[category.feed]]
 title = "静かな森"
@@ -2098,11 +2089,6 @@ url = "https://www.domon.cn/rss/"
 site = "https://www.domon.cn/"
 
 [[category.feed]]
-title = "[米随随] s5s5"
-url = "https://s5s5.me/feed/"
-site = "https://s5s5.me/"
-
-[[category.feed]]
 title = "Dvel's Blog"
 url = "https://dvel.me/index.xml"
 site = "https://dvel.me"
@@ -2201,11 +2187,6 @@ site = "https://leimao.github.io/"
 title = "Sirius's Blog"
 url = "https://blog.yeefire.com/atom.xml"
 site = "https://blog.yeefire.com"
-
-[[category.feed]]
-title = "7Wate`s Blog"
-url = "https://blog.7wate.com/rss.xml"
-site = "https://blog.7wate.com"
 
 [[category.feed]]
 title = "行运设计师"
@@ -2653,11 +2634,6 @@ url = "https://www.zy99.net/feed"
 site = "https://www.zy99.net"
 
 [[category.feed]]
-title = "Macin"
-url = "https://www.macin.org/atom.xml"
-site = "https://macin.org"
-
-[[category.feed]]
 title = "智伤帝"
 url = "https://blog.l0v0.com/atom.xml"
 site = "https://blog.l0v0.com/"
@@ -3086,11 +3062,6 @@ site = "https://suiyan.cc/"
 title = "Dr3@m's Blog"
 url = "https://blog.ctftools.com/atom.xml"
 site = "https://blog.ctftools.com/"
-
-[[category.feed]]
-title = "任霏博客"
-url = "https://blog.renfei.net/rss.xml"
-site = "https://blog.renfei.net/"
 
 [[category.feed]]
 title = "Shuibaco • 水八口"
@@ -4388,11 +4359,6 @@ url = "https://liulantao.com/rss.xml"
 site = "https://liulantao.com"
 
 [[category.feed]]
-title = "liulantao.com"
-url = "https://liulantao.com/atom.xml"
-site = "https://liulantao.com"
-
-[[category.feed]]
 title = "mathewshen.me"
 url = "https://mathewshen.me/rss.xml"
 site = "https://mathewshen.me"
@@ -4538,11 +4504,6 @@ url = "https://www.qtter.com/rss.xml"
 site = "https://www.qtter.com"
 
 [[category.feed]]
-title = "申请修改 RSS 地址"
-url = "https://banzhuanriji.com/rss.xml"
-site = "https://banzhuanriji.com"
-
-[[category.feed]]
 title = "www.p1gd0g.cc"
 url = "https://www.p1gd0g.cc/rss.xml"
 site = "https://www.p1gd0g.cc"
@@ -4643,16 +4604,6 @@ url = "https://blog.irain.in/feed/"
 site = "https://blog.irain.in"
 
 [[category.feed]]
-title = "www.evan.xin"
-url = "https://evan.xin/feed/"
-site = "https://evan.xin"
-
-[[category.feed]]
-title = "站点 https://1900.live"
-url = "https://1900.live/rss/"
-site = "https://1900.live"
-
-[[category.feed]]
 title = "hangbin.blog"
 url = "https://hangbin.blog/index.xml"
 site = "https://hangbin.blog"
@@ -4676,11 +4627,6 @@ site = "https://www.ghostchu.com"
 title = "gaoyu.me"
 url = "https://www.gaoyu.me/rss"
 site = "https://www.gaoyu.me"
-
-[[category.feed]]
-title = "https://deepzz.com"
-url = "https://deepzz.com/rss.html"
-site = "https://deepzz.com"
 
 [[category.feed]]
 title = "Tomyail 的记忆现场"
@@ -4881,11 +4827,6 @@ site = "https://qklg.net"
 title = "凉糕"
 url = "https://osnsyc.top/index.xml"
 site = "https://osnsyc.top"
-
-[[category.feed]]
-title = "酷酷的白"
-url = "https://bducds.com/feed/"
-site = "https://bducds.com"
 
 [[category.feed]]
 title = "个人网站"
@@ -5109,12 +5050,7 @@ site = "https://r2wind.cn"
 
 [[category.feed]]
 title = "搬砖日记"
-url = "https://banzhuanriji.com/feed/atom/"
-site = "https://banzhuanriji.com"
-
-[[category.feed]]
-title = "搬砖日记"
-url = "https://banzhuanriji.com/feed/"
+url = "https://banzhuanriji.com/rss.xml"
 site = "https://banzhuanriji.com"
 
 [[category.feed]]
@@ -5163,21 +5099,6 @@ url = "https://hux.ink/index.xml"
 site = "https://hux.ink"
 
 [[category.feed]]
-title = "申请收录： WUJINGQUAN"
-url = "https://www.wujingquan.com/feed"
-site = "https://www.wujingquan.com"
-
-[[category.feed]]
-title = "，「假设检验」"
-url = "https://jiashejianyan.com/rss/"
-site = "https://jiashejianyan.com"
-
-[[category.feed]]
-title = "栖木的网络日志"
-url = "https://blog.thedoga.tech/feed/"
-site = "https://blog.thedoga.tech"
-
-[[category.feed]]
 title = "soops.sol"
 url = "https://soops.sol.build/rss.xml"
 site = "https://soops.sol.build"
@@ -5216,11 +5137,6 @@ site = "https://elliot00.com"
 title = "与非的零空间"
 url = "https://andnot.wordpress.com/feed/"
 site = "https://andnot.wordpress.com"
-
-[[category.feed]]
-title = "https://taxodium.ink/"
-url = "https://taxodium.ink/index.xml"
-site = "https://taxodium.ink"
 
 [[category.feed]]
 title = "Devzhi's Blog"
@@ -5338,11 +5254,6 @@ url = "https://www.huluohu.com/feed"
 site = "https://www.huluohu.com"
 
 [[category.feed]]
-title = "https://blog.ixk.me"
-url = "https://blog.ixk.me/rss.xml"
-site = "https://blog.ixk.me"
-
-[[category.feed]]
 title = "申请收入博客： www.dragonballsoft.cn"
 url = "https://www.dragonballsoft.cn/feed"
 site = "https://www.dragonballsoft.cn"
@@ -5448,11 +5359,6 @@ url = "https://ohmyx.com/rss.xml"
 site = "https://ohmyx.com"
 
 [[category.feed]]
-title = "https://www.wikimoe.com/"
-url = "https://www.wikimoe.com/rss/blog"
-site = "https://www.wikimoe.com"
-
-[[category.feed]]
 title = "https://www.usmacd.com"
 url = "https://www.usmacd.com/rss.xml"
 site = "https://www.usmacd.com"
@@ -5525,11 +5431,6 @@ site = "https://xing393939.github.io"
 [[category.feed]]
 title = "https://iceprosurface.com/"
 url = "https://iceprosurface.com/index.xml"
-site = "https://iceprosurface.com"
-
-[[category.feed]]
-title = "https://iceprosurface.com/"
-url = "https://iceprosurface.com/rss-full.xml"
 site = "https://iceprosurface.com"
 
 [[category.feed]]
@@ -5633,19 +5534,9 @@ url = "https://aber.sh/feed.xml"
 site = "https://aber.sh"
 
 [[category.feed]]
-title = "aber.sh RSS"
-url = "https://aber.sh/corpus/%E7%A8%8B%E5%BA%8F%E6%9D%82%E8%AE%B0/feed.xml"
-site = "https://aber.sh"
-
-[[category.feed]]
 title = "博客申请 - iarthit.com"
 url = "https://www.iarthit.com/static/xml/rss.xml"
 site = "https://www.iarthit.com"
-
-[[category.feed]]
-title = "申请 frytea"
-url = "https://www.frytea.com/atom.xml"
-site = "https://www.frytea.com"
 
 [[category.feed]]
 title = "申请"
@@ -5715,11 +5606,6 @@ site = "https://www.boris1993.com"
 [[category.feed]]
 title = "松烟阁 edony.ink RSS"
 url = "https://edony.ink/rss"
-site = "https://edony.ink"
-
-[[category.feed]]
-title = "松烟阁 edony.ink RSS"
-url = "https://edony.ink/rss/"
 site = "https://edony.ink"
 
 [[category.feed]]
@@ -8392,11 +8278,6 @@ url = "https://137606117.xyz/rss.xml"
 site = "https://137606117.xyz"
 
 [[category.feed]]
-title = "博客请求收录（之前帖子可能申请的格式错了，重新申请）"
-url = "https://www.leeideal.com/rss/feed.xml"
-site = "https://www.leeideal.com"
-
-[[category.feed]]
 title = "个人 blog 地址"
 url = "https://www.luolink.com/rss/feed.xml"
 site = "https://www.luolink.com"
@@ -8413,18 +8294,8 @@ site = "https://www.pixelstech.net"
 
 [[category.feed]]
 title = "http://victor42.eth.limo/"
-url = "https://victor42.eth.limo/index.xml)"
-site = "https://victor42.eth.limo"
-
-[[category.feed]]
-title = "http://victor42.eth.limo/"
 url = "https://victor42.eth.limo/index.xml"
 site = "https://victor42.eth.limo"
-
-[[category.feed]]
-title = "hangbin.blog"
-url = "https://hangbin.blog/index.xml)"
-site = "https://hangbin.blog"
 
 [[category.feed]]
 title = "hekou 写字的地方"
@@ -8472,11 +8343,6 @@ url = "https://blog.jaxwang28.top/index.xml"
 site = "https://blog.jaxwang28.top"
 
 [[category.feed]]
-title = "Bluepikachu"
-url = "https://bluepika.life/rss.xml)"
-site = "https://bluepika.life"
-
-[[category.feed]]
 title = "博客：极客死亡计划"
 url = "https://www.geedea.pro/posts/index.xml"
 site = "https://www.geedea.pro"
@@ -8485,11 +8351,6 @@ site = "https://www.geedea.pro"
 title = "- Appinn.com"
 url = "https://www.appinn.com/feed/"
 site = "https://www.appinn.com"
-
-[[category.feed]]
-title = "Design Scenes"
-url = "https://fenx.work/rss/)"
-site = "https://fenx.work"
 
 [[category.feed]]
 title = "博客：机器蝉"
@@ -8577,11 +8438,6 @@ url = "https://www.noicdi.com/atom.xml"
 site = "https://www.noicdi.com"
 
 [[category.feed]]
-title = "天一生水"
-url = "https://www.jiangyu.org/atom.xml)"
-site = "https://www.jiangyu.org"
-
-[[category.feed]]
 title = "博客： blog.sqsl.art"
 url = "https://blog.sqsl.art/feed"
 site = "https://blog.sqsl.art"
@@ -8617,18 +8473,8 @@ url = "https://blog.chenjia.info/index.xml"
 site = "https://blog.chenjia.info"
 
 [[category.feed]]
-title = "申请收入博客： www.dragonballsoft.cn"
-url = "https://www.dragonballsoft.cn/feed)"
-site = "https://www.dragonballsoft.cn"
-
-[[category.feed]]
 title = "收录申请： https://zhen.one"
 url = "https://zhen.one/atom.xml"
-site = "https://zhen.one"
-
-[[category.feed]]
-title = "收录申请： https://zhen.one"
-url = "https://zhen.one/rss2.xml"
 site = "https://zhen.one"
 
 [[category.feed]]
@@ -8637,29 +8483,14 @@ url = "https://www.cboxes.icu/atom.xml"
 site = "https://www.cboxes.icu"
 
 [[category.feed]]
-title = "https://blog.trumandu.top/atom.xml"
-url = "https://blog.trumandu.top/atom.xml)"
-site = "https://blog.trumandu.top"
-
-[[category.feed]]
 title = "https://blog.naixi.net"
 url = "https://blog.naixi.net/feed/"
-site = "https://blog.naixi.net"
-
-[[category.feed]]
-title = "https://blog.naixi.net"
-url = "https://blog.naixi.net/sitemap.xml"
 site = "https://blog.naixi.net"
 
 [[category.feed]]
 title = "我的博客 https://www.555365.xyz"
 url = "https://www.555365.xyz/feeds/posts/default"
 site = "https://www.555365.xyz"
-
-[[category.feed]]
-title = "新站"
-url = "https://blog.chives.life/feed.xml)"
-site = "https://blog.chives.life"
 
 [[category.feed]]
 title = "新站"
@@ -8698,11 +8529,6 @@ site = "https://pingx.sh"
 
 [[category.feed]]
 title = "https://mutou.men"
-url = "https://mutou.men/index.xml)"
-site = "https://mutou.men"
-
-[[category.feed]]
-title = "https://mutou.men"
 url = "https://mutou.men/index.xml"
 site = "https://mutou.men"
 
@@ -8710,11 +8536,6 @@ site = "https://mutou.men"
 title = "http://gallery.selfboot.cn/"
 url = "https://gallery.selfboot.cn/sitemap-index.xml"
 site = "https://gallery.selfboot.cn"
-
-[[category.feed]]
-title = "申请更新 RSS 地址"
-url = "https://jaksay.com/feed/category/article/"
-site = "https://jaksay.com"
 
 [[category.feed]]
 title = "https://saltyleo.com/"
@@ -8737,11 +8558,6 @@ url = "https://www.leeee.xyz/atom.xml"
 site = "https://www.leeee.xyz"
 
 [[category.feed]]
-title = "https://iceprosurface.com/"
-url = "https://iceprosurface.com/blog/rss/"
-site = "https://iceprosurface.com"
-
-[[category.feed]]
 title = "已经收录博客的 RSS 怎么变更"
 url = "https://ffoo.cc/index.xml"
 site = "https://ffoo.cc"
@@ -8752,19 +8568,9 @@ url = "https://doufoo.com/index.xml"
 site = "https://doufoo.com"
 
 [[category.feed]]
-title = "https://nth233.top/feed.xml"
-url = "https://nth233.top/feed.xml)"
-site = "https://nth233.top"
-
-[[category.feed]]
 title = "https://blog.besscroft.com"
 url = "https://blog.besscroft.com/rss.xml"
 site = "https://blog.besscroft.com"
-
-[[category.feed]]
-title = "blog.bsdplus.com"
-url = "https://blog.bsdplus.com/sub/rss.json"
-site = "https://blog.bsdplus.com"
 
 [[category.feed]]
 title = "《大橘和朋友们的周刊》： rrorangeandfriends.site"
@@ -8782,32 +8588,11 @@ url = "https://blog.7wate.com/rss"
 site = "https://blog.7wate.com"
 
 [[category.feed]]
-title = "向阳而生博客"
-url = "https://blog.7wate.com/feed"
-site = "https://blog.7wate.com"
-
-[[category.feed]]
 title = "FAV0 周刊"
 url = "https://fav0.com/feed.xml"
 site = "https://fav0.com"
 
 [[category.feed]]
-title = "https://imhaoliu.com"
-url = "https://imhaoliu.com/feed"
-site = "https://imhaoliu.com"
-
-[[category.feed]]
 title = "childeyouyu.github.io 提交收录"
 url = "https://childeyouyu.github.io/atom.xml"
 site = "https://childeyouyu.github.io"
-
-[[category.feed]]
-title = "松烟阁 edony.ink RSS"
-url = "https://edony.ink/rss)"
-site = "https://edony.ink"
-
-[[category.feed]]
-title = "RSS 地址提交"
-url = "https://blog.asyncx.top/en.xml"
-site = "https://blog.asyncx.top"
-
