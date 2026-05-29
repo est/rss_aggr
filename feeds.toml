@@ -840,6 +840,7 @@ site = "https://tumutanzi.com/"
 title = "暗无天日"
 url = "https://www.lujun9972.win/rss.xml"
 site = "https://www.lujun9972.win"
+skip_prompt = "if title starts with 读 or TIL then 'skip'"
 
 [[category.feed]]
 title = "Jacky's Blog"
@@ -6178,6 +6179,7 @@ title = "维基萌"
 url = "https://www.wikimoe.com/rss.php"
 site = "https://www.wikimoe.com/"
 priority = 10
+skip = true
 
 [[category.feed]]
 title = "strongwong's Blog"
@@ -6664,6 +6666,7 @@ title = "游戏研究社"
 url = "https://www.yystv.cn/rss/feed"
 site = "https://www.yystv.cn/"
 priority = 10
+skip = true
 
 [[category.feed]]
 title = "Lucas's Blog"
@@ -8356,6 +8359,7 @@ title = "翔宇工作流"
 url = "https://xiangyugongzuoliu.com/latest/rss/"
 site = "https://xiangyugongzuoliu.com/"
 priority = 10
+skip = true
 
 [[category.feed]]
 title = "Paul Graham"
