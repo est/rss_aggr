@@ -675,6 +675,7 @@ site = "https://oldj.net"
 title = "Yiran's Blog"
 url = "https://zdyxry.github.io/atom.xml"
 site = "https://zdyxry.github.io/"
+skip = true
 
 [[category.feed]]
 title = "三省吾身丶丶"
@@ -1571,6 +1572,7 @@ site = "https://www.zackwu.com/"
 title = "Markon Review"
 url = "https://markonreview.com/rss/"
 site = "https://markonreview.com/"
+skip = true
 
 [[category.feed]]
 title = "思考问题的熊"
@@ -5788,6 +5790,7 @@ title = "硕鼠的博客站"
 url = "http://lukefan.com/?feed=rss2"
 site = "http://lukefan.com/"
 priority = 10
+skip = true
 
 [[category.feed]]
 title = "黑·白"
