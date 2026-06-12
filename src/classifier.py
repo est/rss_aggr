@@ -112,9 +112,8 @@ class BaseClassifier(ABC):
             items.append('\n'.join([
                 a['link'],
                 f"Title: {a['title']}",
-                f"Category: {skip_prompt}" if skip_prompt else '',
+                f"Special rule: {skip_prompt}. If the article matches this rule, set category to 'skip'." if skip_prompt else '',
                 f"\n> {content}"
-
             ]))
         user_msg = "\n\n---\n\n".join(items)
 

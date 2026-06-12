@@ -18,6 +18,14 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v4
 
+      - name: Restore state and cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            state.json
+            cache.json
+          key: rss-state
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -43,7 +51,7 @@ jobs:
           if git rev-parse --verify gh-pages >/dev/null 2>&1; then
             echo "Restoring previous output/state from gh-pages..."
             mkdir -p /tmp/old_output
-            git archive gh-pages -- output/ state.json 2>/dev/null | tar -x -C /tmp/old_output || true
+            git archive gh-pages -- output/ state.json cache.json 2>/dev/null | tar -x -C /tmp/old_output || true
             # Preferred layout: gh-pages has output/YYYY...
             if [ -d /tmp/old_output/output ]; then
               cp -rn /tmp/old_output/output/* output/ 2>/dev/null || true
@@ -54,6 +62,9 @@ jobs:
             fi
             if [ -f /tmp/old_output/state.json ]; then
               cp /tmp/old_output/state.json state.json
+            fi
+            if [ -f /tmp/old_output/cache.json ]; then
+              cp /tmp/old_output/cache.json cache.json
             fi
             echo "Restored $(find output/ -name '*.md' | wc -l) files"
           else
@@ -69,6 +80,9 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: python -m src.main --classify
+
+      - name: Cleanup old cache entries
+        run: python -m src.main --cleanup
 
       - name: Fix links for Jekyll
         run: test -f output/index.md && sed -i 's/\.md)/.html)/g' output/index.md || echo "No index.md, skipping"
@@ -95,6 +109,9 @@ jobs:
           if [ -f state.json ]; then
             cp state.json /tmp/new_state.json
           fi
+          if [ -f cache.json ]; then
+            cp cache.json /tmp/new_cache.json
+          fi
 
           git fetch origin gh-pages:gh-pages || true
           if git show-ref --verify --quiet refs/heads/gh-pages; then
@@ -109,11 +126,14 @@ jobs:
           if [ -f /tmp/new_state.json ]; then
             cp /tmp/new_state.json /tmp/gh-pages-wt/state.json
           fi
+          if [ -f /tmp/new_cache.json ]; then
+            cp /tmp/new_cache.json /tmp/gh-pages-wt/cache.json
+          fi
 
           cd /tmp/gh-pages-wt
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add output state.json
+          git add output state.json cache.json
           git diff --cached --quiet || git commit -m "chore: persist output $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           git push origin gh-pages
           cd -

@@ -36,6 +36,20 @@ class MainSiteSkipPromptTests(unittest.TestCase):
         self.assertEqual("example.com/blog", site)
         self.assertEqual("rule", prompt)
 
+    def test_resolve_site_skip_prompt_ignores_www(self):
+        feeds = [{"html_url": "https://www.lujun9972.win", "skip_prompt": "skip-til"}]
+        rules = _build_site_skip_prompt_rules(feeds)
+
+        # Article link without www should still match
+        site, prompt = _resolve_site_skip_prompt("https://lujun9972.win/some-post", rules)
+        self.assertEqual("lujun9972.win", site)
+        self.assertEqual("skip-til", prompt)
+
+        # Article link with www should also match
+        site, prompt = _resolve_site_skip_prompt("https://www.lujun9972.win/some-post", rules)
+        self.assertEqual("lujun9972.win", site)
+        self.assertEqual("skip-til", prompt)
+
 
 if __name__ == "__main__":
     unittest.main()

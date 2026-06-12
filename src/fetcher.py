@@ -143,7 +143,10 @@ def fetch_feed(feed_info: dict, timeout: int | tuple | None = None,
                 pass
 
         content = ""
-        if hasattr(entry, "summary"):
+        if hasattr(entry, "content") and entry.content:
+            raw = entry.content
+            content = raw if isinstance(raw, str) else raw[0].get("value", "")
+        elif hasattr(entry, "summary"):
             content = entry.summary
         elif hasattr(entry, "description"):
             content = entry.description

@@ -9,13 +9,8 @@ except ModuleNotFoundError:
 
 from src.opml_parser import parse_feeds
 from src.classifier import classify_articles, is_skip_category
-from src.storage import (
-    save_daily_results, load_seen_links, load_unclassified_links, load_unclassified_links_map,
-    update_classifications, remove_articles,
-    collect_articles_for_links,
-    save_pending_content, load_pending_content, clear_pending_content,
-    _normalize_link,
-)
+from src.storage import save_daily_results, load_seen_guids
+from src.cache import append_to_cache, get_cached_links, load_cache, cleanup_cache
 from src.state import load_state, save_state, mark_fed, mark_failed, get_due_feeds, prioritize_feeds
 from src.aggregator import is_aggregator
 
@@ -29,11 +24,15 @@ def _extract_site(url: str) -> str:
 
     Note: scheme is intentionally dropped, so both http://example.com
     and https://example.com normalize to the same prefix.
+    www. prefix is also stripped for consistent matching.
     """
     from urllib.parse import urlparse
     try:
         parsed = urlparse(url)
-        return f"{parsed.netloc}{parsed.path.rstrip('/')}"
+        netloc = parsed.netloc
+        if netloc.startswith("www."):
+            netloc = netloc[4:]
+        return f"{netloc}{parsed.path.rstrip('/')}"
     except Exception:
         return ""
 
@@ -78,7 +77,7 @@ def step_sync():
 
 
 def step_fetch():
-    """Fetch RSS entries, save unclassified to output markdown."""
+    """Fetch RSS entries, append new articles to cache.json."""
     config = load_config()
     from src.fetcher import fetch_all_feeds
     fetch_cfg = config.get("fetch", {})
@@ -89,14 +88,13 @@ def step_fetch():
     max_feeds = config.get("limits", {}).get("max_feeds", 0)
     fetch_interval = config.get("limits", {}).get("fetch_interval_hours", 24)
     max_failures = config.get("limits", {}).get("disable_after_failures", 3)
-    max_workers = config.get("fetch", {}).get("max_workers", 10)
     skip_titles = filter_cfg.get("skip_titles", [])
 
     all_feeds = parse_feeds("feeds.toml")
     print(f"[{ts()}] {len(all_feeds)} feeds total", flush=True)
 
     state = load_state()
-    skipped_links = {_normalize_link(k) for k in state.get("skipped_links", {})}
+    skipped_links = set(state.get("skipped_links", {}))
     due_feeds = get_due_feeds(all_feeds, state, fetch_interval, max_failures)
     due_feeds = prioritize_feeds(due_feeds)
     if max_feeds > 0:
@@ -113,8 +111,6 @@ def step_fetch():
         keep_days=keep_days,
         user_agent=user_agent,
         skip_titles=skip_titles,
-        max_workers=max_workers,
-        feeds_state=state.get("feeds"),
     )
 
     all_entries = []
@@ -127,20 +123,20 @@ def step_fetch():
                 aggregator_feeds += 1
                 state["feeds"][url]["is_aggregator"] = True
             all_entries.extend(r["entries"])
-        elif r["status"] == "not_modified":
-            mark_fed(state, url)
         else:
             mark_failed(state, url, r.get("error", "unknown"))
 
     if aggregator_feeds:
         print(f"[{ts()}] Aggregator feeds: {aggregator_feeds}", flush=True)
 
-    # Dedup against output (normalized links)
-    seen_links = load_seen_links(data_dir)
+    # Dedup against output + cache
+    output_links = load_seen_guids(data_dir)
+    cache_links = get_cached_links()
     new_entries = [
         e for e in all_entries
-        if _normalize_link(e.get("link", "")) not in seen_links
-        and _normalize_link(e.get("link", "")) not in skipped_links
+        if e.get("link") not in output_links
+        and e.get("link") not in cache_links
+        and e.get("link") not in skipped_links
     ]
     print(
         f"[{ts()}] {len(new_entries)} new articles "
@@ -149,70 +145,44 @@ def step_fetch():
     )
 
     if new_entries:
-        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        written = save_daily_results({"articles": new_entries}, data_dir, last_fetched=now, keep_days=keep_days)
-        files_str = ", ".join(str(f) for f in written) if written else "none"
-        print(f"[{ts()}] Saved: {files_str}", flush=True)
-        save_pending_content(new_entries, data_dir)
-        print(f"[{ts()}] Cached content for {len(new_entries)} articles", flush=True)
+        added = append_to_cache(new_entries)
+        print(f"[{ts()}] Added {added} articles to cache", flush=True)
 
     save_state(state)
 
 
 def step_classify():
-    """Classify unclassified articles in output markdown."""
+    """Classify cached articles, write classified results to output (immutable)."""
     config = load_config()
     ai_cfg = config.get("ai", {})
     categories = [c["name"] for c in config.get("category", [])]
     data_dir = config.get("storage", {}).get("data_dir", "output")
-    keep_days = config.get("fetch", {}).get("keep_days", 14)
-    max_articles = config.get("limits", {}).get("max_articles", 0)
 
     feeds = parse_feeds("feeds.toml")
     site_skip_prompt_rules = _build_site_skip_prompt_rules(feeds)
 
     state = load_state()
-    # Normalize skipped links for matching
-    skipped_raw = state.get("skipped_links", {})
-    skipped_links = {_normalize_link(k) for k in skipped_raw}
+    skipped_links = set(state.get("skipped_links", {}))
 
-    unclassified = load_unclassified_links(data_dir)
-    unclassified_map = load_unclassified_links_map(data_dir)
-    only_unclassified_links = set()
-    for links in unclassified_map.values():
-        only_unclassified_links.update(links)
-    unclassified -= skipped_links
-    only_unclassified_links -= skipped_links
-    print(f"[{ts()}] {len(unclassified)} unclassified (excluded {len(skipped_links)} previously skipped)", flush=True)
-
-    if not unclassified:
-        print(f"[{ts()}] Nothing to classify", flush=True)
-        return
-
-    articles = collect_articles_for_links(data_dir, unclassified)
-
-    pending_content = load_pending_content(data_dir)
-    if pending_content:
-        for a in articles:
-            if a.get("link") in pending_content and not a.get("content"):
-                a["content"] = pending_content[a["link"]]
-        print(f"  Merged content for {len(pending_content)} pending articles", flush=True)
-
-    print(f"[{ts()}] {len(articles)} articles to classify", flush=True)
+    # Load from cache, exclude already-output and skipped
+    cached = load_cache()
+    output_links = load_seen_guids(data_dir)
+    articles = [
+        a for a in cached
+        if a.get("link") and a["link"] not in output_links and a["link"] not in skipped_links
+    ]
+    print(f"[{ts()}] {len(articles)} articles to classify (from cache)", flush=True)
 
     if not articles:
+        print(f"[{ts()}] Nothing to classify", flush=True)
         return
-
-    if max_articles > 0 and len(articles) > max_articles:
-        articles = articles[:max_articles]
-        print(f"  Limited to {max_articles} articles", flush=True)
 
     by_site_rule: dict[tuple[str, str], list[dict]] = {}
     for a in articles:
         rule = _resolve_site_skip_prompt(a.get("link", ""), site_skip_prompt_rules)
         by_site_rule.setdefault(rule, []).append(a)
 
-    all_updates = {}
+    all_classified = []
     all_newly_skipped = {}
 
     for (site_norm, skip_prompt), arts in by_site_rule.items():
@@ -232,32 +202,29 @@ def step_classify():
             if is_skip_category(cls.get("category", "")):
                 all_newly_skipped[a["link"]] = datetime.now(timezone.utc).isoformat()
             elif "classification" in a:
-                all_updates[a["link"]] = a["classification"]
+                all_classified.append(a)
 
+    # Track skipped links in state
     if all_newly_skipped:
-        all_skipped = {**skipped_raw, **all_newly_skipped}
-        cutoff_dt = datetime.now(timezone.utc) - timedelta(days=keep_days)
-        state["skipped_links"] = {
-            k: v for k, v in all_skipped.items()
-            if _parse_iso(v) > cutoff_dt
-        }
+        all_skipped = {**state.get("skipped_links", {}), **all_newly_skipped}
+        keep_days = config.get("fetch", {}).get("keep_days", 14)
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=keep_days)).isoformat()
+        state["skipped_links"] = {k: v for k, v in all_skipped.items() if v > cutoff}
         save_state(state)
-        removed = remove_articles(data_dir, {_normalize_link(k) for k in all_newly_skipped})
-        print(f"[{ts()}] Removed {removed} skipped articles from output", flush=True)
+        print(f"[{ts()}] Skipped {len(all_newly_skipped)} articles (not written to output)", flush=True)
 
-    if all_updates:
-        count = update_classifications(data_dir, all_updates, only_links=only_unclassified_links)
-        print(f"[{ts()}] Updated {count} articles in output", flush=True)
+    # Write classified articles to output (immutable - only new files)
+    if all_classified:
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        written = save_daily_results({"articles": all_classified}, data_dir, last_fetched=now, keep_days=0)
+        files_str = ", ".join(str(f) for f in written) if written else "none"
+        print(f"[{ts()}] Classified {len(all_classified)} articles → {files_str}", flush=True)
 
-    clear_pending_content(data_dir)
 
-
-def _parse_iso(s: str) -> datetime:
-    """Parse ISO datetime string, fallback to epoch."""
-    try:
-        return datetime.fromisoformat(s)
-    except (ValueError, TypeError):
-        return datetime.min.replace(tzinfo=timezone.utc)
+def step_cleanup():
+    """Remove cache entries older than 14 days."""
+    removed = cleanup_cache(keep_days=14)
+    print(f"[{ts()}] Cleaned up {removed} old cache entries", flush=True)
 
 
 def main():
@@ -265,12 +232,14 @@ def main():
     parser.add_argument("--sync", action="store_true", help="Sync external feeds")
     parser.add_argument("--fetch", action="store_true", help="Fetch RSS entries")
     parser.add_argument("--classify", action="store_true", help="Classify with AI")
+    parser.add_argument("--cleanup", action="store_true", help="Clean up old cache entries")
     args = parser.parse_args()
 
-    if not any([args.sync, args.fetch, args.classify]):
+    if not any([args.sync, args.fetch, args.classify, args.cleanup]):
         step_sync()
         step_fetch()
         step_classify()
+        step_cleanup()
     else:
         if args.sync:
             step_sync()
@@ -278,6 +247,8 @@ def main():
             step_fetch()
         if args.classify:
             step_classify()
+        if args.cleanup:
+            step_cleanup()
 
 
 if __name__ == "__main__":
