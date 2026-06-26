@@ -110,6 +110,7 @@ def step_fetch():
         keep_days=keep_days,
         user_agent=user_agent,
         skip_titles=skip_titles,
+        feeds_state=state.get("feeds", {}),
     )
 
     all_entries = []

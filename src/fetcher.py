@@ -208,7 +208,17 @@ def fetch_all_feeds(feeds: list[dict], timeout: int = 15, keep_days: int = DEFAU
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(_fetch_one, f): f for f in feeds}
         for future in as_completed(futures):
-            r = future.result()
+            try:
+                r = future.result()
+            except Exception as e:
+                f = futures[future]
+                r = {
+                    "feed": f,
+                    "status": "error",
+                    "error": str(e),
+                    "entries": [],
+                    "fetched_at": datetime.now(timezone.utc).isoformat(),
+                }
             results.append(r)
             done += 1
             if r["status"] == "ok":
