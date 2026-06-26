@@ -1,10 +1,13 @@
-"""Single-file JSON cache for fetched articles (14-day window)."""
+"""Article cache: stores fetched articles pending classification (14-day window)."""
 import json
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 
-def load_cache(path: str = "cache.json") -> list[dict]:
+ARTICLES_FILE = "articles.json"
+
+
+def load_articles(path: str = ARTICLES_FILE) -> list[dict]:
     """Load cached articles from JSON file."""
     p = Path(path)
     if not p.exists():
@@ -15,14 +18,17 @@ def load_cache(path: str = "cache.json") -> list[dict]:
         return []
 
 
-def save_cache(articles: list[dict], path: str = "cache.json") -> None:
-    """Save articles to cache JSON file (overwrite)."""
-    Path(path).write_text(json.dumps(articles, ensure_ascii=False, indent=2), encoding="utf-8")
+def save_articles(articles: list[dict], path: str = ARTICLES_FILE) -> None:
+    """Save articles to JSON file (atomic write)."""
+    p = Path(path)
+    tmp = p.with_suffix(".tmp")
+    tmp.write_text(json.dumps(articles, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.rename(p)
 
 
-def append_to_cache(new_articles: list[dict], path: str = "cache.json") -> int:
+def append_to_articles(new_articles: list[dict], path: str = ARTICLES_FILE) -> int:
     """Append new articles to cache, dedup by link. Returns number added."""
-    existing = load_cache(path)
+    existing = load_articles(path)
     existing_links = {a["link"] for a in existing if a.get("link")}
 
     now = datetime.now(timezone.utc).isoformat()
@@ -37,13 +43,13 @@ def append_to_cache(new_articles: list[dict], path: str = "cache.json") -> int:
         added += 1
 
     if added:
-        save_cache(existing, path)
+        save_articles(existing, path)
     return added
 
 
-def cleanup_cache(keep_days: int = 14, path: str = "cache.json") -> int:
+def cleanup_articles(keep_days: int = 14, path: str = ARTICLES_FILE) -> int:
     """Remove entries older than keep_days (by published date). Returns count removed."""
-    articles = load_cache(path)
+    articles = load_articles(path)
     if not articles:
         return 0
 
@@ -63,10 +69,18 @@ def cleanup_cache(keep_days: int = 14, path: str = "cache.json") -> int:
         kept.append(a)
 
     if removed:
-        save_cache(kept, path)
+        save_articles(kept, path)
     return removed
 
 
-def get_cached_links(path: str = "cache.json") -> set[str]:
-    """Get all links currently in cache."""
-    return {a["link"] for a in load_cache(path) if a.get("link")}
+def get_article_links(path: str = ARTICLES_FILE) -> set[str]:
+    """Get all links currently in articles cache."""
+    return {a["link"] for a in load_articles(path) if a.get("link")}
+
+
+# Legacy aliases for backward compatibility
+load_cache = load_articles
+save_cache = save_articles
+append_to_cache = append_to_articles
+cleanup_cache = cleanup_articles
+get_cached_links = get_article_links

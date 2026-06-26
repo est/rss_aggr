@@ -177,7 +177,9 @@ def save_daily_results(
         lines.extend(all_rows)
         lines.append("")
 
-        file_path.write_text("\n".join(lines), encoding="utf-8")
+        tmp_path = file_path.with_suffix(".tmp")
+        tmp_path.write_text("\n".join(lines), encoding="utf-8")
+        tmp_path.rename(file_path)
         written.append(file_path)
 
     _update_index(data_dir, last_fetched=last_fetched)
@@ -222,7 +224,10 @@ def _update_index(data_dir: str = "output", last_fetched: str = ""):
         lines.append(f"| {display} | [{rel}]({rel}) |")
     lines.append("")
 
-    (base / "index.md").write_text("\n".join(lines), encoding="utf-8")
+    index_path = base / "index.md"
+    tmp_path = index_path.with_suffix(".tmp")
+    tmp_path.write_text("\n".join(lines), encoding="utf-8")
+    tmp_path.rename(index_path)
 
 
 def load_seen_guids(data_dir: str = "output") -> set[str]:

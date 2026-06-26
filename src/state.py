@@ -14,7 +14,11 @@ def load_state(path: str = STATE_FILE) -> dict:
 
 
 def save_state(state: dict, path: str = STATE_FILE):
-    Path(path).write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
+    """Save state to JSON file (atomic write)."""
+    p = Path(path)
+    tmp = p.with_suffix(".tmp")
+    tmp.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
+    tmp.rename(p)
 
 
 def _get_feed(state: dict, url: str) -> dict:

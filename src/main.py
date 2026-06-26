@@ -1,6 +1,6 @@
 """Main entry point with decoupled fetch/classify/save steps."""
 import argparse
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 try:
     import tomllib
@@ -10,7 +10,7 @@ except ModuleNotFoundError:
 from src.opml_parser import parse_feeds
 from src.classifier import classify_articles, is_skip_category
 from src.storage import save_daily_results, load_seen_guids
-from src.cache import append_to_cache, get_cached_links, load_cache, cleanup_cache
+from src.articles import append_to_articles, get_article_links, load_articles, cleanup_articles
 from src.state import load_state, save_state, mark_fed, mark_failed, get_due_feeds, prioritize_feeds
 from src.aggregator import is_aggregator
 
@@ -77,7 +77,7 @@ def step_sync():
 
 
 def step_fetch():
-    """Fetch RSS entries, append new articles to cache.json."""
+    """Fetch RSS entries, append new articles to articles.json."""
     config = load_config()
     from src.fetcher import fetch_all_feeds
     fetch_cfg = config.get("fetch", {})
@@ -94,7 +94,6 @@ def step_fetch():
     print(f"[{ts()}] {len(all_feeds)} feeds total", flush=True)
 
     state = load_state()
-    skipped_links = set(state.get("skipped_links", {}))
     due_feeds = get_due_feeds(all_feeds, state, fetch_interval, max_failures)
     due_feeds = prioritize_feeds(due_feeds)
     if max_feeds > 0:
@@ -129,23 +128,18 @@ def step_fetch():
     if aggregator_feeds:
         print(f"[{ts()}] Aggregator feeds: {aggregator_feeds}", flush=True)
 
-    # Dedup against output + cache
+    # Dedup against output + articles cache
     output_links = load_seen_guids(data_dir)
-    cache_links = get_cached_links()
+    article_links = get_article_links()
     new_entries = [
         e for e in all_entries
         if e.get("link") not in output_links
-        and e.get("link") not in cache_links
-        and e.get("link") not in skipped_links
+        and e.get("link") not in article_links
     ]
-    print(
-        f"[{ts()}] {len(new_entries)} new articles "
-        f"(excluded {len(skipped_links)} skipped links)",
-        flush=True,
-    )
+    print(f"[{ts()}] {len(new_entries)} new articles", flush=True)
 
     if new_entries:
-        added = append_to_cache(new_entries)
+        added = append_to_articles(new_entries)
         print(f"[{ts()}] Added {added} articles to cache", flush=True)
 
     save_state(state)
@@ -161,15 +155,12 @@ def step_classify():
     feeds = parse_feeds("feeds.toml")
     site_skip_prompt_rules = _build_site_skip_prompt_rules(feeds)
 
-    state = load_state()
-    skipped_links = set(state.get("skipped_links", {}))
-
-    # Load from cache, exclude already-output and skipped
-    cached = load_cache()
+    # Load from articles cache, exclude already-output
+    cached = load_articles()
     output_links = load_seen_guids(data_dir)
     articles = [
         a for a in cached
-        if a.get("link") and a["link"] not in output_links and a["link"] not in skipped_links
+        if a.get("link") and a["link"] not in output_links
     ]
     print(f"[{ts()}] {len(articles)} articles to classify (from cache)", flush=True)
 
@@ -183,7 +174,6 @@ def step_classify():
         by_site_rule.setdefault(rule, []).append(a)
 
     all_classified = []
-    all_newly_skipped = {}
 
     for (site_norm, skip_prompt), arts in by_site_rule.items():
         if skip_prompt:
@@ -199,19 +189,8 @@ def step_classify():
 
         for a in arts:
             cls = a.get("classification", {})
-            if is_skip_category(cls.get("category", "")):
-                all_newly_skipped[a["link"]] = datetime.now(timezone.utc).isoformat()
-            elif "classification" in a:
+            if not is_skip_category(cls.get("category", "")) and "classification" in a:
                 all_classified.append(a)
-
-    # Track skipped links in state
-    if all_newly_skipped:
-        all_skipped = {**state.get("skipped_links", {}), **all_newly_skipped}
-        keep_days = config.get("fetch", {}).get("keep_days", 14)
-        cutoff = (datetime.now(timezone.utc) - timedelta(days=keep_days)).isoformat()
-        state["skipped_links"] = {k: v for k, v in all_skipped.items() if v > cutoff}
-        save_state(state)
-        print(f"[{ts()}] Skipped {len(all_newly_skipped)} articles (not written to output)", flush=True)
 
     # Write classified articles to output (immutable - only new files)
     if all_classified:
@@ -222,8 +201,8 @@ def step_classify():
 
 
 def step_cleanup():
-    """Remove cache entries older than 14 days."""
-    removed = cleanup_cache(keep_days=14)
+    """Remove articles cache entries older than 14 days."""
+    removed = cleanup_articles(keep_days=14)
     print(f"[{ts()}] Cleaned up {removed} old cache entries", flush=True)
 
 

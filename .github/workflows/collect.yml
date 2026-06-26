@@ -18,12 +18,12 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v4
 
-      - name: Restore state and cache
+      - name: Restore state and articles cache
         uses: actions/cache@v4
         with:
           path: |
             state.json
-            cache.json
+            articles.json
           key: rss-state
 
       - name: Set up Python
@@ -41,35 +41,39 @@ jobs:
       - name: Commit feeds to main
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "github-actions[bot]@users.noreply.com"
           git add feeds.toml
           git diff --cached --quiet || git commit -m "chore: sync feeds $(date -u +%Y-%m-%d)" && git push
 
-      - name: Restore previous output from gh-pages
+      - name: Setup worktree and restore data from gh-pages
         run: |
-          git fetch origin gh-pages:gh-pages || true
-          if git rev-parse --verify gh-pages >/dev/null 2>&1; then
-            echo "Restoring previous output/state from gh-pages..."
-            mkdir -p /tmp/old_output
-            git archive gh-pages -- output/ state.json cache.json 2>/dev/null | tar -x -C /tmp/old_output || true
-            # Preferred layout: gh-pages has output/YYYY...
-            if [ -d /tmp/old_output/output ]; then
-              cp -rn /tmp/old_output/output/* output/ 2>/dev/null || true
-            fi
-            # Backward compatibility: historical layout output/output/YYYY...
-            if [ -d /tmp/old_output/output/output ]; then
-              cp -rn /tmp/old_output/output/output/* output/ 2>/dev/null || true
-            fi
-            if [ -f /tmp/old_output/state.json ]; then
-              cp /tmp/old_output/state.json state.json
-            fi
-            if [ -f /tmp/old_output/cache.json ]; then
-              cp /tmp/old_output/cache.json cache.json
-            fi
-            echo "Restored $(find output/ -name '*.md' | wc -l) files"
+          # Create gh-pages worktree (or update if exists)
+          if git show-ref --verify --quiet refs/heads/gh-pages; then
+            git worktree add /tmp/gh-pages gh-pages 2>/dev/null || true
           else
-            echo "No previous output found"
+            git fetch origin gh-pages:gh-pages 2>/dev/null || true
+            if git rev-parse --verify gh-pages >/dev/null 2>&1; then
+              git worktree add /tmp/gh-pages gh-pages 2>/dev/null || true
+            else
+              git worktree add -b gh-pages /tmp/gh-pages 2>/dev/null || true
+              echo "Created new gh-pages branch"
+            fi
           fi
+          # Copy data from gh-pages to working directory
+          mkdir -p output
+          if [ -d /tmp/gh-pages/output ]; then
+            cp -R /tmp/gh-pages/output/. output/ 2>/dev/null || true
+          fi
+          if [ -f /tmp/gh-pages/state.json ]; then
+            cp /tmp/gh-pages/state.json state.json
+          fi
+          if [ -f /tmp/gh-pages/articles.json ]; then
+            cp /tmp/gh-pages/articles.json articles.json
+          elif [ -f /tmp/gh-pages/cache.json ]; then
+            # Backward compatibility: migrate cache.json to articles.json
+            cp /tmp/gh-pages/cache.json articles.json
+          fi
+          echo "Restored $(find output/ -name '*.md' 2>/dev/null | wc -l) output files"
 
       - name: Fetch RSS
         run: python -m src.main --fetch
@@ -81,7 +85,7 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: python -m src.main --classify
 
-      - name: Cleanup old cache entries
+      - name: Cleanup old articles
         run: python -m src.main --cleanup
 
       - name: Fix links for Jekyll
@@ -101,40 +105,20 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
 
-      - name: Persist output/state to gh-pages branch
+      - name: Persist data to gh-pages worktree
         run: |
-          rm -rf /tmp/new_output /tmp/gh-pages-wt
-          mkdir -p /tmp/new_output
-          cp -R output/. /tmp/new_output/
-          if [ -f state.json ]; then
-            cp state.json /tmp/new_state.json
-          fi
-          if [ -f cache.json ]; then
-            cp cache.json /tmp/new_cache.json
-          fi
-
-          git fetch origin gh-pages:gh-pages || true
-          if git show-ref --verify --quiet refs/heads/gh-pages; then
-            git worktree add /tmp/gh-pages-wt gh-pages
-          else
-            git worktree add -b gh-pages /tmp/gh-pages-wt
-          fi
-
-          rm -rf /tmp/gh-pages-wt/output
-          mkdir -p /tmp/gh-pages-wt/output
-          cp -R /tmp/new_output/. /tmp/gh-pages-wt/output/
-          if [ -f /tmp/new_state.json ]; then
-            cp /tmp/new_state.json /tmp/gh-pages-wt/state.json
-          fi
-          if [ -f /tmp/new_cache.json ]; then
-            cp /tmp/new_cache.json /tmp/gh-pages-wt/cache.json
-          fi
-
-          cd /tmp/gh-pages-wt
+          # Copy results to gh-pages worktree
+          rm -rf /tmp/gh-pages/output
+          cp -R output /tmp/gh-pages/output
+          cp state.json /tmp/gh-pages/state.json
+          cp articles.json /tmp/gh-pages/articles.json
+          # Commit and push
+          cd /tmp/gh-pages
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add output state.json cache.json
+          git config user.email "github-actions[bot]@users.noreply.com"
+          git add output state.json articles.json
           git diff --cached --quiet || git commit -m "chore: persist output $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           git push origin gh-pages
           cd -
-          git worktree remove /tmp/gh-pages-wt --force
+          # Cleanup worktree
+          git worktree remove /tmp/gh-pages --force
