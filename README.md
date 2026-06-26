@@ -30,7 +30,7 @@ python -m src.main
 ```
 --sync      从 sources.toml 拉取外部 RSS 源列表 → 合并到 feeds.toml
 --fetch     抓取 RSS，追加新文章到 cache.json（去重：output + cache）
---classify  从 cache.json 读取，AI 分类后写入 output/YYYY/MMDD.md（只新建，不覆盖）
+--classify  从 cache.json 读取，AI 分类后写入 output/YYYY/MMDD.md（只新建，不覆盖， 不删除）
 --cleanup   清理 cache.json 中超过 14 天的老条目
 ```
 
