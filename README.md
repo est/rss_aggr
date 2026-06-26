@@ -84,8 +84,8 @@ python -m src.main
 
 ```toml
 [[category.feed]]
-title = "暗无天日"
-url = "https://www.lujun9972.win/rss.xml"
+title = "example"
+url = "https://example.com/rss.xml"
 skip_prompt = "if title starts with 读 or TIL then 'skip'"
 ```
 
