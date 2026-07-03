@@ -86,26 +86,32 @@ jobs:
         run: python -m src.main --classify
 
       - name: Cleanup old articles
+        if: success()
         run: python -m src.main --cleanup
 
       - name: Fix links for Jekyll
+        if: success()
         run: test -f output/index.md && sed -i 's/\.md)/.html)/g' output/index.md || echo "No index.md, skipping"
 
       - name: Build with Jekyll
+        if: success()
         uses: actions/jekyll-build-pages@v1
         with:
           source: ./output
           destination: ./_site
 
       - name: Upload Pages artifact
+        if: success()
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
       - name: Deploy to GitHub Pages
+        if: success()
         uses: actions/deploy-pages@v4
 
       - name: Persist data to gh-pages worktree
+        if: success() || failure()
         run: |
           # Copy results to gh-pages worktree
           rm -rf /tmp/gh-pages/output
