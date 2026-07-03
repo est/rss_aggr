@@ -158,6 +158,7 @@ class OpenAICompatibleClassifier(BaseClassifier):
             self.session.headers["Authorization"] = f"Bearer {self.api_key}"
 
     def _call_api(self, messages: list[dict], max_tokens: int, timeout: int) -> str:
+        import sys
         url = f"{self.base_url}/chat/completions"
         payload = {
             "model": self.model,
@@ -166,7 +167,10 @@ class OpenAICompatibleClassifier(BaseClassifier):
             "max_tokens": max_tokens,
         }
         resp = self.session.post(url, json=payload, timeout=timeout)
-        resp.raise_for_status()
+        if not resp.ok:
+            print(f"  [openai-compatible] API error: {resp.status_code}", flush=True)
+            print(f"  Response body: {resp.text}", flush=True)
+            sys.exit(1)
         data = resp.json()
         content = data["choices"][0]["message"]["content"]
         if not content:
@@ -184,9 +188,14 @@ class ClaudeClassifier(BaseClassifier):
         self.model = model
 
     def _call_api(self, messages, max_tokens, timeout):
-        resp = self.client.messages.create(
-            model=self.model, max_tokens=max_tokens, messages=messages, timeout=timeout,
-        )
+        import sys
+        try:
+            resp = self.client.messages.create(
+                model=self.model, max_tokens=max_tokens, messages=messages, timeout=timeout,
+            )
+        except Exception as e:
+            print(f"  [claude] API error: {e}", flush=True)
+            sys.exit(1)
         r = resp.content[0].text
         if not r:
             print(f"  [claude] empty response", flush=True)
