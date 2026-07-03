@@ -154,6 +154,8 @@ class OpenAICompatibleClassifier(BaseClassifier):
             self.base_url = "https://api.openai.com/v1"
         self.api_key = api_key
         self.session = requests.Session()
+        # Only set Authorization header if api_key is provided
+        # Some providers (e.g., local models) don't require authentication
         if self.api_key:
             self.session.headers["Authorization"] = f"Bearer {self.api_key}"
 
@@ -220,8 +222,12 @@ def get_classifier(provider: str = "openai", model: str | None = None,
         return ClaudeClassifier(model=model or "claude-3-haiku-20240307")
 
     # OpenAI-compatible providers (openai, openrouter, custom, etc.)
-    env_key = api_key_env or "OPENAI_API_KEY"
-    api_key = os.environ.get(env_key, "")
+    # For custom provider, api_key is optional (some local APIs don't need auth)
+    if provider == "custom":
+        env_key = api_key_env or ""
+    else:
+        env_key = api_key_env or "OPENAI_API_KEY"
+    api_key = os.environ.get(env_key, "") if env_key else ""
 
     # Resolve default base URL
     if not base_url:
@@ -234,7 +240,8 @@ def get_classifier(provider: str = "openai", model: str | None = None,
     }
     resolved_model = model or default_models.get(provider, "gpt-4o-mini")
 
-    if not api_key:
+    # For openai/openrouter, require api_key; for custom, it's optional
+    if not api_key and provider in ("openai", "openrouter"):
         print(f"  WARNING: {env_key} not set, skipping AI classification", flush=True)
         return None
 
