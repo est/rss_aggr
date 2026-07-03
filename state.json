@@ -445,10 +445,10 @@
     },
     "https://www.changhai.org/feed.xml": {
       "last_ok": "2026-07-02T09:23:55.441375+00:00",
-      "consecutive_failures": 1,
+      "consecutive_failures": 2,
       "last_modified": "Tue, 30 Jun 2026 22:03:32 GMT",
       "last_error": "HTTPSConnectionPool(host='www.changhai.org', port=443): Max retries exceeded with url: /feed.xml (Caused by NameResolutionError(\"HTTPSConnection(host='www.changhai.org', port=443): Failed to resolve 'www.changhai.org' ([Errno -3] Temporary failure in name resolution)\"))",
-      "failed_at": "2026-07-03T01:30:39.192173+00:00"
+      "failed_at": "2026-07-03T01:33:53.406771+00:00"
     },
     "https://ssshooter.com/rss.xml": {
       "last_ok": "2026-07-03T01:30:39.190540+00:00",
@@ -1108,8 +1108,8 @@
       "etag": "W/\"afb047b9c2533b50ec3e6044ab823285\""
     },
     "https://mabbs.github.io/atom.xml": {
-      "last_ok": "2026-07-02T09:23:55.441696+00:00",
-      "consecutive_failures": 1,
+      "last_ok": "2026-07-03T01:33:53.406751+00:00",
+      "consecutive_failures": 0,
       "etag": "W/\"6a43e8b6-1f87c\"",
       "last_modified": "Tue, 30 Jun 2026 16:03:02 GMT",
       "last_error": "503 Server Error: Service Unavailable for url: https://mabbs.github.io/atom.xml",
@@ -1570,11 +1570,11 @@
     },
     "https://cdjax.com/?feed=rss2": {
       "last_ok": "2026-07-02T09:23:55.441959+00:00",
-      "consecutive_failures": 1,
+      "consecutive_failures": 2,
       "etag": "\"1adf3084db0eca4ef8c23728a61fa5a1\"",
       "last_modified": "Tue, 09 Jun 2026 23:59:46 GMT",
       "last_error": "HTTPSConnectionPool(host='cdjax.com', port=443): Read timed out. (read timeout=15)",
-      "failed_at": "2026-07-03T01:30:39.192176+00:00"
+      "failed_at": "2026-07-03T01:33:53.406782+00:00"
     },
     "https://zxs.io/feed": {
       "last_ok": "2026-07-03T01:30:39.191413+00:00",
