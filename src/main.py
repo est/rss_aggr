@@ -186,6 +186,8 @@ def step_classify():
             model=ai_cfg.get("model"),
             categories=categories,
             skip_prompt=skip_prompt,
+            base_url=ai_cfg.get("base_url", ""),
+            api_key_env=ai_cfg.get("api_key_env", ""),
         )
 
         for a in arts:

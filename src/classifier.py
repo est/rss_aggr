@@ -1,7 +1,9 @@
-"""AI-powered article classification and scoring. Supports OpenAI, Claude, and OpenRouter."""
+"""AI-powered article classification and scoring. Supports OpenAI-compatible APIs and Claude."""
 import os
 import re
 from abc import ABC, abstractmethod
+
+import requests
 
 
 def _smart_truncate(text: str, max_len: int) -> str:
@@ -135,24 +137,47 @@ class BaseClassifier(ABC):
         return _parse_blocks(text)
 
 
-class OpenAIClassifier(BaseClassifier):
-    def __init__(self, model: str = "gpt-4o-mini"):
-        from openai import OpenAI
-        self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"), timeout=self.TIMEOUT)
-        self.model = model
+class OpenAICompatibleClassifier(BaseClassifier):
+    """Classifier for any OpenAI-compatible API (OpenAI, OpenRouter, vLLM, Ollama, etc.)."""
 
-    def _call_api(self, messages, max_tokens, timeout):
-        resp = self.client.chat.completions.create(
-            model=self.model, messages=messages,
-            temperature=0.3, max_tokens=max_tokens, timeout=timeout,
-        )
-        r = resp.choices[0].message.content
-        if not r:
-            print(f"  [openai] empty response: {resp.to_json()}", flush=True)
-        return r
+    DEFAULT_BASE_URLS = {
+        "openai": "https://api.openai.com/v1",
+        "openrouter": "https://openrouter.ai/api/v1",
+    }
+
+    def __init__(self, model: str, base_url: str = "", api_key: str = ""):
+        self.model = model
+        # Resolve base URL: use provided or default based on provider hints
+        if base_url:
+            self.base_url = base_url.rstrip("/")
+        else:
+            self.base_url = "https://api.openai.com/v1"
+        self.api_key = api_key
+        self.session = requests.Session()
+        if self.api_key:
+            self.session.headers["Authorization"] = f"Bearer {self.api_key}"
+
+    def _call_api(self, messages: list[dict], max_tokens: int, timeout: int) -> str:
+        url = f"{self.base_url}/chat/completions"
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": 0.3,
+            "max_tokens": max_tokens,
+        }
+        resp = self.session.post(url, json=payload, timeout=timeout)
+        resp.raise_for_status()
+        data = resp.json()
+        content = data["choices"][0]["message"]["content"]
+        if not content:
+            usage = data.get("usage", {})
+            print(f"  [openai-compatible] empty response (tokens: {usage})", flush=True)
+        return content
 
 
 class ClaudeClassifier(BaseClassifier):
+    """Classifier for Anthropic Claude API."""
+
     def __init__(self, model: str = "claude-3-haiku-20240307"):
         import anthropic
         self.client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"), timeout=self.TIMEOUT)
@@ -164,55 +189,47 @@ class ClaudeClassifier(BaseClassifier):
         )
         r = resp.content[0].text
         if not r:
-            print(f"  [anthropic] empty response: {resp.to_json()}", flush=True)
+            print(f"  [claude] empty response", flush=True)
         return r
 
 
-class OpenRouterClassifier(BaseClassifier):
-    def __init__(self, model: str = "nvidia/nemotron-3-nano-30b-a3b:free"):
-        from openai import OpenAI
-        self.client = OpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=os.environ.get("OPENROUTER_API_KEY"),
-            timeout=self.TIMEOUT,
-        )
-        self.model = model
+def get_classifier(provider: str = "openai", model: str | None = None,
+                   base_url: str = "", api_key_env: str = "") -> BaseClassifier | None:
+    """Get classifier instance based on provider configuration.
 
-    def _call_api(self, messages, max_tokens, timeout):
-        resp = self.client.chat.completions.create(
-            model=self.model, messages=messages,
-            temperature=0.3, max_tokens=max_tokens, timeout=timeout,
-        )
-        r = resp.choices[0].message.content
-        if not r:
-            print(f"  [openrouter] empty response: {resp.to_json()}", flush=True)
-        return r
+    Args:
+        provider: "openai" (OpenAI-compatible) or "claude" (Anthropic)
+        model: Model name (provider-specific default if empty)
+        base_url: API base URL for OpenAI-compatible providers
+        api_key_env: Environment variable name for API key
+    """
+    if provider == "claude":
+        env_key = api_key_env or "ANTHROPIC_API_KEY"
+        if not os.environ.get(env_key):
+            print(f"  WARNING: {env_key} not set, skipping AI classification", flush=True)
+            return None
+        return ClaudeClassifier(model=model or "claude-3-haiku-20240307")
 
+    # OpenAI-compatible providers (openai, openrouter, custom, etc.)
+    env_key = api_key_env or "OPENAI_API_KEY"
+    api_key = os.environ.get(env_key, "")
 
-def _check_api_key(provider: str) -> bool:
-    env_keys = {
-        "openai": "OPENAI_API_KEY",
-        "claude": "ANTHROPIC_API_KEY",
-        "openrouter": "OPENROUTER_API_KEY",
+    # Resolve default base URL
+    if not base_url:
+        base_url = OpenAICompatibleClassifier.DEFAULT_BASE_URLS.get(provider, "https://api.openai.com/v1")
+
+    # Resolve default model
+    default_models = {
+        "openai": "gpt-4o-mini",
+        "openrouter": "nvidia/nemotron-3-nano-30b-a3b:free",
     }
-    return bool(os.environ.get(env_keys.get(provider, "")))
+    resolved_model = model or default_models.get(provider, "gpt-4o-mini")
 
-
-def get_classifier(provider: str = "openai", model: str | None = None) -> BaseClassifier | None:
-    if not _check_api_key(provider):
-        env_key = {"openai": "OPENAI_API_KEY", "claude": "ANTHROPIC_API_KEY",
-                   "openrouter": "OPENROUTER_API_KEY"}.get(provider, "")
+    if not api_key:
         print(f"  WARNING: {env_key} not set, skipping AI classification", flush=True)
         return None
-    if provider == "openai":
-        return OpenAIClassifier(model=model or "gpt-4o-mini")
-    elif provider == "claude":
-        return ClaudeClassifier(model=model or "claude-3-haiku-20240307")
-    elif provider == "openrouter":
-        return OpenRouterClassifier(model=model or "nvidia/nemotron-3-nano-30b-a3b:free")
-    else:
-        print(f"  WARNING: unknown provider '{provider}', skipping AI classification", flush=True)
-        return None
+
+    return OpenAICompatibleClassifier(model=resolved_model, base_url=base_url, api_key=api_key)
 
 
 def classify_articles(
@@ -222,12 +239,14 @@ def classify_articles(
     categories: list[str] | None = None,
     batch_size: int = BaseClassifier.BATCH_SIZE,
     skip_prompt: str = "",
+    base_url: str = "",
+    api_key_env: str = "",
 ) -> list[dict]:
     """Classify articles in batches. On batch failure, retry each article individually."""
     if not articles:
         return []
 
-    classifier = get_classifier(provider, model)
+    classifier = get_classifier(provider, model, base_url=base_url, api_key_env=api_key_env)
     if not classifier:
         return []
 
