@@ -37,7 +37,9 @@ def append_to_articles(new_articles: list[dict], path: str = ARTICLES_FILE) -> i
         link = a.get("link", "")
         if not link or link in existing_links:
             continue
-        entry = {**a, "cached_at": now}
+        # Calculate content length for dynamic batching
+        content = a.get("content") or ""
+        entry = {**a, "cached_at": now, "content_length": len(content)}
         existing.append(entry)
         existing_links.add(link)
         added += 1

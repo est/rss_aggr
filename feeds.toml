@@ -285,6 +285,7 @@ site = "https://blog.ibireme.com/"
 title = "鸟窝"
 url = "https://colobu.com/atom.xml"
 site = "https://colobu.com/"
+skip = true
 
 [[category.feed]]
 title = "libfeihu Blog"
@@ -913,6 +914,7 @@ site = "https://www.bmpi.dev"
 title = "61's life"
 url = "https://61.life/feed.xml"
 site = "https://61.life/"
+skip = true
 
 [[category.feed]]
 title = "Power's Wiki"
@@ -2449,6 +2451,7 @@ site = "https://www.kawabangga.com"
 title = "如有乐享"
 url = "https://51.ruyo.net/feed"
 site = "https://51.ruyo.net"
+skip = true
 
 [[category.feed]]
 title = "楚天乐的小站"
@@ -2479,6 +2482,7 @@ site = "https://www.huhangfei.com/"
 title = "张洪Heo"
 url = "https://blog.zhheo.com/rss.xml"
 site = "https://blog.zhheo.com/"
+skip = true
 
 [[category.feed]]
 title = "Save The Web Project"
@@ -4675,6 +4679,7 @@ site = "https://www.seedlinginvest.com"
 title = "xugj520.cn"
 url = "https://www.xugj520.cn/feed"
 site = "https://www.xugj520.cn"
+skip = true
 
 [[category.feed]]
 title = "YFZZ Blog（yfzz.net）"
@@ -5125,6 +5130,7 @@ site = "https://www.jiangyu.org"
 title = "Essay 时光广场"
 url = "https://www.essay.ink/essays/rss.xml"
 site = "https://www.essay.ink"
+skip = true
 
 [[category.feed]]
 title = "SimonSu"
@@ -5635,2620 +5641,2184 @@ site = "https://blog.asyncx.top"
 title = "阮一峰的网络日志"
 url = "http://feeds.feedburner.com/ruanyifeng"
 site = "https://www.ruanyifeng.com/blog/"
-priority = 10
 
 [[category.feed]]
 title = "Alili丶前端大爆炸"
 url = "https://alili.tech/index.xml"
 site = "https://alili.tech"
-priority = 10
 
 [[category.feed]]
 title = "DIYGod - 写代码是热爱，写到世界充满爱!"
 url = "https://diygod.me/atom.xml"
 site = "https://diygod.me"
-priority = 10
 
 [[category.feed]]
 title = "全栈应用开发:精益实践"
 url = "https://www.phodal.com/blog/feeds/rss/"
 site = "https://www.phodal.com"
-priority = 10
 
 [[category.feed]]
 title = "但行好事，莫问前程"
 url = "https://windard.com/feed.xml"
 site = "https://windard.com"
-priority = 10
 
 [[category.feed]]
 title = "Ric's Blog"
 url = "https://www.lichong.work/atom.xml"
 site = "https://www.lichong.work"
-priority = 10
 
 [[category.feed]]
 title = "代码家"
 url = "https://daimajia.com/feed"
 site = "https://daimajia.com"
-priority = 10
 
 [[category.feed]]
 title = "开源实验室"
 url = "https://www.kymjs.com/feed.xml"
 site = "https://kymjs.com"
-priority = 10
 
 [[category.feed]]
 title = "朽儿"
 url = "https://xiuer.medium.com/feed"
 site = "https://xiuer.medium.com"
-priority = 10
 
 [[category.feed]]
 title = "INTJer"
 url = "https://arminli.com/rss.xml"
 site = "https://arminli.com"
-priority = 10
 
 [[category.feed]]
 title = "思圆笔记"
 url = "https://hintsnet.com/pimgeek/feed/"
 site = "https://hintsnet.com/"
-priority = 10
 
 [[category.feed]]
 title = "某岛"
 url = "http://www.shuizilong.com/house/feed/"
 site = "http://www.shuizilong.com/house"
-priority = 10
 
 [[category.feed]]
 title = "陈沙克日志"
 url = "http://www.chenshake.com/feed/"
 site = "http://www.chenshake.com"
-priority = 10
 
 [[category.feed]]
 title = "Cat in Chinese"
 url = "http://chinese.catchen.me/feeds/posts/default"
 site = "https://chinese.catchen.me"
-priority = 10
 
 [[category.feed]]
 title = "idea's blog"
 url = "http://www.ideawu.net/blog/feed"
 site = "http://www.ideawu.net/blog"
-priority = 10
 
 [[category.feed]]
 title = "xiaix's Blog"
 url = "http://xiaix.me/rss/"
 site = "https://xiaix.me"
-priority = 10
 
 [[category.feed]]
 title = "搞笑談軟工"
 url = "http://teddy-chen-tw.blogspot.com/feeds/posts/default"
 site = "https://teddy-chen-tw.blogspot.com/"
-priority = 10
 
 [[category.feed]]
 title = "程序师"
 url = "http://www.techug.com/feed"
 site = "https://www.techug.com"
-priority = 10
 
 [[category.feed]]
 title = "解道jdon.com"
 url = "https://www.jdon.com/jivejdon/rss"
 site = "https://www.jdon.com"
-priority = 10
 
 [[category.feed]]
 title = "林小沐"
 url = "http://feed.immmmm.com/"
 site = "https://immmmm.com"
-priority = 10
 
 [[category.feed]]
 title = "余海峯 David 物理喵 phycat"
 url = "https://hfdavidyu.com/feed/"
 site = "https://hfdavidyu.com"
-priority = 10
 
 [[category.feed]]
 title = "水星投资理财"
 url = "http://mercurychong.blogspot.com/feeds/posts/default"
 site = "https://mercurychong.blogspot.com/"
-priority = 10
 
 [[category.feed]]
 title = "Mr. PM 下午先生"
 url = "http://feeds.feedburner.com/pmmustknow"
 site = "https://mrpm.cc/"
-priority = 10
 
 [[category.feed]]
 title = "人人都是产品经理——iamsujie"
 url = "http://iamsujie.com/feed/"
 site = "http://iamsujie.com"
-priority = 10
 
 [[category.feed]]
 title = "余果的博客"
 url = "http://feeds.feedburner.com/yuguo"
 site = "https://yuguo.us"
-priority = 10
 
 [[category.feed]]
 title = "王垠的博客"
 url = "https://rsshub.app/blogs/wangyin"
 site = "https://www.yinwang.org/"
-priority = 10
 
 [[category.feed]]
 title = "硕鼠的博客站"
 url = "http://lukefan.com/?feed=rss2"
 site = "http://lukefan.com/"
-priority = 10
 skip = true
 
 [[category.feed]]
 title = "黑·白"
 url = "http://blog.xiayf.cn/feeds/rss.xml"
 site = "http://blog.xiayf.cn/"
-priority = 10
 
 [[category.feed]]
 title = "冯唐博客"
 url = "http://www.fengtang.com/blog/?feed=rss2"
 site = "http://www.fengtang.com/blog/"
-priority = 10
 
 [[category.feed]]
 title = "我爱自然语言处理"
 url = "http://www.52nlp.cn/feed"
 site = "https://www.52nlp.cn/"
-priority = 10
 
 [[category.feed]]
 title = "可能吧"
 url = "http://feeds.kenengba.com/kenengbarss"
 site = "https://kenengba.com/"
-priority = 10
 
 [[category.feed]]
 title = "Halfrost's Field"
 url = "http://halfrost.com/rss/"
 site = "https://halfrost.com/"
-priority = 10
 
 [[category.feed]]
 title = "limboy's HQ"
 url = "http://feeds.feedburner.com/lzyy"
 site = "https://limboy.me"
-priority = 10
 
 [[category.feed]]
 title = "阿毛的蛋疼地"
 url = "https://xiangwangfeng.com/atom.xml"
 site = "https://xiangwangfeng.com/"
-priority = 10
 
 [[category.feed]]
 title = "I'm TualatriX"
 url = "http://feeds.feedburner.com/tualatrix"
 site = "https://imtx.me"
-priority = 10
 
 [[category.feed]]
 title = "Est's Blog"
 url = "http://feeds.feedburner.com/initiative"
 site = "https://blog.est.im/"
-priority = 10
 
 [[category.feed]]
 title = "Wiken"
 url = "https://www.hehuapei.com/feed"
 site = "https://www.hehuapei.com"
-priority = 10
 
 [[category.feed]]
 title = "炸裂志"
 url = "https://zh.fyi/rss.xml"
 site = "https://zh.fyi/"
-priority = 10
 
 [[category.feed]]
 title = "搞搞震"
 url = "https://www.wujingquan.com/atom.xml"
 site = "https://www.wujingquan.com"
-priority = 10
 
 [[category.feed]]
 title = "算法花园"
 url = "https://xiang578.com/atom.xml"
 site = "https://xiang578.com"
-priority = 10
 
 [[category.feed]]
 title = "贼拉正经的技术博客"
 url = "https://stackoverflow.wiki/blog/rss.xml"
 site = "https://www.stackoverflow.wiki/blog/"
-priority = 10
 
 [[category.feed]]
 title = "Lenix Blog"
 url = "https://blog.p2hp.com/feed"
 site = "https://blog.p2hp.com/"
-priority = 10
 
 [[category.feed]]
 title = "Allen's Blog"
 url = "https://www.capallen.top/atom.xml"
 site = "https://www.capallen.top"
-priority = 10
 
 [[category.feed]]
 title = "朝舞"
 url = "https://ii74.com/feed.php"
 site = "https://ii74.com"
-priority = 10
 
 [[category.feed]]
 title = "Matrix67: The Aha Moments"
 url = "http://www.matrix67.com/blog/feed"
 site = "http://www.matrix67.com/blog/"
-priority = 10
 
 [[category.feed]]
 title = "谢乾坤-青南"
 url = "https://www.kingname.info/atom.xml"
 site = "https://www.kingname.info/"
-priority = 10
 
 [[category.feed]]
 title = "张凯强的博客"
 url = "https://zkqiang.cn/atom.xml"
 site = "https://zkqiang.cn"
-priority = 10
 
 [[category.feed]]
 title = "追风之影"
 url = "https://www.devashen.com/atom.xml"
 site = "https://www.devashen.com"
-priority = 10
 
 [[category.feed]]
 title = "Zhshch`s Blog"
 url = "https://xzhsh.ch/index.xml"
 site = "https://xzhsh.ch/"
-priority = 10
 
 [[category.feed]]
 title = "FlyingSky's Blog"
 url = "https://blog.fsky7.com/feed"
 site = "https://blog.fsky7.com/"
-priority = 10
 
 [[category.feed]]
 title = "己羊的梦"
 url = "https://www.jiyang00.cn/atom.xml"
 site = "https://www.jiyang00.cn/"
-priority = 10
 
 [[category.feed]]
 title = "Tianke Youke"
 url = "https://jyzhu.top/atom.xml"
 site = "https://jyzhu.top"
-priority = 10
 
 [[category.feed]]
 title = "Xiaoi's Blog"
 url = "https://blog.xiaoi.me/feed.xml"
 site = "https://blog.xiaoi.me/"
-priority = 10
 
 [[category.feed]]
 title = "小蘿蔔丁"
 url = "http://xlbd.me/rss/"
 site = "https://www.xlbd.me/"
-priority = 10
 
 [[category.feed]]
 title = "Realcat"
 url = "https://www.vincentqin.tech/atom.xml"
 site = "https://www.vincentqin.tech/"
-priority = 10
 
 [[category.feed]]
 title = "WEB VIEW"
 url = "https://webview.tech/category/blog/feed/"
 site = "https://webview.tech/"
-priority = 10
 
 [[category.feed]]
 title = "Yuexun's Blog"
 url = "https://yuexun.me/rss.xml"
 site = "https://yuexun.me/"
-priority = 10
 
 [[category.feed]]
 title = "Panda Home"
 url = "https://old-panda.com/feed/"
 site = "https://old-panda.com/"
-priority = 10
 
 [[category.feed]]
 title = "自学路漫漫"
 url = "https://blog.fxcdev.com/atom.xml"
 site = "https://blog.fxcdev.com"
-priority = 10
 
 [[category.feed]]
 title = "CodeSky"
 url = "https://codesky.me/feed/"
 site = "https://codesky.me"
-priority = 10
 
 [[category.feed]]
 title = "杂货屋"
 url = "https://sword.studio/feed/"
 site = "https://sword.studio/"
-priority = 10
 
 [[category.feed]]
 title = "青空之蓝"
 url = "https://blog.ixk.me/feed"
 site = "https://blog.ixk.me"
-priority = 10
 
 [[category.feed]]
 title = "炎忍的博客"
 url = "https://blog.imyan.ren/atom.xml"
 site = "https://blog.imyan.ren"
-priority = 10
 
 [[category.feed]]
 title = "啊哈呵嗨的博客"
 url = "https://gylidian.js.org/rss2.xml"
 site = "https://gylidian.js.org"
-priority = 10
 
 [[category.feed]]
 title = "朱双印"
 url = "https://www.zsythink.net/feed/"
 site = "https://www.zsythink.net/"
-priority = 10
 
 [[category.feed]]
 title = "LFhacks.com"
 url = "https://www.lfhacks.com/rss/"
 site = "https://www.lfhacks.com/"
-priority = 10
 
 [[category.feed]]
 title = "回未视戒"
 url = "https://huiweishijie.com/feed.xml"
 site = "https://huiweishijie.com"
-priority = 10
 
 [[category.feed]]
 title = "CallMeSoul"
 url = "https://callmesoul.cn/rss.xml"
 site = "https://callmesoul.cn"
-priority = 10
 
 [[category.feed]]
 title = "Michael翔"
 url = "https://michael728.github.io/atom.xml"
 site = "https://michael728.github.io/"
-priority = 10
 
 [[category.feed]]
 title = "Lu Shuyu"
 url = "https://blog.lushuyu.site/feed/"
 site = "https://blog.lushuyu.site/"
-priority = 10
 
 [[category.feed]]
 title = "Bryan's Blog"
 url = "https://articles.singee.me/feed/xml"
 site = "https://articles.singee.me/"
-priority = 10
 
 [[category.feed]]
 title = "Yuechuan Blog"
 url = "https://yuechuanx.top/atom.xml"
 site = "https://yuechuanx.top/"
-priority = 10
 
 [[category.feed]]
 title = "维基萌"
 url = "https://www.wikimoe.com/rss.php"
 site = "https://www.wikimoe.com/"
-priority = 10
 skip = true
 
 [[category.feed]]
 title = "strongwong's Blog"
 url = "https://blog.strongwong.top/atom.xml"
 site = "https://blog.strongwong.top/"
-priority = 10
 
 [[category.feed]]
 title = "typeblog"
 url = "https://typeblog.net/rss/"
 site = "https://typeblog.net/"
-priority = 10
 
 [[category.feed]]
 title = "橙光笔记"
 url = "https://www.kai666666.top/atom.xml"
 site = "https://www.kai666666.top/"
-priority = 10
 
 [[category.feed]]
 title = "DuyaoSS"
 url = "https://www.duyaoss.com/feed/"
 site = "https://www.duyaoss.com/"
-priority = 10
 
 [[category.feed]]
 title = "seisamuse"
 url = "https://www.seis-jun.xyz/atom.xml"
 site = "https://seis-jun.xyz"
-priority = 10
 
 [[category.feed]]
 title = "爪哇堂"
 url = "https://www.javatang.com/feed"
 site = "https://www.javatang.com/"
-priority = 10
 
 [[category.feed]]
 title = "ScarSu的个人网站"
 url = "https://www.scarsu.com/atom.xml"
 site = "https://www.scarsu.com/"
-priority = 10
 
 [[category.feed]]
 title = "Lucien's Blog"
 url = "https://blog.lucien.ink/feed/"
 site = "https://blog.lucien.ink"
-priority = 10
 
 [[category.feed]]
 title = "阳志平的网志"
 url = "https://www.yangzhiping.com/feed.xml"
 site = "https://www.yangzhiping.com/"
-priority = 10
 
 [[category.feed]]
 title = "陈华"
 url = "https://www.chen.fun/index.xml"
 site = "https://www.chen.fun/"
-priority = 10
 
 [[category.feed]]
 title = "Chores"
 url = "https://raincorn.top/feed/"
 site = "https://raincorn.top/"
-priority = 10
 
 [[category.feed]]
 title = "顾宇的研习笔记"
 url = "https://www.guyu.me/posts/index.xml"
 site = "https://www.guyu.me/posts/"
-priority = 10
 
 [[category.feed]]
 title = "Inevitable"
 url = "https://www.inevitable.tech/atom.xml"
 site = "https://www.inevitable.tech"
-priority = 10
 
 [[category.feed]]
 title = "未知的世界"
 url = "http://lulalap.com/atom.xml"
 site = "http://lulalap.com/"
-priority = 10
 
 [[category.feed]]
 title = "shingle's blog"
 url = "https://shingle.me/index.xml"
 site = "https://shingle.me/"
-priority = 10
 
 [[category.feed]]
 title = "TCPGNL"
 url = "https://tcpgnl.com/feed/"
 site = "https://tcpgnl.com/"
-priority = 10
 
 [[category.feed]]
 title = "Rapiz's Blog"
 url = "https://rapiz.me/atom.xml"
 site = "https://rapiz.me/"
-priority = 10
 
 [[category.feed]]
 title = "姬涛的个人网站"
 url = "https://www.jitao.tech/rss.xml"
 site = "https://www.jitao.tech/"
-priority = 10
 
 [[category.feed]]
 title = "凉天客栈"
 url = "https://earture.org/atom.xml"
 site = "https://earture.org"
-priority = 10
 
 [[category.feed]]
 title = "近视眼逛博客"
 url = "https://blog.9hz.club/feed/"
 site = "https://blog.9hz.club"
-priority = 10
 
 [[category.feed]]
 title = "影留"
 url = "https://leftshadow.com/?call_custom_simple_rss=1&csrp_cat=11"
 site = "https://leftshadow.com"
-priority = 10
 
 [[category.feed]]
 title = "beyond stars"
 url = "https://beyondstars.xyz/api/feeds/atom"
 site = "https://beyondstars.xyz/"
-priority = 10
 
 [[category.feed]]
 title = "一个坏掉的番茄"
 url = "https://tomotoes.com/blog/atom.xml"
 site = "https://tomotoes.com/"
-priority = 10
 
 [[category.feed]]
 title = "shwei's blog"
 url = "http://weisenhui.top/atom.xml"
 site = "http://weisenhui.top/"
-priority = 10
 
 [[category.feed]]
 title = "RivenNero's Studio"
 url = "https://rivennero.com/atom.xml"
 site = "https://rivennero.com/"
-priority = 10
 
 [[category.feed]]
 title = "琚致远"
 url = "https://wineso.me/index.xml"
 site = "https://wineso.me/blog"
-priority = 10
 
 [[category.feed]]
 title = "老张说思路"
 url = "https://www.aceact.com/feed/"
 site = "https://www.aceact.com"
-priority = 10
 
 [[category.feed]]
 title = "L1Yu's Blog - 蓝色的博客"
 url = "https://www.l1yu.com/feed/feed.xml"
 site = "https://www.l1yu.com"
-priority = 10
 
 [[category.feed]]
 title = "野生程序猴子"
 url = "https://ljason.cn/atom.xml"
 site = "https://ljason.cn"
-priority = 10
 
 [[category.feed]]
 title = "海布里天井"
 url = "https://blog.feimind.xyz/feed"
 site = "https://feimind.xyz"
-priority = 10
 
 [[category.feed]]
 title = "Dawner"
 url = "https://dawner.top/atom.xml"
 site = "https://dawner.top/"
-priority = 10
 
 [[category.feed]]
 title = "涯余"
 url = "https://yanhang.me/index.xml"
 site = "https://yanhang.me"
-priority = 10
 
 [[category.feed]]
 title = "Ray's Blog"
 url = "https://blog.mk1.io/api/feed"
 site = "https://blog.mk1.io"
-priority = 10
 
 [[category.feed]]
 title = "考拉咖啡馆"
 url = "https://guhub.cn/feed/"
 site = "https://guhub.cn"
-priority = 10
 
 [[category.feed]]
 title = "Nala Ginrut's Blog"
 url = "https://nalaginrut.com/feed/atom"
 site = "https://nalaginrut.com/index"
-priority = 10
 
 [[category.feed]]
 title = "ZedeX"
 url = "https://zedex.cn/feed"
 site = "https://zedex.cn"
-priority = 10
 
 [[category.feed]]
 title = "Gavin notes"
 url = "https://blog.gavln.com/atom.xml"
 site = "https://blog.gavln.com"
-priority = 10
 
 [[category.feed]]
 title = "一杯茶"
 url = "https://www.zuoyu.top/atom.xml"
 site = "https://www.zuoyu.top/"
-priority = 10
 
 [[category.feed]]
 title = "CLCK's Space"
 url = "https://www.clckblog.space/blog/rss.xml"
 site = "https://www.clckblog.space/blog/"
-priority = 10
 
 [[category.feed]]
 title = "骁之屋 - 孙天骁的随身记录个人网站"
 url = "https://www.ybusad.com/rss"
 site = "https://www.ybusad.com"
-priority = 10
 
 [[category.feed]]
 title = "PlayerCatboy"
 url = "https://ralf.ren/feed"
 site = "https://ralf.ren"
-priority = 10
 
 [[category.feed]]
 title = "无主题博客"
 url = "https://wuzhuti.cn/feed"
 site = "https://wuzhuti.cn"
-priority = 10
 
 [[category.feed]]
 title = "区块链罗宾"
 url = "https://dbarobin.com/feed.xml"
 site = "https://dbarobin.com"
-priority = 10
 
 [[category.feed]]
 title = "甜欣屋"
 url = "https://tcxx.info/feed"
 site = "https://www.tcxx.info/"
-priority = 10
 
 [[category.feed]]
 title = "HappyHack"
 url = "https://blog.happyhack.io/atom.xml"
 site = "https://blog.happyhack.io"
-priority = 10
 
 [[category.feed]]
 title = "Jiansing's Blog"
 url = "https://blog.ofo.moe/rss.xml"
 site = "https://blog.ofo.moe"
-priority = 10
 
 [[category.feed]]
 title = "皮皮凛基地"
 url = "https://owomoe.net/feed/"
 site = "https://owomoe.net/"
-priority = 10
 
 [[category.feed]]
 title = "Jalen"
 url = "https://jalenz.cn/atom.xml"
 site = "https://jalenz.cn/"
-priority = 10
 
 [[category.feed]]
 title = "Gowhich"
 url = "https://www.gowhich.com/feed"
 site = "https://www.gowhich.com"
-priority = 10
 
 [[category.feed]]
 title = "杨永康的个人博客"
 url = "https://blog.yangyk.com/feed.xml"
 site = "https://blog.yangyk.com/"
-priority = 10
 
 [[category.feed]]
 title = "Platform Thinking +"
 url = "https://pt.plus/rss/"
 site = "https://pt.plus"
-priority = 10
 
 [[category.feed]]
 title = "人生這部戲"
 url = "https://www.frank.hk/rss.xml"
 site = "https://www.frank.hk/"
-priority = 10
 
 [[category.feed]]
 title = "独孤伶俜"
 url = "https://blog.dugulingping.com/feed"
 site = "https://blog.dugulingping.com/"
-priority = 10
 
 [[category.feed]]
 title = "Ngzhio's Blog"
 url = "https://ngzhio.github.io/feed.xml"
 site = "https://ngzhio.github.io/"
-priority = 10
 
 [[category.feed]]
 title = "ephz3nt"
 url = "https://painso.com/posts/index.xml"
 site = "https://painso.com"
-priority = 10
 
 [[category.feed]]
 title = "小猪"
 url = "https://xiaozhu.dev/index.xml"
 site = "https://xiaozhu.dev"
-priority = 10
 
 [[category.feed]]
 title = "徐宜生"
 url = "https://xuyisheng.top/rss/"
 site = "https://xuyisheng.top"
-priority = 10
 
 [[category.feed]]
 title = "Scvoet"
 url = "https://scvoet.me/feed"
 site = "https://scvoet.me"
-priority = 10
 
 [[category.feed]]
 title = "Diff客旅日记"
 url = "https://diff.im/blog/?feed=rss2"
 site = "https://diff.im/blog/"
-priority = 10
 
 [[category.feed]]
 title = "极客中心"
 url = "https://www.geekzl.com/feed"
 site = "https://www.geekzl.com"
-priority = 10
 
 [[category.feed]]
 title = "一切皆有可能"
 url = "https://kubesphereio.com/tags/index.xml"
 site = "https://kubesphereio.com/"
-priority = 10
 
 [[category.feed]]
 title = "极客玩家大白"
 url = "https://geekplayers.com/feed.xml"
 site = "https://geekplayers.com"
-priority = 10
 
 [[category.feed]]
 title = "堆栈酒馆"
 url = "https://atticuslab.com/atom.xml"
 site = "https://atticuslab.com"
-priority = 10
 
 [[category.feed]]
 title = "AmbroseRen"
 url = "https://ambroseren.github.io"
 site = "https://ambroseren.github.io/test/"
-priority = 10
 
 [[category.feed]]
 title = "Fat Blog - 挺肥的博客"
 url = "https://tingfei.space/index.xml"
 site = "https://tingfei.space/"
-priority = 10
 
 [[category.feed]]
 title = "DLog - 李丁的博客"
 url = "https://dingzeyu.li/blog/feed.xml"
 site = "https://dingzeyu.li/blog/"
-priority = 10
 
 [[category.feed]]
 title = "墙外看的博客"
 url = "https://qiangwaikan.com/feed/"
 site = "https://qiangwaikan.com/"
-priority = 10
 
 [[category.feed]]
 title = "kirito的博客"
 url = "https://www.kirito41dd.cn/index.xml"
 site = "https://www.kirito41dd.cn"
-priority = 10
 
 [[category.feed]]
 title = "herrkaefer"
 url = "https://herrkaefer.com/feed/"
 site = "https://herrkaefer.com/"
-priority = 10
 
 [[category.feed]]
 title = "teobler"
 url = "https://teobler.com/rss.xml"
 site = "https://teobler.com"
-priority = 10
 
 [[category.feed]]
 title = "魚立说"
 url = "https://www.yulisay.com/rss.xml"
 site = "https://www.yulisay.com"
-priority = 10
 
 [[category.feed]]
 title = "winter's Blog"
 url = "https://blog.winterchen.com/atom.xml"
 site = "https://blog.winterchen.com"
-priority = 10
 
 [[category.feed]]
 title = "yzqzss-一座桥在水上's Blog"
 url = "https://blog.othing.xyz/feed/"
 site = "https://blog.othing.xyz"
-priority = 10
 
 [[category.feed]]
 title = "Enoch2090"
 url = "https://enoch2090.me/atom.xml"
 site = "https://enoch2090.me"
-priority = 10
 
 [[category.feed]]
 title = "墨守"
 url = "https://moshou.me/?feed=rss2"
 site = "https://moshou.me"
-priority = 10
 
 [[category.feed]]
 title = "崮生 • 一些随笔 🎨"
 url = "https://shenzilong.cn/blog/feed"
 site = "https://shenzilong.cn/"
-priority = 10
 
 [[category.feed]]
 title = "翻译动态"
 url = "https://fanyi.news/feed.xml"
 site = "https://fanyi.news/"
-priority = 10
 
 [[category.feed]]
 title = "没喝的"
 url = "https://blog.nodr.ink/atom.xml"
 site = "https://blog.nodr.ink/"
-priority = 10
 
 [[category.feed]]
 title = "深度投资笔记"
 url = "https://deepinvest.org/index.xml"
 site = "https://deepinvest.org/"
-priority = 10
 
 [[category.feed]]
 title = "明远的自留地"
 url = "https://blog.mayandev.top/atom.xml"
 site = "https://blog.mayandev.top"
-priority = 10
 
 [[category.feed]]
 title = "游戏研究社"
 url = "https://www.yystv.cn/rss/feed"
 site = "https://www.yystv.cn/"
-priority = 10
 skip = true
 
 [[category.feed]]
 title = "Lucas's Blog"
 url = "http://kevinnan.org.cn/feed"
 site = "http://kevinnan.org.cn/"
-priority = 10
 
 [[category.feed]]
 title = "二只老虎"
 url = "https://2hu.net/feed.xml"
 site = "https://2hu.net"
-priority = 10
 
 [[category.feed]]
 title = "Fanta's Blog"
 url = "https://fantalovelife.club/archives/"
 site = "https://fantalovelife.club"
-priority = 10
 
 [[category.feed]]
 title = "王宜楷工作室"
 url = "http://wangyikai.com/feed"
 site = "http://wangyikai.com"
-priority = 10
 
 [[category.feed]]
 title = "Saul's Space"
 url = "https://saulnoble.github.io/atom.xml"
 site = "https://saulnoble.github.io/"
-priority = 10
 
 [[category.feed]]
 title = "Shuo's Blog"
 url = "https://wushuo.me/atom.xml"
 site = "https://wushuo.me"
-priority = 10
 
 [[category.feed]]
 title = "mghio"
 url = "https://www.mghio.cn/atom.xml"
 site = "https://www.mghio.cn"
-priority = 10
 
 [[category.feed]]
 title = "侯爷的博客"
 url = "https://houye.xyz/atom.xml"
 site = "https://houye.xyz"
-priority = 10
 
 [[category.feed]]
 title = "本格异想录"
 url = "https://astrianzheng.cn/atom.xml"
 site = "https://astrianzheng.cn/"
-priority = 10
 
 [[category.feed]]
 title = "木小丰的博客"
 url = "https://lesofn.com/atom.xml"
 site = "https://lesofn.com/"
-priority = 10
 
 [[category.feed]]
 title = "Robotkang"
 url = "https://robotkang.cc/feed"
 site = "https://robotkang.cc/"
-priority = 10
 
 [[category.feed]]
 title = "如鱼饮水"
 url = "https://wangjiezhe.com/atom.xml"
 site = "https://wangjiezhe.com/"
-priority = 10
 
 [[category.feed]]
 title = "述尔 - 一个产品经理的碎碎念"
 url = "https://amore.ink/feed/"
 site = "https://amore.ink"
-priority = 10
 
 [[category.feed]]
 title = "芍芋之家"
 url = "https://shoyu.top/feed"
 site = "https://shoyu.top"
-priority = 10
 
 [[category.feed]]
 title = "sulinehk's blog"
 url = "https://www.sulinehk.com/index.xml"
 site = "https://www.sulinehk.com/"
-priority = 10
 
 [[category.feed]]
 title = "叶开博客"
 url = "https://qq.md/feed/"
 site = "https://qq.md/"
-priority = 10
 
 [[category.feed]]
 title = "Shiau"
 url = "https://shiau.xyz/atom.xml"
 site = "https://shiau.xyz"
-priority = 10
 
 [[category.feed]]
 title = "墨菲易"
 url = "https://blog.murphyyi.com/atom.xml"
 site = "https://blog.murphyyi.com"
-priority = 10
 
 [[category.feed]]
 title = "一只会敲代码的Sheep"
 url = "https://codeyang.pages.dev/atom.xml"
 site = "https://codeyang.pages.dev/"
-priority = 10
 
 [[category.feed]]
 title = "Ziv Log"
 url = "https://zivlog.io/feed.xml"
 site = "https://zivlog.io/"
-priority = 10
 
 [[category.feed]]
 title = "开源之心"
 url = "http://sht2019.cn/atom.xml"
 site = "http://sht2019.cn"
-priority = 10
 
 [[category.feed]]
 title = "不如吃茶去"
 url = "https://imhan.cn/feed.xml"
 site = "https://imhan.cn/"
-priority = 10
 
 [[category.feed]]
 title = "ChenYFanのBlog"
 url = "https://blog.cyfan.top/atom.xml"
 site = "https://blog.cyfan.top"
-priority = 10
 
 [[category.feed]]
 title = "hiDandelion's Space"
 url = "https://www.hidandelion.com/rss"
 site = "https://www.hidandelion.com"
-priority = 10
 
 [[category.feed]]
 title = "Fl0w3r"
 url = "https://yousazoe.top/atom.xml"
 site = "https://yousazoe.top"
-priority = 10
 
 [[category.feed]]
 title = "浩子's Blog"
 url = "https://blog.lihaoya.com/rss"
 site = "https://blog.lihaoya.com"
-priority = 10
 
 [[category.feed]]
 title = "mengtnt的Blog"
 url = "https://mengtnt.com/rss"
 site = "https://mengtnt.com/"
-priority = 10
 
 [[category.feed]]
 title = "Amphibia"
 url = "https://iaarwu.github.io/index.xml"
 site = "https://iaarwu.github.io/"
-priority = 10
 
 [[category.feed]]
 title = "Sanzo's Blog"
 url = "https://sanzo.top/atom.xml"
 site = "https://sanzo.top/"
-priority = 10
 
 [[category.feed]]
 title = "7gugu's Blog"
 url = "https://www.7gugu.com/feed/"
 site = "https://www.7gugu.com"
-priority = 10
 
 [[category.feed]]
 title = "程序员忆初"
 url = "https://www.developerastrid.com/index.xml"
 site = "https://www.developerastrid.com/"
-priority = 10
 
 [[category.feed]]
 title = "阿航的技术小站"
 url = "https://www.bugcatt.com/feed"
 site = "https://www.bugcatt.com/"
-priority = 10
 
 [[category.feed]]
 title = "途中的树"
 url = "https://zkpeace.com/blog-cn/atom.xml"
 site = "https://zkpeace.com"
-priority = 10
 
 [[category.feed]]
 title = "LitStronger's notes"
 url = "http://fetchrss.com/rss/60e1767cf877a4023a2caee260e176387504cf483957bf43.xml"
 site = "https://liaoyq.club/"
-priority = 10
 
 [[category.feed]]
 title = "Zhendong的博客"
 url = "https://www.kxit.net/blog/feed/"
 site = "https://www.kxit.net/"
-priority = 10
 
 [[category.feed]]
 title = "Java for You"
 url = "https://java4u.cn/feed"
 site = "http://java4u.cn/"
-priority = 10
 
 [[category.feed]]
 title = "偕臧的小站"
 url = "https://ifmet.cn/atom.xml"
 site = "https://ifmet.cn/"
-priority = 10
 
 [[category.feed]]
 title = "旅行者的随想"
 url = "https://besscroft.com/rss.xml"
 site = "https://besscroft.com/"
-priority = 10
 
 [[category.feed]]
 title = "3号实验室"
 url = "https://www.labno3.com/feed/"
 site = "https://www.labno3.com/"
-priority = 10
 
 [[category.feed]]
 title = "胡子的独立博客"
 url = "https://huzizi.com/feed/"
 site = "https://www.huzizi.com/"
-priority = 10
 
 [[category.feed]]
 title = "Simple code Simple life"
 url = "https://blog.halberd.cn/rss.xml"
 site = "https://blog.halberd.cn/"
-priority = 10
 
 [[category.feed]]
 title = "吴润写字的地方"
 url = "http://wu.run/atom.xml"
 site = "http://wu.run"
-priority = 10
 
 [[category.feed]]
 title = "Rainshaw's Blog"
 url = "https://blog.ruixiaolu.com/feed/"
 site = "https://blog.ruixiaolu.com/"
-priority = 10
 
 [[category.feed]]
 title = "Marwin's Blog"
 url = "https://marwin.cn/rss2.xml"
 site = "https://marwin.cn/"
-priority = 10
 
 [[category.feed]]
 title = "Acmic"
 url = "https://acmic.top/feed"
 site = "https://acmic.top/"
-priority = 10
 
 [[category.feed]]
 title = "张浩在路上"
 url = "https://imzhanghao.com/atom.xml"
 site = "https://imzhanghao.com/"
-priority = 10
 
 [[category.feed]]
 title = "周良博客"
 url = "https://imzl.com/feed/"
 site = "https://imzl.com/"
-priority = 10
 
 [[category.feed]]
 title = "nojsja'个人博客"
 url = "https://nojsja.github.io/blogs/atom.xml"
 site = "https://nojsja.github.io/blogs/"
-priority = 10
 
 [[category.feed]]
 title = "itgoyo's blog"
 url = "https://itgoyo.github.io/atom.xml"
 site = "https://itgoyo.github.io/"
-priority = 10
 
 [[category.feed]]
 title = "思泉-Jev0n"
 url = "https://Jev0n.com/feed/"
 site = "https://jev0n.com/"
-priority = 10
 
 [[category.feed]]
 title = "橘子味的心"
 url = "https://www.52xml.cn/atom.xml"
 site = "https://www.52xml.cn/"
-priority = 10
 
 [[category.feed]]
 title = "hqingLau的博客"
 url = "https://orzlinux.cn/index.html"
 site = "https://orzlinux.cn"
-priority = 10
 
 [[category.feed]]
 title = "大大的小蜗牛"
 url = "https://eallion.com/atom.xml"
 site = "https://eallion.com/"
-priority = 10
 
 [[category.feed]]
 title = "学无止境@一点一滴"
 url = "http://yibie.github.io/index.xml"
 site = "http://gtdstudy.com/"
-priority = 10
 
 [[category.feed]]
 title = "Godot's Blog"
 url = "https://iamgodot.com/posts/index.xml"
 site = "https://iamgodot.com"
-priority = 10
 
 [[category.feed]]
 title = "White Space"
 url = "https://whites.space/feed"
 site = "https://whites.space"
-priority = 10
 
 [[category.feed]]
 title = "icebreaker"
 url = "https://www.icebreaker.top/rss.xml"
 site = "https://www.icebreaker.top"
-priority = 10
 
 [[category.feed]]
 title = "闲趣日评"
 url = "https://xqrp.com/feed"
 site = "https://xqrp.com"
-priority = 10
 
 [[category.feed]]
 title = "当代写作仓库"
 url = "https://zuopin.jingluole.com/feed"
 site = "https://zuopin.jingluole.com/"
-priority = 10
 
 [[category.feed]]
 title = "2BAB 的工程博客"
 url = "https://2bab.me/atom.xml"
 site = "https://2bab.me/"
-priority = 10
 
 [[category.feed]]
 title = "LCZBlog"
 url = "https://blog.licaoz.com/feed/"
 site = "https://blog.licaoz.com"
-priority = 10
 
 [[category.feed]]
 title = "千古壹号"
 url = "https://qianguyihao.com/atom.xml"
 site = "https://www.qianguyihao.com"
-priority = 10
 
 [[category.feed]]
 title = "Kevin Blog"
 url = "https://blog.kevinzhow.com/rss/"
 site = "https://blog.kevinzhow.com/"
-priority = 10
 
 [[category.feed]]
 title = "素履独行"
 url = "https://blog.yuanpei.me/atom.xml"
 site = "https://blog.yuanpei.me"
-priority = 10
 
 [[category.feed]]
 title = "Yuk的部落格"
 url = "https://blog.yuk7.com/atom.xml"
 site = "https://blog.yuk7.com/"
-priority = 10
 
 [[category.feed]]
 title = "LのWorld"
 url = "https://lllgoyour.com/feed/"
 site = "https://lllgoyour.com/"
-priority = 10
 
 [[category.feed]]
 title = "一颗小树"
 url = "https://yeshu.cloud/atom.xml"
 site = "https://yeshu.cloud/"
-priority = 10
 
 [[category.feed]]
 title = "jtr109's Castle"
 url = "https://www.jtr109.com/index.xml"
 site = "https://jtr109.com"
-priority = 10
 
 [[category.feed]]
 title = "乔克叔叔的床边故事"
 url = "https://lifeodyssey.github.io/atom.xml"
 site = "https://lifeodyssey.github.io/"
-priority = 10
 
 [[category.feed]]
 title = "Wenxuan 1999"
 url = "https://www.whexy.com/feed/feed.xml"
 site = "https://www.whexy.com"
-priority = 10
 
 [[category.feed]]
 title = "JohnSmith的小家"
 url = "https://xsn123.top/feed/"
 site = "https://xsn123.top"
-priority = 10
 
 [[category.feed]]
 title = "罗二德"
 url = "https://lorde627.xyz/atom.xml"
 site = "https://Lorde627.xyz"
-priority = 10
 
 [[category.feed]]
 title = "gd1214b's blog"
 url = "https://blog.gd1214b.icu/atom.xml"
 site = "https://blog.gd1214b.icu/"
-priority = 10
 
 [[category.feed]]
 title = "陈昱行博客"
 url = "https://blog.yuhang.ch/index.xml"
 site = "https://blog.yuhang.ch"
-priority = 10
 
 [[category.feed]]
 title = "冰以东的博客"
 url = "https://bninecoding.com/atom.xml"
 site = "https://bninecoding.com/"
-priority = 10
 
 [[category.feed]]
 title = "杂烩饭"
 url = "https://zahui.fan/index.xml"
 site = "https://zahui.fan"
-priority = 10
 
 [[category.feed]]
 title = "zd小达's blog"
 url = "https://blog.zhangda.xyz/feed/"
 site = "https://blog.zhangda.xyz/"
-priority = 10
 
 [[category.feed]]
 title = "zjun's blog"
 url = "https://blog.zjun.info/rss.xml"
 site = "https://blog.zjun.info/"
-priority = 10
 
 [[category.feed]]
 title = "RUNNINGJ"
 url = "https://runningj.top/feed.xml"
 site = "https://runningj.top"
-priority = 10
 
 [[category.feed]]
 title = "禅房花木"
 url = "https://jdqiong.cn/rss.xml"
 site = "https://jdqiong.cn/"
-priority = 10
 
 [[category.feed]]
 title = "Frange Zone｜Xu's Blog"
 url = "https://frangezone.github.io/index.xml"
 site = "https://frangezone.github.io"
-priority = 10
 
 [[category.feed]]
 title = "后端工程师"
 url = "https://hdgcs.com/feed.xml"
 site = "https://hdgcs.com"
-priority = 10
 
 [[category.feed]]
 title = "BlogKe记录志"
 url = "https://blogke.cn/index.xml"
 site = "https://blogke.cn/index.html"
-priority = 10
 
 [[category.feed]]
 title = "让我们一起发现西西里岛"
 url = "https://mattia88.com/feed/"
 site = "https://mattia88.com/"
-priority = 10
 
 [[category.feed]]
 title = "飞翔沫沫情博客"
 url = "https://www.fxkjnj.com/feed/"
 site = "https://fxkjnj.com"
-priority = 10
 
 [[category.feed]]
 title = "帆域 - 帆帆的个人站"
 url = "https://www.fancraft.top/feed/"
 site = "https://www.fancraft.top"
-priority = 10
 
 [[category.feed]]
 title = "Jieran233's Blog"
 url = "https://jieran233.github.io/feed.xml"
 site = "https://jieran233.github.io/"
-priority = 10
 
 [[category.feed]]
 title = "Redish101博客"
 url = "https://blog.redish101.top/atom.xml"
 site = "https://blog.redish101.top/"
-priority = 10
 
 [[category.feed]]
 title = "Sc's 神奇的JavaWeb"
 url = "https://shicheng.cool/atom.xml"
 site = "https://shicheng.cool"
-priority = 10
 
 [[category.feed]]
 title = "D2PE"
 url = "https://d2pe.com/atom.xml"
 site = "https://d2pe.com"
-priority = 10
 
 [[category.feed]]
 title = "Moeif"
 url = "https://blog.moeif.com/index.xml"
 site = "https://blog.moeif.com/"
-priority = 10
 
 [[category.feed]]
 title = "频率 - 风卷过的起点"
 url = "https://pinlyu.com/atom.xml"
 site = "https://pinlyu.com"
-priority = 10
 
 [[category.feed]]
 title = "MegaMU个人站"
 url = "https://megamu.icu/feed.xml"
 site = "https://megamu.icu/"
-priority = 10
 
 [[category.feed]]
 title = "yonniye's blog"
 url = "https://yonniye.com/feed"
 site = "https://yonniye.com"
-priority = 10
 
 [[category.feed]]
 title = "Cubik的小站"
 url = "https://cubik65536.top/atom.xml"
 site = "http://cubik65536.top/"
-priority = 10
 
 [[category.feed]]
 title = "Starfury"
 url = "http://starfury.tech/feed"
 site = "http://starfury.tech/"
-priority = 10
 
 [[category.feed]]
 title = "我有点酷-HuntZou的博客"
 url = "https://blog.woyou.cool/feed"
 site = "https://blog.woyou.cool"
-priority = 10
 
 [[category.feed]]
 title = "SakuraWald"
 url = "https://sakurawald.github.io/sitemap.xml"
 site = "https://sakurawald.github.io/"
-priority = 10
 
 [[category.feed]]
 title = "ImCaO's Blog"
 url = "https://www.imcao.cn/atom.xml"
 site = "https://www.imcao.cn/"
-priority = 10
 
 [[category.feed]]
 title = "NoneData"
 url = "https://www.nonedata.com/rss.xml"
 site = "https://www.nonedata.com/"
-priority = 10
 
 [[category.feed]]
 title = "文轩的Blog"
 url = "https://allanware.github.io/zh/index.xml"
 site = "https://allanware.github.io/zh/"
-priority = 10
 
 [[category.feed]]
 title = "Airing's Blog"
 url = "https://blog.ursb.me/feed.xml"
 site = "https://ursb.me/"
-priority = 10
 
 [[category.feed]]
 title = "杨宝强的技术笔记"
 url = "https://bqyang.top/atom.xml"
 site = "https://bqyang.top/"
-priority = 10
 
 [[category.feed]]
 title = "DAVID'S BLOG"
 url = "https://blog.blahaj.uk/feed"
 site = "https://blog.blahaj.uk/"
-priority = 10
 
 [[category.feed]]
 title = "伊藤•博文"
 url = "https://moc.1tlt1.com/index.php/feed"
 site = "https://moc.1tlt1.com"
-priority = 10
 
 [[category.feed]]
 title = "无章"
 url = "https://hetaoblog.site/atom.xml"
 site = "https://hetaoblog.site/"
-priority = 10
 
 [[category.feed]]
 title = "子恒的博客"
 url = "https://chestnutheng.cn/index.xml"
 site = "https://chestnutheng.cn/"
-priority = 10
 
 [[category.feed]]
 title = "Chancel's blog"
 url = "https://www.chancel.me/rest/api/v1/feed"
 site = "https://www.chancel.me/"
-priority = 10
 
 [[category.feed]]
 title = "Jimersy Lee’s blog"
 url = "https://blog.jimersylee.com/feed"
 site = "https://blog.jimersylee.com/"
-priority = 10
 
 [[category.feed]]
 title = "Jim Luo's blog"
 url = "https://blog.jimmieluo.com/feed"
 site = "https://www.jimmieluo.com/"
-priority = 10
 
 [[category.feed]]
 title = "雪猫社"
 url = "https://www.yukicat.net/feed/"
 site = "https://www.yukicat.net/"
-priority = 10
 
 [[category.feed]]
 title = "是非题"
 url = "https://www.shifeiti.com/atom.xml"
 site = "https://www.shifeiti.com"
-priority = 10
 
 [[category.feed]]
 title = "且炼时光"
 url = "https://linshenkx.cn/atom.xml"
 site = "https://linshenkx.cn"
-priority = 10
 
 [[category.feed]]
 title = "zguishen's blog"
 url = "https://zguishen.com/atom.xml"
 site = "https://zguishen.com"
-priority = 10
 
 [[category.feed]]
 title = "matsuri's neverland"
 url = "https://matsuri.site/atom.xml"
 site = "https://matsuri.site/"
-priority = 10
 
 [[category.feed]]
 title = "九旬的博客"
 url = "http://www.zhangningle.top/rss.xml"
 site = "http://www.zhangningle.top/"
-priority = 10
 
 [[category.feed]]
 title = "时间的朋友"
 url = "https://blog.storycn.cn/index.xml"
 site = "https://blog.storycn.cn/"
-priority = 10
 
 [[category.feed]]
 title = "布鲁斯鱼的奇思乱想"
 url = "https://emergencyexit.xyz/feed.xml"
 site = "https://emergencyexit.xyz/"
-priority = 10
 
 [[category.feed]]
 title = "ocero的博客"
 url = "https://oceroblogentry.metalstudio.top/rss.xml"
 site = "https://oceroblogentry.metalstudio.top/"
-priority = 10
 
 [[category.feed]]
 title = "BinGo‘s Blog"
 url = "https://www.zh996.com/index.php/feed/"
 site = "https://www.zh996.com/"
-priority = 10
 
 [[category.feed]]
 title = "Finisky Garden"
 url = "https://finisky.github.io/atom.xml"
 site = "https://finisky.github.io/"
-priority = 10
 
 [[category.feed]]
 title = "Qiuyuair的自留地"
 url = "https://qiuyuair.com/feed/"
 site = "https://qiuyuair.com/"
-priority = 10
 
 [[category.feed]]
 title = "阿猫的博客"
 url = "https://ameow.xyz/atom.xml"
 site = "https://ameow.xyz/"
-priority = 10
 
 [[category.feed]]
 title = "流年石刻"
 url = "https://www.timeshike.com/atom.xml"
 site = "https://www.timeshike.com/"
-priority = 10
 
 [[category.feed]]
 title = "cserwen"
 url = "https://blog.cserwen.com/feed.xml"
 site = "https://blog.cserwen.com/"
-priority = 10
 
 [[category.feed]]
 title = "云萧的咕咕屋"
 url = "https://blog.crrashh.com/feed"
 site = "https://blog.crrashh.com/"
-priority = 10
 
 [[category.feed]]
 title = "xiongxinwei的个人博客"
 url = "https://nsddd.top/rss.xml"
 site = "https://nsddd.top/"
-priority = 10
 
 [[category.feed]]
 title = "SuperEggs"
 url = "https://www.supereggs.cn/index.xml"
 site = "https://www.supereggs.cn"
-priority = 10
 
 [[category.feed]]
 title = "Eren Zhao"
 url = "https://zhaochenyang20.github.io/atom.xml"
 site = "https://zhaochenyang20.github.io/"
-priority = 10
 
 [[category.feed]]
 title = "子来园"
 url = "https://simplecoding.fun/index.xml"
 site = "https://simplecoding.fun/"
-priority = 10
 
 [[category.feed]]
 title = "Ligdyu Blog"
 url = "https://ligdy.com/rss/feed.xml"
 site = "https://ligdy.com/"
-priority = 10
 
 [[category.feed]]
 title = "SeerSu"
 url = "https://suus.me/index.xml"
 site = "https://suus.me/"
-priority = 10
 
 [[category.feed]]
 title = "效率工具指南"
 url = "https://penghh.fun/atom.xml"
 site = "https://penghh.fun"
-priority = 10
 
 [[category.feed]]
 title = "小赵博客 - XiaoZhao233"
 url = "https://blog.xiaozhao233.top/feed/"
 site = "https://blog.xiaozhao233.top"
-priority = 10
 
 [[category.feed]]
 title = "YuZhangWang的领域"
 url = "https://yuzhang.wang/atom.xml"
 site = "https://yuzhang.wang/"
-priority = 10
 
 [[category.feed]]
 title = "易良同学的博客"
 url = "https://yiliang.site/sitemap.xml"
 site = "https://yiliang.site/"
-priority = 10
 
 [[category.feed]]
 title = "tj‘sblog_无聊项目聚集地"
 url = "https://www.tjsite.cn/feed.php"
 site = "https://www.tjsite.cn/"
-priority = 10
 
 [[category.feed]]
 title = "EAimTY 的博客"
 url = "https://www.eaimty.com/feed/"
 site = "https://www.eaimty.com/"
-priority = 10
 
 [[category.feed]]
 title = "R4y的博客"
 url = "https://blog.12ms.xyz/feed/"
 site = "https://blog.12ms.xyz/"
-priority = 10
 
 [[category.feed]]
 title = "619's blog"
 url = "https://66619.eu.org/feed/"
 site = "https://66619.eu.org/"
-priority = 10
 
 [[category.feed]]
 title = "吐司面包"
 url = "https://toast.pub/totoro/index.xml"
 site = "https://toast.pub/totoro/"
-priority = 10
 
 [[category.feed]]
 title = "vegetable1024的博客"
 url = "https://oi-liu.com/atom.xml"
 site = "https://oi-liu.com/"
-priority = 10
 
 [[category.feed]]
 title = "心的道理"
 url = "https://stephenleng.com/feed/"
 site = "https://stephenleng.com/"
-priority = 10
 
 [[category.feed]]
 title = "阿啊阿吖丁"
 url = "https://4ading.com/feed/"
 site = "https://4ading.com/"
-priority = 10
 
 [[category.feed]]
 title = "Mathor's Blog"
 url = "https://wmathor.com/index.php/feed"
 site = "https://wmathor.com/"
-priority = 10
 
 [[category.feed]]
 title = "代码范"
 url = "https://codefine.site/feed/"
 site = "https://codefine.site/"
-priority = 10
 
 [[category.feed]]
 title = "Kris Yan"
 url = "https://blog.krisyan.dev/feed.xml"
 site = "https://blog.krisyan.dev/"
-priority = 10
 
 [[category.feed]]
 title = "Anjhon’s Blog"
 url = "https://www.anjhon.top/feed"
 site = "https://www.anjhon.top/"
-priority = 10
 
 [[category.feed]]
 title = "膨胀的面包"
 url = "https://blog.wangtwothree.com/feed"
 site = "https://blog.wangtwothree.com/"
-priority = 10
 
 [[category.feed]]
 title = "晴雀堂"
 url = "https://blog.verynb.me/atom.xml"
 site = "https://blog.verynb.me/"
-priority = 10
 
 [[category.feed]]
 title = "Cerallin's blog"
 url = "https://notes.cerallin.top/atom.xml"
 site = "https://notes.cerallin.top"
-priority = 10
 
 [[category.feed]]
 title = "Magren's Blog"
 url = "https://magren.me/atom.xml"
 site = "https://magren.me/"
-priority = 10
 
 [[category.feed]]
 title = "AlexSJC 的博客"
 url = "https://www.alexsjc.top/atom.xml"
 site = "https://www.alexsjc.top/"
-priority = 10
 
 [[category.feed]]
 title = "Ethan's Wiki"
 url = "https://wiki-mkdocs-topaz.vercel.app/feed_rss_updated.xml"
 site = "https://wiki-mkdocs-topaz.vercel.app"
-priority = 10
 
 [[category.feed]]
 title = "宁鑫的个人博客"
 url = "https://n-xin.com/index.php/feed/"
 site = "https://n-xin.com"
-priority = 10
 
 [[category.feed]]
 title = "月落星河Tsukistar"
 url = "https://www.tsukistar.fun/atom.xml"
 site = "https://www.tsukistar.fun"
-priority = 10
 
 [[category.feed]]
 title = "梦溪博客"
 url = "https://www.cyrilstudio.top/feed"
 site = "http://www.cyrilstudio.top/"
-priority = 10
 
 [[category.feed]]
 title = "万圣节恶魔的领地"
 url = "https://cytrogen.icu/atom.xml"
 site = "https://cytrogen.icu/"
-priority = 10
 
 [[category.feed]]
 title = "iCooper"
 url = "https://icooper.cc/feed/"
 site = "https://icooper.cc/"
-priority = 10
 
 [[category.feed]]
 title = "Max的技术札记"
 url = "https://www.immaxfang.com/atom.xml"
 site = "https://www.immaxfang.com/"
-priority = 10
 
 [[category.feed]]
 title = "Suiko的自留地"
 url = "https://suiko.dev/rss/feed.xml"
 site = "https://suiko.dev/"
-priority = 10
 
 [[category.feed]]
 title = "时光的时光轴"
 url = "https://outti.me/feed/xml"
 site = "https://outti.me"
-priority = 10
 
 [[category.feed]]
 title = "whtli的个人博客"
 url = "http://hexo.whtli.cn/atom.xml"
 site = "http://hexo.whtli.cn/"
-priority = 10
 
 [[category.feed]]
 title = "醉里博客"
 url = "https://202271.xyz/atom.xml"
 site = "https://202271.xyz/"
-priority = 10
 
 [[category.feed]]
 title = "RBA的技术分享"
 url = "https://www.firfor.cn/rss.xml"
 site = "https://firfor.cn"
-priority = 10
 
 [[category.feed]]
 title = "黑川眠也的猫窝"
 url = "https://www.nekow.cn/index.php/feed/"
 site = "https://nekow.cn/"
-priority = 10
 
 [[category.feed]]
 title = "Enderfga's blog"
 url = "https://enderfga.cn/atom.xml"
 site = "https://enderfga.cn/"
-priority = 10
 
 [[category.feed]]
 title = "szhshp 的第三边境研究所"
 url = "https://szhshp.org/sitemap.xml"
 site = "https://szhshp.org/"
-priority = 10
 
 [[category.feed]]
 title = "小孙同学"
 url = "https://blog.sunguoqi.com/rss.xml"
 site = "https://blog.sunguoqi.com/"
-priority = 10
 
 [[category.feed]]
 title = "ming5ming's blog"
 url = "https://ming5ming.xlog.app/feed/xml"
 site = "https://ming5ming.xlog.app/"
-priority = 10
 
 [[category.feed]]
 title = "牧尘的网络日志"
 url = "https://www.dreamlyn.cn/feed"
 site = "https://www.dreamlyn.cn/"
-priority = 10
 
 [[category.feed]]
 title = "Yusank's Site"
 url = "https://yusank.space/index.xml"
 site = "https://yusank.space"
-priority = 10
 
 [[category.feed]]
 title = "MiaoHN's Blog"
 url = "https://miaohn.github.io/index.xml"
 site = "https://miaohn.github.io"
-priority = 10
 
 [[category.feed]]
 title = "PHP武器库"
 url = "https://phpreturn.com/atom.xml"
 site = "https://phpreturn.com"
-priority = 10
 
 [[category.feed]]
 title = "破碎千秋"
 url = "https://breakinglead.github.io/atom.xml"
 site = "https://breakinglead.github.io"
-priority = 10
 
 [[category.feed]]
 title = "mikaelzero"
 url = "https://xrandroid.com/atom.xml"
 site = "https://xrandroid.com/"
-priority = 10
 
 [[category.feed]]
 title = "WuHJ's Personel Site"
 url = "https://hjwu.cc/rss/feed.xml"
 site = "https://hjwu.cc"
-priority = 10
 
 [[category.feed]]
 title = "Moby"
 url = "https://isfalse.pro/feed"
 site = "https://isfalse.pro"
-priority = 10
 
 [[category.feed]]
 title = "若绾"
 url = "https://royc30ne.xlog.app/feed/xml"
 site = "https://royc30ne.com"
-priority = 10
 
 [[category.feed]]
 title = "千古八方的博客"
 url = "https://rangotec.com/feed"
 site = "https://rangotec.com"
-priority = 10
 
 [[category.feed]]
 title = "钟意博客"
 url = "https://blog.thatcoder.cn/atom.xml"
 site = "https://blog.thatcoder.cn/"
-priority = 10
 
 [[category.feed]]
 title = "Coding手艺人"
 url = "https://www.smiletoyou.cn/feed"
 site = "https://www.smiletoyou.cn/"
-priority = 10
 
 [[category.feed]]
 title = "AlexSJC 的博客"
 url = "https://blog.c3c.one/feed"
 site = "https://blog.c3c.one/"
-priority = 10
 
 [[category.feed]]
 title = "流金岁月"
 url = "https://iliu.org/feed"
 site = "https://iliu.org/"
-priority = 10
 
 [[category.feed]]
 title = "Darren blog"
 url = "https://blog.darrenzzy.cn/atom.xml"
 site = "https://blog.darrenzzy.cn/"
-priority = 10
 
 [[category.feed]]
 title = "凌览社"
 url = "http://linglan01.cn/feed.xml"
 site = "http://linglan01.cn/"
-priority = 10
 
 [[category.feed]]
 title = "Ripple's blog"
 url = "https://hiripple.com/feed"
 site = "https://hiripple.com"
-priority = 10
 
 [[category.feed]]
 title = "识文解意的爱书人"
 url = "http://yyy.zone/rss"
 site = "http://yyy.zone/"
-priority = 10
 
 [[category.feed]]
 title = "豆逗子的小黑屋"
 url = "https://weaxsey.org/index.html"
 site = "https://weaxsey.org"
-priority = 10
 
 [[category.feed]]
 title = "ネコのメモ帳"
 url = "https://n.ova.moe/blog/rss.xml"
 site = "https://n.ova.moe"
-priority = 10
 
 [[category.feed]]
 title = "晚风博客"
 url = "https://xlog.me/feed"
 site = "https://xlog.me"
-priority = 10
 
 [[category.feed]]
 title = "trudbot's blog"
 url = "https://trudbot.cn/atom.xml"
 site = "https://trudbot.cn"
-priority = 10
 
 [[category.feed]]
 title = "这里是L"
 url = "https://liuuzaki.net/feed"
 site = "https://liuuzaki.net"
-priority = 10
 
 [[category.feed]]
 title = "shimmer"
 url = "https://wp-boke.work/rss.xml"
 site = "https://wp-boke.work"
-priority = 10
 
 [[category.feed]]
 title = "柒月是你的谎言"
 url = "https://www.huangdf.xyz/rss.xml"
 site = "https://www.huangdf.xyz"
-priority = 10
 
 [[category.feed]]
 title = "FKY&JYQ"
 url = "https://blog.fkynjyq.com/feed.xml"
 site = "https://blog.fkynjyq.com"
-priority = 10
 
 [[category.feed]]
 title = "Vincent' blog"
 url = "https://wekic.com/rss.xml"
 site = "https://wekic.com"
-priority = 10
 
 [[category.feed]]
 title = "良说"
 url = "https://xijingxu.blog/atom.xml"
 site = "https://xijingxu.blog"
-priority = 10
 
 [[category.feed]]
 title = "古时的风筝"
 url = "https://www.moonkite.cn/index.xml"
 site = "https://www.moonkite.cn/"
-priority = 10
 
 [[category.feed]]
 title = "菜皮日记"
 url = "https://www.lipijin.com/feed"
 site = "https://www.lipijin.com/"
-priority = 10
 
 [[category.feed]]
 title = "无名小站"
 url = "https://waahah.xyz/atom.xml"
 site = "https://waahah.xyz/"
-priority = 10
 
 [[category.feed]]
 title = "秋色部落"
 url = "https://qiu.se/feed"
 site = "https://qiu.se/"
-priority = 10
 
 [[category.feed]]
 title = "Leon Fong 的个人网站"
 url = "https://leonfong.me/feed.xml"
 site = "https://leonfong.me"
-priority = 10
 
 [[category.feed]]
 title = "Ivan's Timeline"
 url = "https://tl.ivanli.cc/u/1/rss.xml"
 site = "https://tl.ivanli.cc/"
-priority = 10
 
 [[category.feed]]
 title = "元否的研究室"
 url = "https://www.happyfou.com/index.xml"
 site = "https://www.happyfou.com/"
-priority = 10
 
 [[category.feed]]
 title = "X·myLog"
 url = "https://www.xmylog.com/rss/feed.xml"
 site = "https://www.xmylog.com/"
-priority = 10
 
 [[category.feed]]
 title = "Krysztal的书桌"
 url = "https://blog.krysztal.dev/atom.xml"
 site = "https://blog.krysztal.dev"
-priority = 10
 
 [[category.feed]]
 title = "時間豆"
 url = "http://halo.zfc.life/archives/5152aea5-c2e8-4717-8bba-2263d46e19d5"
 site = "http://halo.zfc.life/"
-priority = 10
 
 [[category.feed]]
 title = "Ryan' Lab"
 url = "https://blog.gaoran.xyz/rss/feed.xml"
 site = "https://blog.gaoran.xyz/"
-priority = 10
 
 [[category.feed]]
 title = "Abner的秘密基地"
 url = "https://cdt3211.top/atom.xml"
 site = "https://cdt3211.top/"
-priority = 10
 
 [[category.feed]]
 title = "时空之歌"
 url = "https://space520.eu.org/feed/"
 site = "https://space520.eu.org/"
-priority = 10
 
 [[category.feed]]
 title = "月梦の技术博客"
 url = "https://ymiir.top/feed.xml"
 site = "https://ymiir.top/"
-priority = 10
 
 [[category.feed]]
 title = "Jason Lee的个人博客"
 url = "https://blog.jasonleehere.com/atom.xml"
 site = "https://blog.jasonleehere.com/"
-priority = 10
 
 [[category.feed]]
 title = "krkr2(beta)"
 url = "https://www.krkr2.xyz/feed/"
 site = "https://www.krkr2.xyz/"
-priority = 10
 
 [[category.feed]]
 title = "秋澪Akimio"
 url = "https://blog.akimio.top/rss2.xml/"
 site = "https://blog.akimio.top/"
-priority = 10
 
 [[category.feed]]
 title = "booop"
 url = "https://booop.net/feed/"
 site = "https://booop.net/"
-priority = 10
 
 [[category.feed]]
 title = "Longlong's Blog"
 url = "https://blog.xlonglong.cn/feed/"
 site = "https://blog.xlonglong.cn/"
-priority = 10
 
 [[category.feed]]
 title = "Ruter's Blog"
 url = "https://ruterly.com/feed/"
 site = "https://ruterly.com/"
-priority = 10
 
 [[category.feed]]
 title = "小吴乐意’blog"
 url = "http://xiaowuleyi/feed"
 site = "https://www.xiaowuleyi.com/"
-priority = 10
 
 [[category.feed]]
 title = "猫四叔"
 url = "https://yuanj.top/index.xml"
 site = "https://yuanj.top/"
-priority = 10
 
 [[category.feed]]
 title = "云无心天天向上"
 url = "https://yangk.net/blog/rss.xml"
 site = "https://yangk.net/blog/"
-priority = 10
 
 [[category.feed]]
 title = "Qborfy知识库"
 url = "https://qborfy.com/atom.xml"
 site = "https://qborfy.com/"
-priority = 10
 
 [[category.feed]]
 title = "fwqaaq's Blog"
 url = "https://www.fwqaq.us/feed.xml"
 site = "https://www.fwqaq.us"
-priority = 10
 
 [[category.feed]]
 title = "AabyssZG's Blog"
 url = "https://blog.zgsec.cn/feed/"
 site = "https://blog.zgsec.cn"
-priority = 10
 
 [[category.feed]]
 title = "正念"
 url = "https://wp.wtrzl.xyz/feed"
 site = "https://wp.wtrzl.xyz/"
-priority = 10
 
 [[category.feed]]
 title = "8ug.icu"
 url = "https://www.8ug.icu/rss.xml"
 site = "https://www.8ug.icu"
-priority = 10
 
 [[category.feed]]
 title = "胡说"
 url = "https://blog.zhangyingwei.com/index.xml"
 site = "https://blog.zhangyingwei.com/"
-priority = 10
 
 [[category.feed]]
 title = "Path2Exile"
 url = "https://path2exile.com/feed.xml"
 site = "https://path2exile.com/"
-priority = 10
 
 [[category.feed]]
 title = "Innomad一挪迈"
 url = "https://innomad.io/feed"
 site = "https://innomad.io"
-priority = 10
 
 [[category.feed]]
 title = "CuB3y0nd's Writings"
 url = "https://www.cubeyond.net/feed.xml"
 site = "https://cubeyond.net"
-priority = 10
 
 [[category.feed]]
 title = "游钓四方"
 url = "https://lhasa.icu/atom.xml"
 site = "https://lhasa.icu/"
-priority = 10
 
 [[category.feed]]
 title = "十月遗忘诗"
 url = "https://greniray.org/feed"
 site = "https://greniray.org"
-priority = 10
 
 [[category.feed]]
 title = "纸灯的博客"
 url = "https://qingmingzong.cn/index.php/feed/"
 site = "https://qingmingzong.cn/"
-priority = 10
 
 [[category.feed]]
 title = "I BCL."
 url = "https://ibcl.us/atom.xml"
 site = "https://ibcl.us/"
-priority = 10
 
 [[category.feed]]
 title = "Val.istar.Guo Blog"
 url = "https://val-istar-guo.com/api/rss/feed"
 site = "https://val-istar-guo.com"
-priority = 10
 
 [[category.feed]]
 title = "码农小易的博客"
 url = "https://0xlau.dev/posts/index.xml"
 site = "https://0xlau.dev/"
-priority = 10
 
 [[category.feed]]
 title = "大熊要飞翔"
 url = "https://blog.wexiami.com/feed"
 site = "https://blog.wexiami.com"
-priority = 10
 
 [[category.feed]]
 title = "用中文编程"
 url = "http://codeinchinese.com/feed.xml"
 site = "http://codeinchinese.com/"
-priority = 10
 
 [[category.feed]]
 title = "顶尖研发的个人博客"
 url = "https://bestcoder.cn/feed"
 site = "https://bestcoder.cn"
-priority = 10
 
 [[category.feed]]
 title = "雾林博客"
 url = "https://www.baiwulin.com/feed/"
 site = "https://www.baiwulin.com/"
-priority = 10
 
 [[category.feed]]
 title = "Yuics Blog"
 url = "https://arckive.cn/index.xml"
 site = "https://arckive.cn"
-priority = 10
 
 [[category.feed]]
 title = "A small world of unnamedtat"
 url = "https://unnamedtat.xyz/rss.xml"
 site = "https://unnamedtat.xyz"
-priority = 10
 
 [[category.feed]]
 title = "尼普学种花"
 url = "https://kneep.github.io/index.xml"
 site = "https://kneep.github.io"
-priority = 10
 
 [[category.feed]]
 title = "数据仓库技术"
 url = "https://www.dwsql.com/interview"
 site = "https://www.dwsql.com/"
-priority = 10
 
 [[category.feed]]
 title = "肘子的 Swift 记事本"
 url = "https://fatbobman.com/zh/rss.xml"
 site = "https://fatbobman.com/"
-priority = 10
 
 [[category.feed]]
 title = "Linzihao's Blog"
 url = "https://www.linzihao.com"
 site = "https://linzihao.com"
-priority = 10
 
 [[category.feed]]
 title = "smile 的博客花园"
 url = "https://nsddd.top/zh/posts/index.xml"
 site = "https://nsddd.top/zh"
-priority = 10
 
 [[category.feed]]
 title = "有思想的芦苇's Blog"
 url = "https://thinking-reed.cn/atom.xml"
 site = "https://thinking-reed.cn"
-priority = 10
 
 [[category.feed]]
 title = "Deeprouter"
 url = "https://deeprouter.org/rss/feed.xml"
 site = "https://deeprouter.org"
-priority = 10
 
 [[category.feed]]
 title = "iNote"
 url = "https://inote.xyz/zh/rss.xml"
 site = "https://inote.xyz/zh/"
-priority = 10
 
 [[category.feed]]
 title = "Xeonzilla's Note"
 url = "https://xeonzilla.top/index.xml"
 site = "https://xeonzilla.top"
-priority = 10
 
 [[category.feed]]
 title = "拒绝内耗直接发疯"
 url = "https://blog.luijp.cn/rss.xml"
 site = "https://blog.luijp.cn"
-priority = 10
 
 [[category.feed]]
 title = "小松鼠的博客"
 url = "https://ycyin.eu.org/sitemap.xml"
 site = "https://ycyin.eu.org"
-priority = 10
 
 [[category.feed]]
 title = "Heggria"
 url = "https://heggria.site/feed.xml"
 site = "https://heggria.site/"
-priority = 10
 
 [[category.feed]]
 title = "RisingIce"
 url = "https://www.imrising.cn/sitemap.xml"
 site = "https://www.imrising.cn/"
-priority = 10
 
 [[category.feed]]
 title = "Muspi Merol 的个人主页"
 url = "https://muspimerol.site/feed"
 site = "https://muspimerol.site"
-priority = 10
 
 [[category.feed]]
 title = "VPS严选"
 url = "https://www.vpscp.top/feed/"
 site = "https://www.vpscp.top/"
-priority = 10
 
 [[category.feed]]
 title = "有话豪说"
 url = "https://www.lihao00.com/feed/"
 site = "https://www.lihao00.com/"
-priority = 10
 
 [[category.feed]]
 title = "芒果勿语"
 url = "https://mangoman.us.kg/?feed=rss2"
 site = "https://mangoman.us.kg/"
-priority = 10
 
 [[category.feed]]
 title = "好好学习的郝"
 url = "https://www.voidking.com/sitemap.xml"
 site = "https://www.voidking.com/"
-priority = 10
 
 [[category.feed]]
 title = "喻灵的博客"
 url = "https://yvling.cn/rss"
 site = "https://yvling.cn/"
-priority = 10
 
 [[category.feed]]
 title = "崔鹏飞的blog"
 url = "https://cuipengfei.me/atom.xml"
 site = "https://cuipengfei.me/"
-priority = 10
 
 [[category.feed]]
 title = "Bolaxious 的小站"
 url = "http://bolaxious.fun/rss.xml"
 site = "http://bolaxious.fun/"
-priority = 10
 
 [[category.feed]]
 title = "二歪同学"
 url = "https://blog.waistu.com/rss.xml"
 site = "https://blog.waistu.com"
-priority = 10
 
 [[category.feed]]
 title = "泫言"
 url = "https://blog.cugxuan.cn/atom.xml"
 site = "https://blog.cugxuan.cn"
-priority = 10
 
 [[category.feed]]
 title = "Rolenx"
 url = "https://blog.yesord.top/atom.xml"
 site = "https://home.yesord.top/"
-priority = 10
 
 [[category.feed]]
 title = "春水煎茶"
 url = "https://writings.sh/feed"
 site = "https://writings.sh/"
-priority = 10
 
 [[category.feed]]
 title = "s22y"
 url = "https://blog.s22y.moe/rss.xml"
 site = "https://blog.s22y.moe/"
-priority = 10
 
 [[category.feed]]
 title = "疯子的天空"
 url = "https://xuexc.cn/api/articles/rss"
 site = "https://xuexc.cn/"
-priority = 10
 
 [[category.feed]]
 title = "阿杰鲁的自留地"
 url = "https://zaunist.com/rss/feed.xml"
 site = "https://zaunist.com/"
-priority = 10
 
 [[category.feed]]
 title = "Fall's Blog"
 url = "https://fallzhang.top/sitemap.xml"
 site = "https://fallzhang.top/"
-priority = 10
 
 [[category.feed]]
 title = "HFwas"
 url = "https://www.hfwas.tech/sitemap.xml"
 site = "https://www.hfwas.tech"
-priority = 10
 
 [[category.feed]]
 title = "DailyMinz"
 url = "https://dailyminz.org/atom.xml"
 site = "https://dailyminz.org"
-priority = 10
 
 [[category.feed]]
 title = "Shine的AI博客"
 url = "https://blog.fuxieyi.top/rss.xml"
 site = "https://blog.fuxieyi.top/"
-priority = 10
 
 [[category.feed]]
 title = "NBlog"
 url = "https://nocp.space/rss/feed.json"
 site = "https://blog.nocp.space/"
-priority = 10
 
 [[category.feed]]
 title = "Kevin's Blog"
 url = "https://kevintan.pro/sitemap.xml"
 site = "https://kevintan.pro/"
-priority = 10
 
 [[category.feed]]
 title = "假设检验"
 url = "https://jiashejianyan.com/sitemap.xml"
 site = "https://jiashejianyan.com"
-priority = 10
 
 [[category.feed]]
 title = "fenglielie"
 url = "https://fenglielie.top/atom.xml"
 site = "https://fenglielie.top/"
-priority = 10
 
 [[category.feed]]
 title = "ArgoVICT's blog"
 url = "https://argovict.asia/blog/rss/rss.xml"
 site = "https://argovict.asia/"
-priority = 10
 
 [[category.feed]]
 title = "墨寒轩"
 url = "http://hankmo.com/index.xml"
 site = "https://hankmo.com"
-priority = 10
 
 [[category.feed]]
 title = "闪电的自留地"
 url = "https://blog.lyujp.com/sitemap.xml"
 site = "https://blog.lyujp.com"
-priority = 10
 
 [[category.feed]]
 title = "翔宇工作流"
 url = "https://xiangyugongzuoliu.com/latest/rss/"
 site = "https://xiangyugongzuoliu.com/"
-priority = 10
 skip = true
 
 [[category.feed]]
@@ -8355,6 +7925,7 @@ site = "https://www.geedea.pro"
 title = "- Appinn.com"
 url = "https://www.appinn.com/feed/"
 site = "https://www.appinn.com"
+skip = true
 
 [[category.feed]]
 title = "博客：机器蝉"
@@ -8605,160 +8176,134 @@ site = "https://childeyouyu.github.io"
 title = "Kevin Blog"
 url = "https://blog.kevinzhow.com/feed.xml"
 site = "https://blog.kevinzhow.com"
-priority = 10
 
 [[category.feed]]
 title = "wuxinhua's Blog"
 url = "https://wuxinhua.com/atom.xml"
 site = "https://wuxinhua.com/"
-priority = 10
 
 [[category.feed]]
 title = "[米随随] s5s5"
 url = "https://s5s5.me/feed/"
 site = "https://s5s5.me/"
-priority = 10
 
 [[category.feed]]
 title = "7Wate`s Blog"
 url = "https://blog.7wate.com/rss.xml"
 site = "https://blog.7wate.com"
-priority = 10
 
 [[category.feed]]
 title = "Macin"
 url = "https://www.macin.org/atom.xml"
 site = "https://macin.org"
-priority = 10
 
 [[category.feed]]
 title = "任霏博客"
 url = "https://blog.renfei.net/rss.xml"
 site = "https://blog.renfei.net/"
-priority = 10
 
 [[category.feed]]
 title = "刘郎阁"
 url = "https://vjo.cc/feed/"
 site = "https://vjo.cc/"
-priority = 10
 
 [[category.feed]]
 title = "Im Patrick"
 url = "https://impatrick.blog/feed/"
 site = "https://impatrick.blog/"
-priority = 10
 
 [[category.feed]]
 title = "cocolia小窝"
 url = "https://cocolia.fun/feed.xml"
 site = "https://cocolia.fun/"
-priority = 10
 
 [[category.feed]]
 title = "Dax"
 url = "https://daolanx.me/zh/rss.xml"
 site = "https://daolanx.me/zh/"
-priority = 10
 
 [[category.feed]]
 title = "Amiya的书桌"
 url = "https://blog.sayori.org/rss.xml"
 site = "https://blog.sayori.org/"
-priority = 10
 
 [[category.feed]]
 title = "星觅海的博客"
 url = "https://www.xmhai.cn/rss.xml"
 site = "https://www.xmhai.cn/"
-priority = 10
 
 [[category.feed]]
 title = "Oleg's Tech Blog"
 url = "https://timoshinoleg-eng.github.io/blog/feed.xml"
 site = "https://timoshinoleg-eng.github.io/blog/"
-priority = 10
 
 [[category.feed]]
 title = "MoeBlog"
 url = "https://1loli.link/feed/"
 site = "https://1loli.link/"
-priority = 10
 
 [[category.feed]]
 title = "AI学习日记"
 url = "https://livk30.github.io/rss.xml"
 site = "https://livk30.github.io/"
-priority = 10
 
 [[category.feed]]
 title = "冰冻大西瓜的博客"
 url = "https://bddxg.top/feed.rss"
 site = "https://bddxg.top/"
-priority = 10
 
 [[category.feed]]
 title = "毛英龙的数字花园"
 url = "https://blog.rnm.gv.uy/atom.xml"
 site = "https://blog.rnm.gv.uy/"
-priority = 10
+skip = true
 
 [[category.feed]]
 title = "BotForge Notes"
 url = "https://blog.notlove.me/feed.xml"
 site = "https://blog.notlove.me/"
-priority = 10
 
 [[category.feed]]
 title = "懋和道人"
 url = "https://blog.dao.js.cn/atom.xml"
 site = "https://blog.dao.js.cn"
-priority = 10
 
 [[category.feed]]
 title = "distjr_'s blog"
 url = "https://blog.distjr.top/atom.xml"
 site = "https://blog.distjr.top/"
-priority = 10
 
 [[category.feed]]
 title = "涵哲子居"
 url = "https://iluc.cn/rss.xml"
 site = "https://iluc.cn/"
-priority = 10
 
 [[category.feed]]
 title = "keggin's blog"
 url = "https://keggin.tech/rss.xml"
 site = "https://keggin.tech/"
-priority = 10
 
 [[category.feed]]
 title = "BWYLBT Blog"
 url = "https://blog.sxizhuo.cn/rss/feed.xml"
 site = "https://blog.sxizhuo.cn/"
-priority = 10
 
 [[category.feed]]
 title = "My Mods"
 url = "https://dayzmod.kdns.fr/rss.xml"
 site = "https://dayzmod.kdns.fr/"
-priority = 10
 
 [[category.feed]]
 title = "LX blog"
 url = "https://blog.liua.us.ci/rss.xml"
 site = "https://blog.liua.us.ci/"
-priority = 10
 
 [[category.feed]]
 title = "码农刚子的开发笔记"
 url = "https://www.coderlog.net/rss.xml"
 site = "https://www.coderlog.net/"
-priority = 10
 
 [[category.feed]]
 title = "Abyss的小屋"
 url = "https://www.rsnocsi.cn/feed"
 site = "https://www.rsnocsi.cn/"
-priority = 10
