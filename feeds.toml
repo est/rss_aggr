@@ -2091,6 +2091,7 @@ site = "https://itcharge.cn"
 title = "Domon"
 url = "https://www.domon.cn/rss/"
 site = "https://www.domon.cn/"
+skip = true
 
 [[category.feed]]
 title = "Dvel's Blog"
@@ -2498,6 +2499,7 @@ site = "https://www.albertaz.com/"
 title = "工劳小报"
 url = "https://newsletter.laborinfocn.com/rss"
 site = "https://newsletter.laborinfocn.com/"
+skip = true
 
 [[category.feed]]
 title = "道轲"
@@ -3708,6 +3710,7 @@ site = "https://www.moranfong.com"
 title = "OneCoder的博客"
 url = "https://www.coderli.com/feed.xml"
 site = "https://www.coderli.com"
+skip = true
 
 [[category.feed]]
 title = "菲兹克斯喵"
