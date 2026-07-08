@@ -1,6 +1,6 @@
 # RSS Aggregator
 
-> 28 days | last fetched: <span id='lf'>2026-07-08T09:28:42Z</span>
+> 28 days | last fetched: <span id='lf'>2026-07-08T20:27:45Z</span>
 
 <script>
 try{var e=document.getElementById('lf'),d=new Date(e.textContent);
