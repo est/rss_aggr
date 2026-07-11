@@ -174,7 +174,7 @@ def step_classify():
         rule = _resolve_site_skip_prompt(a.get("link", ""), site_skip_prompt_rules)
         by_site_rule.setdefault(rule, []).append(a)
 
-    all_classified = []
+    total_written = 0
 
     for (site_norm, skip_prompt), arts in by_site_rule.items():
         if skip_prompt:
@@ -190,17 +190,20 @@ def step_classify():
             api_key_env=ai_cfg.get("api_key_env", ""),
         )
 
+        classified = []
         for a in arts:
             cls = a.get("classification", {})
             if not is_skip_category(cls.get("category", "")) and "classification" in a:
-                all_classified.append(a)
+                classified.append(a)
 
-    # Write classified articles to output (immutable - only new files)
-    if all_classified:
-        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        written = save_daily_results({"articles": all_classified}, data_dir, last_fetched=now, keep_days=0)
-        files_str = ", ".join(str(f) for f in written) if written else "none"
-        print(f"[{ts()}] Classified {len(all_classified)} articles → {files_str}", flush=True)
+        # Write this group immediately so successful batches survive later failures
+        if classified:
+            now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            save_daily_results({"articles": classified}, data_dir, last_fetched=now, keep_days=0)
+            total_written += len(classified)
+
+    if total_written:
+        print(f"[{ts()}] Classified {total_written} articles total", flush=True)
 
 
 def step_cleanup():

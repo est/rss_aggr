@@ -1,7 +1,6 @@
 """AI-powered article classification and scoring. Supports OpenAI-compatible APIs and Claude."""
 import os
 import re
-import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -253,9 +252,7 @@ class OpenAICompatibleClassifier(BaseClassifier):
             timeout=timeout,
         )
         if not resp.ok:
-            print(f"  [openai-compatible] API error: {resp.status_code}", flush=True)
-            print(f"  Response body: {resp.text}", flush=True)
-            sys.exit(1)
+            raise RuntimeError(f"API error {resp.status_code}: {resp.text[:200]}")
         content = resp.json()["choices"][0]["message"]["content"]
         if not content:
             print(f"  [openai-compatible] empty response", flush=True)
@@ -275,13 +272,9 @@ class ClaudeClassifier(BaseClassifier):
         self.model = model
 
     def _call_api(self, messages: list[dict], max_tokens: int, timeout: int) -> str:
-        try:
-            resp = self.client.messages.create(
-                model=self.model, max_tokens=max_tokens, messages=messages, timeout=timeout,
-            )
-        except Exception as e:
-            print(f"  [claude] API error: {e}", flush=True)
-            sys.exit(1)
+        resp = self.client.messages.create(
+            model=self.model, max_tokens=max_tokens, messages=messages, timeout=timeout,
+        )
         content = resp.content[0].text
         if not content:
             print(f"  [claude] empty response", flush=True)
