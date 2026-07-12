@@ -2292,6 +2292,7 @@ site = "https://lishuangquan.cn"
 title = "icodex - 个人网站"
 url = "https://icodex.me/atom.xml"
 site = "https://icodex.me"
+skip = true
 
 [[category.feed]]
 title = "shrik3"
@@ -4968,6 +4969,7 @@ site = "https://ysicing.me"
 title = "申请博客收录：莫比乌斯"
 url = "https://onojyun.com/feed/"
 site = "https://onojyun.com"
+skip = true
 
 [[category.feed]]
 title = "任霏博客"
@@ -8307,6 +8309,7 @@ site = "https://blog.liua.us.ci/"
 title = "码农刚子的开发笔记"
 url = "https://www.coderlog.net/rss.xml"
 site = "https://www.coderlog.net/"
+skip = true
 
 [[category.feed]]
 title = "Abyss的小屋"
