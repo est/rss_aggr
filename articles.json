@@ -9617,30 +9617,6 @@
     "content_length": 20
   },
   {
-    "guid": "0f9963589f72eb88",
-    "title": "1图6问：心在哪里，财富就在哪里",
-    "link": "https://citydatum.cn/archives/3395",
-    "author": "Reiziuh",
-    "content": "<p class=\"wp-block-paragraph\">受Flickr官博 <a href=\"https://citydatum.cn/archives/1721\">1张照片16个问题</a> 系列启发，搞个 1图6问 (1 Picture 6 Questions，1P6Q) 试试，自问自答。</p>\n\n\n\n<figure class=\"wp-block-image size-full\"><img alt=\"1图6问：心在哪里，财富就在哪里\n\" class=\"wp-image-3396\" height=\"540\" src=\"https://citydatum.cn/wp-content/uploads/2026/07/image.png\" width=\"800\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>Q1：大概什么时间、用什么工具拍摄/绘制的？</strong></p>\n\n\n\n<p class=\"wp-block-paragraph\">A：2005年底的随手涂，Painter + Photoshop，应该是用了手写板，太久远了，细节记不清了。</p>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>Q2：拍摄/创作的灵感源自哪里？</strong></p>\n\n\n\n<p class=\"wp-block-paragraph\">A：老罗语录：“<strong>你的心在哪里，你的财富就在哪里</strong>”。那时候有被打动的感觉，想用涂鸦的方式来表达，顺便做点技巧练习。</p>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>Q3：还记得拍摄/绘制时的状态，或者最强烈的感受是什么吗？</strong></p>\n\n\n\n<p class=\"wp-block-paragraph\">A：只剩下些朦胧的印象了。刚下笔的时候没什么想法，画到一半有了软润的小石雕质感的想法，后边就尽量往这个感觉走，画完对最终效果总体比较满意。</p>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>Q4：是否曾经分享过，曾经收到过什么样的反馈吗？</strong></p>\n\n\n\n<p class=\"wp-block-paragraph\">A：曾在MSN上发给过几个老同学，有人问过“那你的心在哪里？”之类的问题，好像还有“这岁数还这么单纯”这种分不清是褒是贬的玩笑话，有些记不清了。</p>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>Q5：完成后回看这张照片/涂鸦，有什么新的发现或感受吗？</strong></p>\n\n\n\n<p class=\"wp-block-paragraph\">A：现在看，不论内容还是形式，这幅随手涂都有点儿过于简单化了。兴趣点与财富（回报）的绑定其实很不靠谱，比如老罗后来心系锤子手机，却没能在那儿找到他的“财富”，反而还破了产。之后很久，听说了老舍的”一个人爱什么，就会死在什么上面“，这句话放在锤子手机的案例上可能会更合适。现在觉得，现实的复杂性不是一句短短的语录就能说得清的。形式上的简单化，体现在整整齐齐的排列方式、光滑圆润的石雕质感等地方，不过倒也和那句单纯的、口号式的语录挺搭。仅从练手的角度来说，应该算是达到了目的。</p>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>Q6：如果现在要求你重新拍摄/绘制，有什么想去尝试的新想法吗？</strong></p>\n\n\n\n<p class=\"wp-block-paragraph\">A：应该不会重绘这个点子了。如果有类似的主题，可能会先尽可能多想一想主题的合理性、复杂性，避免简单化的单一解读。构图上也会通过不同元素之间的穿插和交叠，增加画面的趣味性吧。不过如今越画越少，手都生了，真要想画先要找回手感才行。</p>\n\n\n\n<p class=\"wp-block-paragraph\"></p>",
-    "published": "2026-07-08T07:02:30Z",
-    "feed_title": "橙树志",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-08T08:38:58.454391+00:00",
-    "content_length": 1712
-  },
-  {
-    "guid": "f25a98308a96ba16",
-    "title": "[AI] curl -NT. 导致100% CPU原因",
-    "link": "https://blog.est.im/2026/stdout-25",
-    "author": "est",
-    "content": "<p>有AI就是好使，搁以前自己得盯半天也看不明白。。。</p>\n<h3>问题确认</h3>\n<p><code>curl -NT.</code> 在连接一个持续推送数据的 streaming 服务器时，会产生一个 <strong>紧密的 pause/unpause 循环</strong>，导致 100% CPU。</p>\n<h3>根因分析</h3>\n<p><code>-T.</code>（注意是点号，不是减号）将 stdin 设为<strong>非阻塞模式</strong>，然后依赖 <code>EAGAIN</code> + <code>CURL_READFUNC_PAUSE</code> 机制来避免阻塞。核心循环发生在三个回调之间：</p>\n<p><strong>第一步 — 上传尝试失败</strong>（<code>src/tool_cb_rea.c</code>）：</p>\n<pre><code class=\"language-c\">  {\n    rc = read(per-&gt;infd, buffer, sz * nmemb);\n    if(rc &lt; 0) {\n      if(errno == EAGAIN) {\n        errno = 0;\n        config-&gt;readbusy = TRUE;\n        return CURL_READFUNC_PAUSE;\n      }\n      /* since size_t is unsigned we cannot return negative values fine */\n      rc = 0;\n    }\n  }\n</code></pre>\n<p>stdin 没数据 → <code>read()</code> 返回 <code>EAGAIN</code> → 设 <code>readbusy=TRUE</code> → 暂停上传。</p>\n<p><strong>第二步 — 下载数据到达立刻解除暂停</strong>（<code>src/tool_cb_wrt.c</code>）：</p>\n<pre><code class=\"language-c\">  if(config-&gt;readbusy) {\n    config-&gt;readbusy = FALSE;\n    curl_easy_pause(per-&gt;curl, CURLPAUSE_CONT);\n  }\n</code></pre>\n<p>streaming 服务器持续发送数据 → <code>tool_write_cb</code> 被不断调用 → 每次都<strong>无等待地立刻解除上传暂停</strong>。</p>\n<p><strong>第三步 — 进度回调只有 1ms 退避</strong>（<code>src/tool_cb_rea.c</code>）：</p>\n<pre><code class=\"language-c\">  if(config-&gt;readbusy) {\n    if(ulprev == ulnow) {\n#ifndef _WIN32\n      waitfd(1, per-&gt;infd);\n#else\n      /* sleep */\n      curlx_wait_ms(1);\n#endif\n    }\n\n    config-&gt;readbusy = FALSE;\n    curl_easy_pause(per-&gt;curl, CURLPAUSE_CONT);\n  }\n</code></pre>\n<p><code>tool_readbusy_cb</code> 有 1ms 的 <code>waitfd</code> 退避，但被 <code>tool_write_cb</code> 的无等待解除抢先了。</p>\n<p><strong>完整的死循环（每次 <code>curl_multi_perform</code> 内）</strong>：</p>\n<p>在 <code>lib/transfer.c</code> 的 <code>Curl_sendrecv</code> 中，处理顺序是<strong>先下载后上传</strong>：</p>\n<pre><code class=\"language-c\">  if(k-&gt;keepon &amp; KEEP_RECV) {\n    result = sendrecv_dl(data, k);\n    if(result || data-&gt;req.done)\n      goto out;\n  }\n\n  /* If we still have writing to do, we check if we have a writable socket. */\n  if(Curl_req_want_send(data)) {\n    result = sendrecv_ul(data);\n    if(result)\n      goto out;\n  }\n</code></pre>\n<p>所以单次迭代内：<br />\n1. <code>sendrecv_dl</code> → 读到 streaming 数据 → <code>tool_write_cb</code> → 看到 <code>readbusy=TRUE</code> → <strong>立刻解除暂停</strong>（零等待）<br />\n2. <code>sendrecv_ul</code> → <code>tool_read_cb</code> → stdin <code>EAGAIN</code> → <strong>又暂停</strong>，<code>readbusy=TRUE</code><br />\n3. 回到 <code>curl_multi_poll</code> → 下载 socket 有数据 → <strong>立刻返回</strong>（不会 sleep）<br />\n4. 重复 1-3</p>\n<p>而 <code>lib/easy.c</code> 的主循环：</p>\n<pre><code class=\"language-c\">  while(!done &amp;&amp; !mresult) {\n    int still_running = 0;\n\n    mresult = curl_multi_poll(multi, NULL, 0, 1000, NULL);\n\n    if(!mresult)\n      mresult = curl_multi_perform(multi, &amp;still_running);\n</code></pre>\n<p><code>curl_multi_poll</code> 的 1000ms 超时形同虚设——因为下载 socket 始终可读，<code>poll()</code> 立刻返回。</p>\n<p><strong>结果</strong>：每秒跑上千次这个循环，每次包含多个系统调用（<code>poll</code>、<code>read</code>、<code>write</code>），CPU 直接打满。</p>\n<h3>问题本质</h3>\n<p><strong>stdin 没有被加入 <code>curl_multi_poll</code> 的 pollset</strong>。只有网络 socket 参与了 poll。所以 curl 无法高效地\"同时等待 stdin 和网络数据\"，只能靠 <code>tool_write_cb</code> 里的盲目 unpause 来弥补，在 streaming 场景下退化成忙等。</p>\n<h3>用户侧解决方案</h3>\n<p><strong>如果你不需要从 stdin 上传数据</strong>（只是想看 streaming 响应），不要用 <code>-T.</code>：</p>\n<pre><code class=\"language-bash\"># 正确的方式：只看 streaming 输出\ncurl -N https://streaming-server/events\n\n# 或者重定向 stdin 为空\ncurl -NT. https://streaming-server/events &lt; /dev/null\n</code></pre>\n<p><code>&lt; /dev/null</code> 会让 <code>read()</code> 返回 0（EOF）而不是 EAGAIN，不会进入 pause/unpause 循环。</p>\n<p><strong>如果确实需要双向 streaming</strong>（边上传 stdin 边接收），目前没有完美的用户侧 workaround。可以考虑：</p>\n<pre><code class=\"language-bash\"># 用管道加一层缓冲，减轻空转（效果有限）\ncat | curl -NT. https://streaming-server/events\n</code></pre>\n<h3>源码级修复思路</h3>\n<p>如果要在源码层面修复，最直接的方案是<strong>在 <code>tool_write_cb</code> 中去掉盲目 unpause</strong>，改为只在 <code>tool_readbusy_cb</code> 中带退避地 unpause，并增大退避时间：</p>\n<pre><code class=\"language-c\">// tool_cb_wrt.c — 去掉这段，或加条件限制\n// 不再从 write callback 无脑解除上传暂停\nif(config-&gt;readbusy) {\n    config-&gt;readbusy = FALSE;\n    curl_easy_pause(per-&gt;curl, CURLPAUSE_CONT);  // 删除或改为有条件触发\n}\n</code></pre>\n<pre><code class=\"language-c\">// tool_cb_rea.c — 增大退避时间\nif(config-&gt;readbusy) {\n    if(ulprev == ulnow) {\n        waitfd(100, per-&gt;infd);  // 从 1ms 提高到 100ms\n    }\n    config-&gt;readbusy = FALSE;\n    curl_easy_pause(per-&gt;curl, CURLPAUSE_CONT);\n}\n</code></pre>\n<p>更彻底的方案是把 stdin fd 加入 <code>curl_multi_poll</code> 的 extra fds，但这需要改 <code>curl_multi_poll</code> 的调用方式，涉及面更大。</p>",
-    "published": "2026-07-08T08:05:00Z",
-    "feed_title": "Est's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-08T14:28:35.909276+00:00",
-    "content_length": 4662
-  },
-  {
     "guid": "a65c43ca93ddf355",
     "title": "传 id Software 在微软 Xbox 重组中裁员近半",
     "link": "https://windiscover.com/posts/id-software-microsoft-layoffs-xbox-restructuring.html",
@@ -9687,18 +9663,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-08T14:28:35.909276+00:00",
     "content_length": 1777
-  },
-  {
-    "guid": "cf08b0173857ee88",
-    "title": "Windows 95 曾用一个简单的技巧来识别安装程序文件",
-    "link": "https://windiscover.com/posts/windows-95-setup-files-detection-trick.html",
-    "author": "walkingdog",
-    "content": "<p>Windows 95 作为微软操作系统史上的里程碑产品，其内部包含了许多精妙的设计细节。前微软工程师近日揭示了该系统识别安装程序文件所采用的一种简单却有效的技术方案。<br />\n<span id=\"more-11146\"></span></p>\n<p><img src=\"\" /></p>\n<h3><strong>文件识别机制原理</strong></h3>\n<p>该技术通过检查可执行文件头部的特定字符串偏移量来判断其是否为安装程序。系统会扫描文件头部的特定位置，寻找标志性特征，从而决定是否需要触发特定的安装流程处理。</p>\n<h3><strong>技术背景与历史意义</strong></h3>\n<p>在 Windows 95 时代，软件分发方式以物理介质为主，系统需要一种可靠的方式来区分普通应用程序与安装程序。这种基于文件头特征的检测方法在当时的技术条件下提供了一种轻量且高效的解决方案。</p>\n<h3><strong>现代系统的演进</strong></h3>\n<p>如今的 Windows 系统已采用更为复杂的机制来识别和管理软件安装过程，包括数字签名验证、应用包清单解析等技术。然而，Windows 95 时代的这种简单技巧为后续 Windows 安装程序识别机制的发展奠定了基础。</p>\n<p>via <a href=\"https://www.neowin.net/news/windows-95-used-a-very-basic-trick-to-detect-setup-files/\" rel=\"noopener\" target=\"_blank\">Neowin</a></p>\n<p>©2026 WinDiscover <a href=\"https://windiscover.com\">WinDiscover</a> | <a href=\"https://windiscover.com/posts/windows-95-setup-files-detection-trick.html\" title=\"Windows 95 曾用一个简单的技巧来识别安装程序文件\">阅读原文</a> | <a href=\"https://windiscover.com/posts/windows-95-setup-files-detection-trick.html#comments\" title=\"Windows 95 曾用一个简单的技巧来识别安装程序文件 的评论\">添加评论</a></p><p><a href=\"https://windiscover.com/posts/windows-95-setup-files-detection-trick.html\">Windows 95 曾用一个简单的技巧来识别安装程序文件</a>最先出现在<a href=\"https://windiscover.com\">WinDiscover</a>。</p>",
-    "published": "2026-07-08T07:35:53Z",
-    "feed_title": "微软独立博客站点 — https://windiscover.com/",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-08T14:28:35.909276+00:00",
-    "content_length": 1241
   },
   {
     "guid": "a2d3854cca2e73bf",
@@ -9819,18 +9783,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-09T03:52:40.839099+00:00",
     "content_length": 4037
-  },
-  {
-    "guid": "c8e4770fc1d82969",
-    "title": "公益服务迁移通知",
-    "link": "https://blog.goodboyboy.top/posts/2030627247.html",
-    "author": "",
-    "content": "<h2 id=\"正文\">正文</h2><p>由于资源组合调整，现将大部分公益服务已从<code>goodboyboy.top</code>迁移至<code>furwolf.com</code>下。</p><p>并关闭了部分使用较少或项目已被出售的服务。</p><p>对于接口类的公益服务已在原有域名上设定了301重定向，短期不会影响服务正常运行，但仍建议迁移至新域名。</p><p>具体变更请见公益服务页面：<a href=\"https://blog.goodboyboy.top/free/\">https://blog.goodboyboy.top/free/</a></p>",
-    "published": "2026-07-08T08:51:55Z",
-    "feed_title": "GoodBoyboy 's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-09T03:52:40.839099+00:00",
-    "content_length": 289
   },
   {
     "guid": "01259bc40d88d520",
@@ -17451,5 +17403,89 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-22T03:19:41.717752+00:00",
     "content_length": 15677
+  },
+  {
+    "guid": "b71d4f3fabe4aca8",
+    "title": "看《大明王朝1566》《走向共和》",
+    "link": "https://www.jfsay.com/archives/4013.html",
+    "author": "Jasmine",
+    "content": "<p class=\"wp-block-paragraph\">最近陆续看完了《大明王朝1566》与《走向共和》的影视解说。这两部国产历史正剧常年稳居豆瓣高分榜单。相较于耗费数十小时完整追剧，解说版本叙事节奏更快，省去冗长支线铺垫，能够快速串联起故事暗线与伏笔，把零散剧情串联成完整逻辑，解析许多独自看剧时容易忽略、难以读懂的隐喻细节。<br /><br />即便精简过后，解说视频也长达三小时以上。但客观而言，影视解说难免带有创作者个人主观解读，观看时容易被旁人观点先入为主，在潜移默化中受到解说观点的影响，影响独立的思考与判断。<br /><br /><strong>《大明王朝1566》</strong><br /><br />以嘉靖年间“改稻为桑”事件为线索，铺展开整个朝堂各方势力的较量。帝王身居深宫，看似不问世事，却深谙驭人之术，用制衡手段把控全局。严党官员借政令搜刮牟利，清流之士想要匡扶时局，也不得不游走各方人情关系。<br /><br />年少时总觉得凡事黑白分明，对错清晰。而剧中权谋博弈讲的是，朝堂之上没有绝对的好人坏人，每个人都站在自己的立场权衡利弊。很多话不必直白说透，很多事不能贸然表态。成年人的世界，说话讲究分寸，做事懂得藏拙。<br /><br />摘录剧中经典台词：<br />1.做官要三思：思危、思退、思变。知道了危险就能躲开危险，这就是思危；躲到旁人不再留意你的地方，这叫思退；退下来沉下心复盘得失，谋划前路，便是思变。<br />2. 万稳万当，不如一默。任何一句话，不说出来，你便是话的主人；一旦说出口，你就成了那句话的奴隶。<br />3. 任何人答应你的事都不算数，只有自己能做主的才算数。<br />4.没有永恒的贤臣。贤臣，用时则贤，不用则黜。<br />5. 圣人出，黄河清，可黄河什么时候清过？……不能因水清而偏用，也不能因水浊而偏废。<br />6. 有些事不上秤没有四两，上了秤一千斤也打不住。<br />7.官场无朋友，朝事无是非，只有“利害”二字。<br />8. 这个世上，真靠得住的就两种人：一种是笨人，一种是直人。 <br /><br /><strong>《走向共和》</strong><br /><br />讲述晚清几十年跌宕起伏的历史变迁，洋务运动、戊戌变法、庚子战乱轮番上演。整部剧里，慈禧是核心掌权者，她手握大权，性情喜怒无常，心思捉摸不定。兴致来时可以故作开明，准许推行改革新政；一旦改革遭遇风波、局面失控，便立刻改换态度。八国联军开战前夕，她执意对外宣战，事前鼓动群臣主战，事后却说：倘若此战落败，江山难保，诸位切勿将罪责归于我一人。事情顺利功劳归于自己，一旦出现风险，便把过错层层下放，交由底下官员承担后果。<br /><br />看到这部分剧情，不由联想到有些领导极为相似的处事方式，情绪阴晴不定，遇事习惯推诿甩锅，不愿承担决策带来的责任。朝堂之中官员派系林立，遇事互相推诿扯皮，有功争相抢夺，有祸人人避之。有心改革的大臣想要破旧立新，可各方利益盘根错节，旧势力不愿割舍既得利益，改革处处受阻，最终难以挽回王朝衰败的结局。<br /> <br />摘录剧中经典台词：<br />1. 身怀利器，杀心自起。人一旦手握权力，最难的不是如何使用权力，而是懂得约束自己的权力欲望。<br />2.一代人只能做一代人的事。<br />3.道德只是微弱烛光，只能照亮个人脚下方寸之路，抵挡不住世道里的明枪暗箭。<br />4.名利二字，名在利前。官员就算不贪银子，若是滥用公权、祸害百姓，同样是腐败，甚至比直接贪钱更可怕。<br />5.这就是政治，可以犯罪，但绝不能犯错。<br />6.以出世的精神，干入世的事情。<br /><br />这两部历史剧道尽千百年来人情世故、处事规则万变不离其宗。看透的不仅是古代朝堂，更是现实人情百态。年轻时为人处世总以为凭一腔真诚、讲道理就足够立足。经历世事之后才懂得，客套寒暄之中藏着利弊权衡，圆滑话语背后藏着人心算计。看懂这些博弈手段，不是学着变得世故圆滑，精于算计。而是懂得规避风险，看清人性，保护自己。</p>\n<div class=\"yarpp yarpp-related yarpp-related-rss yarpp-related-none yarpp-template-list\">\n</div>",
+    "published": "2026-07-22T00:47:39Z",
+    "feed_title": "静风说",
+    "feed_category": "Blogs",
+    "cached_at": "2026-07-22T08:37:53.802850+00:00",
+    "content_length": 1811
+  },
+  {
+    "guid": "950ddba1c28cc77f",
+    "title": "我的笔记系统",
+    "link": "https://data4fun.cc/blog/2026/07/post-20260722/",
+    "author": "",
+    "content": "<p>最近梳理了一下自己在 onsidian 上记的笔记，发现过去很多记的笔记都比较零散，记到电脑或者手机上之后，就很少再会查看或者利用了。</p>\n<p>为了让自己过去的笔记内容不再荒废，为了让现在的我支援未来的自己，我研究了一下如何让笔记流动起来的方法。</p>\n<h2 id=\"调研\">调研</h2>\n<p>市场上常用的笔记组织方法有 2 种，PARA 记录和Zettelkasten记录。</p>\n<p>1/ PARA</p>\n<p>笔记的目录结构分为 4 类：</p>\n<ul>\n<li>\n<p><strong>项目（project）</strong>：有明确截止日期的进行中项目（例如，&ldquo;第三季度上线公司网站&rdquo;）</p>\n</li>\n<li>\n<p><strong>领域（area）</strong>：持续负责的领域，没有截止日期（例如，&ldquo;健康&rdquo;、&ldquo;财务&rdquo;、&ldquo;XYZ 团队&rdquo;）</p>\n</li>\n<li>\n<p><strong>资源（resource）</strong> ：按兴趣分类的参考资料（例如，&ldquo;机器学习&rdquo;、&ldquo;斯多葛哲学&rdquo;）</p>\n</li>\n<li>\n<p><strong>存档（archive）</strong> ：以上三个类别中的非活跃项目</p>\n</li>\n</ul>\n<p>2/ Zettelkasten</p>\n<p>Zettelkasten 的核心是原子笔记（每条笔记只记录一个想法）。</p>\n<p><strong>Zettelkasten 的核心原则</strong>：每张永久笔记都必须至少与其他一张笔记关联；无法与任何笔记关联的笔记，或许就不该作为独立笔记存在。</p>\n<p>笔记的目录结构分为 3 类：</p>\n<ul>\n<li><strong>转瞬即逝的笔记（Fleeting notes）</strong>：快速记录、处理后丢弃。</li>\n<li><strong>阅读笔记（Literature notes）</strong>：关于你所读内容的笔记。</li>\n<li><strong>永久笔记（Permanent notes）</strong>：用你自己的语言记录的原子笔记，随时可查。</li>\n</ul>\n<h2 id=\"我的思考\">我的思考</h2>\n<p>我的笔记组织结构核心想法是不想太复杂，目录结构尽量不要嵌套多层，这是我以前的苹果备忘录的组织结构：</p>\n<p><img alt=\"image-20260722100354869\" src=\"https://article-1257095016.cos.ap-beijing.myqcloud.com/image-20260722100354869.png\" /></p>\n<p>整体看，整个目录结构并不像 PARA 那样相互独立，比如有的笔记既可以放在商业目录下，也可以放在数据目录下，其实这种情况用「标签」的方式组织或许会更好。</p>\n<p>除了结构简单，我对笔记系统的核心速求是要用起来，可以有产出。于是，在纸上勾勾画画之后，我总结了整体的框架如下：</p>\n<p><img alt=\"我的笔记系统\" src=\"https://article-1257095016.cos.ap-beijing.myqcloud.com/image-20260722103426949.png\" /></p>\n<h2 id=\"实践\">实践</h2>\n<p>基于上面的思考，我重新设置我的obsidian 的目录，结构如下：</p>\n<p><img alt=\"我的 onsidian 目录\" src=\"https://article-1257095016.cos.ap-beijing.myqcloud.com/image-20260722104458664.png\" /></p>",
+    "published": "2026-07-22T02:48:46Z",
+    "feed_title": "data4fun",
+    "feed_category": "Blogs",
+    "cached_at": "2026-07-22T08:37:53.802850+00:00",
+    "content_length": 1671
+  },
+  {
+    "guid": "63f4f9ee27d8badb",
+    "title": "十年间的中考变化",
+    "link": "https://www.wsh233.cn/post/十年间的中考变化",
+    "author": "WSH",
+    "content": "侄女中考成绩一出，堂哥便来电让我参谋。凭着对前年分数线的记忆，笃定这分数能冲一冲母校——州一中。不料堂哥一句“连县一中都悬”，像盆冷水浇下来。十年了，以为自己还懂家乡的中考，其实早已脱节。\n\n细看成绩单，计分规则与我当年大相径庭：语数外...",
+    "published": "2026-07-21T22:51:58Z",
+    "feed_title": "WSH",
+    "feed_category": "Blogs",
+    "cached_at": "2026-07-22T08:37:53.802850+00:00",
+    "content_length": 121
+  },
+  {
+    "guid": "a1a58bc27f48adf2",
+    "title": "「一府二鹿三艋舺」的下一句是什麼？",
+    "link": "https://blog.giveanornot.com/tsao-oo/",
+    "author": "",
+    "content": "<h2 id=\"一府二鹿三艋舺\"><a class=\"header-anchor\" href=\"#%e4%b8%80%e5%ba%9c%e4%ba%8c%e9%b9%bf%e4%b8%89%e8%89%8b%e8%88%ba\"></a>一府二鹿三艋舺\n</h2><p>從大學開始離開家裡來到台北，常常會被問到是哪裡人，我的回答都是「台中大里」。通常對方聽到「大里」之後不會有什麼反應，這不太意外，畢竟台中比大里有名的地方太多了。</p>\n<p>如果把台中分成「山」、「海」、「屯」三區來看的話，山線有新社花海、豐原廟東菱角酥、<del>后里蟹</del> 后里馬場鐵馬道，海線有大名鼎鼎的大甲芋頭和鎮瀾宮、清水的高美濕地。相較之下，屯區除了高鐵站所在的烏日比較常被外縣市的人們提到以外，剩下的太平、霧峰、大里真的可以說是默默無聞。</p>\n<p>大里，舊稱「<a class=\"link\" href=\"https://www.dali.taichung.gov.tw/982726/982748/982754/982757/1210435/post\" rel=\"noopener\" target=\"_blank\">大里杙（ㄧˋ）</a>」。杙，即設於碼頭用以栓繫舟筏之木樁。大里境內以大里溪為主要溪流，古有「一府二鹿三艋舺，四竹塹五諸羅六大里杙」一說，可見大里在過去是全台高度發展的商港之一。</p>\n<p><img alt=\"中間 Y 字型的的西半部就是大里溪\" class=\"gallery-image\" height=\"828\" src=\"https://blog.giveanornot.com/tsao-oo/image.png\" width=\"1194\" /></p>\n<p><em>截取自<a class=\"link\" href=\"https://www.taichung.gov.tw/media/267665/3351701771.pdf\" rel=\"noopener\" target=\"_blank\">《大里市史》</a></em></p>\n<p>題外話是，上面這段大里地名的由來，我們小學的每一個同學應該都聽到背起來了（很多老師都會說，聽了很多遍），所以我也以為大家都應該會知道自己家鄉的地名是怎麼來的，直到我到了台北才知道這個世界跟我想的很不一樣。</p>\n<p>除了碼頭，大家大概也都在歷史課本聽過「<a class=\"link\" href=\"https://daap.ly.gov.tw/tw/daap/125-3998.html\" rel=\"noopener\" target=\"_blank\">林爽文事件</a>」吧，這起發生在 200 多年前，燒了半個台灣的事件一開始就是發生在大里唷，這裡有一條「爽文路」在記念這起事件，甚至還有一間同名的「爽文國中」（但不在爽文路上就是了）。</p>\n<h2 id=\"草湖芋仔冰\"><a class=\"header-anchor\" href=\"#%e8%8d%89%e6%b9%96%e8%8a%8b%e4%bb%94%e5%86%b0\"></a>草湖芋仔冰\n</h2><p>說回正題，大里溪、大里老街，這些大里過去繁華的地方，其實離我的生活圈很遠，至少不是在走路可以輕鬆到的地方，甚至我可能沒有去過大里老街幾次。</p>\n<p>上面提到的那些，都是發生在大里溪以北的事情，而我的家鄉是在大里溪以南的草湖，那些離我是有點距離。</p>\n<p>而草湖沒有什麼特別的，就只有「草湖芋仔冰」可以拿出來說嘴。而「芋仔冰」這三個字請發台語 ōo-á-ping / ㄛˊ ㄚ ㄅㄧㄥ / o-a-bieng，直接用華語唸「ㄩˋ ㄗㄞˇ ㄅㄧㄥ」我會原地發瘋謝謝。</p>\n<p>說到草湖芋仔冰，在地人推的都是在草湖庄內、石頭公旁的 <a class=\"link\" href=\"https://maps.app.goo.gl/TB42AuxT4n2btvB69\" rel=\"noopener\" target=\"_blank\">泰和源芋仔冰</a>。市面上有不同的品牌，但這家是正統祖傳三代的創始店，至今依然堅持手工製作。</p>\n<p><img alt=\"泰和源芋仔冰店面\" class=\"gallery-image\" height=\"600\" src=\"https://blog.giveanornot.com/tsao-oo/image-1.png\" width=\"450\" /></p>\n<p><em>source:<a class=\"link\" href=\"https://www.facebook.com/TaiheYuan/photos\" rel=\"noopener\" target=\"_blank\">泰和源芋仔冰 Facebook Page</a></em></p>\n<p>草湖內也有一些比較商業化的品牌店家，也許是因為比較有名，所以大家比較容易找到。但它們大多不如泰和源的成份單純、味道濃郁。我從小就被家裡灌輸這樣的觀念，所以我把泰和源的芋仔冰當成是草湖的驕傲，也把吃其他次等品牌的芋仔冰視為恥辱。</p>\n<hr />\n<p>草湖芋仔冰是我重要的回憶之一，從小時候，家裡要去拜訪親朋好友的時候，就是包個一、兩斤的芋仔冰過去。當時甚至還沒有近年順應時代的獨立包裝，就是用一個大塑膠袋裝著一角一角的冰，再用報紙包一包就帶走了。到了別人家的客廳之後，就是直接放在桌上把報紙攤開，袋口往下折之後，就拿著竹籤叉著吃了。</p>\n<p><img alt=\"早期在店裡冰箱就是這樣整袋裝著，要多少就抓多少出來給你\" class=\"gallery-image\" height=\"828\" src=\"https://blog.giveanornot.com/tsao-oo/image-2.png\" width=\"1109\" /></p>\n<p><em>source:<a class=\"link\" href=\"https://juan.tw/?p=698\" rel=\"noopener\" target=\"_blank\">juan.tw</a></em></p>\n<p>這家店也剛好就開在我小學放學回家的必經之路上，夏天中午放學走路回家很熱的時候，就會順路去買一包綿綿冰。所謂綿綿冰，有別於把壓實的冰磚切塊，而是用湯匙刮下來的冰泥。他們的綿綿冰一碗是 20 塊，但邊走邊拿著一碗冰吃不太方便，所以我們都秤斤買一包一包的， 10 塊錢份量剛剛好不會太多，走回家裡也剛好吃完接著吃午餐，完美！</p>\n<hr />\n<p>對了，雖然名字叫做「芋仔冰」，但其實除了芋頭以外，也有其他將近 10 種不同的回味！我最喜歡的是百香果還有酸梅，聽說花生還有紅豆也是人氣很高的口味！</p>\n<p><img alt=\"泰和源菜單\" class=\"gallery-image\" height=\"512\" src=\"https://blog.giveanornot.com/tsao-oo/image-3.png\" width=\"361\" /></p>\n<p><em>source:<a class=\"link\" href=\"https://www.facebook.com/TaiheYuan/photos\" rel=\"noopener\" target=\"_blank\">泰和源芋仔冰 Facebook Page</a></em></p>\n<p>如果哪天大家去台中玩，如果要去霧鋒的 <a class=\"link\" href=\"https://www.nmns.edu.tw/park_921/\" rel=\"noopener\" target=\"_blank\">921 地震園區</a> 或是 <a class=\"link\" href=\"https://www.trimt-nsa.gov.tw/zh-tw/attraction/847/\" rel=\"noopener\" target=\"_blank\">光復新村</a>，中途經過大里草湖的話，不妨繞進草湖庄買個幾顆吃看看吧~</p>\n<p>如果沒機會來台中的話，他們也有 <a class=\"link\" href=\"https://taroice.waca.tw/\" rel=\"noopener\" target=\"_blank\">網購宅配</a>，如果大家沒有辦法親自到店面買的話，也有機會可以體驗看看我的童年是什麼味道！</p>\n<p><del>如果有台北的朋友要團購的話可以找我一起</del></p>\n<hr />\n<p>看到這邊，有人可能會想要問我收了他們多少錢。</p>\n<p>但事實上是沒有、也沒有必要，不過其實…</p>\n\n    <blockquote>\n        <p>這是我的「<a class=\"link\" href=\"https://blogblog.club/party/\" rel=\"noopener\" target=\"_blank\">BlogBlog 同樂會 - 2026 年 7 月 </a>」的投稿文章。本月主題是「<a class=\"link\" href=\"https://shuaixin.cc/Fun-Fact/\" rel=\"noopener\" target=\"_blank\">有趣的小知識或冷門概念</a>」，由<a class=\"link\" href=\"https://shuaixin.cc/\" rel=\"noopener\" target=\"_blank\">劉昕</a>主持。如果你有自己的部落格，歡迎一起來參加！</p>\n\n    </blockquote>\n<p>我上次回草湖的時候，也去買了一點，想要帶上台北冰在冷凍庫慢慢吃，但他們的生意真的超.級.好，就算大家都劃單讓他們直接包，理論上應該很每個人都很快就結帳完了，但他們還是忙不過來，排了很長的隊，這大概就是草湖在地鄉民對芋仔冰的愛與堅持吧。</p>\n<h2 id=\"後記\"><a class=\"header-anchor\" href=\"#%e5%be%8c%e8%a8%98\"></a>後記\n</h2><p>之所以會寫這篇文章，是因為前幾天我在台北逛市場的時候，看到有一個阿伯在賣「草湖芋仔冰」，不是一般的芋頭冰哦，他的招牌就是寫著那五個字的。</p>\n<p>身為全台 PR 99.9 的芋仔冰專家（？）我覺得有義務要調查一下，所以我問那個阿伯他的冰是哪一家的，結果他居然一問三不知！仔細看了之後是一個我沒聽過的品牌，回去查了一下，居然是一家在彰化的廠商做的！這妥妥是詐騙吧！！</p>\n<p>不管他們的冰做得好不好吃，我們草湖人的驕傲還有身份認同不是可以給你們這樣消費的！真的是氣死我了！！！</p>\n<p>請大家一定要張大眼睛，認明來自草湖庄的正統草湖芋仔冰，不要被亂來的商人混淆視聽了！</p>",
+    "published": "2026-07-22T04:57:47Z",
+    "feed_title": "資工小廢物 - JN",
+    "feed_category": "Blogs",
+    "cached_at": "2026-07-22T08:37:53.802850+00:00",
+    "content_length": 4500
+  },
+  {
+    "guid": "ac1c5030ee361d45",
+    "title": "一生中，至少会有一次被锁在屋外进不去的经历",
+    "link": "https://blog.chen-di.com/archive/being-locked-out/",
+    "author": "",
+    "content": "<p>昨天，也就是周二。公司一个产品的域名在非洲当地出现了通过 orange 运营商访问不了的情况，经过将近三小时的排查，才解决问题。</p>\n<p>下班，已经是晚上十点半之后的事情了。我乘地铁需要一个小时，因此到家已经十一点半。如果，单纯是因为加班迟点儿到家倒也无所谓。毕竟，算起来也有半年没有加过班，偶尔一次加班对我来说很容易接受。</p>\n<p>当我拖着疲倦的身体来到门前想要通指纹解锁时，智能门锁发出的电量低告警的声音“刺痛”了我的心脏，让本就因为加班而低落的情绪瞬间跌入谷底。一个打工牛马，将近凌晨才到家，还要承受打不开的无奈。此时，再看着手机仅剩百分之二的电量，那一瞬间竟然不知道该如何解决当前的问题。因为这个点的商场都关门了，我不知道去哪里能借到充电宝。幸好姐夫家就在我隔壁小区。我于是打电话给他，不巧的是——人不在家。虽然人不在家，但是他给我提供了思路——让我找物业借。最终，我在物业那里顺利借到了。</p>\n<p>为什么没有第一时间想到物业？我想大概是因为物业的不可靠使我平时几乎很少与他们有联系，无意识的屏蔽了物业这个途径。经过这次借充电宝，让我对物业的态度有了些变化。</p>",
+    "published": "2026-07-22T00:00:00Z",
+    "feed_title": "当前绑定的 blog.chendi.link 改为 blog.chen-di.com",
+    "feed_category": "Blogs",
+    "cached_at": "2026-07-22T08:37:53.802850+00:00",
+    "content_length": 499
+  },
+  {
+    "guid": "bc4cacf8cd7d168b",
+    "title": "申请修改博客地址和 RSS 地址",
+    "link": "https://www.v2ex.com/t/1229002#reply0",
+    "author": "sjdhome",
+    "content": "<p>Hi @<a href=\"https://www.v2ex.com/member/Livid\">Livid</a> ，我的博客现在重构了，需要麻烦更新一下地址。</p>\n<ul>\n<li>Feed 地址: <a href=\"https://www.sjdhome.com/blog/feed/\" rel=\"nofollow\">https://www.sjdhome.com/blog/feed/</a> =&gt; <a href=\"https://sjdhome.com/rss.xml\" rel=\"nofollow\">https://sjdhome.com/rss.xml</a></li>\n<li>网站地址: <a href=\"https://www.sjdhome.com/blog/\" rel=\"nofollow\">https://www.sjdhome.com/blog/</a> =&gt; <a href=\"https://sjdhome.com\" rel=\"nofollow\">https://sjdhome.com</a></li>\n</ul>\n<p>原来的地址也配上 308 跳转了，但似乎 VXNA 里的文章列表不会更新，特此申请。</p>",
+    "published": "2026-07-22T02:43:44Z",
+    "feed_title": "VXNA 聚合了很多 RSS，而它本身也是一个 RSS，不用一直刷页面，订阅就好了",
+    "feed_category": "Blogs",
+    "cached_at": "2026-07-22T08:37:53.802850+00:00",
+    "content_length": 535
+  },
+  {
+    "guid": "af4f7eee11592ad7",
+    "title": "Jenkins Vue 前端流水线构建异常排查（pnpm 版本、husky、构建脚本拦截、OOM）",
+    "link": "https://199604.com/3602",
+    "author": "阿俊",
+    "content": "Jenkins Vue 前端流水线构建异常排查（pnpm 版本、husky、构建脚本拦截、OOM） 记录时间： [&#8230;]",
+    "published": "2026-07-22T02:24:25Z",
+    "feed_title": "， https://199604.com",
+    "feed_category": "Blogs",
+    "cached_at": "2026-07-22T08:37:53.802850+00:00",
+    "content_length": 65
   }
 ]
