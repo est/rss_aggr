@@ -1,6 +1,6 @@
 # RSS Aggregator
 
-> 43 days | last fetched: <span id='lf'>2026-07-24T05:29:36Z</span>
+> 44 days | last fetched: <span id='lf'>2026-07-24T08:52:08Z</span>
 
 <script>
 try{var e=document.getElementById('lf'),d=new Date(e.textContent);
@@ -9,6 +9,7 @@ if(!isNaN(d))e.textContent=d.toLocaleString()+' ('+((Date.now()-d)/3600000).toFi
 
 | Date | Link |
 |------|------|
+| 2026-07-24 | [2026/0724.md](2026/0724.html) |
 | 2026-07-23 | [2026/0723.md](2026/0723.html) |
 | 2026-07-22 | [2026/0722.md](2026/0722.html) |
 | 2026-07-21 | [2026/0721.md](2026/0721.html) |
