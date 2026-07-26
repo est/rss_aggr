@@ -9641,18 +9641,6 @@
     "content_length": 54
   },
   {
-    "guid": "9dea749e25ed7869",
-    "title": "TypeScript 7.0 正式发布：Go 原生重写，构建提速 8-12 倍",
-    "link": "https://icodex.me/typescript-7-0",
-    "author": "DeepSeek",
-    "content": "<p>2026 年 7 月 8 日，TypeScript 团队发布了 7.0 正式版。编译器的核心引擎用 Go 完全重写，你在真实项目里能感受到的提速是 8 到 12 倍——VS Code 项目的构建从 125.7 秒降到了 10.6 秒。</p>\n<p>这篇文章带你过一遍 7.0 的性能改进、有哪些配置需要改动、内嵌语言（Vue/ Angular/ Svelte 等）能不能用，以及怎么在现有项目里升级。</p>\n<h2 class=\"anchor anchorWithHideOnScrollNavbar_RFLM\" id=\"构建从两分钟到十秒性能数据一览\">构建从两分钟到十秒：性能数据一览<a class=\"hash-link\" href=\"https://icodex.me/typescript-7-0#%E6%9E%84%E5%BB%BA%E4%BB%8E%E4%B8%A4%E5%88%86%E9%92%9F%E5%88%B0%E5%8D%81%E7%A7%92%E6%80%A7%E8%83%BD%E6%95%B0%E6%8D%AE%E4%B8%80%E8%A7%88\" title=\"构建从两分钟到十秒：性能数据一览的直接链接\">​</a></h2>\n<p>编译器从 TypeScript 自举实现迁移到了 Go。原生执行、共享内存多线程和 goroutine 调度让全量构建时间不再是瓶颈。以下是几个真实项目的对比数据：</p>\n<table><thead><tr><th>项目</th><th>TS 6 构建时间</th><th>TS 7 构建时间</th><th>提速</th></tr></thead><tbody><tr><td>VS Code</td><td>125.7s</td><td>10.6s</td><td>11.9x</td></tr><tr><td>Sentry</td><td>139.8s</td><td>15.7s</td><td>8.9x</td></tr><tr><td>Bluesky</td><td>24.3s</td><td>2.8s</td><td>8.7x</td></tr><tr><td>Playwright</td><td>12.8s</td><td>1.47s</td><td>8.7x</td></tr><tr><td>tldraw</td><td>11.2s</td><td>1.46s</td><td>7.7x</td></tr></tbody></table>\n<p>内存占用也降了：VS Code 从 5.2 GB 降到 4.2 GB，Bluesky 从 1.8 GB 降到 1.3 GB。编辑器体验的改进更直接——在 VS Code 代码库里打开一个报错的文件，第一个错误提示从 17.5 秒缩短到 1.3 秒以内。</p>\n<h3 class=\"anchor anchorWithHideOnScrollNavbar_RFLM\" id=\"用三个参数控制并行度\">用三个参数控制并行度<a class=\"hash-link\" href=\"https://icodex.me/typescript-7-0#%E7%94%A8%E4%B8%89%E4%B8%AA%E5%8F%82%E6%95%B0%E6%8E%A7%E5%88%B6%E5%B9%B6%E8%A1%8C%E5%BA%A6\" title=\"用三个参数控制并行度的直接链接\">​</a></h3>\n<p>TS 7 把解析、类型检查和代码生成都并行化了，你有三个参数可以调：</p>\n<ul>\n<li><strong><code>--checkers</code></strong>：控制类型检查器的工作线程数，默认 4。在 VS Code 项目上设为 8 能进一步把 10.6 秒压到 7.51 秒。设为 1 就退化成单线程，方便排查问题。</li>\n<li><strong><code>--builders</code></strong>：控制 <code>--build</code> 模式下项目引用的并行构建数。和 <code>--checkers</code> 是乘法关系——<code>--checkers 4 --builders 4</code> 最多同时跑 16 个类型检查器。</li>\n<li><strong><code>--singleThreaded</code></strong>：完全关掉并行化。调试性能差异或者环境受限时用它。</li>\n</ul>\n<h2 class=\"anchor anchorWithHideOnScrollNavbar_RFLM\" id=\"文件监听器也重写了--watch-不再慢\">文件监听器也重写了：<code>--watch</code> 不再慢<a class=\"hash-link\" href=\"https://icodex.me/typescript-7-0#%E6%96%87%E4%BB%B6%E7%9B%91%E5%90%AC%E5%99%A8%E4%B9%9F%E9%87%8D%E5%86%99%E4%BA%86--watch-%E4%B8%8D%E5%86%8D%E6%85%A2\" title=\"文件监听器也重写了--watch-不再慢的直接链接\">​</a></h2>\n<p>7.0 的 <code>--watch</code> 模式换了一套底层实现，从 Parcel 的 C++ 文件监听器移植而来。Go 标准库没有原生文件监听 API，纯轮询的性能又不行，这套移植就是在两个约束之间找到的解法。</p>\n<p>用 <code>tsc --watch</code> 的开发者不需要改任何配置，但响应速度会有明显提升。</p>\n<h2 class=\"anchor anchorWithHideOnScrollNavbar_RFLM\" id=\"装好就能用安装与编辑器支持\">装好就能用：安装与编辑器支持<a class=\"hash-link\" href=\"https://icodex.me/typescript-7-0#%E8%A3%85%E5%A5%BD%E5%B0%B1%E8%83%BD%E7%94%A8%E5%AE%89%E8%A3%85%E4%B8%8E%E7%BC%96%E8%BE%91%E5%99%A8%E6%94%AF%E6%8C%81\" title=\"装好就能用：安装与编辑器支持的直接链接\">​</a></h2>\n<div class=\"language-bash codeBlockContainer_Wzms theme-code-block\"><div class=\"codeBlockContent_l36C\"><pre class=\"prism-code language-bash codeBlock_G1eo thin-scrollbar\" style=\"color: #F8F8F2; background-color: #282A36;\" tabindex=\"0\"><code class=\"codeBlockLines_SGTf\"><span class=\"token-line\" style=\"color: #F8F8F2;\"><span class=\"token plain\">npm install -D typescript</span><br /></span></code></pre></div></div>\n<p>装完就能直接用 <code>npx tsc</code>。如果你用 VS Code，装一个官方扩展就行；Visual Studio 会自动按工作区启用 TS 7。想尝鲜夜间构建的话：</p>\n<div class=\"language-bash codeBlockContainer_Wzms theme-code-block\"><div class=\"codeBlockContent_l36C\"><pre class=\"prism-code language-bash codeBlock_G1eo thin-scrollbar\" style=\"color: #F8F8F2; background-color: #282A36;\" tabindex=\"0\"><code class=\"codeBlockLines_SGTf\"><span class=\"token-line\" style=\"color: #F8F8F2;\"><span class=\"token plain\">npm install -D typescript@next</span><br /></span></code></pre></div></div>\n<h2 class=\"anchor anchorWithHideOnScrollNavbar_RFLM\" id=\"破坏性变更升级前你需要知道的事\">破坏性变更：升级前你需要知道的事<a class=\"hash-link\" href=\"https://icodex.me/typescript-7-0#%E7%A0%B4%E5%9D%8F%E6%80%A7%E5%8F%98%E6%9B%B4%E5%8D%87%E7%BA%A7%E5%89%8D%E4%BD%A0%E9%9C%80%E8%A6%81%E7%9F%A5%E9%81%93%E7%9A%84%E4%BA%8B\" title=\"破坏性变更：升级前你需要知道的事的直接链接\">​</a></h2>\n<p>TS 7 和 TS 6 基本兼容（前提是你的 TS 6 开了 <code>stableTypeOrdering</code>，没设任何 <code>ignoreDeprecations</code>）。但 6.0 里只警告的东西，7.0 里不再编译。</p>\n<h3 class=\"anchor anchorWithHideOnScrollNavbar_RFLM\" id=\"这些选项彻底消失了\">这些选项彻底消失了<a class=\"hash-link\" href=\"https://icodex.me/typescript-7-0#%E8%BF%99%E4%BA%9B%E9%80%89%E9%A1%B9%E5%BD%BB%E5%BA%95%E6%B6%88%E5%A4%B1%E4%BA%86\" title=\"这些选项彻底消失了的直接链接\">​</a></h3>\n<ul>\n<li><code>target: es5</code></li>\n<li><code>downlevelIteration</code></li>\n<li><code>moduleResolution: node</code>、<code>node10</code>、<code>classic</code></li>\n<li><code>module: amd</code>、<code>umd</code>、<code>systemjs</code>、<code>none</code></li>\n<li><code>baseUrl</code></li>\n<li><code>esModuleInterop</code> 和 <code>allowSyntheticDefaultImports</code> 不能再设成 <code>false</code></li>\n<li><code>alwaysStrict</code> 锁定为 <code>true</code></li>\n<li><code>import</code> 断言（<code>asserts</code> 关键字）不能用，改用 <code>with</code> 语法</li>\n</ul>\n<h3 class=\"anchor anchorWithHideOnScrollNavbar_RFLM\" id=\"两个默认值变化最容易踩坑\">两个默认值变化最容易踩坑<a class=\"hash-link\" href=\"https://icodex.me/typescript-7-0#%E4%B8%A4%E4%B8%AA%E9%BB%98%E8%AE%A4%E5%80%BC%E5%8F%98%E5%8C%96%E6%9C%80%E5%AE%B9%E6%98%93%E8%B8%A9%E5%9D%91\" title=\"两个默认值变化最容易踩坑的直接链接\">​</a></h3>\n<p><code>rootDir</code> 和 <code>types</code> 的新默认值比上面那些选项更可能让你措手不及：</p>\n<ul>\n<li><strong><code>rootDir</code> 默认从自动推断变成 <code>./</code></strong>。以前 TS 自动把源文件所在的目录当作 rootDir，现在你必须自己写，比如 <code>\"rootDir\": \"./src\"</code>。不写的话类型输出路径可能对不上。</li>\n<li><strong><code>types</code> 默认从 <code>[\"*\"]</code> 变成 <code>[]</code></strong>。以前所有 <code>node_modules/@types/</code> 下的包自动可用，现在你得逐个列出。恢复旧行为只需要把 <code>types</code> 设为 <code>[\"*\"]</code>。</li>\n</ul>\n<h3 class=\"anchor anchorWithHideOnScrollNavbar_RFLM\" id=\"模板字面量类型的-unicode-变了\">模板字面量类型的 Unicode 变了<a class=\"hash-link\" href=\"https://icodex.me/typescript-7-0#%E6%A8%A1%E6%9D%BF%E5%AD%97%E9%9D%A2%E9%87%8F%E7%B1%BB%E5%9E%8B%E7%9A%84-unicode-%E5%8F%98%E4%BA%86\" title=\"模板字面量类型的 Unicode 变了的直接链接\">​</a></h3>\n<div class=\"language-typescript codeBlockContainer_Wzms theme-code-block\"><div class=\"codeBlockContent_l36C\"><pre class=\"prism-code language-typescript codeBlock_G1eo thin-scrollbar\" style=\"color: #F8F8F2; background-color: #282A36;\" tabindex=\"0\"><code class=\"codeBlockLines_SGTf\"><span class=\"token-line\" style=\"color: #F8F8F2;\"><span class=\"token keyword\" style=\"color: rgb(189, 147, 249); font-style: italic;\">type</span><span class=\"token plain\"> </span><span class=\"token class-name\">HeadTail</span><span class=\"token class-name operator\">&lt;</span><span class=\"token class-name constant\" style=\"color: rgb(189, 147, 249);\">S</span><span class=\"token class-name operator\">&gt;</span><span class=\"token plain\"> </span><span class=\"token operator\">=</span><span class=\"token plain\"> </span><span class=\"token constant\" style=\"color: rgb(189, 147, 249);\">S</span><span class=\"token plain\"> </span><span class=\"token keyword\" style=\"color: rgb(189, 147, 249); font-style: italic;\">extends</span><span class=\"token plain\"> </span><span class=\"token template-string template-punctuation string\" style=\"color: rgb(255, 121, 198);\">`</span><span class=\"token template-string interpolation interpolation-punctuation punctuation\" style=\"color: rgb(248, 248, 242);\">${</span><span class=\"token template-string interpolation keyword\" style=\"color: rgb(189, 147, 249); font-style: italic;\">infer</span><span class=\"token template-string interpolation\"> Head</span><span class=\"token template-string interpolation interpolation-punctuation punctuation\" style=\"color: rgb(248, 248, 242);\">}</span><span class=\"token template-string interpolation interpolation-punctuation punctuation\" style=\"color: rgb(248, 248, 242);\">${</span><span class=\"token template-string interpolation keyword\" style=\"color: rgb(189, 147, 249); font-style: italic;\">infer</span><span class=\"token template-string interpolation\"> Tail</span><span class=\"token template-string interpolation interpolation-punctuation punctuation\" style=\"color: rgb(248, 248, 242);\">}</span><span class=\"token template-string template-punctuation string\" style=\"color: rgb(255, 121, 198);\">`</span><span class=\"token plain\"> </span><span class=\"token operator\">?</span><span class=\"token plain\"> </span><span class=\"token punctuation\" style=\"color: rgb(248, 248, 242);\">[</span><span class=\"token plain\">Head</span><span class=\"token punctuation\" style=\"color: rgb(248, 248, 242);\">,</span><span class=\"token plain\"> Tail</span><span class=\"token punctuation\" style=\"color: rgb(248, 248, 242);\">]</span><span class=\"token plain\"> </span><span class=\"token operator\">:</span><span class=\"token plain\"> </span><span class=\"token builtin\" style=\"color: rgb(189, 147, 249);\">never</span><span class=\"token punctuation\" style=\"color: rgb(248, 248, 242);\">;</span><span class=\"token plain\"></span><br /></span><span class=\"token-line\" style=\"color: #F8F8F2;\"><span class=\"token plain\"></span><span class=\"token keyword\" style=\"color: rgb(189, 147, 249); font-style: italic;\">type</span><span class=\"token plain\"> </span><span class=\"token class-name\">Result</span><span class=\"token plain\"> </span><span class=\"token operator\">=</span><span class=\"token plain\"> HeadTail</span><span class=\"token operator\">&lt;</span><span class=\"token string\" style=\"color: rgb(255, 121, 198);\">\"😀abc\"</span><span class=\"token operator\">&gt;</span><span class=\"token punctuation\" style=\"color: rgb(248, 248, 242);\">;</span><span class=\"token plain\"></span><br /></span><span class=\"token-line\" style=\"color: #F8F8F2;\"><span class=\"token plain\"></span><span class=\"token comment\" style=\"color: rgb(98, 114, 164);\">// TS 7：[\"😀\", \"abc\"]</span><span class=\"token plain\"></span><br /></span><span class=\"token-line\" style=\"color: #F8F8F2;\"><span class=\"token plain\"></span><span class=\"token comment\" style=\"color: rgb(98, 114, 164);\">// TS 6：[\"\\ud83d\", \"\\ude00abc\"]</span><br /></span></code></pre></div></div>\n<p>TS 7 把 emoji 当作一个整体（码点）处理，不再拆成 UTF-16 代理对。这跟 <code>for...of</code> 和扩展运算符的行为对齐了。如果你在模板字面量类型上做过程度比较深的类型体操，这里要检查一下。</p>\n<h3 class=\"anchor anchorWithHideOnScrollNavbar_RFLM\" id=\"jsdoc-模式收紧\">JSDoc 模式收紧<a class=\"hash-link\" href=\"https://icodex.me/typescript-7-0#jsdoc-%E6%A8%A1%E5%BC%8F%E6%94%B6%E7%B4%A7\" title=\"JSDoc 模式收紧的直接链接\">​</a></h3>\n<p><code>.js</code> 文件的分析现在跟 <code>.ts</code> 更加一致。以前这些 JSDoc 写法还能用，现在不行了：</p>\n<ul>\n<li>值直接当类型用（需要用 <code>typeof</code>）</li>\n<li><code>@enum</code> 注释</li>\n<li>单独的 <code>?</code> 当类型</li>\n<li><code>@class</code> 让函数变构造函数</li>\n<li><code>function(string): void</code> 这种闭包风格语法</li>\n</ul>\n<h2 class=\"anchor anchorWithHideOnScrollNavbar_RFLM\" id=\"如果你的项目用了-vue--svelte--angular--astro\">如果你的项目用了 Vue / Svelte / Angular / Astro<a class=\"hash-link\" href=\"https://icodex.me/typescript-7-0#%E5%A6%82%E6%9E%9C%E4%BD%A0%E7%9A%84%E9%A1%B9%E7%9B%AE%E7%94%A8%E4%BA%86-vue--svelte--angular--astro\" title=\"如果你的项目用了 Vue / Svelte / Angular / Astro的直接链接\">​</a></h2>\n<p>TS 7 目前<strong>没有</strong>暴露稳定的程序化 API——这个要等到 7.1。用到 API 的工具（Volar、typescript-eslint 等）暂时只能用 TS 6：</p>\n<ul>\n<li><strong>Angular</strong>：CLI 里可以用 TS 7 查类型，编辑器里保持 TS 6</li>\n<li><strong>Vue / MDX / Astro / Svelte</strong>：继续用 6.0</li>\n<li>VS Code 里跑命令 \"Disable TypeScript 7 Language Server\" 就能回退</li>\n</ul>\n<p>微软发了个 <code>@typescript/typescript6</code> 包帮你并排跑两个版本：</p>\n<div class=\"language-json codeBlockContainer_Wzms theme-code-block\"><div class=\"codeBlockContent_l36C\"><pre class=\"prism-code language-json codeBlock_G1eo thin-scrollbar\" style=\"color: #F8F8F2; background-color: #282A36;\" tabindex=\"0\"><code class=\"codeBlockLines_SGTf\"><span class=\"token-line\" style=\"color: #F8F8F2;\"><span class=\"token punctuation\" style=\"color: rgb(248, 248, 242);\">{</span><span class=\"token plain\"></span><br /></span><span class=\"token-line\" style=\"color: #F8F8F2;\"><span class=\"token plain\">  </span><span class=\"token property\">\"devDependencies\"</span><span class=\"token operator\">:</span><span class=\"token plain\"> </span><span class=\"token punctuation\" style=\"color: rgb(248, 248, 242);\">{</span><span class=\"token plain\"></span><br /></span><span class=\"token-line\" style=\"color: #F8F8F2;\"><span class=\"token plain\">    </span><span class=\"token property\">\"@typescript/native\"</span><span class=\"token operator\">:</span><span class=\"token plain\"> </span><span class=\"token string\" style=\"color: rgb(255, 121, 198);\">\"npm:typescript@^7.0.2\"</span><span class=\"token punctuation\" style=\"color: rgb(248, 248, 242);\">,</span><span class=\"token plain\"></span><br /></span><span class=\"token-line\" style=\"color: #F8F8F2;\"><span class=\"token plain\">    </span><span class=\"token property\">\"typescript\"</span><span class=\"token operator\">:</span><span class=\"token plain\"> </span><span class=\"token string\" style=\"color: rgb(255, 121, 198);\">\"npm:@typescript/typescript6@^6.0.2\"</span><span class=\"token plain\"></span><br /></span><span class=\"token-line\" style=\"color: #F8F8F2;\"><span class=\"token plain\">  </span><span class=\"token punctuation\" style=\"color: rgb(248, 248, 242);\">}</span><span class=\"token plain\"></span><br /></span><span class=\"token-line\" style=\"color: #F8F8F2;\"><span class=\"token plain\"></span><span class=\"token punctuation\" style=\"color: rgb(248, 248, 242);\">}</span><br /></span></code></pre></div></div>\n<p>这样你的脚本和构建工具继续 <code>import</code> 6.0 的 API，命令行用 7.0 的 <code>tsc</code>。</p>\n<h2 class=\"anchor anchorWithHideOnScrollNavbar_RFLM\" id=\"业界已经在用效果怎么样\">业界已经在用，效果怎么样<a class=\"hash-link\" href=\"https://icodex.me/typescript-7-0#%E4%B8%9A%E7%95%8C%E5%B7%B2%E7%BB%8F%E5%9C%A8%E7%94%A8%E6%95%88%E6%9E%9C%E6%80%8E%E4%B9%88%E6%A0%B7\" title=\"业界已经在用，效果怎么样的直接链接\">​</a></h2>\n<p>TS 7 跑过了数万项测试加上 GitHub 上主流 TypeScript 代码库的模糊测试。几个实际用户的反馈：</p>\n<ul>\n<li><strong>Slack</strong>：合并队列等待时间缩短 40%，CI 类型检查从 7.5 分钟降到 1.25 分钟</li>\n<li><strong>Canva</strong>：编辑器里看到第一个报错从 58 秒变成 4.8 秒</li>\n<li><strong>Vanta</strong>：他们最大的项目之一快了 9 倍</li>\n<li><strong>Microsoft News Services</strong>：每月在 CI 排队上省了 400 小时</li>\n<li><strong>PowerBI</strong> 工程师：在编辑器里用 TS 7 的体验被形容为\"救命级\"</li>\n</ul>\n<h2 class=\"anchor anchorWithHideOnScrollNavbar_RFLM\" id=\"升级四步走\">升级四步走<a class=\"hash-link\" href=\"https://icodex.me/typescript-7-0#%E5%8D%87%E7%BA%A7%E5%9B%9B%E6%AD%A5%E8%B5%B0\" title=\"升级四步走的直接链接\">​</a></h2>\n<ol>\n<li><strong>先升到 6.0</strong>：把 <code>stableTypeOrdering</code> 打开，清掉所有 <code>ignoreDeprecations</code> 配置，确认项目能通过编译。</li>\n<li><strong>修好 tsconfig</strong>：把 <code>rootDir</code> 明确设成你的源码目录（比如 <code>\"./src\"</code>），把 <code>types</code> 列清楚你需要哪些 <code>@types</code> 包。</li>\n<li><strong>安装 TS 7</strong>：<code>npm install -D typescript</code>，跑 <code>npx tsc --showConfig</code> 验证配置生效了再正式构建。</li>\n<li><strong>用内嵌语言的项目</strong>：CI 和 CLI 里跑 7.0，编辑器继续用 6.0 等工具链适配。</li>\n</ol>\n<h2 class=\"anchor anchorWithHideOnScrollNavbar_RFLM\" id=\"下一步\">下一步<a class=\"hash-link\" href=\"https://icodex.me/typescript-7-0#%E4%B8%8B%E4%B8%80%E6%AD%A5\" title=\"下一步的直接链接\">​</a></h2>\n<p>7.1 会带来新的程序化 API，打通 typescript-eslint 和 Volar 等工具的接入。发布节奏保持每 3 到 4 个月一个新版本，跟 7.0 之前一样。</p>",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "icodex - 个人网站",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-12T03:30:57.653233+00:00",
-    "content_length": 14900
-  },
-  {
     "guid": "861541f6c00e4db4",
     "title": "#184 – 上半年總結 / 去 AI 味寫作工具 / 電腦玩物 Esor 的 AI 第二大腦 ®️雷蒙週報",
     "link": "https://raymondhouch.com/newsletter/184/",
@@ -9687,18 +9675,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-12T08:26:46.814019+00:00",
     "content_length": 7779
-  },
-  {
-    "guid": "5ce4364c0971d418",
-    "title": "≡ 004｜这一周莫比乌斯环转到了哪里？",
-    "link": "https://mobius.blog/25043.html",
-    "author": "ONO",
-    "content": "<div class=\"wp-block-columns jetpack-paywall-simple is-layout-flex wp-container-core-columns-is-layout-9ba6dbca wp-block-columns-is-layout-flex\" style=\"display: inline-block; width: 90%;\">\n    \n    <div class=\"wp-block-column is-layout-flow wp-block-column-is-layout-flow\">\n        \n        <h2 class=\"has-text-align-center wp-block-heading\" style=\"margin: 0 0 12px; font-weight: 600;\">订阅以继续阅读</h2>\n        \n        \n        <p class=\"has-text-align-center wp-block-paragraph\" style=\"text-align: center; color: #50575E; font-weight: 400; font-size: 16px; font-family: 'SF Pro Text', sans-serif; line-height: 28.8px;\">\n        成为付费订阅者，以查看本文章剩余内容以及其他专属内容。\n        </p>\n        \n        \n        <div class=\"wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex\" style=\"text-align: center;\">\n            \n            <div class=\"wp-block-button\" style=\"display: inline-block; margin: 10px 0; border-style: none; padding: 0;\">\n                <a class=\"wp-block-button__link wp-element-button\" href=\"https://mobius.blog/25043.html\" style=\"display: inline-block; padding: 12px 15px; background-color: #3858e9; color: #FFFFFF; text-decoration: none; border-radius: 5px; font-family: 'SF Pro Display', sans-serif; font-weight: 500; font-size: 16px; text-align: center;\">订阅</a>\n            </div>\n            \n        </div>\n        \n    </div>\n    \n</div>\n\n<p>——</p>\n<blockquote><p>感谢订阅<a href=\"https://mobius.blog\">莫比乌斯</a>，如你有任何疑问、观点交流，请前往<a href=\"https://t.me/onojyunblog\">创作者频道</a>，或<a href=\"https://mobius.blog/mail/\">私信</a>联系。</p></blockquote>",
-    "published": "2026-07-12T01:00:00Z",
-    "feed_title": "申请博客收录：莫比乌斯",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-12T08:26:46.814019+00:00",
-    "content_length": 1552
   },
   {
     "guid": "9fd52a3354d936bc",
@@ -9857,18 +9833,6 @@
     "content_length": 65
   },
   {
-    "guid": "6727e44d48d04e0d",
-    "title": "2026/07/12",
-    "link": "http://tianzeze.com/article/39bc1a70-23ff-819a-a6da-dba62375dd12",
-    "author": "",
-    "content": "<div class=\"mx-auto overflow-hidden \" id=\"notion-article\"><div class=\"notion-viewport\"></div><div class=\"notion-collection-page-properties\"></div><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff816d9262d476c3c9c18c\" start=\"1\"><li>国内航司计划取消 12 日进出港航班超 2800 架次</li></ol><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff81f39b81f394c7dd0c2e\" start=\"2\"><li>影片《功夫女足》首日票房破 2 亿，首日排映场次超 23 万，观众人次超 579 万，已打破 7 项中国影史纪录</li></ol><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff81b4a043c311a4427608\" start=\"3\"><li>2025 年我国港口货物吞吐量 183 亿吨，集装箱吞吐量 3.54 亿标箱，稳居世界第一</li></ol><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff8153a1c6d00c99a97198\" start=\"4\"><li>研究报告：中国电力发展综合排名跻身世界前列，其中电力技术创新居全球首位</li></ol><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff8115802ceceae7ff36f8\" start=\"5\"><li>多机构预测上半年 GDP 增速超 4.5%，下半年关键看出口和房地产</li></ol><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff8191b53aeed3d0ee1752\" start=\"6\"><li>长沙一公职人员占用他人车位引发纠纷，当地通报：已停职处理</li></ol><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff81cbbd93c4aca5a9d73d\" start=\"7\"><li>多地出现宠物狗使用公共直饮水，管理方已对相关设施消毒并加强巡查</li></ol><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff81d681acd52a3fe5f4cf\" start=\"8\"><li>淘宝闪购骑士制服获奖，法国设计奖首次将金奖授予劳动职业制服</li></ol><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff810186deeda0332a0e3c\" start=\"9\"><li>2026 年世界知识产权组织全球奖揭晓：3 家中国企业获奖，获奖企业数量居全球首位</li></ol><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff81fc9569c0b36cacc820\" start=\"10\"><li>国产新能源重卡组团出海，单批次近 900 台，订单量刷新纪录</li></ol><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff8106a376ee70b4845d14\" start=\"11\"><li>德系车巨头再出 “自救” 大招：将裁员 10 到 12 万，产能大砍 100 万辆，车型至多精简 50%</li></ol><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff81ea8653c9819b418c03\" start=\"12\"><li>日本可重复使用火箭 RV - X 实验机体首次试飞成功，仅升空 11 米平移 16 米降落，日本网民称像在闹着玩</li></ol><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff81a59cd4cbcde356ffe9\" start=\"13\"><li>OpenAI 研究院宣布：GPT-5.6 一小时解开 50 年数学猜想，700 词 Prompt 驾驭 64 个子 Agent</li></ol><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff818f9354dd8f51806dbc\" start=\"14\"><li>欧盟勒令美国 “元” 公司修改其社交媒体平台的成瘾性设计，否则将面临巨额罚款</li></ol><ol class=\"notion-list notion-list-numbered notion-block-39bc1a7023ff81419408de2f795b0111\" start=\"15\"><li>特朗普称已同意与伊朗继续谈判，伊朗称从未提出与美谈判诉求，同意调解方访伊</li></ol></div>",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "MOMB闲谈",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 2484
-  },
-  {
     "guid": "7e8207b15e7b6ea9",
     "title": "typecho1.2.1版本的RSS问题",
     "link": "https://blog.hudd.cn/1434.html",
@@ -9893,222 +9857,6 @@
     "content_length": 42
   },
   {
-    "guid": "6bdd0828b326d321",
-    "title": "【向量检索引擎】向量引擎全景：算法、RAG 与专用引擎之间的一层",
-    "link": "https://quant67.com/post/db/vector-engine/01-vector-engine-overview/01-vector-engine-overview.html",
-    "author": "",
-    "content": "定位专用向量检索引擎相对 ANN 算法、RAG 应用与湖仓格式的分工；以 Milvus 2.6.x 四层架构给出本系列 18 篇地图，并交代从 SIGMOD 2021 系统论文到存算分离演进的谱系。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 99
-  },
-  {
-    "guid": "7319c9599036e35a",
-    "title": "【向量检索引擎】ANN 算法工程接口：从 HNSW/IVF 到 Knowhere 契约",
-    "link": "https://quant67.com/post/db/vector-engine/02-ann-engine-interface/02-ann-engine-interface.html",
-    "author": "",
-    "content": "把 HNSW、IVF、DiskANN、Flat 收成引擎侧的索引类型与参数面；说明 Train/Build/Search 生命周期如何贴着 Segment，并与 db-frontier/08 的算法细节、第 8 篇 Knowhere 实现分层分工。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 124
-  },
-  {
-    "guid": "cbe4f56cb3e5936c",
-    "title": "【向量检索引擎】Collection · Partition · Segment · Channel：Growing 到 Sealed 的状态机",
-    "link": "https://quant67.com/post/db/vector-engine/03-segment-model/03-segment-model.html",
-    "author": "",
-    "content": "钉住 Milvus 2.6.x 的数据模型词汇：Collection/Partition、vchannel/pchannel 与 Streaming Node 绑定，Growing/Sealed 段类型、flush 与 handoff，为后续写路径与读路径提供共同状态机。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 136
-  },
-  {
-    "guid": "cad0848fb63c26e9",
-    "title": "【向量检索引擎】Proxy 与 Coordinator：接入面、TSO 与集群大脑",
-    "link": "https://quant67.com/post/db/vector-engine/04-proxy-coordinator/04-proxy-coordinator.html",
-    "author": "",
-    "content": "按 Milvus 2.6.x 四层架构拆解无状态 Proxy 的校验与 MPP 归并，以及单活跃 Coordinator 的 DDL/TSO、Streaming 绑定、Query 拓扑与离线任务调度；说明控制面与 Worker 的分工边界。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 120
-  },
-  {
-    "guid": "df2eded60088feaf",
-    "title": "【向量检索引擎】Streaming Node 与 Woodpecker WAL：实时可搜的日志层",
-    "link": "https://quant67.com/post/db/vector-engine/05-streaming-wal/05-streaming-wal.html",
-    "author": "",
-    "content": "按 Milvus 2.6.x Streaming Service 拆解 Message/TSO、WAL 组件、Recovery Storage 与 Query Delegator；说明 Woodpecker 零本地盘设计与 MemoryBuffer/QuorumBuffer 模式，并标明官方吞吐数字的引用边界。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 156
-  },
-  {
-    "guid": "a064e3f37d5db7b0",
-    "title": "【向量检索引擎】对象存储上的 Segment 布局：快照、索引与寻址代价",
-    "link": "https://quant67.com/post/db/vector-engine/06-object-storage-layout/06-object-storage-layout.html",
-    "author": "",
-    "content": "说明 Milvus 2.6.x 对象存储持久化的职责边界（日志快照、标量/向量索引、中间结果），Growing flush 后 Sealed 如何进共享存储，以及按字段拆分 binlog 与按段整合（StorageV2/Parquet）在对象存储 API 次数上的工程含义。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 137
-  },
-  {
-    "guid": "9c8ad6ec38c88a55",
-    "title": "【向量检索引擎】Query Node 与 Segcore：段级 search 如何执行",
-    "link": "https://quant67.com/post/db/vector-engine/07-segcore/07-segcore.html",
-    "author": "",
-    "content": "按 Milvus 2.6.x Data Processing 与 Architecture 拆解 Query Node 对 Sealed 的加载与段级检索，说明 Streaming Node 上 Growing 路径与 Query Delegator 如何拼成一次 search，并界定 Segcore 与 Knowhere 的层次。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 167
-  },
-  {
-    "guid": "010cfb4d32ab82ed",
-    "title": "【向量检索引擎】Knowhere：向量索引执行引擎与插件契约",
-    "link": "https://quant67.com/post/db/vector-engine/08-knowhere/08-knowhere.html",
-    "author": "",
-    "content": "按官方 Knowhere 文档说明其在 Milvus 中的位置、相对 Faiss 的扩展（bitset、SIMD 选择、二进制度量）、VecIndex 类层次与 IDMAP/IVF/HNSW 等类型，并与 db-frontier/08 的算法细节分工。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 126
-  },
-  {
-    "guid": "55ab60c049a12c83",
-    "title": "【向量检索引擎】分布式 search 归并：Delegator、多级 reduce 与 GuaranteeTs",
-    "link": "https://quant67.com/post/db/vector-engine/09-distributed-search/09-distributed-search.html",
-    "author": "",
-    "content": "按 Milvus 2.6.x Data Processing 与 Architecture 拆解 search 的多级归并树：Proxy → Streaming Node Delegator → Query Node 段级结果；说明 shard 并发、Top-k 合并直觉，以及 GuaranteeTs/ServiceTime 如何让一致性变成等待。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 175
-  },
-  {
-    "guid": "96d4f7bcefcd6a10",
-    "title": "【向量检索引擎】Data Node：compaction 与 index build",
-    "link": "https://quant67.com/post/db/vector-engine/10-datanode-compaction/10-datanode-compaction.html",
-    "author": "",
-    "content": "说明 Milvus 2.6.x 中 Data Node 作为离线 Worker 如何承接 Coordinator 下发的建索引与 compaction，输入输出如何进出对象存储，以及索引堆积与 handoff 如何影响查询新鲜度与资源争用。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 120
-  },
-  {
-    "guid": "6a0d24e3f505806a",
-    "title": "【向量检索引擎】混合检索与标量过滤：bitset、选择度与引擎落点",
-    "link": "https://quant67.com/post/db/vector-engine/11-hybrid-filter/11-hybrid-filter.html",
-    "author": "",
-    "content": "在 Milvus 引擎路径上落实 filtered ANN：表达式与 bitset 如何进入 Segcore/Knowhere，pre-filter/post-filter 在段级归并下的失效模式，以及对读 db-frontier/09 的 ACORN 争论而不重写算法全文。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 138
-  },
-  {
-    "guid": "b555837aeb67baf5",
-    "title": "【向量检索引擎】一致性模型：Strong 到 Eventually 与 GuaranteeTs",
-    "link": "https://quant67.com/post/db/vector-engine/12-consistency/12-consistency.html",
-    "author": "",
-    "content": "按官方 Consistency Level 与 Timestamp 文档说明 Strong/Bounded/Session/Eventually 如何映射到 GuaranteeTs，ServiceTime 等待如何影响尾延迟，并对照 2.6 Growing/Sealed 分流下的「刚写入就能搜到」精确含义。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 154
-  },
-  {
-    "guid": "6a4f022939f03be9",
-    "title": "【向量检索引擎】Delete · Upsert · TTL：软删、覆盖写与过期回收",
-    "link": "https://quant67.com/post/db/vector-engine/13-delete-upsert/13-delete-upsert.html",
-    "author": "",
-    "content": "按官方文档说明 delete（主键/过滤）、upsert（override/merge）、collection TTL 的语义；结合 bitset 软删与 compaction 物理回收，划清「搜索不可见」与「对象存储已清理」的时间差。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 118
-  },
-  {
-    "guid": "60b8dfd20a08e4c7",
-    "title": "【向量检索引擎】副本、负载与故障恢复：内存副本与 WAL 迁移",
-    "link": "https://quant67.com/post/db/vector-engine/14-replica-failover/14-replica-failover.html",
-    "author": "",
-    "content": "按官方 In-Memory Replica 与 Streaming Service 说明副本组、shard/historical 副本、Proxy 缓存与 failover；对照 2.6 Streaming Delegator 多副本，以及 WAL Wait for Ready 与 handoff 负载均衡。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 155
-  },
-  {
-    "guid": "535d14c687a8f629",
-    "title": "【向量检索引擎】Qdrant 对照：单库路径、payload 过滤与分片副本",
-    "link": "https://quant67.com/post/db/vector-engine/15-qdrant-compare/15-qdrant-compare.html",
-    "author": "",
-    "content": "对照 Qdrant 与本系列 Milvus 主线：Rust 段式存储与 payload 索引、分布式下 Raft 管元数据与分片复制；说明何时单进程/小集群更合适，以及分片语义与 Milvus Channel 的差异。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 109
-  },
-  {
-    "guid": "730e437810825bc7",
-    "title": "【向量检索引擎】Lance / LanceDB 对照：格式还是服务",
-    "link": "https://quant67.com/post/db/vector-engine/16-lance-compare/16-lance-compare.html",
-    "author": "",
-    "content": "承接 lakehouse/21 的 Lance vs Parquet 实测口径，划清湖原生向量格式与 Milvus 专用引擎的边界：随机 take、ANN 随数据集管理、版本化，以及何时不必上向量集群。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 101
-  },
-  {
-    "guid": "5d7e040052e13ff4",
-    "title": "【向量检索引擎】生产排障：召回、延迟、堆积、OOM",
-    "link": "https://quant67.com/post/db/vector-engine/17-troubleshooting/17-troubleshooting.html",
-    "author": "",
-    "content": "按症状反推到 Segment/索引/过滤/一致性/对象存储/副本的检查清单；只使用本系列已建立的机制，不伪造集群指标，区分金标准召回、水位等待与建索队列。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 77
-  },
-  {
-    "guid": "382a874766250ff2",
-    "title": "【向量检索引擎】选型与阅读地图：决策树、RAG 回链与开放问题",
-    "link": "https://quant67.com/post/db/vector-engine/18-engine-selection/18-engine-selection.html",
-    "author": "",
-    "content": "用决策树收束 Milvus、Qdrant、Lance/pgvector 的适用边界；回链 llm-infra RAG 与 db-frontier ANN；列出 GPU 索引、多向量、稀疏+稠密等开放问题，完成本系列阅读地图。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 112
-  },
-  {
     "guid": "2a710d4686600dba",
     "title": "向量检索引擎 — 系列规划",
     "link": "https://quant67.com/post/db/vector-engine/PLAN.html",
@@ -10119,18 +9867,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-13T03:34:11.009351+00:00",
     "content_length": 160
-  },
-  {
-    "guid": "bef1f4932e84b839",
-    "title": "【向量检索引擎】Milvus · Segcore · Knowhere · Qdrant · Lance",
-    "link": "https://quant67.com/post/db/vector-engine/index.html",
-    "author": "",
-    "content": "补齐 ANN 算法与 RAG 应用之间的生产级向量引擎层：以 Milvus 2.6.x 为主线拆解 Segment、WAL、Segcore、Knowhere、混合过滤与一致性，并用 Qdrant、LanceDB 对照选型。",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "土法炼钢兴趣小组的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 111
   },
   {
     "guid": "684ee26824dbcb2a",
@@ -10217,30 +9953,6 @@
     "content_length": 2196
   },
   {
-    "guid": "f869fad3e42b163c",
-    "title": "读完 Bun 用 Rust 重写：1 个人 11 天重写 50 万行代码是怎么做到的",
-    "link": "http://crossoverjie.top/2026/07/12/AI/bun-rewrite-rust-reading-notes/",
-    "author": "",
-    "content": "<p><img src=\"https://cdn.jsdelivr.net/gh/crossoverJie/images@main/images/images20260712160208850.png\" /></p><p>前两天发了一篇 <a href=\"https://mp.weixin.qq.com/s/WbROkvwrUFw5Lkm4-bDOXw\">Rewriting Bun in Rust</a> 原文的翻译，内容有点多，这次我自己整理了一份精简版。</p><h1 id=\"背景\"><a class=\"headerlink\" href=\"#背景\" title=\"背景\"></a>背景</h1><p><img src=\"https://cdn.jsdelivr.net/gh/crossoverJie/images@main/images/imagesmac_1783837029900.png\" /></p><p>一开始是因为在 X 上刷到 Bun 官方博客一篇<a href=\"https://bun.com/blog/bun-in-rust\">《Rewriting Bun in Rust》</a>，作者是 Jarred Sumner。看完挺震撼的——1 个工程师，用 CC（Claude Code）+ Claude Fable 5（重写那会儿还是预发布，现在订阅用户已经能正常用了），11 天把整个 Bun 从 Zig 重写成 Rust，落地 diff +100 万行，6,778 个 commit。</p><p><img src=\"https://cdn.jsdelivr.net/gh/crossoverJie/images@main/images/images20260710085026741.png\" /><br /><img src=\"https://cdn.jsdelivr.net/gh/crossoverJie/images@main/images/images20260710085654920.png\" /></p><p>这篇是我读完之后按自己的理解整理的笔记，分几个部分讲清楚：<br />为什么要扔掉 Zig、<br />为什么选 Rust、<br />整个工作流是怎么搭的、<br />作者和 CC 各自干了什么、<br />怎么保证质量，<br />以及烧了多少钱。</p><blockquote><p>顺带一提：Bun 在 2025 年 12 月被 Anthropic 收购了，作者现在也在 Anthropic。这次重写用的是 Claude Fable 5，重写那会儿（2026 年 5 月）还是预发布版，到截稿今天（2026-07-12）已经对订阅用户开放了。所以这文章多少带点「自家产品自家用了」的意味，但流程本身是真有东西的。</p></blockquote><span id=\"more\"></span><hr /><h1 id=\"为什么要停止使用-zig\"><a class=\"headerlink\" href=\"#为什么要停止使用-zig\" title=\"为什么要停止使用 zig\"></a>为什么要停止使用 zig</h1><p>先说清楚一件事：作者没有「骂」Zig，反而一直强调没有 Zig 就没有 Bun。Bun 最初就是把 esbuild 的 JS&#x2f;TS 转译器从 Go 逐行移植到 Zig 的产物，作者 2021 年写下第一行 Zig，一个人一年在奥克兰的出租屋里把 Bun 初版手搓出来。可以说 Zig 是 Bun 的恩人。</p><p>但问题出在「稳定性」上。Bun 的范围大得吓人——转译器、打包器、npm 兼容包管理、类 Jest 测试运行器、Node.js API（<code>fs</code>&#x2f;<code>net</code>&#x2f;<code>tls</code> 一堆）、HTTP&#x2f;WebSocket 客户端，全塞在一个 runtime 里。这种规模 + Zig，结果就是一长串内存安全 bug。原文贴了一小撮，我挑几个有代表性的：</p><table><thead><tr><th>类型</th><th>场景</th></tr></thead><tbody><tr><td>heap-use-after-free</td><td><code>node:zlib</code> 线程池里还有异步 <code>write()</code> 时，对 stream 调 <code>.reset()</code></td></tr><tr><td>use-after-free</td><td><code>node:http2</code> 可重入 JS 回调触发 hashmap rehash，内部流指针失效</td></tr><tr><td>堆越界写</td><td><code>UDPSocket.sendMany()</code> 迭代途中 socket 连接状态被用户回调改写</td></tr><tr><td>内存泄漏</td><td><code>tlsSocket.setSession()</code> 每次调用漏一个 <code>SSL_SESSION</code>（约 6.5KB）</td></tr><tr><td>double-free</td><td>CSS 解析器里 <code>background-clip</code> 带 vendor 前缀 + 多层背景</td></tr><tr><td>竞态崩溃</td><td><code>MessageEvent</code> 的 GC marker 线程观测到被撕裂的 variant</td></tr></tbody></table><p>根因在哪儿？JavaScript 是带 GC 的语言，JavaScriptCore（以及 V8）对异常处理和 GC 有严格规则。而 Zig 跟 C 一样不替你管内存，没有构造函数&#x2f;析构函数，清理工作要靠每个调用点显式写 <code>defer</code>。</p><blockquote><p>这不是 Zig 的锅。其他 Zig 用户没这种 bug，是因为「把 GC 值和手动管理的值混在一起」本身就是个不常见的需求，没有哪门语言会专门为此设计。</p></blockquote><p>对 Bun 来说，正确处理「GC 管的值」和「手动管的值」的生命周期，一直是稳定性问题的主要来源——最常见的是小内存泄漏，偶尔直接崩。每一处内存分配都得仔细 review：这些字节在哪释放？怎么保证只释放一次？JS 异常都检查了吗？这块内存是 GC 管的还是手动管的？</p><p>作者他们也做过不少防护：给 Zig 编译器打补丁加 ASAN、每次 commit 都开着 ASAN 跑测试、用 Fuzzilli 7×24 fuzz 运行时 API、一堆端到端内存泄漏测试。这已经比大多数项目做得多了。但还是堵不住。</p><p>说白了，可以一直一个个修下去，但用户指望着你，理应做得更好——从系统层面防止这类 bug 反复出现。于是有了换语言的念头。</p><h1 id=\"为什么切换为-rust？\"><a class=\"headerlink\" href=\"#为什么切换为-rust？\" title=\"为什么切换为 rust？\"></a>为什么切换为 rust？</h1><p>候选其实有三个：继续用 style guide 硬撑 Zig、换 C++、换 Rust。</p><p><strong>为什么不是「继续用 Zig + style guide」？</strong> 很多项目靠 style guide 回答这类问题，TigerBeetle 的 <a href=\"https://tigerstyle.dev/\">TigerStyle</a>（一份 Zig 的 style guide）、Google 那份 31000 字的 <a href=\"https://google.github.io/styleguide/cppguide.html\">C++ style guide</a> 都是例子。style guide 的难处不在写，在执行——你怎么保证它被遵守？历史上只能靠 code review + linter 尽力而为。作者甚至想过在 Zig 里手搓一套受 Rust 启发的智能指针，但他自己都嫌弃：自制的智能指针比 Rust 体验更差，还换不来任何保证。</p><p><strong>为什么不是 C++？</strong> Bun 大约 20% 的代码本来就是 C++，还内嵌了 JavaScriptCore、uWebSockets、BoringSSL、SQLite 这些 C&#x2f;C++ 库。换 C++ 是个合理选择，能拿到构造&#x2f;析构函数，还能删掉一堆 <code>extern &quot;C&quot;</code> 包装。但内存问题上还是得靠 style guide + code review，即便有 ASAN，内存损坏和泄漏照样会发生。</p><p><strong>为什么是 Rust？</strong> 看回上面那份 bug 清单，很大一部分是 use-after-free、double-free、错误路径上「忘记释放」。在 safe Rust 里，这些都是<strong>编译错误</strong>，外加 <code>Drop</code> 这种类 RAII 的自动清理。</p><blockquote><p>编译错误是比 style guide 更好的反馈回路。</p></blockquote><p>一句话：Rust 把「靠人记」变成「靠编译器兜底」。</p><p>但重写在历史上都是个糟糕主意。去掉注释，Bun 有 535,496 行 Zig。换语言重写要一个小团队整整干一年，期间得冻结 bugfix、安全修复和功能开发。作者选了风险最低的做法——<strong>机械式移植</strong>，行为改动尽量少，用已有的那套测试套件。好在 Bun 自己的测试是用 TypeScript 写的，不依赖 runtime 的实现语言，这给了重写一个「不变量」可以对照。</p><blockquote><p>这里有个关键判断：重写的样子要像把 Zig 转译成 Rust，先不过度追求地道 Rust。等 v1.4 发出去之后，再逐步减少 <code>unsafe</code>、改成更地道的写法。一步到位太贪，容易翻车。</p></blockquote><h1 id=\"整个切换的工作流是什么？\"><a class=\"headerlink\" href=\"#整个切换的工作流是什么？\" title=\"整个切换的工作流是什么？\"></a>整个切换的工作流是什么？</h1><p>这部分是我觉得整篇文章最值得拆开看的地方。作者没有「给 Claude 一句 prompt 然后赌它能成」，而是搭了大约 <strong>50 个 dynamic workflow</strong>（CC 的动态工作流），在 11 天里持续跑。</p><p>工程师日常大量工作可以简化成一个循环：</p><figure class=\"highlight js\"><table><tr><td class=\"gutter\"><pre><span class=\"line\">1</span><br /><span class=\"line\">2</span><br /><span class=\"line\">3</span><br /><span class=\"line\">4</span><br /><span class=\"line\">5</span><br /><span class=\"line\">6</span><br /><span class=\"line\">7</span><br /></pre></td><td class=\"code\"><pre><code class=\"hljs js\"><span class=\"hljs-comment\">// 伪代码</span><br /><span class=\"hljs-keyword\">let</span> task;<br /><span class=\"hljs-keyword\">while</span> ((task = todoList.<span class=\"hljs-title function_\">pop</span>())) &#123;<br />  <span class=\"hljs-keyword\">const</span> result = <span class=\"hljs-title function_\">task</span>();<br />  <span class=\"hljs-keyword\">const</span> feedback = <span class=\"hljs-keyword\">await</span> <span class=\"hljs-title class_\">Promise</span>.<span class=\"hljs-title function_\">all</span>([<span class=\"hljs-title function_\">review</span>(result), <span class=\"hljs-title function_\">review</span>(result)]);<br />  <span class=\"hljs-keyword\">await</span> <span class=\"hljs-title function_\">apply</span>(feedback, result);<br />&#125;<br /></code></pre></td></tr></table></figure><p>每个 workflow 都是这样的一个循环，分别干：生成移植指南、逐文件移植 <code>.zig</code>→<code>.rs</code>、修编译错误、修子命令、修测试、大重构。整体节奏大致是这样：</p><p><img src=\"https://cdn.jsdelivr.net/gh/crossoverJie/images@main/images/images20260710085122626.png\" /></p><table><thead><tr><th>阶段</th><th>干什么</th></tr></thead><tbody><tr><td>Prep</td><td>花 3 小时和 Claude 讨论模式映射，产出 <code>PORTING.md</code>（后来还上了 HN）；再跑一个 workflow 分析每个 struct 字段的生命周期，产出 <code>LIFETIMES.tsv</code>，并经对抗式 review</td></tr><tr><td>试运行</td><td>先只移植 3 个文件，验证流程</td></tr><tr><td>写代码</td><td>峰值每分钟约 1,300 行，6,502 个 commit</td></tr><tr><td>修编译错误</td><td>约 16,000 个错误，按 crate 分给 64 个 Claude</td></tr><tr><td>跑通</td><td><code>bun --version</code> → <code>bun test &lt;file&gt;</code> → 全测试</td></tr><tr><td>CI 全绿</td><td>972 个失败测试文件 → 2 天后 23 个 → 最终 6&#x2f;6 平台全绿</td></tr><tr><td><img src=\"https://cdn.jsdelivr.net/gh/crossoverJie/images@main/images/images20260710085408902.png\" /></td><td></td></tr></tbody></table><p>中间踩了一堆坑，作者原话叫「false starts」：</p><ul><li>Claude 们互相踩脚：一个跑 <code>git stash</code>，另一个跑 <code>git stash pop</code>，还有 <code>git reset --hard</code>。问题在于这几个命令都是对<strong>整个工作区 &#x2f; index &#x2f; stash 栈</strong>的全局性破坏操作，而一开始多个 Claude 共用同一份工作区。<code>git stash</code> 会把别人半成品的改动一起搁走，<code>git stash pop</code> 可能恢复出不相关的改动，<code>git reset --hard</code> 更狠——一个 agent 跑一下，仓库里所有其他 agent 没提交的活瞬间清零。结果就是丢活、冲突、状态错乱，agent 们互相把对方的工作撤销掉。下规则：只允许「针对特定文件的原子提交」（<code>git add &lt;具体文件&gt; &amp;&amp; git commit</code>），禁止任何会全局改动工作区&#x2f;index 的命令（<code>git stash</code>&#x2f;<code>reset --hard</code>&#x2f;<code>checkout .</code> 这类）。光禁还不够，后来又拆成 4 个独立 worktree 物理隔离，才真正解决。</li><li>太慢 → 拆成 4 个 worktree 分片，每个跑 16 个 Claude，峰值同时 64 个 Claude。</li><li>Claude 把「让所有 crate 编译通过」理解成「用 stub 把报错函数糊过去」，还写长注释自圆其说。加规则：<strong>需要一整段注释论证 workaround 为什么没问题，代码就是错的——去修代码。</strong></li><li>压测会把机器 TCP socket 耗尽、写几个 GB 到磁盘、spawn 上万个进程，debug 构建超时。用 <code>systemd-run</code>（cgroups）限制内存&#x2f;CPU、隔离 pid 命名空间。机器还是几次跑光磁盘崩了。</li></ul><h2 id=\"作者担任的角色是什么？CC-担任的角色又是什么？如何搭配工作的？\"><a class=\"headerlink\" href=\"#作者担任的角色是什么？CC-担任的角色又是什么？如何搭配工作的？\" title=\"作者担任的角色是什么？CC 担任的角色又是什么？如何搭配工作的？\"></a>作者担任的角色是什么？CC 担任的角色又是什么？如何搭配工作的？</h2><p>这是我看这篇文章最想搞清楚的问题。结论是：<strong>作者不是只做 review 的人，他是架构师 + 流程设计者 + 监工 + 验收者；CC 是执行者（写代码 + 互相 review + 改代码）。</strong></p><p><strong>作者干的：</strong></p><ul><li><strong>战略决策</strong>：选一次性全量重写而非增量、选机械式移植、定下「先像转译、之后再改地道」的总方针。这些 CC 不会替你拍板。</li><li><strong>流程&#x2f;workflow 设计</strong>：50 个 dynamic workflow 的循环结构是他搭的，每个 workflow 跑什么也是他定的。</li><li><strong>prompt 与规范制定</strong>：产出 <code>PORTING.md</code>、<code>LIFETIMES.tsv</code>，自己人工通读。</li><li><strong>监工 11 天</strong>：原文——「most of those 11 days, I monitored workflows, manually reading the outputs to check for issues and bugs, and prompting Claude to edit the loop to fix things」。也就是人工读输出、发现问题、改 workflow 的 prompt 让 Claude 自己修。</li><li><strong>处理翻车 + 改规则</strong>：上面那些 false starts 的规则都是他下的。</li><li><strong>验收</strong>：合并前人工核实测试「确实在跑、没被跳过」，本地跑一堆命令试，然后才按合并键。还把 Zig 和 Rust 并排人工通读了大量代码。</li></ul><p><strong>CC 干的：</strong></p><ul><li>实际写代码（峰值每分钟约 1,300 行，落地 diff +1,009,272）。</li><li>修编译错误（约 16,000 个）。</li><li>修测试失败（本地 + CI 各平台）。</li><li><strong>对抗式 review</strong>——注意，reviewer 也是 Claude，独立上下文窗口，1 个实现者配 2 个对抗式 reviewer。所以连 review 都大量是 <strong>Claude 审 Claude</strong>。</li></ul><p>两人怎么搭配？核心是一句话：<strong>当出问题时，修掉生成代码的流程，而不是手工修代码。</strong> 作者修的是「过程」，具体代码交给 CC。</p><blockquote><p>这种分工其实挺反直觉的。很多人用 Agent 是「让 Agent 写，我审」。作者反过来：让 Agent 写、Agent 审、Agent 改，自己只盯「流程」和「验收」。把人从执行链路里摘出来，专心做架构和决策。这个思路我个人觉得是这次重写最值得安利的部分。</p></blockquote><p>对抗式 review 还有个设计细节很巧：<strong>拆分上下文窗口</strong>。写代码的 Claude 想让代码被接受（有「赶紧发出去」的偏向），审代码的 Claude 被要求「假定代码是错的，找它不工作的理由」。reviewer 只拿到 diff，看不到实现者的任何推理。1 个实现者 + 2 个以上对抗式 reviewer，实现者不审、reviewer 不写。原文举了一个真抓到的 bug：异步 <code>uv_close</code> 之前 Box 就 drop 了，先 UAF 再 double-free，编译能过、看着也没问题，但 reviewer 抓到了。</p><h1 id=\"如何保证切换后的代码质量，如何做测试？\"><a class=\"headerlink\" href=\"#如何保证切换后的代码质量，如何做测试？\" title=\"如何保证切换后的代码质量，如何做测试？\"></a>如何保证切换后的代码质量，如何做测试？</h1><p>一个 +100 万行的 PR 怎么 review？你怎么建立信心去合并？作者给的答案是三件套：</p><ol><li><strong>一套与语言无关、含上百万断言的测试</strong>。</li><li><strong>对抗式 code review</strong>。</li><li><strong>出问题时，修流程而不是手修代码</strong>。</li></ol><p>测试这块是真扎实。测试用 TypeScript 写，所以不依赖 runtime 语言，重写前后用的是同一套。各平台的断言数：</p><table><thead><tr><th>平台</th><th>expect() 调用数</th><th>测试数</th><th>文件数</th></tr></thead><tbody><tr><td>Debian 13 x64</td><td>1,386,826</td><td>60,624</td><td>4,174</td></tr><tr><td>macOS 14 arm64</td><td>1,259,953</td><td>58,850</td><td>4,175</td></tr><tr><td>Windows 2019 x64</td><td>1,007,544</td><td>57,337</td><td>4,173</td></tr></tbody></table><p>合并前要求 <strong>100% 测试在所有平台的 CI 上都通过</strong>，作者还人工核实测试「确实在跑、没被跳过」——这一步很重要，Agent 偷懒跳测试是经典坑。</p><p>合并之后还在持续加码：</p><ul><li><strong>11 轮安全审查</strong>（Claude Code Security），处理了所有发现。</li><li><strong>7×24 覆盖引导 fuzzing</strong>，覆盖每个解析器——JS、TS、JSX、CSS、JSON5、JSONC、TOML、YAML、Markdown、INI、Bun Shell、semver、.patch、CSS 颜色。fuzzer 找到 bug 自动发给 Claude 提 PR 复现+修复，人审。迄今跑了 1000 亿次，产出约 15 个 PR。</li><li><strong>Miri</strong>（在 CI 里覆盖越来越大的代码段）+ <strong>LeakSanitizer</strong>。</li><li><code>unsafe</code> 占比：约 4% 的 Rust 代码在 <code>unsafe</code> 块里（~13,000 个 <code>unsafe</code> 关键字 &#x2f; ~780,000 行），其中 78% 只有一行——基本是一个来自 C++ 的指针或一次对 C 库的调用。</li></ul><p>当然，重写不可能零回归，这次引入了 <strong>19 个已知回归，全部已修</strong>。多数来自「两门语言语法相同、语义不同」的坑，原文举的例子很值得记一下：</p><ul><li><strong><code>debug_assert!</code> 里的副作用</strong>：Zig 的 <code>assert</code> 是函数，参数每次都跑；Rust 的 <code>debug_assert!</code> 是宏，release 构建里整段被抹掉，连里面的 <code>insert_stale</code> 调用也没了，HMR 在某些场景挂了。debug 构建正常，所以一开始没发现。</li><li><strong>奇数长度切片</strong>：Zig 的 <code>reinterpretSlice</code> 用 <code>@divTrunc</code> 忽略尾部奇数字节，<code>bytemuck::cast_slice</code> 直接 panic。</li><li><strong>边界检查</strong>：Zig 的 <code>ReleaseFast</code> 去掉边界检查，Rust release 保留，于是原本不可达的越一 bug 被触发，Rust panic 而不是写越界。</li><li><strong><code>comptime</code> 格式串</strong>：Zig 里 <code>fmt</code> 是 comptime，颜色标记在参数替换前就处理掉了；Rust 函数没有 comptime 参数，标记被改写到了参数上。</li></ul><blockquote><p>这些坑本质上都是「机械移植」的代价。语法看着一样，语义不一样，最容易懵逼。但也正因为有那套百万断言的测试兜底，才敢这么干。</p></blockquote><p><img src=\"https://cdn.jsdelivr.net/gh/crossoverJie/images@main/images/images20260710090147962.png\" /><br />效果上，Rust 版的 Bun 确实更好了：内存占用下降（修掉了每个可插桩的内存泄漏，<code>Bun.build()</code> 从每次泄漏约 3MB 变成趋于平稳）、二进制体积缩小约 20%（Linux&#x2f;Windows）、性能快 2%–5%。</p><h1 id=\"整体使用的模型、token、花费大约是多少？\"><a class=\"headerlink\" href=\"#整体使用的模型、token、花费大约是多少？\" title=\"整体使用的模型、token、花费大约是多少？\"></a>整体使用的模型、token、花费大约是多少？</h1><table><thead><tr><th>项目</th><th>数值</th></tr></thead><tbody><tr><td>模型</td><td>Claude Fable 5（Mythos 级别；重写时为预发布，现已对订阅用户开放）</td></tr><tr><td>未缓存输入 token</td><td>59 亿</td></tr><tr><td>输出 token</td><td>6.9 亿</td></tr><tr><td>缓存输入 token 读取</td><td>720 亿</td></tr><tr><td>API 花费</td><td>约 165,000 美元</td></tr><tr><td>峰值并发</td><td>64 个 Claude（4 个 workflow × 16）</td></tr><tr><td>耗时</td><td>11 天（5 月 3 日 → 5 月 14 日合并）</td></tr><tr><td>commit 数</td><td>6,778 个</td></tr></tbody></table><p><strong>没有 LLM 的时代要多少人干多久？</strong> 作者自己的估算：3 个对代码库有完整 context 的工程师，干一年。而且这一年里没法改进 Node.js 兼容性、没法修 bug、没法修安全问题、没法加新功能。作者原话——「我们绝不会这么做」。现实的替代方案就是「什么都不做，一直修文章开头那些 bug」。</p><p>说白了，这次重写之所以能成，不是因为 Rust 比 Zig 好多少，而是因为 LLM 把「重写一年、冻结所有业务」这个成本，压到了「1 个人 11 天 + 16 万刀」。</p><blockquote><p>16 万刀看着贵，但对比「3 个核心工程师一年全力投入、期间零业务推进」的机会成本，这笔账其实算得过。而且 Fable 5 现在已经对订阅用户开放，重度 CC 用户用订阅额度也能跑起来，这套流程会越来越香。</p></blockquote><h1 id=\"总结\"><a class=\"headerlink\" href=\"#总结\" title=\"总结\"></a>总结</h1><p>读完这篇，我最大的感受不是「Rust 真好」或者「Zig 不行」，而是「<strong>一个工程师今天能做的，比前些年多得多</strong>」。</p><p>这是一些我总结的经验：</p><ol><li><strong>人从执行链路里摘出来</strong>。让 Agent 写、Agent 审、Agent 改，人只盯「流程设计」和「验收」。这跟很多人用 Agent「让它写、我来审」的直觉是反的，但作者用 11 天 + 100 万行证明了这条路可行。</li><li><strong>修流程，不修代码</strong>。出问题改 workflow 的 prompt 和规则，而不是手修 diff。这是把「一次性修补」变成「系统性防止」的关键。</li><li><strong>对抗式 review + 拆分上下文窗口</strong>。实现者想合并、reviewer 想找茬，天然对立；reviewer 只拿 diff、看不到实现者推理。这套设计可以直接抄到自己的 CC workflow 里。</li><li><strong>语言无关的测试套件是重写的底气</strong>。敢机械移植，前提是有一套百万断言、跟实现语言无关的测试兜底。没有这个，谁也不敢合并 +100 万行 LLM 代码。</li><li><strong>机械移植 &gt; 一步到位</strong>。先像转译、行为不变，之后再改地道。一步到位太贪，容易翻车。这个判断对任何「大重构」都适用。</li></ol><p>当然也有它的特殊性：作者是 Bun 的创造者、对代码库有完整 context，重写那会儿用的还是 Fable 5 预发布版（现在已开放订阅），流程本身也踩了不少坑（互相踩脚、stub 糊编译错误、磁盘跑光）。不是随便谁来都能复刻。但方法论是通用的——<strong>流程设计 + 对抗式 review + 强测试兜底 + LLM 执行</strong>，这套组合拳，值得每个重度用 CC 的人认真琢磨。</p><p>不过说回国内，16 万刀换算过来是一笔不小的开支。最近还有个趋势挺值得警惕：一些老板看到别家公司对外宣传的「Agent 重写」「AI 替代工程师」成果，就也想在内部搞一套，想着用 Agent 替掉几个工程师来省钱。</p><p>但在我看来，这事没这么简单，至少得先想清楚几个问题：</p><ol><li><strong>业务真的需要顶配模型吗？</strong> 大部分业务说白了就是增删改查，拿最贵的模型去跑这种活，杀鸡用牛刀（简单来说都是增删改查）。</li><li><strong>舍得花这么多钱吗？</strong> 16 万刀只是一次重写的 API 费，常态化跑起来账单只会更吓人，这笔账得先算清楚。</li><li><strong>指挥 AI 干活的人，能不能扛起来？</strong> 这次能成的前提是作者本身就是 Bun 的创造者，对代码库有完整 context，能当好架构师 + 流程设计者 + 监工 + 验收者这几个角色。换成公司里一个对业务没那么熟的工程师来指挥，效果天差地别。</li><li><strong>内部怎么评估 AI 带来的效率提升？</strong> 没有量化就只有感觉，而「我感觉快了」这种话，最后往往经不起对账。</li></ol><p>很多老板自己都没想清楚，就被对外宣传裹挟着陷入深深的焦虑，一头扎进去搞 AI 替代，最终的效果往往适得其反——钱花了，人也没省下来，业务还可能被带歪。</p><blockquote><p>让子弹飞一会，但这次子弹已经飞到 100 万行代码量级了。</p></blockquote>",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "crossoverjie.top",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 14673
-  },
-  {
-    "guid": "c9ba6467db3385ef",
-    "title": "TRAIN TRIP 的产品设计细节",
-    "link": "https://bluepika.life/blog/train-trip-product-design-details",
-    "author": "",
-    "content": "<p>在我继续补完日本游记前，我想先聊聊 Train Trip 这个产品，这是我和 Cora 去年在日本旅行时最喜欢用的产品之一，甚至多次愿意为了它多搭一两个站。</p>\n<p>Train Trip 是日本为了庆祝 JR 成立 150 周年的而推出的数字活动之一，这个产品的主要功能很简单：你到了指定的 JR 站后（可以理解为车站/地铁站），可以在应用内打卡，获得一个数字印章。其实官方的介绍里称其为数字邮票，我认为说是数字印章更贴切。</p>\n<p>这个产品更具体的背景和获奖情况等，我就不多讲了，我相信任何一个 AI 都会讲得比我更清楚。</p>\n<p>社交媒体上对这个产品还有两点很少提及：</p>\n<p>一是这是一个 Web 应用，不是 App，所以你去应用商店怎么搜也不会搜到，这是很多小红书帖子没有说明的一点，但你可以通过 Safari 添加到桌面，让它显得像一个独立应用。</p>\n<p>二是产品目前只支持 X 或者 Line 授权登录，连 Google 登录都不支持。</p>\n<h2>设计细节</h2>\n<p>App Store 里不乏类似的车站打卡应用，为什么这个产品如此让我们着迷，印章设计绝对是最重要的理由。</p>\n<h3>印章设计</h3>\n<p>日本有着非常深厚的印章文化，从各种作品中出现过的姓氏印章、到车站印章、御朱印等等我早就有所了解。我们旅途路上也收集了不少实体的印章，比如车站的印章，熊野古道的神社印章，还有参与偶遇的卡比印章活动等等。而车站印章的文化，就是 Train Trip 这个数字活动的来源。</p>\n<p>Train Trip 里每个印章的独特之处在于它结合了车站以及当地的文化来设计，这个设计理念，换任何的设计团队来思考，这都是最理所当然的一个设计方向，而从最终的执行效果上，我的评价是：这些印章的设计真的太好看了，我简单展示几个，或者看这个介绍的<a href=\"https://www.youtube.com/watch?v=vu7Gw3pettI\">视频</a>，你们就会知道为什么我会喜欢它它，官方的<a href=\"https://x.com/JRgroup_cp\">推特</a>也会不定时展示一些印章设计和当地文化的分享。</p>\n<figure><img alt=\"\" src=\"https://pub-acdbc21bc3964d18a684b0c51010a4e5.r2.dev/design-in-train-trip-stamp.png\" /></figure>\n<h3>颜色</h3>\n<p>印章在设计上只用了 6 种颜色设计，这是 JR 集团的各公司标志颜色。</p>\n<figure><img alt=\"\" src=\"https://pub-acdbc21bc3964d18a684b0c51010a4e5.r2.dev/design-in-train-trip-color.png\" /></figure>\n<h3>网页风格</h3>\n<p>网页的其他 UI 只用了最简单的白色、黑色和灰色来表达，这样印章的色彩部分就显得更加亮眼，不过从上面分享的视频里可以看到，最开始的版本使用了一个偏米黄色的背景，这个灰色背景的改动很细，但是很恰当。</p>\n<h3>印章强度</h3>\n<p>盖印的交互里有一点很有意思 ，印章的强度会根据你长按的时间来显示不同的效果，我本来以为有些印章的设计设计就是这么弱的对比度，后来的才偶然发现了这个细节。从下面图里可以看到，这种轻重不同的效果，并不只是透明度的不一样，在细节上还有很多差异，比如浅的印章，缺损，晕染会更多，这模拟了现实中盖实体印章时由于力度不一样而导致的洇开、缺墨、边缘缺损等导致深浅不一的效果。</p>\n<p>我看了一下网页代码，盖印的深浅使用了 6 张不同深浅的图来实现的，非常简单易行的实现方式。</p>\n<figure><img alt=\"\" src=\"https://pub-acdbc21bc3964d18a684b0c51010a4e5.r2.dev/design-in-train-trip-weight.png\" /></figure>\n<p>我看到官方的设计细节里面有提到有一本印刷了产品里印章的书，如果有知道的朋友知道可以在哪里买到，欢迎告诉我。</p>\n<h3>App 图标</h3>\n<p>产品的App 图标主体是一只鸟，对此官方的说明是希望大家以鸟的视角，重新认识各地的景观和文化的魅力，这是原定的 JR 150 周年活动过后，在 2023 年的产品主题更新时提出来的概念，我没有查证是否 2022 年就已经在开始使用这只鸟的形象。</p>\n<p>另一方面，鸟的图形是怎么设计出来的，我的猜测是这是由 JR 150 周年的纪念 Logo 中的桥梁变形重构而来。</p>\n<figure><img alt=\"\" src=\"https://pub-acdbc21bc3964d18a684b0c51010a4e5.r2.dev/design-in-train-trip-logo.png\" /></figure>\n<h2>盖印之外</h2>\n<p>产品在 2022 年开始时只有最基础的地点打卡功能，而在这四年运营期间，除了常规的增加车站印章之外，也周期性地更新了一些其他功能和特殊印章，以下是一些比较明显的更新。</p>\n<h3>排行榜</h3>\n<p>2023 年新增了排行榜，在里面可以看到自己的排名和总的排名，用户名称都是由日本铁路历史上的列车名称加随机数字组合而成的，再一次强化了产品的铁路文化氛围，我非常佩服那些打卡到 1000 多个印章的狂热爱好者。</p>\n<figure><img alt=\"\" src=\"https://pub-acdbc21bc3964d18a684b0c51010a4e5.r2.dev/design-in-train-trip-leaderboard.png\" /></figure>\n<h3>SPECIAL STAMP</h3>\n<p>产品内的「SPECIAL STAMP」页面里，里面详细列出了一些成就，同时打开多个车站就可以完成，比如图里的「驰骋于铁轨上的溪流宝石」就是要同时打卡熊本站和阿苏站。</p>\n<p>任务名称也经过了特别的设计，用以介绍几个站点之间的铁路旅途的体验，比如上面的「溪流宝石」指的是 JR 九州阿苏地区的观光列车，穿越溪谷与火山景观的乘坐体验。</p>\n<figure><img alt=\"\" src=\"https://pub-acdbc21bc3964d18a684b0c51010a4e5.r2.dev/design-in-train-trip-special.png\" /></figure>\n<h3>铁道与生物</h3>\n<p>新增了一批<a href=\"https://kyodonewsprwire.jp/release/202407193836\">带有生物的印章</a>，并且有专门的生物图鉴页面，展示与车站相关的生物知识，比如下面展示的须磨站就是须磨海滨公园里的虎鲸。据官方介绍，印章里出现的生物，也包括地方传说和幻想生物。</p>\n<figure><img alt=\"\" src=\"https://pub-acdbc21bc3964d18a684b0c51010a4e5.r2.dev/design-in-train-trip-living.png\" /></figure>\n<h3>铁道基地</h3>\n<p>产品内页面称为铁道基地，这系列印章称为铁道之脸印章，大概是因为印章设计都是火车头的正脸，获得方式是在一组 2-3 个车站内取得部件，然后组合盖印成一个完整的火车头印章，这也是现实常见的盖印组合的玩法。</p>\n<figure><img alt=\"\" src=\"https://pub-acdbc21bc3964d18a684b0c51010a4e5.r2.dev/design-in-train-trip-eki-face.png\" /></figure>\n<h3>车站便当和车站荞麦面</h3>\n<p>车站便当（駅弁）也是日本车站文化很特别的一环，2023 年和 2025 年的产品更新分别加入了这两批印章，我简单看了下，应该是要到店消费且定位才能获得这些特殊印章。</p>\n<figure><img alt=\"\" src=\"https://pub-acdbc21bc3964d18a684b0c51010a4e5.r2.dev/design-in-train-trip-ekiben.png\" /></figure>\n<h3>青春 18 车票联动</h3>\n<p>青春 18 车票是日本最经典的铁路旅行车票之一，可以在规定天数内，无限乘坐日本全国的 JR 普通列车和快速列车，每年发售 3 次，每次发售都会制作一张新的宣传海报。而<a href=\"https://japan-traveling.net/18/2001winter/\">青春 18 的海报</a>是青春 18 车票的标志性一部份，其风格统一，同时背景也是在真实的车站拍摄的照片，JR 的这次联动就是把一些经典海报设计成特殊的印章，可以说是一次极其完美的联动。</p>\n<figure><img alt=\"\" src=\"https://pub-acdbc21bc3964d18a684b0c51010a4e5.r2.dev/design-in-train-trip-poster.png\" /></figure>\n<h3>铁路知识印章</h3>\n<p>增加一些铁路知识的印章，印章的设计以单色的设计为主，不需要定位，每天上线就能打卡获得一个。</p>\n<figure><img alt=\"\" src=\"https://pub-acdbc21bc3964d18a684b0c51010a4e5.r2.dev/design-in-train-trip-eki-note.png\" /></figure>\n<p>总体来看，后续的更新主要是以印章的扩充为主，功能的增加比较克制，但无论从最开始的150周年纪念到后面的更新，所有的产品细节依然一直围绕着铁路和印章这两个文化主题。</p>\n<h2>其他补充</h2>\n<p>关于这个产品，我们在使用过程中我还获得了一些额外的信息，也一并补充在这里。</p>\n<p>产品只有日语，不过里面出现的界面和词汇量不多，部分浏览器可以提供翻译功能。</p>\n<p>使用过程中不需要出车站或者限制停留时间多长才能盖章，这对于我们当时坐长途线路，一路盖章过去很友好，但这样同时存在一个小问题就是，一不留神就会错过打卡 :D</p>\n<p>这是一个根据地理位置打卡的应用，换言之，我们需要给网页定位权限，这个一般会在第一次访问页面的时候弹出来，但是由于不同的浏览器的特性不一样，也会出现不能弹出来的情况，如果实在不行，建议换一个浏览器。</p>\n<p>这个网页不检测设备，只检测是否手机分辨率下来确认是否可以运行，这一点意味着，除了在真的手机下访问，你可以把电脑分辨率调成手机的分辨率来访问。</p>\n<p>虽然官方很早期提到会定期下线，但官方资料提到在 2023 年，产品主题从纪念 JR 150 周年，转向了「探索日本」，所以我认为这个产品还会持续运营比较长的时间，去日本的朋友有兴趣的话可以试一下。</p>",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "Bluepikachu",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T03:34:11.009351+00:00",
-    "content_length": 4728
-  },
-  {
     "guid": "21786440c08f8e71",
     "title": "yuanrenxue_practice01",
     "link": "https://blog.share888.top/note/back-end/reverse/js_reverse/yuanrenxue_practice01.html",
@@ -10289,18 +10001,6 @@
     "content_length": 465
   },
   {
-    "guid": "0f8f506bd046e168",
-    "title": "容器部署 Ceph",
-    "link": "https://www.chenshaowen.com/blog/container-deploy-ceph.html",
-    "author": "微信公众号",
-    "content": "本文介绍 cephadm 单节点验证与三节点生产部署。架构、运维与功能测试见《Ceph 架构与运维》。 1. 磁盘准备 OSD 只能使用块设备（/dev/sdX、分区、/dev/loopN）。 1.1 查看可用设备 1 2 3 4 5 6 7 lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT,MODEL # 文件系统与 UUID lsblk -f # 指定盘是否已挂载（无输出 =",
-    "published": "2026-07-12T00:00:00Z",
-    "feed_title": "陈少文的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T09:38:52.626197+00:00",
-    "content_length": 208
-  },
-  {
     "guid": "8c6541f1db2f6442",
     "title": "当我老了",
     "link": "https://blog.fivest.one/archives/7141",
@@ -10323,18 +10023,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-13T09:38:52.626197+00:00",
     "content_length": 11673
-  },
-  {
-    "guid": "40f612edf8045660",
-    "title": "向云端｜西南自驾01 - 裸辞",
-    "link": "https://blog.ops-coffee.com/r/2026-southwest-road-trip-01-luoci.html",
-    "author": "",
-    "content": "",
-    "published": "2026-07-12T03:54:06Z",
-    "feed_title": "运维咖啡吧",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-13T09:38:52.626197+00:00",
-    "content_length": 0
   },
   {
     "guid": "dcee8be69569f85f",
@@ -17031,5 +16719,41 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-25T19:17:19.784973+00:00",
     "content_length": 144
+  },
+  {
+    "guid": "af4270393a09b302",
+    "title": "一份指令，三个智能体——给 AI 管记忆的第三课",
+    "link": "https://www.fengcan.net/one-config-three-agents/",
+    "author": "创见思考",
+    "content": "<p>前两篇记了两个教训：<a href=\"https://www.fengcan.net/ai-memory-one-source-of-truth/\">一条铁律</a>——给 AI 配的长期记忆只能有一份真相源，不能分散在几个地方各记各的；<a href=\"https://www.fengcan.net/ai-memory-sole-writer/\">一条规矩</a>——记忆只能由一家 AI 写入，别的几家只读，要添东西先投到收件箱等归并。</p>\n<p>这第三课更琐碎一些，不关记忆，关指令本身。</p>\n<p>我现在同时用三个 AI 编程工具。一个是主力，干活最多；另外两个各有长处，轮班上场。三个工具都需要一份指令文件告诉它：我是谁、我偏好什么、哪些事该做哪些事别碰。</p>\n<p>最早的做法很直觉：给每家手写一份，大意差不多，但各有些针对工具特性的小差异。写完那天，三家的行为高度一致，令人短暂地以为&#8221;问题已解决&#8221;。</p>\n<p>一周后就不对了。</p>\n<p>原因很具体：我改了主力工具的指令——加了一条行为规则，删了一条过时的约定——改完顺手就继续用了。另外两家的文件还停在旧版本上。又过几天，某个工具的做法让我觉得别扭，查了半天才发现它在忠实执行我两周前已经删掉的规矩。</p>\n<p>它没有错。制造混乱的人是我。</p>\n<p>用软件工程的话说，这叫&#8221;配置漂移&#8221;——同一套规则有三份拷贝，改了一份忘了另外两份，时间一长就各说各话。做过运维的人都知道，三台服务器的配置一旦漂移开来，bug 会从你想不到的角落冒出来。</p>\n<p>后来收敛出的办法不复杂，甚至有点笨：只维护一份指令原件，放在一个固定的地方；写一个同步脚本，每次改完原件跑一遍，由脚本自动生成三个工具各自需要的入口文件。入口文件不许手改——改了也白改，下次同步一律覆盖。</p>\n<p>核心约束只一条：<strong>人只改原件，不碰生成物。</strong></p>\n<p>听着像常识。实际操作起来，随手改某个工具的入口文件比去找原件、改原件、跑脚本要快得多，每一次省事的冲动都在邀请你绕过流程。而每一次绕过，都在制造下一次漂移。</p>\n<p>记忆那边的纪律亦是同理。三家工具都能读我积攒的笔记——关于偏好、工作习惯、过往决策的几百个文件——但只有一家有权直接写入。另外两家发现值得长期记住的东西，只能写一条候选投到收件箱，由主力工具定期归并。限制写入权限，并非不信任那两家。两个写入者同时改一份文件的后果，比延迟归并几小时要严重得多——这一点<a href=\"https://www.fengcan.net/ai-memory-sole-writer/\">上一篇</a>已经吃过亏了。</p>\n<p>三课攒下来，隐约有一条线串在里面：跑偏的根源，每一次都不在工具身上。AI 不会自己决定去哪里找真相——你给它哪份指令，它照办；AI 也不会自己决定谁有权写记忆——你的流程决定的。出问题的那个环节，从头到尾是操作者本人：改了一处忘了另外两处的是你，嫌跑脚本麻烦直接手改的也是你。</p>\n<p>工具越听话，操作者的纪律就越是那个真正的瓶颈。</p>\n\n<p><a href=\"https://www.fengcan.net/one-config-three-agents/\">Source</a></p>",
+    "published": "2026-07-26T03:18:59Z",
+    "feed_title": "创见思考",
+    "feed_category": "Blogs",
+    "cached_at": "2026-07-26T03:33:41.904908+00:00",
+    "content_length": 1424
+  },
+  {
+    "guid": "c411186529569764",
+    "title": "网站出现意外，恢复后部分评论遗失",
+    "link": "https://jiangcl.com/4869",
+    "author": "蒙需",
+    "content": "今天早上操作大意，导致网站出现意外。虽已恢复至昨天下午 14 时的备份，但部分评论遗失。特此说明。",
+    "published": "2026-07-26T00:06:46Z",
+    "feed_title": "蒙需",
+    "feed_category": "Blogs",
+    "cached_at": "2026-07-26T03:33:41.904908+00:00",
+    "content_length": 49
+  },
+  {
+    "guid": "85cf6064db9ec403",
+    "title": "关于蒙需和友情链接页面的视觉改版",
+    "link": "https://jiangcl.com/4857",
+    "author": "蒙需",
+    "content": "这几年，我欣赏过许多博客主精心设计的页面，它们美观精致，无可挑剔；但同时，也有许多博客主偏爱极简主义，那种清爽 &#8230; <a class=\"more-link\" href=\"https://jiangcl.com/4857\">继续阅读<span class=\"screen-reader-text\">关于蒙需和友情链接页面的视觉改版</span></a>",
+    "published": "2026-07-25T23:57:45Z",
+    "feed_title": "蒙需",
+    "feed_category": "Blogs",
+    "cached_at": "2026-07-26T03:33:41.904908+00:00",
+    "content_length": 181
   }
 ]
