@@ -9653,42 +9653,6 @@
     "content_length": 42
   },
   {
-    "guid": "4212ed287d49f969",
-    "title": "爪子留下了——OpenClaw 与全民智能体的第一课",
-    "link": "https://www.fengcan.net/openclaw-the-claw-remains/",
-    "author": "创见思考",
-    "content": "<p>我的 Windows 机器的 WSL 子系统里，至今躺着三份 OpenClaw 的安装副本：两份当年在用的，一份孤儿。今年六月，我把干活的智能体收敛到 Claude Code，OpenClaw 降为备用件，从此吃灰。按说一个被亲手退役的工具，不配再占一篇博客的篇幅。但最近读到它的近况，我改了主意。</p>\n<p>先摆履历。数字都有出处，文末可查。</p>\n<p>2025 年 11 月 24 日，奥地利工程师 Peter Steinberger 给自己的一个小项目提交了第一行代码，起名 Warelay，功能朴素，就是把 AI 接进 WhatsApp。十二月它定名 Clawdbot，一个自托管、常驻、借你手机里现成的聊天软件跟你说话的个人智能体；次年一月底，这个名字连同它背后的玩法在全网走红。2026 年 1 月 27 日，Anthropic 发来商标要求，嫌它太像 Claude，项目当天改名 Moltbot；Steinberger 嫌新名拗口，三天后再改，定名 OpenClaw。两番改名不但没有杀死热度，反倒添了柴：2 月 2 日 GitHub star 破十万；2 月 4 日旧金山办首届 ClawCon，五百人的场地报名来了一千三百人；3 月 3 日它超过 React，登顶 GitHub 星标榜——React 走到那个位置用了十年，它从年初进入公众视野算起，用了六十天。至本文写作时，星标已过三十八万。</p>\n<p>随后是收编与封神各半的结局。2 月 14 日，Steinberger 在博客上宣布加入 OpenAI，Altman 同日发推确认；7 月 8 日，OpenClaw 基金会注册为非营利组织，MIT 协议写进章程，自我定位是&#8221;AI 界的瑞士&#8221;，赞助名单从 OpenAI、英伟达、微软排到腾讯。而最大捐助方，是密歇根大学。</p>\n<p>履历摆完，回到正题。一个我自己都不用了的东西，凭什么重要？因为它完成了一次对大众的智能体启蒙。</p>\n<p>在它之前，智能体住在两个地方，开发者的终端里，和企业客户的 PPT 里。普通人听说过 agent，没摸过 agent。OpenClaw 做的事说穿了极简单：把智能体塞进你已经装着的 WhatsApp 和 Telegram，让它像一个朋友，常驻在聊天列表顶端。人机界面一换，人和 AI 的相处方式就换了，&#8221;去用一个工具&#8221;的旧心态，装不下一个一直在场的东西。</p>\n<p>更深一层的变化在祛魅。几十万人装机折腾、也翻了不少车之后，&#8221;智能体&#8221;这个词被拆开了，无非一个循环、一堆工具，再配一份记忆文件。亲手跑过一次的人，就再不会被这个词唬住。</p>\n<p>最要紧的是它种下的预期：&#8221;每个人该有一个自己的、认识你的常驻 AI&#8221;——这句话在 2025 年还算科幻，到 2026 年已是几十万人的日常预期。</p>\n<p>勿庸讳言，这场启蒙的另一半是用事故教的。今年二月，有安全研究者在公网上扫出四万余个不设防的 OpenClaw 实例，其中五千多个被验证可直接利用；三月一篇 arXiv 论文测得它对间接提示注入的平均防御率约 17%；同月曝出 CVSS 评分 9.9 的远程代码执行漏洞。&#8221;全民&#8221;二字也要打折。装它得有服务器或 WSL，得会命令行，真正跑起来的多是极客；媒体拿得出手的&#8221;普通人&#8221;案例，一位匿名的牙医，一位让智能体替他向本地车行砍皮卡价钱的用户，掰着指头数得过来。它真正普及开的是观念；实践的门槛，还拦着大多数人。</p>\n<p>我自己弃用它的账目，也如实报上。其一，迭代太快，升级即翻车是家常便饭。其二，今年二月起 Anthropic 明令消费级订阅的 token 不得用于第三方工具，四月起计费强制执行，六月中旬政策回摆、第三方用量重新计入订阅额度——半年里几度翻烧饼，信心已伤；在它里面跑前沿模型，要么按量烧钱，要么换更便宜的模型。其三，它教我的那套记忆惯例，用几个 Markdown 文件给 AI 一个身份、一份长期记忆，我原样搬进了 Claude Code。搬完之后，它在我这儿就只剩备用件的身份。</p>\n<p>1975 年的 Altair 8800 是台简陋难用、动辄烧手指的机器，爱好者要自己焊板子、自己写程序，商业上昙花一现；个人电脑运动却公认从它起步，因为它第一次让&#8221;计算机可以属于个人&#8221;从口号变成车库里的事实。家酿计算机俱乐部里传阅它的那批人，后来造出了苹果。OpenClaw 之于智能体，约略就是 Altair 之于个人电脑：它自身的前景说不上光明，创始人已进大厂，基金会和安全烂账都还悬着；但它把&#8221;智能体应当属于个人&#8221;这个观念，变成了几十万台机器上的既成事实。</p>\n<p>产品会老，预期不死。</p>\n<p>至于我，删不删那几份吃灰的副本已无关紧要。它教我的记忆惯例，如今住在我每天使用的工具里。每个逃兵的行李里，都有它的东西。</p>\n<h3>参考与出处</h3>\n<ol>\n<li><a href=\"https://en.wikipedia.org/wiki/OpenClaw\" rel=\"noopener\" target=\"_blank\">Wikipedia: OpenClaw</a></li>\n<li><a href=\"https://www.forbes.com/sites/ronschmelzer/2026/01/30/moltbot-molts-again-and-becomes-openclaw-pushback-and-concerns-grow/\" rel=\"noopener\" target=\"_blank\">Forbes: Moltbot Molts Again — and Becomes OpenClaw (2026-01-30)</a></li>\n<li><a href=\"https://www.star-history.com/blog/openclaw-surpasses-linux-14th-most-starred/\" rel=\"noopener\" target=\"_blank\">star-history: OpenClaw Surpasses Linux</a></li>\n<li><a href=\"https://byteiota.com/openclaw-hits-369k-github-stars-in-5-months-fastest-repo-ever/\" rel=\"noopener\" target=\"_blank\">byteiota: OpenClaw hits 369K GitHub stars in 5 months</a></li>\n<li><a href=\"https://www.cnbc.com/2026/02/02/openclaw-open-source-ai-agent-rise-controversy-clawdbot-moltbot-moltbook.html\" rel=\"noopener\" target=\"_blank\">CNBC: The rise and controversy of OpenClaw (2026-02-02)</a></li>\n<li><a href=\"https://www.cnbc.com/2026/02/15/openclaw-creator-peter-steinberger-joining-openai-altman-says.html\" rel=\"noopener\" target=\"_blank\">CNBC: OpenClaw creator Peter Steinberger joining OpenAI, Altman says (2026-02-15)</a></li>\n<li><a href=\"https://steipete.me/posts/2026/openclaw\" rel=\"noopener\" target=\"_blank\">Peter Steinberger: OpenClaw, OpenAI and the future</a></li>\n<li><a href=\"https://openclaw.ai/blog/introducing-openclaw-foundation\" rel=\"noopener\" target=\"_blank\">OpenClaw Blog: Introducing the OpenClaw Foundation (2026-07)</a></li>\n<li><a href=\"https://thenewstack.io/openclaw-foundation-nonprofit-status/\" rel=\"noopener\" target=\"_blank\">The New Stack: &#8220;The Switzerland of AI&#8221;: OpenClaw becomes a non-profit foundation</a></li>\n<li><a href=\"https://www.fastcompany.com/91550800/how-peter-steinberger-built-openclaw\" rel=\"noopener\" target=\"_blank\">Fast Company: How Peter Steinberger built OpenClaw</a></li>\n<li><a href=\"https://arxiv.org/abs/2603.10387\" rel=\"noopener\" target=\"_blank\">arXiv:2603.10387 — Don&#8217;t Let the Claw Grip Your Hand: A Security Analysis and Defense Framework for OpenClaw (2026-03-11)</a></li>\n<li><a href=\"https://www.kaspersky.com/blog/openclaw-vulnerabilities-exposed/55263/\" rel=\"noopener\" target=\"_blank\">Kaspersky: OpenClaw vulnerabilities exposed</a></li>\n<li><a href=\"https://techcrunch.com/2026/04/04/anthropic-says-claude-code-subscribers-will-need-to-pay-extra-for-openclaw-support/\" rel=\"noopener\" target=\"_blank\">TechCrunch: Anthropic says Claude Code subscribers will need to pay extra for OpenClaw support (2026-04-04)</a></li>\n<li><a href=\"https://venturebeat.com/technology/anthropic-reinstates-openclaw-and-third-party-agent-usage-on-claude-subscriptions-with-a-catch\" rel=\"noopener\" target=\"_blank\">VentureBeat: Anthropic reinstates OpenClaw and third-party agent usage on Claude subscriptions (2026-06)</a></li>\n<li><a href=\"https://github.com/openclaw/openclaw/releases/tag/v2026.7.1-beta.6\" rel=\"noopener\" target=\"_blank\">GitHub Releases: openclaw v2026.7.1-beta.6 (2026-07-13)</a></li>\n</ol>\n\n<p><a href=\"https://www.fengcan.net/openclaw-the-claw-remains/\">Source</a></p>",
-    "published": "2026-07-14T09:23:28Z",
-    "feed_title": "创见思考",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-14T19:28:50.819173+00:00",
-    "content_length": 5236
-  },
-  {
-    "guid": "71fc094679b63159",
-    "title": "20260714的胡言乱语",
-    "link": "https://www.bboy.app/2026/07/14/20260714%E7%9A%84%E8%83%A1%E8%A8%80%E4%B9%B1%E8%AF%AD/",
-    "author": "",
-    "content": "<p><img alt=\"\" src=\"https://www.bboy.app/oss/20260714-1.webp\" /></p>\n<h3 id=\"简介\">简介</h3>\n<p>欢迎关注我的频道，不时发送垃圾消息</p>\n<p><a href=\"https://t.me/bboyapp\">https://t.me/bboyapp</a></p>\n<p>或者关注我的 twitter</p>\n<p><a href=\"https://twitter.com/bboysoulcn\">https://twitter.com/bboysoulcn</a></p>",
-    "published": "2026-07-14T11:12:00Z",
-    "feed_title": "bboysoul的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-14T19:28:50.819173+00:00",
-    "content_length": 281
-  },
-  {
-    "guid": "fe90199a506c2485",
-    "title": "Random Thoughts - 20260714",
-    "link": "https://www.bboy.app/2026/07/14/random-thoughts-20260714/",
-    "author": "",
-    "content": "<p><img alt=\"\" src=\"https://www.bboy.app/oss/20260714-1.webp\" /></p>\n<h3 id=\"introduction\">Introduction</h3>\n<p>Welcome to follow my channel, where I occasionally share random messages</p>\n<p><a href=\"https://t.me/bboyapp\">https://t.me/bboyapp</a></p>\n<p>Or follow me on Twitter</p>\n<p><a href=\"https://twitter.com/bboysoulcn\">https://twitter.com/bboysoulcn</a></p>",
-    "published": "2026-07-14T11:12:00Z",
-    "feed_title": "bboysoul的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-14T19:28:50.819173+00:00",
-    "content_length": 365
-  },
-  {
     "guid": "7de5a95ab195dc0a",
     "title": "学习雷锋好榜样",
     "link": "https://shuiba.co/call-me-leifeng",
@@ -9699,18 +9663,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-15T02:53:53.555215+00:00",
     "content_length": 394
-  },
-  {
-    "guid": "64fceb1b0b833644",
-    "title": "重返HTB：环境配置与Cap Writeup",
-    "link": "https://mocusez.site/zh-CN/posts/dafd",
-    "author": "",
-    "content": "HTB Cap Writeup",
-    "published": "2026-07-14T09:08:03Z",
-    "feed_title": "Mox的笔记库",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-15T02:53:53.555215+00:00",
-    "content_length": 15
   },
   {
     "guid": "9f4311fdd91d5b2a",
@@ -9759,30 +9711,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-15T02:53:53.555215+00:00",
     "content_length": 243
-  },
-  {
-    "guid": "a8618017a357f479",
-    "title": "早晨跑步有风有阳光",
-    "link": "https://cufezhusy.github.io/issue-23/",
-    "author": "cufezhusy",
-    "content": "<p>在公司电脑里装上了Chrome和Github，还登录上了小红书。感谢我现在用Github写博客，可以光明正大的摸鱼不被发现。</p>\n<p>早晨六点的时候在公园里跑步，夏天早晨的阳光打在树林上，夏天里的凉风是给人类最美的礼物之一。</p>\n<img alt=\"Image\" height=\"4032\" src=\"https://github.com/user-attachments/assets/400bf1aa-b966-4581-9f5a-b92a0da3224f\" width=\"3024\" />",
-    "published": "2026-07-14T10:00:24Z",
-    "feed_title": "申确收录： cufezhusy's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-15T02:53:53.555215+00:00",
-    "content_length": 255
-  },
-  {
-    "guid": "00389043cb973de6",
-    "title": "用 LaunchBar 快速拆出 PDF 中的指定页面 | UNTAG",
-    "link": "https://utgd.net/article/21370/",
-    "author": "Minja",
-    "content": "<p><img src=\"https://cdn.utgd.net/images/banner_38a6-4755_jFcAQt0.jpg\" /></p>免拖放或菜单，纯快捷键秒拆 PDF 页面，还能对接各种自动化动作。<p><a href=\"https://utgd.net/article/21370/\">阅读全文</a></p><br /><p>本文<a href=\"https://utgd.net/article/21370/\"><b> 《用 LaunchBar 快速拆出 PDF 中的指定页面》 </b></a>首发于<a href=\"https://utgd.net\"> #UNTAG </a></p><p><a href=\"https://utgd.net/member/\">成为会员</a>，享受全文 RSS </p>",
-    "published": "2026-07-14T10:00:00Z",
-    "feed_title": "#UNTAG",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-15T02:53:53.555215+00:00",
-    "content_length": 368
   },
   {
     "guid": "0ba9efd99398bf1e",
@@ -10335,18 +10263,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-17T03:18:52.496198+00:00",
     "content_length": 3125
-  },
-  {
-    "guid": "5764257674cc388b",
-    "title": "不得不应对的电子产品涨价",
-    "link": "https://blog.gadore.top/archives/electronics-prices-surge./",
-    "author": "",
-    "content": "<p>近两年，AI 产业野蛮生长带动了整个内存产业涨价，而内存价格上涨又进一步传导到了消费电子领域。</p>\n<p>SSD、显卡、手机、电脑、NAS……</p>\n<p>几乎所有电子产品都在变贵。</p>\n<p>而且从目前来看，这场涨价潮大概率还会持续至少两年以上。</p>\n<p>既然改变不了，那普通人能做什么？</p>\n<p>我分享一下我这些年踩过坑之后总结出来的一些经验。</p>\n<p>很多事情其实我几年前就已经开始布局了。</p>\n<p><img src=\"https://halo.gadore.top/upload/ChatGPT%20Image%202026%E5%B9%B47%E6%9C%8814%E6%97%A5%2010_59_56.png\" /></p>\n<h1 id=\"手机：主动降级消费\"><a class=\"headerlink\" href=\"#手机：主动降级消费\" title=\"手机：主动降级消费\"></a>手机：主动降级消费</h1><h2 id=\"1、把手机拍照功能拆给相机\"><a class=\"headerlink\" href=\"#1、把手机拍照功能拆给相机\" title=\"1、把手机拍照功能拆给相机\"></a>1、把手机拍照功能拆给相机</h2><p>两年前，我突然意识到一件事情：</p>\n<p>手机摄影已经非常强了，但最终效果还是打不过相机。</p>\n<p>于是我决定：</p>\n<p><strong>以后不再为影像旗舰的高溢价买单。</strong></p>\n<p>直接采用：</p>\n<blockquote>\n<p>次旗舰手机 + 专业相机</p>\n</blockquote>\n<p><img src=\"https://halo.gadore.top/upload/2024_alpha6700_01.jpg\" /></p>\n<p>这样的组合。</p>\n<p>好处非常明显：</p>\n<ul>\n<li><p>手机两三年一换，不心疼；</p>\n</li>\n<li><p>相机可以长期使用；</p>\n</li>\n<li><p>相机的拍摄能力在短时间内根本不可能被手机追上。</p>\n</li>\n</ul>\n<p>摄影圈有一句老话：</p>\n<blockquote>\n<p>底大一级压死人。</p>\n</blockquote>\n<p>这句话直到今天依旧成立。</p>\n<p>哪怕是最基础的相机，也能给你一种明显越级的拍摄体验。</p>\n<p>至于便携性……</p>\n<p>随手拍的话，现在任何手机都已经够用了。</p>\n<p>当然了，相机买镜头的花销又是另一个悲伤的故事了 P(T_T)q</p>\n<h2 id=\"2、降低手机存储空间溢价\"><a class=\"headerlink\" href=\"#2、降低手机存储空间溢价\" title=\"2、降低手机存储空间溢价\"></a>2、降低手机存储空间溢价</h2><p>2020 年买了 NAS 之后，我就在有意识地降低自己对 iCloud 的依赖。</p>\n<p>仔细想想，我们付费购买 iCloud，原因无非两个：</p>\n<p>1、照片太多，需要同步；</p>\n<p>2、依赖 iCloud 的第三方软件越来越多，例如 Obsidian。</p>\n<p>而 NAS 刚好能同时解决这两个问题。</p>\n<p>相册方面，我已经完全迁移到了 Immich。</p>\n<p>它拥有完全不输官方相册的体验，而且 AI 搜索更智能。</p>\n<p>更重要的是：<strong>全平台支持。</strong></p>\n<p>安卓、网页、Windows，访问体验甚至比 iCloud 更方便。</p>\n<p>至于 iCloud Drive，那就更是 NAS 的舒适区了。</p>\n<p><img src=\"https://halo.gadore.top/upload/iShot_2026-07-02_13.45.45.png\" /></p>\n<p>苹果官方一年的订阅价格，很多时候已经足够买一块容量大得多的硬盘。</p>\n<p>如果你想要自己的 NAS 在 iOS 上达到类似 iCloud 后台同步的体验，可以试试 <a href=\"https://apps.apple.com/cn/app/synosync/id6762731663\">SynoSync</a>。</p>\n<h2 id=\"3、次旗舰和旧旗舰\"><a class=\"headerlink\" href=\"#3、次旗舰和旧旗舰\" title=\"3、次旗舰和旧旗舰\"></a>3、次旗舰和旧旗舰</h2><blockquote>\n<p>请注意，本篇文章不讨论 NAS 的整备价格，有时候一个路由器 + 一块机械硬盘同样可以满足基础的存储服务需求。</p>\n</blockquote>\n<p>有了 NAS 或者家庭存储服务器后，购买次旗舰或者旧旗舰就变成了一件非常合理的事情。</p>\n<p>现在消费电子涨价已经成为共识。</p>\n<p>一些厂商也开始主动延长设备生命周期。</p>\n<p>例如：谷歌最近三年的旗舰设备都拥有超过 5 年的系统更新周期，还有苹果公司在 iOS 27 所做的 30% 性能优化。</p>\n<p>现在手机性能真的已经够用了。</p>\n<p>真正的问题是：</p>\n<p>互联网公司的业务膨胀速度远远快于硬件的发展速度。</p>\n<p>开发越来越粗放，软件越来越臃肿，各家都恨不得把一个大型商超放到你的手机 App 里。</p>\n<p>最后导致用户不得不购买更贵的设备来运行这些越来越重的软件，</p>\n<p>这合理吗？难道软件做得差，最后买单的人反而是消费者？</p>\n<p>引用某演员的话：</p>\n<p><img src=\"https://halo.gadore.top/upload/OIP-C.webp\" /></p>\n<blockquote>\n<p>“贱不贱呐？”</p>\n</blockquote>\n<p>我一直有一个原则：<strong>谁优化做得好，我就优先用谁。</strong></p>\n<p>这个原则我已经坚持很多年了。</p>\n<h2 id=\"4、使用轻量化软件\"><a class=\"headerlink\" href=\"#4、使用轻量化软件\" title=\"4、使用轻量化软件\"></a>4、使用轻量化软件</h2><p>现在很多 App 已经变成了：</p>\n<blockquote>\n<p>在广告里边加了一点 App 功能。</p>\n</blockquote>\n<p>打开先给你来：开屏广告、会员广告、平台推荐、第三方推荐、自动播放的视频广告。</p>\n<p>尤其是自动播放视频广告。</p>\n<p>现在几乎所有国产主流 App 都喜欢干这个。</p>\n<p>不仅消耗性能，还消耗电量。</p>\n<p>最重要的是消耗心情。</p>\n<p>这一点，B 站 UP 主 「苏星河牛通」讲得更加透彻，感兴趣移步观看：<a href=\"https://www.bilibili.com/video/BV1seegzzEnH\">真的没有人能管管，早已泛滥的软件广告吗？</a></p>\n<h4 id=\"我不用你行不行？\"><a class=\"headerlink\" href=\"#我不用你行不行？\" title=\"我不用你行不行？\"></a>我不用你行不行？</h4><p>爱优腾，已经三年以上没打开过了。</p>\n<p>广告软件 + 低水平影视工业流水线，最终产出的往往也是流水线内容。</p>\n<p>当然，无意冒犯；不过互联网寻找资源这门祖传手艺，感觉真的要在我们这一代失传了。</p>\n<h3 id=\"B-站\"><a class=\"headerlink\" href=\"#B-站\" title=\"B 站\"></a>B 站</h3><p>长期使用国际版。</p>\n<p>安卓选择甚至更多：</p>\n<ul>\n<li><p>PiliPlus</p>\n</li>\n<li><p>PiliPala</p>\n</li>\n</ul>\n<h3 id=\"微博\"><a class=\"headerlink\" href=\"#微博\" title=\"微博\"></a>微博</h3><p>iPhone：</p>\n<ul>\n<li><p>VVebo</p>\n</li>\n<li><p>国际版</p>\n</li>\n</ul>\n<p>安卓：</p>\n<ul>\n<li>See</li>\n</ul>\n<h3 id=\"购物软件\"><a class=\"headerlink\" href=\"#购物软件\" title=\"购物软件\"></a>购物软件</h3><p>淘宝、京东平时全部使用网页或者小程序。</p>\n<p>只有付款的时候才打开 App。</p>\n<h3 id=\"QQ\"><a class=\"headerlink\" href=\"#QQ\" title=\"QQ\"></a>QQ</h3><p>坚持使用 TIM。</p>\n<p>干净。</p>\n<p>好用。</p>\n<p>无广告。</p>\n<p>无虚幻引擎。</p>\n<h3 id=\"银行-App\"><a class=\"headerlink\" href=\"#银行-App\" title=\"银行 App\"></a>银行 App</h3><p>全部开启大字体模式。</p>\n<p>如果支持的话。</p>\n<h3 id=\"X\"><a class=\"headerlink\" href=\"#X\" title=\"X\"></a>X</h3><p>现在甚至连 X 都开始有国产 App 的味道了。</p>\n<p>于是果断换成了 Spring。</p>\n<p>非常清爽。</p>\n<p>非常舒服。</p>\n<p>另外：</p>\n<p>请关闭所有国产流氓软件的后台运行权限。</p>\n<p>包括 iOS 和 Android。</p>\n<p>真的有效。</p>\n<p>在完成这一轮轻量化替换之后你会发现：</p>\n<p>很多所谓的“性能不够”，其实根本不是性能问题。</p>\n<p>很多年前的手机依旧还能流畅使用。</p>\n<p>真正拖慢手机的，从来都不是芯片。</p>\n<p>而是软件。</p>\n<h4 id=\"至于微信……\"><a class=\"headerlink\" href=\"#至于微信……\" title=\"至于微信……\"></a>至于微信……</h4><p>我们只能被动抗争。</p>\n<p>作为国民级 App，我们唯一能做的，大概就是让更多低配置、中配置设备继续运行微信。</p>\n<p>这样微信后台统计出来的低端设备占比，才不会过早下降到一个可以忽略优化的程度。</p>\n<p>你今天还能比较流畅地使用微信，背后其实有无数旧手机用户在默默发力。</p>\n<h1 id=\"电脑：修修补补再三年\"><a class=\"headerlink\" href=\"#电脑：修修补补再三年\" title=\"电脑：修修补补再三年\"></a>电脑：修修补补再三年</h1><h2 id=\"1、旧平台真没有那么差\"><a class=\"headerlink\" href=\"#1、旧平台真没有那么差\" title=\"1、旧平台真没有那么差\"></a>1、旧平台真没有那么差</h2><p>现在很多装机讨论一开口就是：</p>\n<blockquote>\n<p>不是 DDR5 能用？</p>\n</blockquote>\n<blockquote>\n<p>不是 i7 能用？</p>\n</blockquote>\n<p>还真能。</p>\n<p>前段时间我买了一台<br />Intel Core i3-12100<br />主机做开发测试。</p>\n<p>采购经理专门跑过来问我：</p>\n<blockquote>\n<p>你确定买 i3？能用吗？</p>\n</blockquote>\n<p>我回：那也得看是谁家的 i3 啊（笑）。</p>\n<p>12100 已经强到离谱了。</p>\n<p>办公完全没问题。</p>\n<p>甚至很多 3A 游戏都完全够用。</p>\n<p>前提是你的显卡别拖后腿。</p>\n<p>对于办公和开发来说：</p>\n<p>DDR4 平台依旧是性价比之王。</p>\n<h2 id=\"2、找到真正的瓶颈\"><a class=\"headerlink\" href=\"#2、找到真正的瓶颈\" title=\"2、找到真正的瓶颈\"></a>2、找到真正的瓶颈</h2><h4 id=\"Mac-Mini-M4-16GB-256GB-的困境\"><a class=\"headerlink\" href=\"#Mac-Mini-M4-16GB-256GB-的困境\" title=\"Mac Mini M4 16GB + 256GB 的困境\"></a>Mac Mini M4 16GB + 256GB 的困境</h4><p>我 ¥ 3500 首发购买的 Mac mini M4 已经使用了接近两年了，16GB + 256 GB 的配置的确是有点儿捉襟见肘了，每次用 XCode 开发测试完 iPad 之后，就得立刻启动 Cleaner for XCode 赶紧把 iPad 的 SDK 给清除掉，这样就可以省出来 5GB 的磁盘空间，我又可以去打开 VSCode 去测试 Flutter 应用了。</p>\n<p><img src=\"https://halo.gadore.top/upload/IMG_0987.jpeg\" /></p>\n<p>6月苹果决定 Mac 集体涨价 20% 的时候，我是崩溃的，看来短期内便宜买到 Mac mini M5 的可能性无了，索性把苹果涨价的一千多块钱购入了 1TB 的硬盘，直接拆机替换掉了。</p>\n<p>外接硬盘盒后把苹果系统装到硬盘盒也是一个选择，但经过了一年的使用，我还是无法忍受以下缺点：</p>\n<ul>\n<li><p>开关机要比原生磁盘慢 30 - 50s</p>\n</li>\n<li><p>任何一次 Mac mini 的位置移动，或者插拔数据线不小心碰到硬盘盒的线的时候，Mac 都可能会立刻卡死，然后过了一两分钟后重启。</p>\n</li>\n</ul>\n<h4 id=\"群晖-DS-920-CPU-过于孱弱的问题\"><a class=\"headerlink\" href=\"#群晖-DS-920-CPU-过于孱弱的问题\" title=\"群晖 DS 920+ CPU 过于孱弱的问题\"></a>群晖 DS 920+ CPU 过于孱弱的问题</h4><p><img src=\"https://halo.gadore.top/upload/Beelink-EQi-13500H__08_8f44593d-4f8c-4967-b658-1174ef6acb22.webp\" /></p>\n<p>DS 920+ 已经在我家服役超过 4 年，它完全承担了我新的相册服务（Immich）托管、影音托管、漫画托管等等。但他一直有一个问题无法解决：自带的 J4105 赛扬处理器性能实在过于孱弱，有时候批量上传超过 100 张照片，Immich 在后台做 AI 分析的时候，Emby 影视服务就会受到影响；或者我在看 Komga 托管的漫画的时候，PDF 解析占用的 CPU 资源也会导致 Emby 软解码失败。</p>\n<p>我在 6 月份以 ¥1700 左右 抢到了零刻 EQi 13 的准系统，拥有 15-13500H 的处理器，将 Docker 十多个服务全部迁移到 EQi 13 上，同时影音服务也迁移到了飞牛 OS，使用运行在 EQi 13 的飞牛 OS 负责计算任务，群晖仅仅提供 SMB 文件托管服务，同时挂载在飞牛的群晖远程文件夹也配置了低权限访问，存算分离的同时也拥有了安全的保障，也比购买一个性能更强的 NAS 要便宜很多。</p>\n<p><img src=\"https://halo.gadore.top/upload/Beelink-EQi-13500H__05_26c8ef9c-6c77-4782-a14a-655eb72db899.webp\" /></p>\n<p>购买 EQi 的最主要原因，除了支持 DDR4 内存外，还有一个重要的原因：内置电源，内置电源好文明！希望成为 mini 主机的标准。</p>\n<p>对了，在抢不到 EQi 13 的情况下，还可以考虑 EQi 12，用作 NAS 的计算完全是性能过剩的，价格也更便宜，大概 ¥1100 ～¥ 1300。</p>\n<h1 id=\"总结\"><a class=\"headerlink\" href=\"#总结\" title=\"总结\"></a>总结</h1><p>回头看，这几年做得最正确的事情，大概有三件：</p>\n<ul>\n<li><p>购入 NAS，迁移一切可迁移的服务到 NAS 中去，降低对手机厂家云服务的依赖</p>\n</li>\n<li><p>购入相机，拆分手机的拍照能力</p>\n</li>\n<li><p>大量设备从二手平台购买</p>\n</li>\n</ul>\n<p>长期主义最大的优势就在这里。</p>\n<p>很多消费决策看起来是在省钱。</p>\n<p>但本质上是在避免支付不必要的溢价。</p>\n<p>毕竟：</p>\n<p>电子产品越来越贵，大概率已经不是一个周期问题，而是未来很多年的新常态。</p>\n<p>既然如此，我们能做的就只有一件事：</p>\n<p>尽量把钱花在真正影响体验的地方。</p>\n<p><a href=\"https://halo.gadore.top/about\"></a></p>",
-    "published": "2026-07-14T11:00:00Z",
-    "feed_title": "千里之豪",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-17T03:18:52.496198+00:00",
-    "content_length": 7306
   },
   {
     "guid": "d5526af24c451464",
@@ -16935,5 +16851,17 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-28T08:45:11.390109+00:00",
     "content_length": 12130
+  },
+  {
+    "guid": "3dacc2d98cf2fdff",
+    "title": "GmtkJam之后的总结",
+    "link": "https://blog.sayori.org/posts/after-gmtk/",
+    "author": "",
+    "content": "<h1>做完了，却高兴不起来</h1>\n<p>gtmk做完了，链接在这里，<a href=\"https://amiya-desi.itch.io/last-minute-echo\">Last Minute Echo by Amiya_desi</a>，最后没想到却只做成了一个小游戏，虽然至少来说是一个完整的有胜利和失败的小游戏吧，我却一点也高兴不起来</p>\n<h1>心路历程</h1>\n<h2>一开始</h2>\n<p>一开始看到gmtk的主题是count down的时候，我是觉得比较简单和舒服的，更何况我之前就有一个比较贴合这个主题的作品，<a href=\"https://amiya-desi.itch.io/time-rewind-linker\">TimeRewindLinker by Amiya_desi</a>，我打算在这个的时间倒流基础上，加上倒计时限制的解密，天啊这简直是一个绝妙的想法，能进<a href=\"/essays/thanks-encourage/\">感谢鼓励</a>的那种了（雾），想着想到了如此之好的想法的我，胜利只是理所应当的了（喜）</p>\n<h2>中间的开发和暴怒</h2>\n<p>由于想到了这个能和我之前做的作品契合上，所有觉得很兴奋，于是就直接和AI讨论了一个初版然后就开始了......然后前方就是地狱啊......AI改的始终让我感觉不对，而我也因为似乎玩AI轮椅玩多了，连自己创建一个关卡灰盒都懒得做，只知道让AI直接抽卡，直接从骨架到血肉一次性生成，也是和雷古洛斯一样轮椅玩傻了QAQ</p>\n<p>&lt;figure class=\"sayori-figure sayori-figure--center\" style=\"--sayori-image-width: 640px;\"&gt;\n&lt;img src=\"https://img.sayori.org/blog/v1/d2a24c41c5aa3b148f74fd383bc50f9c51d34ec009815aaf23931125759d425a/499.webp\" alt=\"Pasted image 20260727222142.png\" loading=\"lazy\" width=\"640\" height=\"264\" decoding=\"async\" /&gt;\n&lt;/figure&gt;</p>\n<p>谁能想到当时我在最后六个小时终于鼓起勇气看了看AI给我搭建的场景后脑溢血成这样了，我现在还记得其中一个点：\n<code>谁能想到这个人机做一个陷阱方块，不单独用一个场景做陷阱预制体，然后再在主场景实例化放置，而是选择神秘的一个陷阱tile放陷阱贴图，然后一个陷阱Node2d下面放一堆area2d放在这些尖刺边上，我去你这让我怎么改，要是我一开始就一个场景内聚好了只需要摆放就行了，这TM全是零散拆开的，我还得一个一个挪，那我挪个蛋啊我靠！</code></p>\n<h2>最后的决断和冲刺</h2>\n<p>于是乎，在最后理智回归的时候，我在选择提交一个完整但是很小的作品和另外一个看上去很大但是连玩都玩不了的作品之间，果断选择了前者，砍掉了所有的解密，回归单一目标，躲避追杀，明确目标后再让AI只需要写追杀者的算法和一些获胜失败条件和场景就好了，而我就负责抢救一下地图了，终于在最后的10分钟，我做完并且提交了，至少完成了......</p>\n<h1>赛后总结</h1>\n<p>轮椅玩多了，被你gmtk叔叔给干翻车了，好歹最后终于领悟了反转术士，勉强苟活完成...\n可恶啊，我不应该是最强吗！为了成为最强，看来还有很长的一段路要走啊......GMTK，我大概这辈子也忘不掉你了吧......</p>\n<p>其实当天的日记也总结了很多，感兴趣可以看看，这个基本就是我当时转变的时候，灵感爆发写下来的心路历程</p>\n<p>最后，小朋友们以后千万不要玩多了轮椅啊，保持独立思考，不要回答，不要回答，不要回答！\n&lt;span class=\"sayori-spoiler\" tabindex=\"0\"&gt;但是评论的话是很欢迎的哦(<em>^_^</em>)&lt;/span&gt;</p>",
+    "published": "2026-07-27T00:00:00Z",
+    "feed_title": "Amiya的书桌",
+    "feed_category": "Blogs",
+    "cached_at": "2026-07-28T14:24:17.362651+00:00",
+    "content_length": 1761
   }
 ]
