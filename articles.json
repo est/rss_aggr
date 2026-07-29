@@ -9665,66 +9665,6 @@
     "content_length": 239
   },
   {
-    "guid": "bd26a0f0d7eff76e",
-    "title": "关于博客组织友链迁移的公告",
-    "link": "https://xingwangzhe.fun/posts/blogroll-migration-notice/",
-    "author": "",
-    "content": "整理友链列表，将收录站/导航站等博客组织迁移至页脚，一并列出所有收录本站的博客圈子，特此记录。",
-    "published": "2026-07-15T12:30:00Z",
-    "feed_title": "姓王者的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-15T19:22:02.633316+00:00",
-    "content_length": 47
-  },
-  {
-    "guid": "4104b334004f96db",
-    "title": "Artitalk的数据从leancloud迁移到了vercel+neon",
-    "link": "https://blog.224418.xyz/posts/32ec0d8a/",
-    "author": "",
-    "content": "<img src=\"https://cdn.magicalapk.com/square/12267711074972146.jpeg\" />\n  今天发现说说页面打不开了，就问了一下kimi，aritalk加leancloud的说说功能有没有替代方案，结果真的就让kimi找到了一篇大佬的博文，我就点进去，跟着大佬的文档走了一遍，就真的无损用上了neon的数据库！非常nice！",
-    "published": "2026-07-15T15:27:00Z",
-    "feed_title": "傥师妹TangShiMei的小空间",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-15T19:22:02.633316+00:00",
-    "content_length": 189
-  },
-  {
-    "guid": "395f7c1aefe60fc6",
-    "title": "Proxmox VE 下 Windows 性能下降问题记录",
-    "link": "https://www.ghostchu.com/proxmox-ve-%e4%b8%8b-windows-%e6%80%a7%e8%83%bd%e4%b8%8b%e9%99%8d%e9%97%ae%e9%a2%98%e8%ae%b0%e5%bd%95/",
-    "author": "Ghost_chu",
-    "content": "<p class=\"wp-block-paragraph\">对于 Proxmox VE 上的 Windows 系统从 Windows 7 后系统性能下降明显，即使安装 Virtio 驱动也不会得到明显改善。</p>\n\n\n\n<p class=\"wp-block-paragraph\">Proxmox VE Forums 上的解决方案是用 x86-64-v2 类型的 CPU，但这样会丢失虚拟化特性，高级 AVX 指令集也会不可用。这对嵌套虚拟化（MuMu模拟器）这种用例十分不友好。而至于关闭主机/客户机的 Meltdown / Specture 缓解也不是什么好主意，一点也不安全，而且关掉之后也没有任何明显的性能改进。</p>\n\n\n\n<p class=\"wp-block-paragraph\">求助 AI 无果后，我开始调查这个问题，最终得出结论：</p>\n\n\n\n<p class=\"wp-block-paragraph\">实际上这并不是 Proxmox VE 的问题，也不是 QEMU/KVM 的问题，与基于虚拟化的安全关系也不大。问题在于 Windows 客户机系统，默认情况下运行在 KVM 上时就是会有明显性能损失。</p>\n\n\n\n<h2 class=\"wp-block-heading\">云厂商是怎么做的</h2>\n\n\n\n<p class=\"wp-block-paragraph\">使用 KVM 这套的绝对不只有 Proxmox VE 一家，调查一下市面上的云厂商，它们也都提供 Windows 客户机的服务并且没有此类问题，设备管理器还能看到明晃晃的 RedHat 驱动。</p>\n\n\n\n<p class=\"wp-block-paragraph\">那么问题在哪里？</p>\n\n\n\n<p class=\"wp-block-paragraph\">如果你用过一些小厂的控制面板（例如 BuyVM），你肯定见到过一些类似 Hyper-V Enlightment 的开关。描述大概是 “能够明显提升 Windows 客户机的性能，但也可能对 Linux 客户机产生明显的性能影响”。那么这个 Hyper-V Enlightment 就是关键了。</p>\n\n\n\n<h2 class=\"wp-block-heading\">Hyper-V Enlightment</h2>\n\n\n\n<p class=\"wp-block-paragraph\">在 QEMU 的<a href=\"https://www.qemu.org/docs/master/system/i386/hyperv.html\">官方文档</a>里是这么说的：</p>\n\n\n\n<pre class=\"wp-block-preformatted\">In some cases when implementing a hardware interface in software is slow, KVM implements its own paravirtualized interfaces. This works well for Linux as guest support for such features is added simultaneously with the feature itself. It may, however, be hard-to-impossible to add support for these interfaces to proprietary OSes, namely, Microsoft Windows.<br /><br />KVM on x86 implements Hyper-V Enlightenments for Windows guests. These features make Windows and Hyper-V guests think they’re running on top of a Hyper-V compatible hypervisor and use Hyper-V specific features.</pre>\n\n\n\n<p class=\"wp-block-paragraph\">可以看到这个功能就是转为 Windows 设计的，因为 Windows 非常封闭几乎不可能添加相关半虚拟化接口的支持。让 Windows 误以为运行在 Hyper-V 虚拟机上，并提供一套 Hyper-V 的接口，让 Windows 充分利用 QEMU 的各类加速功能。</p>\n\n\n\n<p class=\"wp-block-paragraph\">F*ck, Microsoft.</p>\n\n\n\n<p class=\"wp-block-paragraph\">所以最终解决方案是通过修改 CPU Flags，指示 Windows 调用这些增强接口。官方文档下面提供了很多 Hyper-V 的标志，但并不是所有的都要加。有一些加了反而会导致额外的问题。</p>\n\n\n\n<h2 class=\"wp-block-heading\">最终方案</h2>\n\n\n\n<p class=\"wp-block-paragraph\">要解决这个问题，需要在 Proxmox 中注册一个自定义 CPU 类型。输入 <code>nano /etc/pve/virtual-guest/cpu-models.conf</code> 编辑 CPU 类型配置文件，添加下面的内容到文件末尾：</p>\n\n\n\n<pre class=\"wp-block-code\"><code>cpu-model: highperf-win\n        flags +hv-relaxed;+hv-reset;+hv-runtime;+hv-stimer;+hv-synic;+hv-time;+hv-vapic;+hv-vpindex;+hv-frequencies;+hv-avic;+invtsc;+topoext;+host-cache-info;+hypervisor\n        hv-vendor-id 0123456789AB\n        phys-bits host\n        reported-model host</code></pre>\n\n\n\n<p class=\"wp-block-paragraph\">这基本相当于 host 类型 + Hyper-V Enlightment。</p>\n\n\n\n<p class=\"wp-block-paragraph\">最后在虚拟机的配置界面配置一下刚刚新添加的 CPU 类型就好了：</p>\n\n\n\n<figure class=\"wp-block-image size-large\"><img alt=\"\" class=\"wp-image-5375\" height=\"609\" src=\"https://cdn.ghostchu.com/wp-content/uploads/2026/07/20260715230136456-1024x609.png\" width=\"1024\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">此方法也可以和客户机禁止 Meltdown / Spectre 缓解措施一同使用，进一步提高性能。但如果 Proxmox 要跑什么重要东西或者不可信代码，最好还是保持两个缓解措施保持开启。</p>\n<p><a href=\"https://www.ghostchu.com/proxmox-ve-%e4%b8%8b-windows-%e6%80%a7%e8%83%bd%e4%b8%8b%e9%99%8d%e9%97%ae%e9%a2%98%e8%ae%b0%e5%bd%95/\">Proxmox VE 下 Windows 性能下降问题记录</a>最先出现在<a href=\"https://www.ghostchu.com\">Ghost_chu&#039;s Blog</a>。</p>",
-    "published": "2026-07-15T15:05:49Z",
-    "feed_title": "Ghost_chu's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-15T19:22:02.633316+00:00",
-    "content_length": 3356
-  },
-  {
-    "guid": "64d3672e63a3fcd6",
-    "title": "python依赖打包",
-    "link": "https://blog.share888.top/note/back-end/python/python依赖打包.html",
-    "author": "",
-    "content": "python依赖打包 \n安装依赖 &amp;ZeroWidthSpace\nshell-- 安装依赖\npip",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-15T19:22:02.633316+00:00",
-    "content_length": 53
-  },
-  {
-    "guid": "8adf3293c6c71858",
-    "title": "让听写工具学会我的术语",
-    "link": "https://www.fengcan.net/teach-dictation-my-terms/",
-    "author": "创见思考",
-    "content": "<p>前些日子我用了一阵 Typeless。平心而论，它把&#8221;口述变文字&#8221;这件事做得相当顺滑：中英混说不必切换，标点自动补齐，说完即上屏。但用久了攒下两个疙瘩。其一，我的全部转录历史锁在它的云端，没有一个&#8221;统一导出&#8221;的按钮；其二，我在文档里把&#8221;拍西艾&#8221;改回 PCI、把&#8221;马乏凯泰&#8221;改回玛伐凯泰，改了一次又一次，它一次也没记住。订阅照付，数据归人，个性化无从谈起。</p>\n<p>于是起念自己做一个。认真调研了一圈，结论却是：想造的东西，已经有人造好了。</p>\n<p>CapsWriter-Offline，GitHub 上六千余星的开源项目，2026 年 5 月还在发新版。按住一个键说话，松开上屏，识别全程在本地——模型文件就在我自己的硬盘上，编码器五百余兆，解码器一点四 G，拔掉网线照常工作。它准的道理值得一说：新一代 Qwen3-ASR 的解码器本身是个 1.7B 的语言模型，一边听声学特征，一边&#8221;写它认为通顺的话&#8221;，故此标点自带、中英夹杂不乱；配上音素级的热词表，把玛伐凯泰、IVUS 这类专业词灌进去，识别一个准一个。在我这台双显卡的机器上，模型加载四秒，短句几乎瞬出，日常体验已不逊于云端订阅的同类，而语音与文本，寸步不离我的磁盘。</p>\n<p>但它仍缺一环：不会从我的修改里学习。</p>\n<p>这一环我自己补了，起名 CapsLearn，四百七十行 Python，托 Claude Code 之力两天写成，已开源。机制说穿了不玄：CapsWriter 本就把每句听写连文本带录音按日归档；我改完一段文字，选中终稿按一下 Pause 键，程序拿终稿去归档里做相似度匹配，找到那句原始转写，&#8221;机器怎么写的—我怎么改的&#8221;就配成一对存进本地。每晚八点，一个定时任务把攒下的配对逐字比对，抠出替换片段。中文没有空格，机器不知词的边界，单看一句只能抠出&#8221;马乏→玛伐&#8221;这样的碎片；诀窍在于等同一个错误再次出现——两句话上下文各异，唯独术语每次都完整贴着错误，取个交集，上下文自动洗掉，&#8221;马乏凯泰→玛伐凯泰&#8221;便完整浮出。累计出现两次，自动写进热词表，三秒热重载，下一句生效；只出现一次的，进候选报告等人工过目。上线数日，playStation、Notion，连同&#8221;马乏凯泰&#8221;这个误写变体，均已自动入表，我未动一根手指。</p>\n<p>把这套思路发到原项目的 issue 里，作者回了两条，都在点子上。他说自动化难在&#8221;程序无从知道用户何时改完&#8221;——确实，所以我干脆不猜，让用户按一下键自己发信号；他说断词边界终究要靠大模型——也对，交集统计啃下的是八成，长尾我认。他另给了一条好建议：医生不妨把处方权限内的药名整表灌入热词，五千词条不过十毫秒延迟。此言在理，已列入计划。</p>\n<p>代价也须如实写下。这套方案要一块像样的显卡，集显只能退用小模型；打包的程序带着全局热键和剪贴板操作，杀毒软件容易多看两眼；采集进程静默退出过，我给它加了每小时的保活任务——本地方案的自由，是连同维护责任一起买断的。还有一桩有趣的翻车：热词按发音模糊匹配，&#8221;列线图&#8221;入表之后，我说&#8221;路线图&#8221;竟被它劫持了去。灵敏度与特异度此消彼长，做诊断的人对这架跷跷板不会陌生。</p>\n<p>最后交代一句边界，免生误会：这套回路自始至终没有动过模型一个参数。热词表之于模型，如同老花镜之于眼睛——镜片不改变眼球，却让字迹清晰；真要改造眼球，那是另一场手术（微调），而手术所需的语料，每一次听写都在替我悄悄积攒。</p>\n<p>数据在谁的磁盘上，个性化就归谁。</p>\n<p>代码在此：<a href=\"https://github.com/Deepmindlearning/capslearn\" rel=\"noopener\" target=\"_blank\">github.com/Deepmindlearning/capslearn</a>，MIT 协议。医学之外的行当，换一张词表同样适用。</p>\n\n<p><a href=\"https://www.fengcan.net/teach-dictation-my-terms/\">Source</a></p>",
-    "published": "2026-07-15T13:29:57Z",
-    "feed_title": "创见思考",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-16T03:15:58.934708+00:00",
-    "content_length": 1859
-  },
-  {
     "guid": "131b211e72fa5900",
     "title": "使用 Obsidian 作为 AI 时代的 IDE：Karpathy「Wiki as Codebase」的落地实践——Claudian、CLAUDE.md 与 Vault Lint",
     "link": "https://xilidou.com/2026/07/15/obsidian-as-ide/",
@@ -9747,30 +9687,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-16T03:15:58.934708+00:00",
     "content_length": 250
-  },
-  {
-    "guid": "1093849656a367b9",
-    "title": "嘿嘿，分享一下好吃的",
-    "link": "https://www.mmbkz.cn/5bd06cb7.html",
-    "author": "绯色之喵",
-    "content": "<p>不知道吃啥，家里还有几个螺丝椒，但是我不愿吃青椒。我就想能不能用青椒做点好吃的，说着说着就找到了冰箱里面的肉馅，于是就尝试了一下。</p><p>看着网上的教程，将肉馅塞满青椒之后，放到油里煎了一下，然后再倒上料汁开始煮，煮了8分钟左右就可以煎出来了，剩下的勾个芡，浇到米饭上，完美！</p><p>下次有机会还做！</p><p>{cat_gallery}<br /><img alt=\"2026071501.webp\" src=\"https://image.mmbkz.cn/blog2026/2026071501.webp-shuiyin\" title=\"2026071501.webp\" /><br /><img alt=\"2026071502.webp\" src=\"https://image.mmbkz.cn/blog2026/2026071502.webp-shuiyin\" title=\"2026071502.webp\" /><br />{/cat_gallery}</p>",
-    "published": "2026-07-15T12:55:00Z",
-    "feed_title": "火喵日记本",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-16T03:15:58.934708+00:00",
-    "content_length": 445
-  },
-  {
-    "guid": "2550302f07b18927",
-    "title": "上海九院口腔下颌骨囊肿手术小记",
-    "link": "https://cuixinxin.cn/archives/4090",
-    "author": "坚果大叔",
-    "content": "<div class=\"nc-light-gallery\"><p>MEDICAL CASE · 真实经历<br />\n★★★★★<br />\n下颌骨囊肿开窗引流手术全记录<br />\n上海九院 · 口腔科 · <br />\n全麻日间手术</p>\n<p>坚果大叔<br />\n记录生活的中点滴美好瞬间！<br />\n本文记录了从发现囊肿到术后恢复的完整经历。希望可以帮助到同样有囊肿的小伙伴！</p>\n<h1>坚果大叔</h1>\n<h1>上海九院口腔科</h1>\n<h1>口腔囊肿</h1>\n<p>NO.<br />\n001<br />\n真实经历<br />\nGRADE<br />\nS</p>\n<p>✂</p>\n<p>VALID FOR ONE READ<br />\nADMIT ONE 🎫<br />\n01<br />\n从牙疼到发现囊肿<br />\n/ DISCOVERY<br />\n三月份的时候出现牙疼，然后脸肿了。去中医院看的时候，因为医生没有拍片检查，只是简单的用器具检查了一下，说是因为<br />\n <br />\n刷牙不干净导致的发炎<br />\n <br />\n，让回去吃奥硝锉、头孢。吃了一周的药💊就消炎好了，也没当回事。<br />\n结果才过了不到半个多月，清明的时候。同样的地方又开始肿胀发炎了。因为又了上次的经验，所以我就直接吃上次开的药。虽然已经快好的时候，但想想还是去医院看了一下。<br />\n到了医院医生就看了说里面全是肿了后发炎的脏东西，让去<br />\n <br />\n拍个片子<br />\n <br />\n。拍完片子之后，哦吼！！发现了一个大囊肿。然后因为是个小医院，无法处理。只能先帮我把里面的脓液清除了，然后又给我打了一针也不知道什么东西。结果这个好像<br />\n <br />\n把那个囊肿戳破了一个小洞<br />\n <br />\n，导致那个地方一直又咸的东西流出来。</p>\n<p>02<br />\n曲折的看病过程<br />\n/ SEEKING HELP<br />\n1<br />\n苏州附二<br />\n <br />\n：看了片子后，直接说38号牙要拔了，保不住牙。而且态度死差。<br />\n2<br />\n苏州附一（年轻医生）<br />\n <br />\n：重新拍全景牙片，说牙可以保住，但先做根管治疗。<br />\n3<br />\n市立医院（主任号）<br />\n <br />\n：也是牙保不住，要拔了。而且问方案就说随你。<br />\n4<br />\n苏州附一（专家号）<br />\n <br />\n：囊肿已侵蚀骨头，没有骨头了，可能也种不了牙。直接缺一颗牙。<br />\n5<br />\n牙博士（私立）<br />\n <br />\n：也是保不住，劝做根管意义不大。建议去<br />\n <br />\n上海九院<br />\n <br />\n看看。<br />\n03<br />\n面诊和术前准备<br />\n/ PREPARATION<br />\n从牙博士回来后我就搜了上海九院口腔科的信息，原来上海九院口腔科在全国都是排名前几的，然后用AI工具搜索囊肿手术找哪个医生，推荐挂了<br />\n <br />\n秦兴军<br />\n <br />\n主任的号，囊肿一般挂<br />\n <br />\n口腔颌面-头颈肿瘤科<br />\n <br />\n。<br />\n面诊的时候把之前在地方医院片子带着就可以了，然后医生看了之后，直接说<br />\n <br />\n不要做根管，不用拔牙，直接做手术可以保住牙<br />\n <br />\n。然后预约了6月16的手术时间，又开了牙齿的<br />\n全景扫描和CT<br />\n。<br />\n因为是日间全麻手术，所以还需要在 1 楼的日间管理中心进行登记。然后挂 3 楼的麻醉评估门诊科做术前麻醉评估。<br />\n💡 去上海之前如果你是异地，请提前做好<br />\n <br />\n异地医保备案<br />\n <br />\n，可以报销80%。第一次去九院取号需要去人工窗口建卡。<br />\nFLOWCHART · 流程图<br />\n麻醉评估 · 术前准备<br />\n上海九院口腔囊肿手术 · 需去两次麻醉评估</p>\n<p>第一次<br />\n麻醉评估 · 基础问诊+开单<br />\n1</p>\n<p>挂号 → 去3楼麻醉评估门诊<br />\n挂完号直接去<br />\n3楼麻醉评估门诊<br />\n等着叫号<br />\n2</p>\n<p>基础问诊<br />\n问身高体重、手术做什么、有没有<br />\n精神病史<br />\n等基础信息<br />\n3</p>\n<p>开检查单 · 6项检查<br />\nCT<br />\n心电图<br />\n血常规⚠️<br />\n肝常规<br />\n肾常规<br />\n尿常规<br />\n4</p>\n<p>做检查 · 一般一次做不完<br />\n有些检查<br />\n需要空腹<br />\n，一般一次跑不完所有项目<br />\n5</p>\n<p>⚠️ 血常规含凝血功能+HIV → 需空腹<br />\n血常规里包含<br />\n凝血功能、HIV<br />\n等检查，必须空腹抽血，我在<br />\n手术前一天<br />\n又跑了一趟<br />\n6</p>\n<p>所有报告拿齐 ✓<br />\nCT、心电图、血常规、肝肾常规、尿常规的报告全部拿到，准备第二次评估<br />\n◆ ◆ ◆<br />\n报告齐全，进入第二次麻醉评估<br />\n第二次<br />\n麻醉评估 · 全麻评估+交材料<br />\n7</p>\n<p>挂麻醉评估号 · 带齐所有报告<br />\n带上第一次做完的<br />\n6项检查报告<br />\n，再次去麻醉评估门诊<br />\n8</p>\n<p>全麻评估 · 测血压+全面问诊<br />\n测血压<br />\n过敏史<br />\n手术史<br />\n牙齿松动<br />\n之前全麻史<br />\n心脏病<br />\n糖尿病<br />\n其他基础病<br />\n9</p>\n<p>评估通过 · 一般没问题<br />\n没有基础病的情况下，评估一般都能顺利通过<br />\n10</p>\n<p>交材料 + 领术前注意事项<br />\n到<br />\n一楼日间病房管理处<br />\n把所有材料交上去 → 领一张<br />\n术前注意事项<br />\n单<br />\n⚠️ 重点关注：<br />\n血常规中的凝血功能+HIV<br />\n必须空腹<br />\n，很可能需要<br />\n手术前一天<br />\n再跑一趟。建议提前安排好时间！<br />\n以上信息仅个人经历分享，具体情况因人而异，请遵医嘱！<br />\n✦ 坚果大叔 · 记录生活中的点滴美好瞬间 ✦<br />\n04<br />\n手术当天流程<br />\n/ SURGERY DAY<br />\n前一晚<br />\n术前准备 · 禁食禁水<br />\n1</p>\n<p>⚠️ 晚上10点后禁食禁水<br />\n从<br />\n前一晚10点<br />\n开始，<br />\n禁止吃东西和喝水<br />\n，一直到手术结束！全麻要求空腹，否则可能取消手术<br />\n◆ ◆ ◆<br />\n一晚过去，手术当天正式开始<br />\n当天<br />\n手术当天 · 办住院→等待手术<br />\n前一晚22:00</p>\n<p>07:00</p>\n<p>手术时间<br />\n2</p>\n<p>07:00<br />\n1号楼1楼 · 交押金办住院<br />\n早上7点带<br />\n入院证<br />\n和<br />\n就诊卡<br />\n到1号楼1楼交押金办理住院手续<br />\n入院证 ✎<br />\n就诊卡 ✎<br />\n押金 ¥2万<br />\n3</p>\n<p>5楼日间病房 · 518登记<br />\n到5楼<br />\n日间病房518<br />\n登记，护士登记信息、安排床位，手术宣讲<br />\n4</p>\n<p>领病号服 · 病房等候<br />\n登记完成后领<br />\n病号服<br />\n换上，在病房等待去做手术<br />\n5</p>\n<p>等待被叫去手术 🏥<br />\n医生来沟通手术方案，然后等护士喊你，推车进手术室<br />\n⚠️ 重要提醒：<br />\n前一晚10点后<br />\n绝对不能吃东西喝水<br />\n！全麻空腹是硬性要求，违反可能取消手术。记得带好<br />\n入院证+就诊卡<br />\n，押金约2万。<br />\n以上信息仅个人经历分享，具体情况因人而异，请遵医嘱！</p>\n<p>手术中 · 进手术室全流程<br />\n从病房出发到麻醉失去知觉 · 亲历实录</p>\n<p>阶段一<br />\n从病房到手术室<br />\n1</p>\n<p>医生引领 · 5楼→6楼<br />\n一个大叔领你从<br />\n5楼走楼梯<br />\n上到6楼手术室门口<br />\n2</p>\n<p>进门躺上推车<br />\n进手术室门，躺在推车上等待<br />\n3</p>\n<p>把手机、拖鞋交给家属<br />\n手机和拖鞋给家属带回病房，身上不能留东西<br />\n4</p>\n<p>盖上被子 · 推进手术室<br />\n给你盖上被子，推车正式<br />\n推进手术室<br />\n里面<br />\n5</p>\n<p>一堆医生围上来<br />\n进到手术室后，一堆医生就围上来了，开始准备各种操作<br />\n◆ ◆ ◆<br />\n进入手术室，麻醉前的各项操作<br />\n阶段二<br />\n麻醉前 · 各种扎针连线<br />\n6</p>\n<p>扎留置针<br />\n手上扎<br />\n留置针<br />\n，用于术中输液和给药<br />\n7</p>\n<p>连心电图<br />\n身体上连<br />\n心电图<br />\n等各种监测设备<br />\n8</p>\n<p>⚠️ 脚上扎一针 · 疼死了<br />\n脚上还扎了一针，不知道干嘛的，但是<br />\n疼死了<br />\n 😣<br />\n◆ ◆ ◆<br />\n口腔手术特殊操作 + 麻醉开始<br />\n阶段三<br />\n麻醉 · 从清醒到无知觉<br />\n9</p>\n<p>鼻子插管（口腔手术特需）<br />\n口腔手术需要从<br />\n鼻子插管<br />\n，不过这是麻醉之后做的，<br />\n你不会有感觉<br />\n ✌️<br />\n10</p>\n<p>鼻子里喷东西<br />\n医生往鼻子里喷东西，应该是麻醉喷雾之类的<br />\n11</p>\n<p>戴面罩 · 一开始吸不上气<br />\n带上麻醉面罩，一开始<br />\n吸不上气<br />\n，差点闷死 😰，医生调整了一下就好了<br />\n12</p>\n<p>12:25<br />\n看了一眼时间 → 无知觉<br />\n面罩调整好之后，看了时间<br />\n12:25<br />\n，然后就<br />\n没有知觉了<br />\n 💤<br />\n全麻开始，整个手术过程完全无知觉，直到16:28苏醒<br />\n⚠️ 个人感受提醒：<br />\n脚上扎针<br />\n真的疼<br />\n；面罩刚戴时可能<br />\n吸不上气<br />\n有点闷，但医生会很快调整。鼻子插管是在麻醉后做的，<br />\n你完全不会感觉到<br />\n！<br />\n以上信息仅个人经历分享，具体情况因人而异，请遵医嘱！</p>\n<p>手术时间<br />\n <br />\n12:25→16:28<br />\n等恢复知觉的时候，我能感觉到有一根管子从我鼻子里抽出去了，然后嘴巴里含着一个东西。过了不知道多久，嘴巴含的东西被拿出来后。就被推到病房后自己从推车上挪到病床上，中间一点知觉都没有。<br />\n手术完4个小时不能下地，也不能上厕所，过了四个小时可以上厕所，只能喝一杯米汤。也给了止疼药和漱口药，但好像手术的时候挂的水里面已经有止疼药了，<br />\n <br />\n术后就没感觉到痛<br />\n <br />\n。<br />\n！踩坑提示 🕳<br />\n <br />\n术后最难受的就是嘴巴里会有少量血渗出，还会分泌口水，还有碘伏的味道，但<br />\n <br />\n不能吐，吐了渗的更多<br />\n <br />\n，只能咽下去🤢。<br />\n！温馨提示 🕳<br />\n <br />\n术后动手术的那边脸会肿，一般出来之后都会让冰敷，可以提前自己买那种一次性冰袋，淘宝上 20 袋才 30 块，医院里 10 块钱一袋，基本上会用个十几袋。<br />\n05<br />\n术后注意事项<br />\n/ RECOVERY<br />\n基本到第二天早上就可以出院了，<br />\n医生可能会来查房，也可能不来，所以在术后的晚上有问题可以问清楚<br />\n。出院会告知你如下<br />\n注意事项<br />\n。</p>\n<p>POST-OP CARE TICKET<br />\n ★★★★★<br />\n术后注意事项<br />\nNO.01<br />\n <br />\n口腔清洁<br />\nORAL CLEANLINESS<br />\n• <br />\n术后<br />\n24小时内<br />\n不要刷牙<br />\n• <br />\n24小时后可刷牙+使用漱口水<br />\n• <br />\n刷牙时术区少量渗血是正常的<br />\nNO.02<br />\n <br />\n饮食过渡<br />\nDIET TRANSITION<br />\n• <br />\n术后前3天以<br />\n流质为主<br />\n• <br />\n3天后逐渐过渡到正常饮食<br />\n• <br />\n术后<br />\n1-2周内<br />\n避免冷热辛辣刺激<br />\n• <br />\n特别硬的食物不要吃<br />\n• <br />\n烫的食物放凉<br />\n后再吃<br />\nNO.03<br />\n <br />\n术后渗血<br />\nPOST-OP OOZING<br />\n• <br />\n术后<br />\n前3天内<br />\n，饮食、触碰、舔、咬或刷牙蹭到术区<br />\n• <br />\n术区出现少量渗血都是正常的<br />\nNO.04<br />\n <br />\n复诊安排<br />\nFOLLOW-UP VISIT<br />\n• <br />\n术后第一次复诊为<br />\n2周后<br />\n• <br />\n可自行先挂号，挂不到号可凭<br />\n出院小结<br />\n加号<br />\n• <br />\n复诊必须携带<br />\n出院小结<br />\nNO.05<br />\n <br />\n用药须知<br />\nMEDICATION<br />\n• <br />\n出院后带药中，<br />\n止痛药必要时<br />\n服用<br />\n• <br />\n其余抗炎、抗水肿药物服用<br />\n3至5天<br />\n⚠️<br />\n <br />\n面部可能会经麻木提醒<br />\n如果囊肿靠近神经，术后可能出现<br />\n面部麻木<br />\n、舌头麻木等症状。复诊时记得告诉医生，可以开药处理。<br />\n06<br />\n恢复情况<br />\n/ STATUS<br />\n第二天出院的时候，脸就开始肿了，很明显的肿了。但是不怎么疼，<br />\n <br />\n一个止疼药都没有吃<br />\n <br />\n。前两个星期全部吃流质食物，用破壁机打碎了直接喝下去。<br />\n第二周的时候去换了一次药，就是塞在伤口里的<br />\n <br />\n碘伏纱布条<br />\n <br />\n😭，换的时候感觉脑子里的东西被抽出去了，然后又塞了一根进去😂。疼死了！但整个换的时间就两分钟，医生太熟练了👍后面每隔3-4周需要来换一下。<br />\n恢复周期约半年，每3-4 周需要换纱布条一次，大概需要换 6 次左右，然后每 3 个月需要拍CT看一下。在这期间因为囊肿手术切口的伤口和囊肿导致的那个洞一直有碘伏纱布条填充着<br />\n。</p>\n<p>到今天已经术后一个月了，肿差不多消掉了。但<br />\n <br />\n嘴巴还张不开<br />\n <br />\n，大约70%左右。吃不了硬的东西，使不上劲。另外打哈欠的时候最要命🥱🤦‍♂️<br />\n💡 <br />\n术后千万别感冒，咳嗽，打喷嚏，不然可难受了😭<br />\n⚠️ <br />\n术后可能会出现面部麻木、舌头麻木等症状，这是因为囊肿离神经比较近。如果出现这些情况，复诊时和医生说明，会给你开药缓解。<br />\n其他反正就是吃饭后漱口，一开始用牙刷的时候会有一点渗血，后面就没有了。辣的什么的就别吃了。<br />\n06<br />\n手术费用<br />\n/ EXPENSE<br />\n手术费用约<br />\n <br />\n2w<br />\n <br />\n，医保报销后<br />\n <br />\n7k<br />\n手术押金交了 2w，整个手术费用大概 19000+，医保报销后 7000+。如果是上海本地的，同样的手术只要 4000 多一点。</p>\n<h1>上海九院</h1>\n<h1>口腔囊肿</h1>\n<h1>上海九院口腔科</h1>\n<h1>下颌骨囊肿</h1>\n<p>坚果大叔<br />\n记录生活的中点滴美好瞬间！<br />\n如果你觉得今天这篇有收获，欢迎点赞、在看、转发三连，我们下篇见。<br />\n点赞<br />\n在看<br />\n星标<br />\nTHANKS FOR READING ✂</p>\n</div>\n<p><img alt=\"上海九院口腔下颌骨囊肿手术小记-卖坚果的怪叔叔\" src=\"https://cuixinxin.cn/postviews/4090.png\" /></p>",
-    "published": "2026-07-15T15:32:55Z",
-    "feed_title": "之前看到已经被收录了。今天看突然找不到了。",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-16T03:15:58.934708+00:00",
-    "content_length": 7430
   },
   {
     "guid": "58cad2159bc61565",
@@ -13517,18 +13433,6 @@
     "content_length": 18
   },
   {
-    "guid": "f7a41ecaee7a913c",
-    "title": "社会科学中的科学问题",
-    "link": "https://blog.leesaitool.com/society/no-logic-in-social-science",
-    "author": "",
-    "content": "先打六十大板，你还敢诉讼吗？！",
-    "published": "2026-07-15T11:38:49Z",
-    "feed_title": "Arthur's Review",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-21T03:21:37.711937+00:00",
-    "content_length": 15
-  },
-  {
     "guid": "1992843685db1d0b",
     "title": "七年与暑假",
     "link": "https://www.jackpu.com/qi-nian-yu-shu-jia/",
@@ -16145,18 +16049,6 @@
     "content_length": 192
   },
   {
-    "guid": "f1924cbaca4236e0",
-    "title": "聊聊 -XX:MaxRAMPercentage=75%",
-    "link": "https://www.bboy.app/2026/07/15/%E8%81%8A%E8%81%8A-xxmaxrampercentage75/",
-    "author": "",
-    "content": "<p><img alt=\"\" src=\"https://www.bboy.app/oss/20260715-2.webp\" /></p>\n<h3 id=\"简介\">简介</h3>\n<p>前阵子在看一些 Java 服务的 JVM 配置，发现很多人还在用 <code>-Xmx</code> 写死堆大小，到了容器环境里经常内存爆炸。今天聊聊 <code>-XX:MaxRAMPercentage</code> 这个参数，它解决的问题其实很简单，但很多人不知道。</p>",
-    "published": "2026-07-15T10:56:00Z",
-    "feed_title": "bboysoul的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-27T10:02:54.761823+00:00",
-    "content_length": 231
-  },
-  {
     "guid": "1bd7b9d4a5b07410",
     "title": "2026.7.26",
     "link": "https://www.justzht.com/2026-7-26/",
@@ -16841,210 +16733,6 @@
     "content_length": 186
   },
   {
-    "guid": "86eb00ca216bfef1",
-    "title": "eino实现Agent",
-    "link": "https://blog.share888.top/note/ai/ai/eino实现Agent.html",
-    "author": "",
-    "content": "eino实现Agent \neino 是字节官方出来的Agent框架，类似spring-ai\n初体验-",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 50
-  },
-  {
-    "guid": "4d6c93265fc8eb08",
-    "title": "eino整合RAG",
-    "link": "https://blog.share888.top/note/ai/ai/eino整合RAG.html",
-    "author": "",
-    "content": "eino整合RAG \nMilvus 官方文档：https://milvus.io/docs\n支持的向",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 50
-  },
-  {
-    "guid": "9758911f39c0843f",
-    "title": "eino整合Tools",
-    "link": "https://blog.share888.top/note/ai/ai/eino整合Tools.html",
-    "author": "",
-    "content": "eino整合Tools \n单次对话 &amp;ZeroWidthSpace\ngopackage main",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 52
-  },
-  {
-    "guid": "fe889e2b95067c12",
-    "title": "go整合向量数据库ChromaDB",
-    "link": "https://blog.share888.top/note/ai/ai/go整合向量数据库ChromaDB.html",
-    "author": "",
-    "content": "go整合向量数据库ChromaDB \n启动ChromaDB服务\nshell# 1. 拉取指定版本的镜",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 50
-  },
-  {
-    "guid": "5a11287f362af65d",
-    "title": "langchainjs",
-    "link": "https://blog.share888.top/note/ai/ai/langchainjs.html",
-    "author": "",
-    "content": "langchainjs \ngithub:https://github.com/langchain-a",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 50
-  },
-  {
-    "guid": "4664a38813c7a683",
-    "title": "ollama调用各大模型",
-    "link": "https://blog.share888.top/note/ai/ai/ollama调用各大模型.html",
-    "author": "",
-    "content": "ollama调用各大模型 \n聊天 &amp;ZeroWidthSpace\n调用deepseek &Zero",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 53
-  },
-  {
-    "guid": "8e5dc6104a73955a",
-    "title": "spring-ai",
-    "link": "https://blog.share888.top/note/ai/ai/spring-ai.html",
-    "author": "",
-    "content": "spring-ai \nhttps://gitee.com/lzh1995/spring-ai-dem",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 50
-  },
-  {
-    "guid": "ada051de54780b79",
-    "title": "自定义一个MCP",
-    "link": "https://blog.share888.top/note/ai/ai/自定义一个MCP.html",
-    "author": "",
-    "content": "自定义一个MCP \nmcp的要求 &amp;ZeroWidthSpace\n必须要实现的方法 &ZeroWi",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 53
-  },
-  {
-    "guid": "bae8d4e92d7181f8",
-    "title": "opencv初体验",
-    "link": "https://blog.share888.top/note/ai/opencv/opencv初体验.html",
-    "author": "",
-    "content": "openCV初体验 \nwindows环境安装openCV &amp;ZeroWidthSpace\n官网地址",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 53
-  },
-  {
-    "guid": "25ce70efafc0ecea",
-    "title": "01-Bing每日一图接口",
-    "link": "https://blog.share888.top/note/back-end/api/01-Bing每日一图接口.html",
-    "author": "",
-    "content": "01-Bing每日一图接口 \n接口地址：https://cn.bing.com/HPImageArc",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 50
-  },
-  {
-    "guid": "d4f8be5aaaf8c951",
-    "title": "02-腾讯API高清QQ头像https调用接口",
-    "link": "https://blog.share888.top/note/back-end/api/02-腾讯API高清QQ头像https调用接口.html",
-    "author": "",
-    "content": "02-腾讯API高清QQ头像https调用接口 \n写网页的时候，会经常使用到调用QQ头像来获取自己的",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 50
-  },
-  {
-    "guid": "b3964a5be28cd64e",
-    "title": "01-获取指定网站的所有的链接",
-    "link": "https://blog.share888.top/note/back-end/crawl/01-获取指定网站的所有的链接.html",
-    "author": "",
-    "content": "01-获取指定网站的所有的链接 \n需求就是获取指定网站内的所有的url，这个还是有难度的，因为需要一",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 50
-  },
-  {
-    "guid": "dfd667e6dc94af78",
-    "title": "context是什么",
-    "link": "https://blog.share888.top/note/back-end/go/base/context是什么.html",
-    "author": "",
-    "content": "context.Context是什么？ \nctx.Done() 通道\t说明书上的“取消信号”指示灯",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 49
-  },
-  {
-    "guid": "63978e7a25953661",
-    "title": "RWMutex读写锁",
-    "link": "https://blog.share888.top/note/back-end/go/go-tool/RWMutex读写锁.html",
-    "author": "",
-    "content": "RWMutex读写锁 \nDemo示例 &amp;ZeroWidthSpace\n合理使用 RWMutex：",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 52
-  },
-  {
-    "guid": "8e01de635c20c52f",
-    "title": "SyncMap的使用",
-    "link": "https://blog.share888.top/note/back-end/go/go-tool/SyncMap的使用.html",
-    "author": "",
-    "content": "SyncMap的使用 \nsync.Map 是 Go 语言标准库 sync 包中提供的一种 并发安全的",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 50
-  },
-  {
-    "guid": "ca9ab972d8b1c863",
-    "title": "defer的使用",
-    "link": "https://blog.share888.top/note/back-end/go/go-tool/defer的使用.html",
-    "author": "",
-    "content": "defer的使用 \n\n✅ 1. defer 是函数级别的 &amp;ZeroWidthSpace\n\ndef",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 53
-  },
-  {
-    "guid": "fb42c6dcb798a02f",
-    "title": "go字符串工具类",
-    "link": "https://blog.share888.top/note/back-end/go/go-tool/go字符串工具类.html",
-    "author": "",
-    "content": "go字符串工具类 \ngo// Package strutil 提供字符串操作的工具函数，灵感来源于",
-    "published": "2026-07-15T15:00:49Z",
-    "feed_title": "敲代码的卡卡罗特",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T03:16:20.716177+00:00",
-    "content_length": 49
-  },
-  {
     "guid": "66268d3a437e778d",
     "title": "NFS 共享日志盘 75 天写满 11T 排障记录（kjds 生产集群）",
     "link": "https://199604.com/3611",
@@ -17163,5 +16851,41 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-29T08:50:13.292149+00:00",
     "content_length": 4754
+  },
+  {
+    "guid": "ff76ba929fc0a35f",
+    "title": "无区块编辑器的WordPress：ClassicPress",
+    "link": "https://lhcy.org/archives/wu-qu-kuai-bian-ji-qi-de-wordpress-classicpress.html",
+    "author": "林海",
+    "content": "<p class=\"wp-block-paragraph\">有些博友使用WordPress建站，但手动禁用了区块编辑器，换回经典编辑器。那区块相关代码留着也是浪费。所以可以考虑换成ClassicPress。</p>\n\n\n\n<p class=\"wp-block-paragraph\">ClassicPress是WordPress的「<strong>非官方</strong>」分支，彻底剔除了区块编辑器和AI功能，采用经典编辑器，保留WordPress的使用逻辑，无需重新适应。同时因为禁用了剔除了区块编辑器，安装包小了大约20M空间。</p>\n\n\n\n<p class=\"wp-block-paragraph\">本站由于有些样式是用区块编辑器制作的，暂时没有迁移。但<a href=\"https://blog.lhcy.org/\">林海爱折腾</a>已经迁移到了ClassicPress。</p>\n\n\n\n<h2 class=\"wp-block-heading\">如何迁移</h2>\n\n\n\n<p class=\"wp-block-paragraph\">我是按照<a href=\"https://www.classicpress.net/get-classicpress/#switch-to-classicpress\">官方文档</a>来操作的，仅靠一个插件 + 点击几下鼠标来实现。需要注意的是，当迁移完成后，为避免网站主题的部分自定义功能无法使用，最好启用默认主题，再重新启用正在使用的主题（我的个人经验），原有配置不会因为禁用而失效（真的不会因为禁用而失效，说会失效的你以为这是Typecho呢？）。</p>\n\n\n\n<p class=\"wp-block-paragraph\">迁移完成后，记得安装ClassicPress后台推荐的ClassicPress Directory Integration插件，这样就可以在后台安装ClassicPress商店和WordPress商店的主题和插件了。</p>\n\n\n\n<figure class=\"wp-block-image size-full\"><img alt=\"\" class=\"wp-image-1077\" height=\"396\" src=\"https://lhcy.org/wp-content/uploads/2026/07/jie-ping-20260729-shang-wu-10-36-23.png\" width=\"660\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">由于ClassicPress 2.x版本基于WordPress 6.2，且没有区块功能，因此部分WordPress商店的主题和插件无法安装。这在ClassicPress都有提示。</p>\n\n\n\n<figure class=\"wp-block-image alignwide size-large\"><img alt=\"\" class=\"wp-image-1073\" height=\"341\" src=\"https://lhcy.org/wp-content/uploads/2026/07/jie-ping-20260729-shang-wu-10-10-29-700x341.png\" width=\"700\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">当然，ClassicPress有个区块兼容性功能（位置：偏好设置—通用）：</p>\n\n\n\n<figure class=\"wp-block-image alignfull size-large\"><img alt=\"\" class=\"wp-image-1080\" height=\"64\" src=\"https://lhcy.org/wp-content/uploads/2026/07/jie-ping-20260729-shang-wu-10-48-35-700x64.png\" width=\"700\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">ClassicPress还有个装饰性功能（位置：偏好设置—通用）：</p>\n\n\n\n<figure class=\"wp-block-image alignfull size-large\"><img alt=\"\" class=\"wp-image-1081\" height=\"170\" src=\"https://lhcy.org/wp-content/uploads/2026/07/jie-ping-20260729-shang-wu-10-49-37-700x170.png\" width=\"700\" /></figure>\n\n\n\n<h2 class=\"wp-block-heading\">主题适配</h2>\n\n\n\n<p class=\"wp-block-paragraph\">由于ClassicPress<a href=\"https://www.classicpress.net/deprecated-scripts/\">弃用了部分WordPress内核文件</a>，导致自定义菜单中站点LOGO设置功能不复存在。我自己制作的主题对此进行了单独修复，通过后台URL填写的方式实现LOGO自定义。</p>\n\n\n\n<p class=\"wp-block-paragraph\">原WordPress原生失效代码：</p>\n\n\n\n<pre class=\"wp-block-preformatted\">// Custom logo<br />add_theme_support( 'custom-logo', array(<br />'height' =&gt; 60,<br />'width' =&gt; 200,<br />'flex-height' =&gt; true,<br />'flex-width' =&gt; true,<br />) );</pre>\n\n\n\n<p class=\"wp-block-paragraph\">ClassicPress 兼容替代代码：</p>\n\n\n\n<pre class=\"wp-block-preformatted\">// Site Logo URL — ClassicPress-compatible replacement for the native<br />// \"站点身份 → Logo\" uploader (which depends on Backbone.js / the media<br />// frame and is therefore hidden in ClassicPress).<br />$wp_customize-&gt;add_setting( 'wplist_logo_url', array(<br />'default' =&gt; '',<br />'sanitize_callback' =&gt; 'esc_url_raw',<br />'transport' =&gt; 'refresh',<br />) );<br />$wp_customize-&gt;add_control( 'wplist_logo_url', array(<br />'label' =&gt; __( '站点 Logo 图片地址（URL）', 'list' ),<br />'section' =&gt; 'wplist_theme_settings',<br />'type' =&gt; 'url',<br />'description' =&gt; __( '填写 Logo 图片的完整 URL（如 https://example.com/logo.png）。用于在 ClassicPress 中替代原「站点身份 → Logo」上传功能；留空则显示站点名称。', 'list' ),<br />) );</pre>\n\n\n\n<p class=\"wp-block-paragraph\">我自己制作的主题始终保持前后端样式统一的优势：后台编辑器编辑的内容样式，和前端用户看到的最终效果完全一致。其实，很多近几年的新主题都有这个功能，在ClassicPress上完美兼容。</p>\n\n\n\n<h2 class=\"wp-block-heading\">插件适配</h2>\n\n\n\n<p class=\"wp-block-paragraph\">据我观察，不依赖区块功能的主流WordPress插件大多可在ClassicPress中正常使用，例如最新版Akismet、LiteSpeed Cache、UpdraftPlus等。</p>\n\n\n\n<p class=\"wp-block-paragraph\">我使用的众多插件中，仅两款最新版插件存在适配问题：</p>\n\n\n\n<p class=\"wp-block-paragraph\">1. 完全不兼容：Internet Archive Wayback Machine Link Fixer（最新版），不是刚需，舍弃。</p>\n\n\n\n<p class=\"wp-block-paragraph\">2. 存在报错问题：All-In-One Security（AIOS）（最新版）。这是安全插件，为避免站点被黑，必须找插件替代。经过测试，同类型的WP Hide &amp; Security Enhancer插件也存在报错，于是我用多个功能单一的插件来替代。</p>\n\n\n\n<p class=\"wp-block-paragraph\">这些全部支持后台一键安装，没有报错，如下：</p>\n\n\n\n<figure class=\"wp-block-table\"><table class=\"has-fixed-layout\"><thead><tr><th>插件名称</th><th>下载来源</th></tr></thead><tbody><tr><td>Disable Author Archives</td><td>WordPress 商店</td></tr><tr><td>ClassicPress Integrity Checker</td><td>ClassicPress 商店</td></tr><tr><td>WPS Hide Login</td><td>WordPress 商店</td></tr><tr><td>Meta Generator and Version Info Remover</td><td>WordPress 商店</td></tr><tr><td>Limit Login Attempts NG</td><td>ClassicPress 商店</td></tr></tbody></table></figure>\n\n\n\n<p class=\"wp-block-paragraph\">XML-RPC功能，如不需要可以在后台手动禁用；同时还可以禁用表情、启用链接管理器（位置：偏好设置—通用）。</p>\n\n\n\n<figure class=\"wp-block-image size-large\"><img alt=\"\" class=\"wp-image-1083\" height=\"337\" src=\"https://lhcy.org/wp-content/uploads/2026/07/jie-ping-20260729-shang-wu-11-17-00-700x337.png\" width=\"700\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">AIOS的全部防护规则并无法被完整替代。我的服务器是LiteSpeed，于是我利用AIOS的备份，利用AI手动补充了完整的 .htaccess 安全规则，兼容LiteSpeed和Apache。</p>\n\n\n\n<pre class=\"wp-block-preformatted\"># ============================================================<br /># 站点合并安全规则<br /># 组成：自定义补充（响应头 + uploads 禁 PHP） + AIOS 原有规则<br /># 服务器：LiteSpeed（兼容 Apache .htaccess）<br /># ============================================================<br />​<br /># ===================== 自定义安全补充 =====================<br />​<br /># ---------- HTTP 安全响应头（AIOS 卸载后丢失，用代码补回）----------<br />Header always set X-Frame-Options \"SAMEORIGIN\"<br />Header always set X-Content-Type-Options \"nosniff\"<br />Header always set Content-Security-Policy \"upgrade-insecure-requests;\"<br />Header always set Referrer-Policy \"strict-origin-when-cross-origin\"<br />​<br /># ---------- 禁止 wp-content/uploads 执行 PHP（防上传恶意脚本被执行）----------<br />&lt;IfModule mod_rewrite.c><br />RewriteEngine On<br />RewriteRule ^wp-content/uploads/.*\\.(php|phtml|php3|php4|php5|phps)$ - [F,L]<br />&lt;/IfModule><br />​<br /># ===================== AIOS 原有规则（保留）=====================<br /># BEGIN All In One WP Security<br />#AIOWPS_BASIC_HTACCESS_RULES_START<br />&lt;Files .htaccess><br />&lt;IfModule mod_authz_core.c><br />Require all denied<br />&lt;/IfModule><br />&lt;IfModule !mod_authz_core.c><br />Order deny,allow<br />Deny from all<br />&lt;/IfModule><br />&lt;/Files><br />ServerSignature Off<br />LimitRequestBody 10485710<br />&lt;Files wp-config.php><br />&lt;IfModule mod_authz_core.c><br />Require all denied<br />&lt;/IfModule><br />&lt;IfModule !mod_authz_core.c><br />Order deny,allow<br />Deny from all<br />&lt;/IfModule><br />&lt;/Files><br />#AIOWPS_BASIC_HTACCESS_RULES_END<br />#AIOWPS_DEBUG_LOG_BLOCK_HTACCESS_RULES_START<br />&lt;Files debug.log><br />&lt;IfModule mod_authz_core.c><br />Require all denied<br />&lt;/IfModule><br />&lt;IfModule !mod_authz_core.c><br />Order deny,allow<br />Deny from all<br />&lt;/IfModule><br />&lt;/Files><br />#AIOWPS_DEBUG_LOG_BLOCK_HTACCESS_RULES_END<br />#AIOWPS_DISABLE_INDEX_VIEWS_START<br />Options -Indexes<br />#AIOWPS_DISABLE_INDEX_VIEWS_END<br />#AIOWPS_DISABLE_TRACE_TRACK_START<br />&lt;IfModule mod_rewrite.c><br />RewriteEngine On<br />RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)<br />RewriteRule .* - [F]<br />&lt;/IfModule><br />#AIOWPS_DISABLE_TRACE_TRACK_END<br />​<br /># ---------- 防盗链----------<br />#AIOWPS_PREVENT_IMAGE_HOTLINKS_START<br />&lt;IfModule mod_rewrite.c><br />RewriteEngine On<br />RewriteCond %{HTTP_REFERER} !^$<br />RewriteCond %{HTTP_REFERER} !^https?://(www\\.)?blog\\.lhcy\\.org [NC]<br />RewriteCond %{HTTP_REFERER} !^https?://(www\\.)?lhcy\\.org [NC]<br />RewriteCond %{HTTP_REFERER} !^https?://(www\\.)?google\\.com [NC]<br />RewriteCond %{HTTP_REFERER} !^https?://(www\\.)?bing\\.com [NC]<br />RewriteRule \\.(gif|jpe?g|png|svg|webp)$ - [NC,F,L]<br />&lt;/IfModule><br />#AIOWPS_PREVENT_IMAGE_HOTLINKS_END<br /># END All In One WP Security</pre>\n\n\n\n<h2 class=\"wp-block-heading\">文章中插入代码</h2>\n\n\n\n<p class=\"wp-block-paragraph\">如果需要在文章中插入代码片段，在ClassicPress后台的操作方式是，粘贴代码片段后，全选对应代码，在编辑器顶部「格式」下拉菜单中，选择「预格式化文本」。</p>\n\n\n\n<p class=\"wp-block-paragraph\">如果已经安装代码高亮插件，可以按插件要求来插入代码。</p>\n\n\n\n<h2 class=\"wp-block-heading\">总结</h2>\n\n\n\n<p class=\"wp-block-paragraph\">一句话：如果你不喜欢或彻底用不到区块编辑器，可以考虑迁移到ClassicPress。</p><p>The post <a href=\"https://lhcy.org/archives/wu-qu-kuai-bian-ji-qi-de-wordpress-classicpress.html\">无区块编辑器的WordPress：ClassicPress</a> first appeared on <a href=\"https://lhcy.org\">林海草原</a>.</p>",
+    "published": "2026-07-29T02:39:37Z",
+    "feed_title": "林海草原",
+    "feed_category": "Blogs",
+    "cached_at": "2026-07-29T14:22:28.861026+00:00",
+    "content_length": 8314
+  },
+  {
+    "guid": "2d262feb80b0871c",
+    "title": "来信 · 莫良",
+    "link": "https://www.gtdstudy.com/guestbook/5c18fc62-248c-4191-8ce9-e99382aeaa21/",
+    "author": "",
+    "content": "",
+    "published": "2026-07-29T06:14:52Z",
+    "feed_title": "学无止境@一点一滴",
+    "feed_category": "Blogs",
+    "cached_at": "2026-07-29T14:22:28.861026+00:00",
+    "content_length": 0
+  },
+  {
+    "guid": "87b29aefdfa6348b",
+    "title": "Liquid Glass：UIKit 适配踩坑实录",
+    "link": "https://fatbobman.com/zh/posts/liquid-glass-a-field-guide-to-uikit-compatibility-pitfalls/",
+    "author": "Fatbobman",
+    "content": "<p>尽管 Liquid Glass 已经推出两年，但它带来的兼容性问题并未完全消失。SLIT_STUDIO 的开发者 ⁠Megabits 结合真实项目，总结了 UIKit 在适配过程中的多个典型坑点及应对方法。</p>\n                   <div style=\"margin-top: 20px;\">\n                   <p><a href=\"https://fatbobman.com/rss.xml\"><b>Subscribe English RSS</b></a></p>\n                   </div>\n                   <div style=\"margin-top: 20px;\">\n                   <p><a href=\"https://fatbobman.com/zh/posts/liquid-glass-a-field-guide-to-uikit-compatibility-pitfalls/\"><b>阅读全文</b></a></p>\n                   </div>",
+    "published": "2026-07-29T14:00:00Z",
+    "feed_title": "肘子的 Swift 记事本",
+    "feed_category": "Blogs",
+    "cached_at": "2026-07-29T14:22:28.861026+00:00",
+    "content_length": 506
   }
 ]
