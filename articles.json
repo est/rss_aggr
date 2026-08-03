@@ -9689,66 +9689,6 @@
     "content_length": 46
   },
   {
-    "guid": "d82d7168f7a039e6",
-    "title": "雅可比猜想被AI推翻——世界杯决赛夜，Fable一脚踢翻了85年的数学猜想",
-    "link": "https://xingwangzhe.fun/posts/jacobian-conjecture-counterexample-fable/",
-    "author": "",
-    "content": "85年的雅可比猜想被一个显式的多项式反例推翻。三个不同的点映射到同一个像，雅可比行列式为常数-2——任何人都能手算验证。而这个反例，是一位数学家在世界杯决赛夜用AI聊出来的",
-    "published": "2026-07-20T08:00:00Z",
-    "feed_title": "姓王者的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-20T09:26:26.166160+00:00",
-    "content_length": 86
-  },
-  {
-    "guid": "77ac889d81ae094c",
-    "title": "All about GIS · 15",
-    "link": "https://127.0.0.1:5201/post/all-about-gsi-15",
-    "author": "WSH",
-    "content": "**All about GIS**  一个关于GIS的开源信息合集，欢迎任何人提交内容。\n\n[仓库](https://github.com/giserlab/all-about-gis)    [网站](https://blog.gis...",
-    "published": "2026-07-20T08:31:29Z",
-    "feed_title": "GISerLab 地理空间",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-20T09:26:26.166160+00:00",
-    "content_length": 121
-  },
-  {
-    "guid": "c8aed9b1e1934de3",
-    "title": "绿盾文件解密工具",
-    "link": "https://b.ncii.cn/archives/zKVE6tpU",
-    "author": "Swaggy Macro",
-    "content": "<img alt=\"\" height=\"1\" src=\"https://b.ncii.cn/plugins/feed/assets/telemetry.gif?title=%E7%BB%BF%E7%9B%BE%E6%96%87%E4%BB%B6%E8%A7%A3%E5%AF%86%E5%B7%A5%E5%85%B7&amp;url=/archives/zKVE6tpU\" width=\"1\" /> 基于WPF开发的绿盾加密文件批量解密与格式还原工具，无需管理员权限或解密审批，通过模拟授权进程实现透明解密。其核心原理为：利用API Hook技术伪装成白名单授权进程（如EXCEL.EXE），在文件载入内存时触发自动解密，再将明文数据写入非监控扩展名（如.exe）的临时文件，最后通过文件头魔法数字识别和结构分析，将.exe文件批量还原为原始格式（如.docx/.xlsx）。工具支持批量添加加密文件/文件夹、自定义输出路径及扩展名，需注意合法使用场景，避免越权操作，部分加密策略可能需调整进程名或输出后缀以规避拦截。",
-    "published": "2026-07-20T06:51:14Z",
-    "feed_title": "申请恢复收录",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-20T09:26:26.166160+00:00",
-    "content_length": 459
-  },
-  {
-    "guid": "a3df44a7e32a20c9",
-    "title": "拍记血压 —— 给血压计拍照就能记录血压",
-    "link": "https://www.boris1993.com/bpsnap.html",
-    "author": "Boris Zhao",
-    "content": "<video class=\"bpsnap-demo\" controls=\"controls\">    <source src=\"https://blog-static.boris1993.com/bpsnap/bpsnap_demo.mp4\" type=\"video/mp4\" /></video><p>我做了一个微信小程序，叫「拍记血压」。</p><p>起因很简单：我看到我妈每天量完血压，都要拿纸把测量结果写下来。这样确实能记，但每次都要写在纸上也挺麻烦，而且纸一丢，之前的记录也就没了。所以我这个程序员儿子就有了这么一个想法，量完血压后，拿手机拍一下血压计，小程序就能自动识别血压计的读数。之后可以按时间查看历史记录和趋势。</p><p>如果需要给医生看的话，还能把结果导出到有图表的PDF中。</p><img alt=\"拍记血压导出的血压历史 PDF 示例\" class=\"bpsnap-article-image bpsnap-pdf-preview\" /><p>感兴趣的话，也可以扫图里的小程序码试试。</p><img alt=\"拍记血压微信小程序码\" class=\"bpsnap-article-image bpsnap-qr-code\" />",
-    "published": "2026-07-20T07:23:36Z",
-    "feed_title": "www.boris1993.com RSS 地址提交",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-20T09:26:26.166160+00:00",
-    "content_length": 529
-  },
-  {
-    "guid": "803049e9609c9067",
-    "title": "熊猫小A: 凌晨终场哨一响我就直接蒙头大睡，缓了一天好点了。当赢球时，你感叹梅西的强大；当输...",
-    "link": "https://blog.imalan.cn/archives/memo-20260720-1914/",
-    "author": "hi@imalan.cn (熊猫小A)",
-    "content": "<p>凌晨终场哨一响我就直接蒙头大睡，缓了一天好点了。当赢球时，你感叹梅西的强大；当输球时，你怀念梅西的强大。梅西拿球他就有办法把球送到合适的地方：队友的脚下、头上或者直接进对手的门里。但他要是拿不到球，就会像今天一样惨烈。阿根廷队需要想想后梅西时代怎么过。</p>",
-    "published": "2026-07-20T11:13:25Z",
-    "feed_title": "失眠海峡",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-20T19:50:55.823896+00:00",
-    "content_length": 133
-  },
-  {
     "guid": "5c69647c01b20699",
     "title": "text2mermaid — 我做了一个用自然语言生成 Mermaid 图的网站：为什么做、怎么用、支持哪些图",
     "link": "https://xilidou.com/2026/07/20/text2mermaid/",
@@ -9771,30 +9711,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-20T19:50:55.823896+00:00",
     "content_length": 4014
-  },
-  {
-    "guid": "97f91762583bb329",
-    "title": "向云端｜西南自驾02 - 婺源",
-    "link": "https://blog.ops-coffee.com/r/2026-southwest-road-trip-02-wuyuan.html",
-    "author": "",
-    "content": "",
-    "published": "2026-07-20T11:35:14Z",
-    "feed_title": "运维咖啡吧",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-20T19:50:55.823896+00:00",
-    "content_length": 0
-  },
-  {
-    "guid": "ea1b10e067c1da0d",
-    "title": "施工合同中约定变更项目经理需支付违约金的相关问题探讨",
-    "link": "https://jiangcl.com/4664",
-    "author": "蒙需",
-    "content": "在建设工程施工合同中，发承包双方常就项目经理的变更及违约责任作出专门约定。例如，合同中可能明确约定：“开工后， &#8230; <a class=\"more-link\" href=\"https://jiangcl.com/4664\">继续阅读<span class=\"screen-reader-text\">施工合同中约定变更项目经理需支付违约金的相关问题探讨</span></a>",
-    "published": "2026-07-20T08:19:12Z",
-    "feed_title": "蒙需",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-20T19:50:55.823896+00:00",
-    "content_length": 191
   },
   {
     "guid": "1992843685db1d0b",
@@ -9857,18 +9773,6 @@
     "content_length": 243
   },
   {
-    "guid": "acb7b9543d6cbcf0",
-    "title": "用 Swift 构建 MCP Server：从零到接入 Claude 的完整教程",
-    "link": "https://gptkit.eth.limo/90118240-79C9-4595-B7A3-33FF11646055/",
-    "author": "",
-    "content": "<p>如果你是 Swift 开发者，又想把自己 Mac 上的能力（本地文件、Shortcuts、Xcode 项目、Core Data 数据……）暴露给 Claude、ChatGPT 这类 AI 助手，那么 <strong>MCP Server</strong> 就是你要的东西。而目前主流的 MCP 教程几乎都是 Python 或 TypeScript，Swift 版本极少——这也让 “swift mcp server” 成为一个几乎无人竞争的关键词。</p> \n<p>本文用一个能跑通的最小示例，带你从零构建一个 Swift MCP Server，并接入 Claude Desktop。</p> \n<h2>什么是 MCP Server？</h2> \n<p><strong>Model Context Protocol (MCP)</strong> 是 Anthropic 在 2024 年底提出的开放协议，用来标准化 “LLM 应用 ↔ 外部工具/数据源” 之间的通信。你可以把它理解成 <strong>“AI 应用的 USB-C”</strong>：</p> \n<ul> \n <li><strong>MCP Host</strong>：AI 应用（Claude Desktop、Cursor、Codex CLI……）</li> \n <li><strong>MCP Client</strong>：Host 内部为每个连接建立的会话客户端</li> \n <li><strong>MCP Server</strong>：你写的进程，向 Host 暴露 <code>tools</code>、<code>resources</code>、<code>prompts</code></li> \n</ul> \n<p>协议本体是基于 <strong>JSON-RPC 2.0</strong> 的双向消息，通过两种传输承载：</p> \n<table> \n <thead> \n  <tr> \n   <th>传输</th> \n   <th>场景</th> \n   <th>特点</th> \n  </tr> \n </thead> \n <tbody> \n  <tr> \n   <td><strong>stdio</strong></td> \n   <td>本地进程，Host 直接 spawn</td> \n   <td>简单、零配置、无网络暴露</td> \n  </tr> \n  <tr> \n   <td><strong>Streamable HTTP / SSE</strong></td> \n   <td>远程或跨机器</td> \n   <td>需 <code>Accept: application/json, text/event-stream</code></td> \n  </tr> \n </tbody> \n</table> \n<p>对本地 Mac 工具来说，<strong>stdio 是默认选择</strong>。</p> \n<h2>为什么用 Swift 写 MCP Server？</h2> \n<p>多数教程默认 Python/Node，但用 Swift 有几个独特优势：</p> \n<ol> \n <li><strong>原生调用 macOS API</strong>：EventKit、Contacts、AppKit、Core Data、Shortcuts、ScreenCaptureKit……不需要 shell 桥。</li> \n <li><strong>单文件可执行</strong>：<code>swift build -c release</code> 产出一个静态二进制，Claude Desktop 直接 spawn，无 Python 环境依赖。</li> \n <li><strong>强类型 + async/await</strong>：JSON-RPC 消息用 <code>Codable</code> + <code>enum</code> 建模，工具 handler 天然并发安全。</li> \n <li><strong>和 Xcode / SwiftUI 项目共享代码</strong>：同一份 <code>Package</code> 里既能被 App target 用，也能被 MCP server target 用。</li> \n</ol> \n<h2>架构总览</h2> \n<p>一个最小可用的 Swift MCP Server 包含四层：</p> \n<pre><code class=\"language-text\">┌─────────────────────────────┐\n│  Claude Desktop (Host)      │\n└──────────────┬──────────────┘\n        stdio  │  JSON-RPC 2.0\n┌──────────────▼──────────────┐\n│  Transport  (stdin/stdout)  │  按行读、按行写\n├─────────────────────────────┤\n│  JSON-RPC Dispatcher        │  method → handler\n├─────────────────────────────┤\n│  MCP Protocol Layer         │  initialize / tools/list / tools/call\n├─────────────────────────────┤\n│  Your Tools                 │  echo / read_notes / run_shortcut ...\n└─────────────────────────────┘\n</code></pre> \n<h2>项目搭建</h2> \n<p>新建一个 Swift Package：</p> \n<pre><code class=\"language-bash\">mkdir SwiftMCPDemo &amp;&amp; cd SwiftMCPDemo\nswift package init --type executable\n</code></pre> \n<p>编辑 <code>Package.swift</code>（macOS 13+，用到 <code>AsyncStream</code> 与 <code>Foundation</code> 的 JSON 编解码）：</p> \n<pre><code class=\"language-swift\">// swift-tools-version:5.9\nimport PackageDescription\n\nlet package = Package(\n    name: \"SwiftMCPDemo\",\n    platforms: [.macOS(.v13)],\n    targets: [\n        .executableTarget(name: \"SwiftMCPDemo\", path: \"Sources/SwiftMCPDemo\")\n    ]\n)\n</code></pre> \n<h2>第一步：JSON-RPC 消息建模</h2> \n<p>MCP 的每条消息都是 JSON-RPC 2.0。用 <code>Codable</code> 把请求 / 响应 / 错误建模一次，后面所有 handler 都复用：</p> \n<pre><code class=\"language-swift\">import Foundation\n\nstruct RPCRequest: Decodable {\n    let jsonrpc: String\n    let id: JSONValue?      // 可能是 number / string / null（通知无 id）\n    let method: String\n    let params: JSONValue?\n}\n\nstruct RPCResponse: Encodable {\n    let jsonrpc = \"2.0\"\n    let id: JSONValue?\n    var result: JSONValue?\n    var error: RPCError?\n}\n\nstruct RPCError: Encodable {\n    let code: Int\n    let message: String\n    var data: JSONValue?\n}\n\n/// 一个能表达任意 JSON 的枚举，避免到处写 [String: Any]\nenum JSONValue: Codable {\n    case null\n    case bool(Bool)\n    case int(Int)\n    case double(Double)\n    case string(String)\n    case array([JSONValue])\n    case object([String: JSONValue])\n\n    init(from decoder: Decoder) throws {\n        let c = try decoder.singleValueContainer()\n        if c.decodeNil() { self = .null; return }\n        if let v = try? c.decode(Bool.self) { self = .bool(v); return }\n        if let v = try? c.decode(Int.self) { self = .int(v); return }\n        if let v = try? c.decode(Double.self) { self = .double(v); return }\n        if let v = try? c.decode(String.self) { self = .string(v); return }\n        if let v = try? c.decode([JSONValue].self) { self = .array(v); return }\n        if let v = try? c.decode([String: JSONValue].self) { self = .object(v); return }\n        throw DecodingError.dataCorruptedError(in: c, debugDescription: \"Unsupported JSON\")\n    }\n\n    func encode(to encoder: Encoder) throws {\n        var c = encoder.singleValueContainer()\n        switch self {\n        case .null: try c.encodeNil()\n        case .bool(let v): try c.encode(v)\n        case .int(let v): try c.encode(v)\n        case .double(let v): try c.encode(v)\n        case .string(let v): try c.encode(v)\n        case .array(let v): try c.encode(v)\n        case .object(let v): try c.encode(v)\n        }\n    }\n}\n</code></pre> \n<h2>第二步：stdio 传输层</h2> \n<p>MCP over stdio 用 <strong>换行分隔的 JSON</strong>（每条消息一行）。关键点：</p> \n<ul> \n <li><strong>所有日志必须写 stderr</strong>，不能污染 stdout；</li> \n <li>读取用行缓冲，避免半条 JSON。</li> \n</ul> \n<pre><code class=\"language-swift\">actor StdioTransport {\n    private let stdin = FileHandle.standardInput\n    private let stdout = FileHandle.standardOutput\n\n    func readLines() -&gt; AsyncStream&lt;Data&gt; {\n        AsyncStream { continuation in\n            Task.detached {\n                var buffer = Data()\n                while let chunk = try? self.stdin.read(upToCount: 4096), !chunk.isEmpty {\n                    buffer.append(chunk)\n                    while let nl = buffer.firstIndex(of: 0x0A) {\n                        let line = buffer.subdata(in: 0..&lt;nl)\n                        buffer.removeSubrange(0...nl)\n                        if !line.isEmpty { continuation.yield(line) }\n                    }\n                }\n                continuation.finish()\n            }\n        }\n    }\n\n    func send(_ response: RPCResponse) throws {\n        var data = try JSONEncoder().encode(response)\n        data.append(0x0A) // '\\n'\n        try stdout.write(contentsOf: data)\n    }\n}\n\nfunc log(_ msg: String) {\n    FileHandle.standardError.write(Data(\"[mcp] \\(msg)\\n\".utf8))\n}\n</code></pre> \n<h2>第三步：注册工具</h2> \n<p>定义一个 <code>Tool</code> 协议，让每个工具自描述 schema 并处理调用：</p> \n<pre><code class=\"language-swift\">protocol Tool: Sendable {\n    var name: String { get }\n    var description: String { get }\n    var inputSchema: JSONValue { get }   // JSON Schema\n    func call(arguments: JSONValue) async throws -&gt; JSONValue\n}\n\nstruct EchoTool: Tool {\n    let name = \"echo\"\n    let description = \"Echo the input text back to the caller.\"\n    let inputSchema: JSONValue = .object([\n        \"type\": .string(\"object\"),\n        \"properties\": .object([\n            \"text\": .object([\n                \"type\": .string(\"string\"),\n                \"description\": .string(\"Text to echo back.\")\n            ])\n        ]),\n        \"required\": .array([.string(\"text\")])\n    ])\n\n    func call(arguments: JSONValue) async throws -&gt; JSONValue {\n        guard case .object(let obj) = arguments,\n              case .string(let text) = obj[\"text\"] ?? .null else {\n            throw NSError(domain: \"echo\", code: 1,\n                          userInfo: [NSLocalizedDescriptionKey: \"missing `text`\"])\n        }\n        // MCP tool 返回的是 content 数组\n        return .object([\n            \"content\": .array([\n                .object([\n                    \"type\": .string(\"text\"),\n                    \"text\": .string(text)\n                ])\n            ])\n        ])\n    }\n}\n</code></pre> \n<h2>第四步：Dispatcher 与 MCP 生命周期</h2> \n<p>MCP 一次会话至少要处理三个方法：<code>initialize</code>、<code>tools/list</code>、<code>tools/call</code>。</p> \n<pre><code class=\"language-swift\">final class Server {\n    let transport = StdioTransport()\n    var tools: [String: any Tool] = [:]\n\n    func register(_ tool: any Tool) { tools[tool.name] = tool }\n\n    func run() async {\n        for await line in await transport.readLines() {\n            await handleLine(line)\n        }\n    }\n\n    private func handleLine(_ data: Data) async {\n        guard let req = try? JSONDecoder().decode(RPCRequest.self, from: data) else {\n            log(\"bad json: \\(String(data: data, encoding: .utf8) ?? \"?\")\")\n            return\n        }\n\n        var resp = RPCResponse(id: req.id)\n        do {\n            switch req.method {\n            case \"initialize\":\n                resp.result = .object([\n                    \"protocolVersion\": .string(\"2025-06-18\"),\n                    \"capabilities\": .object([\n                        \"tools\": .object([:])\n                    ]),\n                    \"serverInfo\": .object([\n                        \"name\": .string(\"swift-mcp-demo\"),\n                        \"version\": .string(\"0.1.0\")\n                    ])\n                ])\n\n            case \"tools/list\":\n                let list = tools.values.map { t in\n                    JSONValue.object([\n                        \"name\": .string(t.name),\n                        \"description\": .string(t.description),\n                        \"inputSchema\": t.inputSchema\n                    ])\n                }\n                resp.result = .object([\"tools\": .array(list)])\n\n            case \"tools/call\":\n                guard case .object(let p) = req.params ?? .null,\n                      case .string(let name) = p[\"name\"] ?? .null,\n                      let tool = tools[name] else {\n                    throw NSError(domain: \"mcp\", code: -32601,\n                                  userInfo: [NSLocalizedDescriptionKey: \"tool not found\"])\n                }\n                let args = p[\"arguments\"] ?? .object([:])\n                resp.result = try await tool.call(arguments: args)\n\n            case \"notifications/initialized\":\n                return   // 通知无需回复\n\n            default:\n                resp.error = RPCError(code: -32601, message: \"method not found: \\(req.method)\")\n            }\n        } catch {\n            resp.error = RPCError(code: -32000, message: \"\\(error)\")\n        }\n\n        if req.id != nil {\n            try? await transport.send(resp)\n        }\n    }\n}\n</code></pre> \n<p><code>main.swift</code> 里把它跑起来：</p> \n<pre><code class=\"language-swift\">@main\nstruct App {\n    static func main() async {\n        let server = Server()\n        server.register(EchoTool())\n        log(\"swift-mcp-demo starting on stdio\")\n        await server.run()\n    }\n}\n</code></pre> \n<p>编译：</p> \n<pre><code class=\"language-bash\">swift build -c release\n# 产物路径\necho \"$(pwd)/.build/release/SwiftMCPDemo\"\n</code></pre> \n<h2>接入 Claude Desktop</h2> \n<p>编辑 <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>：</p> \n<pre><code class=\"language-json\">{\n  \"mcpServers\": {\n    \"swift-demo\": {\n      \"command\": \"/绝对路径/SwiftMCPDemo/.build/release/SwiftMCPDemo\"\n    }\n  }\n}\n</code></pre> \n<p>重启 Claude Desktop。在对话框输入框左下角的 🔌 图标里应能看到 <code>echo</code> 工具。让 Claude 调用：</p> \n<blockquote> \n <p>用 echo 工具回显 “Hello from Swift MCP”。</p> \n</blockquote> \n<p>如果一切正常，Claude 会把返回内容展示回来。</p> \n<h2>常见坑</h2> \n<ol> \n <li><strong>stdout 被日志污染</strong>：任何 <code>print</code> 都会破坏 JSON-RPC 帧。所有日志一律走 stderr。</li> \n <li><strong>忘记 <code>notifications/initialized</code></strong>：Host 发来的通知没有 <code>id</code>，如果你也回一个响应会让客户端报协议错。判断 <code>req.id != nil</code> 再发送。</li> \n <li><strong>schema 与 arguments 不一致</strong>：<code>inputSchema</code> 里声明的 <code>required</code> 字段必须真的能从 <code>arguments</code> 里拿到，否则 Host 会跳过工具或报错。</li> \n <li><strong>权限提示卡住</strong>：如果工具触及通讯录、日历、屏幕录制等，第一次运行会弹系统授权；Claude Desktop 是无窗口 spawn，用户可能看不到——先在终端里手动跑一次触发授权。</li> \n <li><strong>remote / SSE 传输</strong>：Streamable HTTP 的 POST <strong>必须</strong>带 <code>Accept: application/json, text/event-stream</code>，否则官方 SDK 直接 406。stdio 走不通再考虑升级到 HTTP。</li> \n</ol> \n<h2>常见问题（FAQ）</h2> \n<p><strong>Q：Swift MCP Server 能跨平台跑吗？</strong><br /> 可以。核心代码只依赖 <code>Foundation</code>，Linux 上的 Swift 5.9+ 也能编译；要触达 macOS 专属 API（EventKit 等）时才会被平台绑定。</p> \n<p><strong>Q：需不需要自己实现 JSON-RPC，社区有没有现成库？</strong><br /> 有官方 <a href=\"https://github.com/modelcontextprotocol/swift-sdk\">Swift SDK</a>（<code>modelcontextprotocol/swift-sdk</code>）。生产项目直接用它；本文手写是为了把协议讲透。</p> \n<p><strong>Q：MCP Server 支持流式返回吗？</strong><br /> 支持。工具可以在长任务里通过 <code>notifications/progress</code> 推进度，但要小心：客户端普遍有 30~60 秒左右的调用超时，超长任务应拆成 “创建 job → 查询结果” 两个工具。</p> \n<p><strong>Q：怎样调试？</strong><br /> 最简单的办法：用 <code>mcp-inspector</code>（<code>npx @modelcontextprotocol/inspector /path/to/SwiftMCPDemo</code>）在浏览器里逐条查看请求与响应。</p> \n<p><strong>Q：MCP 会不会被 CLI 工具替代？</strong><br /> 围绕 CLI vs MCP 有过<a href=\"https://blog.terryso.dev/blog/mcp-is-dead-long-live-cli\">一场讨论</a>，但对于强类型、需要 schema 的 macOS 原生能力，MCP 仍然是最合适的封装。</p> \n<h2>结论</h2> \n<p>Swift + MCP 是被严重低估的组合：一份 Swift Package 就能把 macOS 原生能力干净地暴露给任何符合 MCP 的 AI 客户端，无 Python、无网络、类型安全。这篇教程的完整代码可以直接复制运行；下一步建议：</p> \n<ul> \n <li>把 <code>EchoTool</code> 换成 <code>RunShortcutTool</code>，用 <code>Process</code> 调 <code>shortcuts run</code>；</li> \n <li>加一个 <code>read_notes</code> 工具走 AppleScript / EventKit；</li> \n <li>打包成 <code>.pkg</code> 或 Homebrew tap，让别人一键装。</li> \n</ul> \n<p>如果你在做类似方向的实验，欢迎订阅本站 <a href=\"https://blog.terryso.dev/feed.xml\">RSS</a> 或看看姊妹项目 <a href=\"../6350C74A-BB1D-453D-996F-5139D42DC729/\">Open Agent SDK (Swift)</a>，那边把 “Agent Loop + MCP 集成” 完整跑通了。</p>",
-    "published": "2026-07-20T11:42:55Z",
-    "feed_title": "https://gptkit.eth.limo/",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-21T03:21:37.711937+00:00",
-    "content_length": 13326
-  },
-  {
     "guid": "6cad7a8dca265769",
     "title": "R#111 投资纪律的考验",
     "link": "https://blog.sakanano.moe/journals/random_111",
@@ -9891,18 +9795,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-21T03:21:37.711937+00:00",
     "content_length": 36513
-  },
-  {
-    "guid": "4a512585e6639203",
-    "title": "用 Drafts 安排一周的晚餐食谱 | UNTAG",
-    "link": "https://utgd.net/article/21371/",
-    "author": "Minja",
-    "content": "<p><img src=\"https://cdn.utgd.net/images/banner_933c2526292_ByOINNb.jpeg\" /></p>一场小型的任务管理技能综合练习，随时都能尝试。<p><a href=\"https://utgd.net/article/21371/\">阅读全文</a></p><br /><p>本文<a href=\"https://utgd.net/article/21371/\"><b> 《用 Drafts 安排一周的晚餐食谱》 </b></a>首发于<a href=\"https://utgd.net\"> #UNTAG </a></p><p><a href=\"https://utgd.net/member/\">成为会员</a>，享受全文 RSS </p>",
-    "published": "2026-07-20T10:00:00Z",
-    "feed_title": "#UNTAG",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-21T03:21:37.711937+00:00",
-    "content_length": 352
   },
   {
     "guid": "caae0ac954b4b348",
@@ -15891,5 +15783,125 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-03T03:32:45.344458+00:00",
     "content_length": 9314
+  },
+  {
+    "guid": "d222594f6d267d83",
+    "title": "大芬油画村",
+    "link": "https://pinlyu.com/life/dafen-oil-painting-village/",
+    "author": "班班",
+    "content": "周末的深圳依然在雨水中浸泡着，宅家怕发霉，索性出门走走。一直听闻大芬油画村有「中国油画第一村」之名，是全国最大的商品油画基地，来深圳几年却从未去过，索性趁周末去...",
+    "published": "2026-08-03T04:54:42Z",
+    "feed_title": "频率 - 风卷过的起点",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-03T09:57:44.224628+00:00",
+    "content_length": 83
+  },
+  {
+    "guid": "f8be5a639ce8ebe3",
+    "title": "004成功移民的基石是什么？[短视频]",
+    "link": "https://www.jack-liu.com/post-661.html",
+    "author": "Jack Liu",
+    "content": "人类有两种原始驱动力，一种是基于爱，另外一种是基于恐惧。这两种力量都可以让你去做一些你在正常状态下都不可能去做的事情，也就是主动突破。对于大多数人来说，选择移民，都是一种主动突破，这个时候你就要分辨，你这个举动的动机，到底是出于压力，还是更多的出于爱，因为这将决定你的成败。 <a href=\"https://www.jack-liu.com/post-661.html\">阅读全文&gt;&gt;</a><div class=\"related_log\"><h4><span>相关日志</span></h4><ul><li><a href=\"https://www.jack-liu.com/post-660.html\"><div class=\"img\"><div class=\"img-inner\"><img class=\"lazy\" src=\"/images/dot.gif\" /></div><span>003移民不要依赖所谓最后的时刻[短视频]</span></div></a></li><li><a href=\"https://www.jack-liu.com/post-658.html\"><div class=\"img\"><div class=\"img-inner\"><img class=\"lazy\" src=\"/images/dot.gif\" /></div><span>001留学生毕业后找不到工作怎么办？[直播短视频]</span></div></a></li><li><a href=\"https://www.jack-liu.com/post-659.html\"><div class=\"img\"><div class=\"img-inner\"><img class=\"lazy\" src=\"/images/dot.gif\" /></div><span>002新西兰留学避坑指南(100%避坑攻略)[短视频]</span></div></a></li></ul><div class=\"clr\"></div></div>",
+    "published": "2026-07-28T15:02:58Z",
+    "feed_title": "Jack Liu博客",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-03T09:57:44.224628+00:00",
+    "content_length": 872
+  },
+  {
+    "guid": "94d717a24029a19f",
+    "title": "如何成为玻利维亚人之GPT/Claude便宜订阅",
+    "link": "https://imsuk.cn/archives/344/",
+    "author": "Suk",
+    "content": "<h2>前情提要</h2><p>由于玻利维亚前几天宣布了不再跟美元汇率挂钩，导致玻元兑人民币的汇率一直在降低，现在140bob的plus订阅只需要75人民币即可获取，但是也由于玻利维亚的人口突然剧增，谷歌这个狗东西订阅变成放号制的了，一般看运气，整点放的概率也多点，于是有L友根据play商店的请求让dsv4flash写了个自动重放请求 ，来帮助我们解放双手，让我们在这里感谢<a href=\"https://imsuk.cn/go/aHR0cHM6Ly9saW51eC5kby91L2x1bWluZXQ\" target=\"_blank\">Luminet</a>的无私奉献</p><h2>准备工作</h2><p>需要一台安装了Python和Reqable（抓包工具）的电脑，以上软件网络自行搜索。以及一部已经Root过的Android手机（具体可看以前的教程）。如果没有root手机的话自行上网搜索Mumu模拟器抓包教程</p><h2>切换地区</h2><h3>浏览器操作</h3><p>打开<a href=\"https://imsuk.cn/go/aHR0cHM6Ly9wYXltZW50cy5nb29nbGUuY29tLw\" target=\"_blank\">Google支付管理中心</a>，登录你的账号（如果有小号优先小号）进入设置，找到支付资料的国家，点击右边的笔</p><p><img alt=\"请输入图片描述\" src=\"https://imsuk.cn/usr/uploads/2026/08/129926508.webp\" title=\"请输入图片描述\" /></p><p>下方选择新建个人资料，继续后在网上随便找一个玻利维亚地址生成器填进去，银行卡信息输你自己的支持外币卡，我使用的是招商银行万事达全币种储蓄卡</p><p>创建好后保证这个资料只有这一个支付方式</p><h3>我们来到手机</h3><p>把其他的Google账号退一退，打开play商店</p><p>点击右上角头像，进入后设置——常规——账号和设备偏好设置</p><p><img alt=\"请输入图片描述\" src=\"https://imsuk.cn/usr/uploads/2026/08/3970044995.webp\" title=\"请输入图片描述\" /></p><p>，进去后确保打勾的资料是你刚刚创建的玻利维亚即可，打开你要订阅的软件，推荐GPT，A/是封号狗，不过要是需要claude也可以，封号自行解决</p><h2>抓包订阅</h2><p>打开要订阅的软件<img alt=\"请输入图片描述\" src=\"https://imsuk.cn/usr/uploads/2026/08/3019419432.webp\" title=\"请输入图片描述\" /></p><p>确定订阅价格是BOB就可以打开电脑reqable链接手机，建议在手机左下角那个应用程序中选中play商店，不然日志过多不好分辨，找不到play商店时把小眼睛图标点亮<img alt=\"请输入图片描述\" src=\"https://imsuk.cn/usr/uploads/2026/08/1512211341.webp\" title=\"请输入图片描述\" /></p><p>点击纸飞机图标，手机上变绿且电脑上从调试变为暂停就代表成功了</p><p>可以打开play商店确认一下ssl是否可抓<img alt=\"请输入图片描述\" src=\"https://imsuk.cn/usr/uploads/2026/08/3150341627.webp\" title=\"请输入图片描述\" /></p><p>等会点右边垃圾桶图标就可以清空了</p><p>回到订阅软件，走一遍订阅流程，</p><p><img alt=\"请输入图片描述\" src=\"https://imsuk.cn/usr/uploads/2026/08/2684211064.webp\" title=\"请输入图片描述\" /></p><p>出现这个就可以去电脑查看包体了</p><p><img alt=\"请输入图片描述\" src=\"https://imsuk.cn/usr/uploads/2026/08/4255847871.webp\" title=\"请输入图片描述\" /></p><p>找到id最靠后的url里带fe且含acquire的请求，右键他导出原始请求，保存到一个文件夹</p><p><img alt=\"请输入图片描述\" src=\"https://imsuk.cn/usr/uploads/2026/08/3805699511.webp\" title=\"请输入图片描述\" /></p><p>我这里是保存到1了，保存好后下载py文件</p><p>[hide]</p><p><a href=\"https://imsuk.cn/usr/uploads/2026/08/2836123842.py\" target=\"_blank\" title=\"https://imsuk.cn/usr/uploads/2026/08/2836123842.py\"><a href=\"https://imsuk.cn/usr/uploads/2026/08/2836123842.py\" target=\"_blank\">https://imsuk.cn/usr/uploads/2026/08/2836123842.py</a></a></p><p>[/hide]</p><p><img alt=\"请输入图片描述\" src=\"https://imsuk.cn/usr/uploads/2026/08/3131850200.webp\" title=\"请输入图片描述\" /></p><p><img alt=\"请输入图片描述\" src=\"https://imsuk.cn/usr/uploads/2026/08/1156307746.webp\" title=\"请输入图片描述\" /></p><p>复制好地址</p><h2>重放订阅</h2><h3>修改脚本</h3><p>把下载好的脚本自己拿个工具打开，我这用的python自带的idle</p><p><img alt=\"请输入图片描述\" src=\"https://imsuk.cn/usr/uploads/2026/08/64556600.webp\" title=\"请输入图片描述\" /></p><p>把file这一串，到两个双引号粘贴成刚才那个地址</p><h3>运行脚本</h3><p>直接运行脚本，自己上网搜教程</p><p>等他慢慢跑即可，rc6和rc255就代表要重新抓包并替换文件</p><h2>结果展示</h2><p><img alt=\"请输入图片描述\" src=\"https://imsuk.cn/usr/uploads/2026/08/3804496400.webp\" title=\"请输入图片描述\" /></p>",
+    "published": "2026-08-03T08:25:00Z",
+    "feed_title": "SukのBlog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-03T09:57:44.224628+00:00",
+    "content_length": 2889
+  },
+  {
+    "guid": "cbb1dccc6715a817",
+    "title": "聊聊我的游戏进度",
+    "link": "https://www.suiyan.cc/blog/20260803123110",
+    "author": "",
+    "content": "聊聊我的游戏进度",
+    "published": "",
+    "feed_title": "碎言博客",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-03T09:57:44.224628+00:00",
+    "content_length": 8
+  },
+  {
+    "guid": "b8a582071898ae9a",
+    "title": "当 agent 说”我做完了” —— 四个从翻车里长出来的 Claude Code skill",
+    "link": "https://blog.hikarilan.life/tech/3735/when-an-agent-says-i-m-done/",
+    "author": "贺兰星辰",
+    "content": "<p>此文章同时还提供英文版本 / English Version Availble In Medium：When an Agent Says “I’m Done” — 4 Claude Code Skills Born from Failure 基于大模型和 Coding Agent 能力的突飞猛进，最近几个月，我的「古法编程」率成功的由 10% 变成了 0% —— 基本没有一行代码是我手写的。然而生产力的提升却暴露出了现有大模型在长程代码开发上的很多短板：在 Opus 和 Sol 代替我通宵达旦的写下一行又一行代码的同时，它们也为我写出了一个又一个的逻辑陷阱和 BUG。在与 AI 不断的斗智斗勇和不断的翻车中，我沉淀出了几个可面向所有代码项目开发 skill，它们都诞生于一个共同的短板：一套在大模型看来「看起来成功」的代码，其实满是漏洞和缺陷。 在日常开发中，</p>\n<p><a href=\"https://blog.hikarilan.life/tech/3735/when-an-agent-says-i-m-done/\" rel=\"nofollow\">来源</a></p>",
+    "published": "2026-08-03T02:41:52Z",
+    "feed_title": "HikariLan's Blog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-03T09:57:44.224628+00:00",
+    "content_length": 497
+  },
+  {
+    "guid": "337bb6b761a64674",
+    "title": "渣渣圈 X 专业 X 兴趣爱好",
+    "link": "https://niracler.com/amateur-circle-profession-hobbies",
+    "author": "",
+    "content": "<p>兴趣爱好与专业之间，那是有巨大的鸿沟呐。这篇文章也是之前与朋友聊天时的各种语录整理出来的。</p>\n<h2>当兴趣开始养活一个人</h2>\n<p>我有一位高中同学，留在老家的县城里全职写网文。我们差不多有十年没见了，再次知道他的消息时，他已经写了三四年，换过几次笔名，慢慢开始有点起色了。</p>\n<p>「你竟然在全职写小说，也太厉害了吧！」</p>\n<p>他也是那种基本不出门的宅男，于是我又问他：「既然是作家，那下次取材的时候能不能带上我？」</p>\n<p>「没取过材啊，我不喜欢出门，纯宅男。」</p>\n<p>「网文取什么材，写现实小说的才需要吧。幻想小说靠幻想就好了。看网文的人都是为了放松，没必要写那么多现实的东西。」</p>\n<p>啊，是这样么？我脑海里的作家，应该四处观察生活，积累各种奇怪的素材，然后再将某种非写不可的东西变成故事。可是，他每天真正面对的，大概是今天要更新多少字、读者愿不愿意看、这本书能不能继续赚到钱。</p>\n<p>我当时其实还有点想吐槽：「这样不会对读者太敷衍了吗？」后来想想，还是把这句话吞回肚子里了，毕竟他才是那个靠写作吃饱饭的人。我也跟他说过，自己想把日记加上一点魔幻元素，写成某种「虚构日记」。他听完只回了一句：</p>\n<p>「别想那么多，先动手，动手以后再说。」</p>\n<p>前几个月再和他聊起写作，他很现实地说起自己这些年的变化：</p>\n<blockquote>\n<p>「我想写什么」→「读者想看什么」→「写什么更能赚钱」</p>\n</blockquote>\n<p>听起来好像少了一点浪漫，却是一个全职作者很自然的变化。 <strong>当兴趣开始养活一个人，它就不再只需要向自己交代了。</strong> 读者、更新、平台规则和收入，全都坐到了写字桌的另一边。</p>\n<h2>技术宅拯救世界</h2>\n<p>讲真，我好像也没什么资格替别人惋惜浪漫的消失。</p>\n<p>我当年看到<a href=\"https://www.swordart-online.net/\">《刀剑神域》</a>里的游戏世界，再加上<a href=\"https://www.benghuai.com/\">《崩坏学园 2》</a>那句「技术宅拯救世界」，就毅然决然地选了软件工程。那时我连软件和硬件都不太分得清，却觉得自己以后大概会去创造某个不得了的世界。（相信的心就是我的魔法）</p>\n<p>真正入读软件工程以后，迎接我的是 C、C++、Shell，以及看了一整年的黑窗口。那种感觉就像是，我明明想设计一幢大厦，老师却告诉我：「来，先从制作混凝土学起。」</p>\n<p>偏偏混凝土还不能不学。那些真正有趣、可以拿出来给别人看的部分，在一份职业里可能连 5% 都不到。剩下的是基础知识、重复练习、排查错误、理解别人留下的代码，以及无穷无尽的沟通和返工。</p>\n<p>后来看到<a href=\"https://girls-band-cry.com/\">《Girls Band Cry》（GBC）</a>对兴趣与专业的讨论，又看到李天豪老师讲<a href=\"https://www.youtube.com/watch?v=96dJL6Ii6lc\">「什么人适合念历史系」</a>，我才慢慢意识到：喜欢游戏，不一定喜欢开发游戏；喜欢听历史故事，不一定喜欢考据史料；喜欢小说，也不一定喜欢每天稳定地写几千字。</p>\n<p><strong>我们往往喜欢的是一件事最终呈现出来的样子。至于生产它的过程，可能枯燥得完全是另一个物种。</strong></p>\n<p>我过去很习惯用小镇做题家的方式解决问题：别人把题目给出来，我尽可能拿到高分。学校这样做很有效，工作中的绩效有时候也可以这样应付。但是，真正想把一个领域当成自己的专业，光会回答别人给出的题目好像又不太够。还得自己发现问题，承认不会，并且愿意在那些没人鼓掌的地方反复练习。</p>\n<h2>渣渣圈</h2>\n<p><a href=\"https://book.douban.com/subject/37109349/\">《睡觉的笨蛋》</a>里，学姐想靠音乐维生。在同龄人看来，这种想法简直像是外星人：兴趣归兴趣，怎么会真的想靠这个吃饭呢？</p>\n<p>漫画里还有一个很有意思的对照。学妹打工的店里有一位三十岁出头的前辈，一口一个艺术、鉴赏，也会和自己的小圈子定期办展。只是，她没有信心把作品交给真正懂行的人评价，也不会参加有正式评审的比赛。每当需要更认真地练习，就用「这不过是业余兴趣」来替自己解围；可她又很想得到艺术家的身份和虚荣感，于是只把作品展示给那些不太会批评她的人。</p>\n<p>学姐把这种状态叫作「渣渣圈」。</p>\n<p><img alt=\"《睡觉的笨蛋》中关于「渣渣圈」的片段\" src=\"https://image.niracler.com/2026/08/53cb2070ae08c09dd0d728ee486a9056.png\" /></p>\n<p>我很喜欢这个说法。 <strong>渣渣圈的关键大概不只是水平低，毕竟谁都有水平低的时候。它更像是一套保护自尊的循环。</strong> 只做自己已经会做的练习，只接受让自己舒服的评价；想要创作者的身份，却一直回避确认自己的真实水平。</p>\n<p>回头看，我高中时也在这样的圈子里。天天觉得自己已经很刻苦，满足于年级前 30，以为那差不多就是自己的天花板。上大学接触到不同背景的同学以后，才发现天花板上面还有平流层。</p>\n<p>工作和写作也是如此。我曾经积累了数量惊人的日记，很自豪地觉得自己写了很多东西。可是往细处看，97% 都是没有完成度、连自己也不敢重新阅读的碎片。直到 2023 年开始在 <a href=\"https://github.com/Crossbell-Box/xLog\">xLog</a> 发文章，我才勉强把一些东西拿到真实读者面前。那时我还在<a href=\"https://niracler.com/2308-1/\">一篇周记</a>里，兴奋地记录自己对 xLog 上瘾的样子。 <strong>公开是一种制约：逼着我确认自己究竟有没有想清楚，写出来的话别人能不能看懂。</strong></p>\n<p>当然了，现在这篇也是如此。我在这里大谈渣渣圈，最后却不敢发出去的话，它也只是一篇渣渣圈理论罢了。😂</p>\n<p>上个月看<a href=\"https://endfield.hypergryph.com/\">《明日方舟：终末地》</a>的<a href=\"https://niracler.com/2607-1/#%E6%9C%89%E7%A7%8D%E6%9D%AF-x-%E5%8D%B1%E6%9C%BA%E5%90%88%E7%BA%A6-x-%E6%9C%88%E5%92%92-x-%E5%B7%A6%E6%89%8B%E5%92%8C%E5%A1%91%E6%96%99%E7%9A%84%E9%BB%98%E5%A5%91\">「危机合约」</a>，我又看到了这个理论的另一面。那些冲击高分的玩家需要研究阵容、设计操作轴，再由操作更好的人反复练习并真正打出成绩。「左手说的都队」和「塑料打得不队」虽然是他们互相玩梗，背后却是很明确的分工：有人擅长想，有人擅长执行，最后一起接受公开排名的检验。</p>\n<p>他们真的很闪耀啊。</p>\n<p>最初应该也是因为热爱才会投入吧，后来或许又靠胜利、成果和同伴来维持这种投入。我被他们全身心去做一件事的状态打动了。这恰好是我一直以来都做不到的事情：什么都想做，每个方向都挖一个浅坑，遇到真正困难的部分就跳去下一张卷子。</p>\n<p>我时常也会想，同样是三十岁上下，他们已经把一件事钻研到这种程度，而我一直都在做什么呢？</p>\n<h2>在这方面，我完全是个 NPC 啦</h2>\n<p>可是，这套话说起来又实在太正确了，正确到有点不近人情。</p>\n<p>音乐、绘画、摄影、写作、编程、体型管理，任何一项认真挖下去，都隔着漫长而枯燥的练习、无数次认识到自己的错误，以及一整套需要重新学习的方法。一个人怎么可能把所有喜欢的东西都练成专业呢？</p>\n<p>我很向往终末地高分玩家那种全身心投入的状态，但我不可能同时在写作、编程、摄影、游戏、动画、HiFi 以及所有突然冒出来的兴趣上这样投入。真要这么做，最后大概又是十份卷子一起写，每一张都只来得及写一个「解」字。</p>\n<p>Gurwinder 那篇 <a href=\"https://www.gurwinder.blog/p/why-you-are-probably-an-npc\">Why You Are An NPC</a> 对我影响很大。他说，每个人在某些问题上都是 NPC。人的一生只有四千周左右，知识却近乎无限，我们根本没有时间对所有话题都形成经过充分研究的观点。</p>\n<p>问题不在于我们借用了别人的判断。更麻烦的是，我们明明没有研究过，却觉得自己应该对所有事情发表意见。文章最后将问题分成 primary、secondary 和 tertiary：无关紧要的问题可以承认不知道，感兴趣但不重要的问题可以谨慎借用别人的判断，真正重要的问题才值得投入主要精力。</p>\n<p>我觉得兴趣大概也可以这样划分。</p>\n<p><strong>有些领域是自己的主战场，必须离开渣渣圈，主动接受评价和纠错。</strong> 有些领域只需要略懂，知道自己正在借用谁的答案。还有一些东西，喜欢就好了，没必要建立完整的评价体系，更不必把快乐重新做成一份绩效考核。</p>\n<p>怎么说呢，我以前很喜欢「渣渣圈」理论，因为它能随时拿出来鞭打不够努力的自己。可是结合这几年的经历，将它反过来看，或许也是一种幸福的秘诀：不往外看，留在最初的<a href=\"https://zh.wikipedia.org/wiki/%E6%B4%9E%E7%A9%B4%E5%AF%93%E8%A8%80\">洞窟</a>里，看着自己的影子跳舞，同样可以获得真实的快乐。</p>\n<p>甚至有时候，保持对一个事物持久热爱的方法，就是不要轻易参与它的同好群。摄影、HiFi、游戏、动画都是如此。一旦进入比较和排名，开始争论器材、流派、角色强度和作品品味，很容易就忘记自己最初为什么喜欢。</p>\n<p>不过，这里还是有一条很微妙的边界。</p>\n<p>我很清楚自己只是在玩，所以不追求专业；以及我既想获得专业人士的身份，又只肯接受业余爱好者的标准。这两种状态还是不太一样。 <strong>前者是有意识地保护快乐，后者是在保护某个不愿被戳破的自我想象。</strong></p>\n<h2>决定自己的主战场</h2>\n<p>那么，最后的问题就变成了：我应该在哪些领域不能留在渣渣圈里？</p>\n<p>对现在的我来说，软件工程大概算一个。它是我赖以生活的职业，我不能永远满足于完成别人给出的需求，也不能把自己不理解的东西交给 AI 以后，就假装项目已经完成。至少在这个领域，我需要知道自己为什么这样设计、哪里可能出错，以及怎样判断结果是否可靠。</p>\n<p>写作可能也算一个。写日记只需要让自己看懂，但我又确实希望借写作来整理思考、认识别人，也希望多年后的自己能看到一篇有完成度的东西。既然期待这些，偶尔把文章拿出来公开，接受别人说「这里我完全看不懂」，就是绕不过去的事情。</p>\n<p>健康和重要的人生选择也不能完全当 NPC。它们未必需要我变成专家，但错误的代价会真实地落到自己身上。可以相信可靠的专业人士，却不能把判断全都外包出去，然后在结果不如意时说一句「大家都是这么做的」。</p>\n<p>至于动画、游戏、摄影、HiFi，以及未来可能突然喜欢上的各种东西，我想给自己多留一点余地。我可以不了解产业，可以不会鉴赏，可以打不到危机合约的最高分。哪怕只是觉得某个角色很可爱、某段音乐很好听，也已经是完整的喜欢了。</p>\n<p>说到底，我不可能在所有事情上保持清醒，也不可能把所有喜欢的东西练成专业。 <strong>我至少应该知道自己的主战场在哪里，并在那里接受疼痛、纠错和评价。</strong></p>\n<p><strong>剩下的地方，就允许自己做个快乐的 NPC，留在洞窟里看着影子跳舞吧。</strong></p>",
+    "published": "2026-08-03T00:00:00Z",
+    "feed_title": "Niracler's Blog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-03T09:57:44.224628+00:00",
+    "content_length": 5113
+  },
+  {
+    "guid": "322928aa9e8d2856",
+    "title": "西溪湿地的荷花",
+    "link": "https://www.wsh233.cn/post/西溪湿地的荷花",
+    "author": "WSH",
+    "content": "原来西溪湿地有这么多荷花。\n\n周日早上醒来睡不着，出门骑车走走。六点多的太阳，已是明媚刺眼。\n\n想起七月正是荷花盛开的季节，西溪湿地离我住的地方不远，特来看看。\n\n![](https://md-1301600412.cos.ap...",
+    "published": "2026-08-02T22:47:16Z",
+    "feed_title": "WSH",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-03T09:57:44.224628+00:00",
+    "content_length": 117
+  },
+  {
+    "guid": "e0dddf853583b2ab",
+    "title": "部署cfnew by Hermes 对接 oc/deepseek-v4-flash-free",
+    "link": "https://zelikk.blogspot.com/2026/08/cfnew-hermes-oc-deepseek-v4-flash-free.html",
+    "author": "noreply@blogger.com (ǝɔɐǝԀʎzɐɹƆ)",
+    "content": "<h3 style=\"text-align: left;\">前言</h3><p>我们实践了<a href=\"https://zelikk.blogspot.com/2026/07/k-ui-workers-hermes-agent.html\">用Agent部署&nbsp;K-UI-workers项目</a></p><p>那么同样工作在 cloudflare worker 的 cfnew 项目应该也可以.</p><p><a href=\"https://zelikk.blogspot.com/2026/08/omniroute-hermes-agent-oracle-arm-ubuntu-root-sudo-.html\">最近部署了&nbsp;OmniRoute 白嫖各种模型</a>, 那么今天试试&nbsp;oc/deepseek-v4-flash-free 当Agent干活怎么样</p><p><br /></p><div><h3>准备前置条件</h3><div><div>跑 Hermes 用 常见的2G内存的VPS就够了.</div><div><br /></div><div>2G内存VPS</div><div><a href=\"https://billing.dedirock.com/aff.php?aff=92&amp;pid=93\">Dedirock LA机房9.88刀/年</a>&nbsp;</div><a href=\"https://1ladder.eu.org/drla888\">https://1ladder.eu.org/drla888</a><br /><div><a href=\"https://billing.dedirock.com/aff.php?aff=92&amp;pid=94\">Dedirock NY机房 8.88刀/年</a></div><div><a href=\"https://1ladder.eu.org/drny888\">https://1ladder.eu.org/drny888</a></div></div><div><br /></div><h4>安装 Hermes 部署&nbsp;OmniRoute 白嫖&nbsp;oc/deepseek-v4-flash-free</h4><div><a href=\"https://zelikk.blogspot.com/2026/08/omniroute-hermes-agent-oracle-arm-ubuntu-root-sudo-.html\">https://zelikk.blogspot.com/2026/08/omniroute-hermes-agent-oracle-arm-ubuntu-root-sudo-.html</a></div><div><br /></div><h4>Github 的 API token</h4><div>参考教程 <a href=\"https://zelikk.blogspot.com/2026/07/github-api-token-hermes-agent.html\">https://zelikk.blogspot.com/2026/07/github-api-token-hermes-agent.html</a></div></div><div><br /></div><div><h4>Cloudflare 的 API token</h4></div><div>参考教程 <a href=\"https://zelikk.blogspot.com/2026/07/cloudflare-api-token-hermes-agent.html\">https://zelikk.blogspot.com/2026/07/cloudflare-api-token-hermes-agent.html</a></div><div><br /></div><div><h3>实践</h3><div>向你的Agent说</div><div><div></div><blockquote><div>你现在有 cloudflare.com 的 token</div><div>权限是 Account.API Tokens, User.API Tokens</div><div>cfut_Kp9Wx2Qr7ZmLn4YvBs8FdJh3Tc5Rg6UeAw1XyC0VbN</div><div>保存到你自己的 .env</div></blockquote><div></div></div><div><blockquote><div>你现在有 github.com 的 token</div><div>权限是 repo, workflow, gist</div><div>ghp_aB3dEf9GhI2JkLmNoPqRsTuVwXyZ0AbCdEf</div><div>保存到你自己的 .env</div></blockquote><div></div></div><div></div><blockquote><div>部署这个项目&nbsp;https://github.com/byJoey/cfnew</div><div>你自己的 .env 中有&nbsp; cloudflare.com 的 token, 也有 github.com 的 token</div><div></div></blockquote><div>然后Agent就开始忙啊忙啊, ...</div></div><div>这是成功的结果:</div><div><div class=\"separator\" style=\"clear: both; text-align: center;\"><a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEiB4FwppaYX0JL-xvmaFxpDL1Sp3f2ah5qqKnur4bGKQ0q6k1q4qPgI4Bfh2DpfnJWvGv3fEy6_MDQ6-FgXPt0XXkHsP6GJTMYbEmg8oyprAml3WtC6SqGcomWUCgfb_drM-Xg-h-DvVjYgINnnLupZyhrjlFS_unhCK2bq_3tGpkpZcm50irh5F4sMvLE\" style=\"margin-left: 1em; margin-right: 1em;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEiB4FwppaYX0JL-xvmaFxpDL1Sp3f2ah5qqKnur4bGKQ0q6k1q4qPgI4Bfh2DpfnJWvGv3fEy6_MDQ6-FgXPt0XXkHsP6GJTMYbEmg8oyprAml3WtC6SqGcomWUCgfb_drM-Xg-h-DvVjYgINnnLupZyhrjlFS_unhCK2bq_3tGpkpZcm50irh5F4sMvLE=s1600\" /></a></div><div><br /></div>你可以让Agent验证一下项目能不能用.</div><div><blockquote>你自己在本地运行翻墙内核, 测试这个项目产生的结果是否能正常使用.</blockquote></div><div><div class=\"separator\" style=\"clear: both; text-align: center;\"><a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEgfPu404okOVW5ysymI26bXj_axTXzqigdHy3jBUiZwLoTplxTN_44SlKP8fFZp2B_0HCKkICQacALxwi-MLibpexDWIOSdwCzNwigr9D49iLK5FYmWn1krRD8z8TiPKL7J4LdIw65biGL8brr3HqROZftFAb4RggmkERTXFyygBx3n1EjY4H45kO6ImnY\" style=\"margin-left: 1em; margin-right: 1em;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEgfPu404okOVW5ysymI26bXj_axTXzqigdHy3jBUiZwLoTplxTN_44SlKP8fFZp2B_0HCKkICQacALxwi-MLibpexDWIOSdwCzNwigr9D49iLK5FYmWn1krRD8z8TiPKL7J4LdIw65biGL8brr3HqROZftFAb4RggmkERTXFyygBx3n1EjY4H45kO6ImnY=s1600\" /></a></div><br />如果你还想再小白一点, 直接跟Agent说,</div><div><blockquote>我自己的电脑用的翻墙软件是v2rayN, 我要怎么用这个项目啊?</blockquote></div><div><div class=\"separator\" style=\"clear: both; text-align: center;\"><a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEhQnaOhj885W4y_Gpq8fnRt7UV_qatojyG96Okhcvv1mfdsungvSofuUAn96TlI21DdzNBZVMuMAQFRDTKgbXxCC4wwv22gr11-Gp-MyaBQ1cv5Pdbz0DOAAREg0sJfKIC7P5oisdhcbXMgAp_vqOip_b3r7QRkATxEro5_HoGbJ8YRFDjzjiyp4EkHbhg\" style=\"margin-left: 1em; margin-right: 1em;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEhQnaOhj885W4y_Gpq8fnRt7UV_qatojyG96Okhcvv1mfdsungvSofuUAn96TlI21DdzNBZVMuMAQFRDTKgbXxCC4wwv22gr11-Gp-MyaBQ1cv5Pdbz0DOAAREg0sJfKIC7P5oisdhcbXMgAp_vqOip_b3r7QRkATxEro5_HoGbJ8YRFDjzjiyp4EkHbhg=s1600\" /></a></div><br /><br /></div><div class=\"blogger-post-footer\">去掉v2rayNG对allowInsecure的报错 https://zelikk.blogspot.com/2026/06/v2rayng-allow-insecure.html | \n去掉v2rayN对allowInsecure的报错 https://zelikk.blogspot.com/2026/06/xray-allow-insecure.html | \n欢迎来我的TG群交流 https://t.me/+oMB6i-hp9bBjYTU9 | \nDediRock VPS 年付$9.88 2G内存 30G存储 2T流量 LA 机房 https://1ladder.eu.org/drla988 | \nRackNerd 年付 $21.99 3T流量 20G存储 1GB内存 1核CPU 有 San Jose LADC03 机房 https://1ladder.eu.org/rnladc03 | </div>",
+    "published": "2026-08-03T09:13:33Z",
+    "feed_title": "ICDYCT我能你也行",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-03T09:57:44.224628+00:00",
+    "content_length": 4939
+  },
+  {
+    "guid": "144675f042453828",
+    "title": "Apifox流氓式的更新",
+    "link": "https://www.imcry.vip/post/2026-8-3-1458/",
+    "author": "",
+    "content": "<h2 id=\"起因\"><a class=\"header-anchor\" href=\"#%e8%b5%b7%e5%9b%a0\"></a>起因\n</h2><p>原本我是想测试一个API接口的效果，于点开了 <code>Apifox</code> 。</p>",
+    "published": "2026-08-03T06:37:58Z",
+    "feed_title": "初然忆",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-03T09:57:44.224628+00:00",
+    "content_length": 127
+  },
+  {
+    "guid": "6a69f672cb00a3c5",
+    "title": "Ubuntu 24.04 系统启动故障修复记录",
+    "link": "https://199604.com/3620",
+    "author": "阿俊",
+    "content": "Ubuntu 24.04 系统启动故障修复记录 记录时间：2026-07-31 环境：Ubuntu 24.04 [&#8230;]",
+    "published": "2026-08-03T00:41:58Z",
+    "feed_title": "， https://199604.com",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-03T09:57:44.224628+00:00",
+    "content_length": 65
   }
 ]
