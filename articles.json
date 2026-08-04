@@ -9761,18 +9761,6 @@
     "content_length": 657
   },
   {
-    "guid": "6ac3e153cea7f987",
-    "title": "让 Microsoft Word 长点记性，保留上一次的搜索历史 | UNTAG",
-    "link": "https://utgd.net/article/21372/",
-    "author": "Minja",
-    "content": "<p><img src=\"https://cdn.utgd.net/images/banner_43121962-5b5f-4bf9_Bnly8OU.jpg\" /></p>你怎么能相信一个连文档搜索都做成狗＊的公司，能搞定量子计算机呢？<p><a href=\"https://utgd.net/article/21372/\">阅读全文</a></p><br /><p>本文<a href=\"https://utgd.net/article/21372/\"><b> 《让 Microsoft Word 长点记性，保留上一次的搜索历史》 </b></a>首发于<a href=\"https://utgd.net\"> #UNTAG </a></p><p><a href=\"https://utgd.net/member/\">成为会员</a>，享受全文 RSS </p>",
-    "published": "2026-07-21T10:00:00Z",
-    "feed_title": "#UNTAG",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-21T19:40:21.338451+00:00",
-    "content_length": 381
-  },
-  {
     "guid": "448b8f08b3914016",
     "title": "opencodex：让 Codex 和 Claude Code 跑在任意 LLM 上",
     "link": "https://youngxhui.top/2026/07/opencodex-third-party-models/",
@@ -16083,5 +16071,89 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-04T03:16:07.952541+00:00",
     "content_length": 391
+  },
+  {
+    "guid": "00dfb333e32e74c2",
+    "title": "阿里云实人认证iOS SDK 升级",
+    "link": "http://www.z16388.top/2026/08/03/ios/aliyun-faceauth/",
+    "author": "",
+    "content": "<h2 id=\"背景\"><a class=\"headerlink\" href=\"#背景\" title=\"背景\"></a>背景</h2><p>阿里云在今年早些时候给后台发送了通知：我们原先接入的实人认证 SDK（RPSDK）即将停止服务，需要将这一功能迁移到金融级实人认证这个新 SDK。</p><p>Android 版本的升级很顺利，但 iOS 版本在过程中遇到了很多困难。其中最迷惑人的是”二次安装白屏”问题：只有首次运行可以在设备上正常运行，想覆盖安装就需要大退 Xcode。这个问题一度让我误以为是金融级实人认证 SDK 导致的，花了好久才确定了问题规律，其实它是 Xcode 调试的 bug，与 SDK 本身无关。</p><p>相关文档：</p><ul><li>原有实人认证 SDK（RPSDK）：<a href=\"https://help.aliyun.com/zh/id-verification/cloudauth/developer-reference/ios-integration\">https://help.aliyun.com/zh/id-verification/cloudauth/developer-reference/ios-integration</a></li><li>新版金融级实人认证 SDK：<a href=\"https://help.aliyun.com/zh/id-verification/financial-grade-id-verification/integrate-the-service-into-an-ios-application-4\">https://help.aliyun.com/zh/id-verification/financial-grade-id-verification/integrate-the-service-into-an-ios-application-4</a></li></ul><h2 id=\"删除-RPSDK\"><a class=\"headerlink\" href=\"#删除-RPSDK\" title=\"删除 RPSDK\"></a>删除 RPSDK</h2><h3 id=\"1-删除-SDK-相关文件\"><a class=\"headerlink\" href=\"#1-删除-SDK-相关文件\" title=\"1. 删除 SDK 相关文件\"></a>1. 删除 SDK 相关文件</h3><p>我们项目原本使用的是手动导入 SDK 的方式。文档方式二中提到的 SDK 相关 framework 文件和资源文件，都需要取消在项目中的引入，即删除：</p><figure class=\"highlight plaintext\"><table><tr><td class=\"code\"><pre><span class=\"line\">AliyunOSSiOS.framework</span><br /><span class=\"line\">RPSDK.framework</span><br /><span class=\"line\">SecurityGuardSDK.framework</span><br /><span class=\"line\">SGMain.framework</span><br /><span class=\"line\">SGSecurityBody.framework</span><br /></pre></td></tr></table></figure><p>以及：</p><figure class=\"highlight plaintext\"><table><tr><td class=\"code\"><pre><span class=\"line\">RPSDK.bundle</span><br /></pre></td></tr></table></figure><p>需要注意的是，我们原先的接入方式并不标准，在 Unity-iPhone 和 UnityFramework 两个 Target 中都对文件进行了接入，所以这两个 Target 都要完成 framework 的删除。</p><p>删除 framework 的方式是：选中目标 Target，进入 General 页签，在 <strong>Frameworks, Libraries, and Embedded Content</strong> 中选中要删除的 framework，点击下方的 <strong>-</strong> 即可。</p><p>导入的资源的删除方式：选中 Target，点击 Build Phases 页签，展开 <strong>Copy Bundle Resources</strong>，检查列表中是否有 RPSDK 相关的 bundle 文件，选中并删除。除此之外，左侧文件浏览器中的 RPSDK 相关 framework 和 bundle 文件也需要一并删除。</p><h3 id=\"2-删除代码中的调用\"><a class=\"headerlink\" href=\"#2-删除代码中的调用\" title=\"2. 删除代码中的调用\"></a>2. 删除代码中的调用</h3><p>完成 SDK 文件删除后，最后一步是删除代码中 RPSDK 相关的逻辑。在全局搜索关键词 <code>RPSDK</code>，注释或删除相关调用即可。</p><h2 id=\"接入金融级实人认证\"><a class=\"headerlink\" href=\"#接入金融级实人认证\" title=\"接入金融级实人认证\"></a>接入金融级实人认证</h2><p>金融级实人认证的文档可读性比较差，其中提到了各种过时的内容，接入时需要适当忽略。</p><h3 id=\"1-导入-SDK-framework\"><a class=\"headerlink\" href=\"#1-导入-SDK-framework\" title=\"1. 导入 SDK framework\"></a>1. 导入 SDK framework</h3><p>下载并解压 SDK 文件后，在 Xcode 工程 SDK 接入路径中新建一个 <code>AliFaceauth</code> 目录，将所有 framework 文件拷贝进去。</p><p>接下来添加 framework 文件。SDK 相关的 framework 和系统库依赖都要添加到 <strong>UnityFramework</strong> 这个 Target 中：</p><ol><li>选中 UnityFramework，进入 General 页签，在 Frameworks, Libraries, and Embedded Content 下方点击 **+**。</li><li>点击左下角的 **Add Other → Add Files…**，浏览到 SDK 相关 framework 文件，点击 Open 添加。</li><li>添加完成后，需要修改 Embed 类型。默认是 <strong>Embed &amp; Sign</strong>，需要改成 <strong>Do Not Embed</strong>，否则在上传时会报错。</li></ol><blockquote><p>注意：多语言支持的库在我们项目中出现了运行时导致 UnityFramework 加载失败的情况。如果遇到同样的问题，需要取消 <code>MultiFactorFacade.framework</code> 的引入。</p></blockquote><h3 id=\"2-添加系统库依赖\"><a class=\"headerlink\" href=\"#2-添加系统库依赖\" title=\"2. 添加系统库依赖\"></a>2. 添加系统库依赖</h3><p>系统依赖在点击 <strong>+</strong> 后，直接搜索名字即可找到。但这里要注意：framework 一次就能添加成功，而 tbd 类型的库需要添加两次才能出现在列表中，推测是 Xcode 刷新逻辑导致的显示 bug。为了以防万一，建议添加两次。</p><h3 id=\"3-拷贝-SDK-资源\"><a class=\"headerlink\" href=\"#3-拷贝-SDK-资源\" title=\"3. 拷贝 SDK 资源\"></a>3. 拷贝 SDK 资源</h3><p>完成库文件的添加后，接下来拷贝 SDK 资源，根据文档列出的 bundle 列表添加即可：</p><ol><li>选中 UnityFramework，点击 Build Phases 页签，展开 Copy Bundle Resources。</li><li>点击下方的 **+**，操作和添加 SDK 相关库时一致，选中 framework 目录下需要添加的 bundle 文件即可完成添加。</li></ol><h3 id=\"4-修改代码\"><a class=\"headerlink\" href=\"#4-修改代码\" title=\"4. 修改代码\"></a>4. 修改代码</h3><p>最后是代码相关。根据原有 RPSDK 逻辑的位置，分别进行头文件引入、初始化 SDK，然后在初始化调用下方获取 metainfo，再调用 SDK 开始认证的逻辑，具体可以参考文档内容。</p><p>这里需要注意的是，<code>extParams</code> 结构的必填参数 <code>currentCtr</code> 的示例写得很简略。在我所使用的 Xcode 版本中，需要传入的 ViewController 的获取方式是：</p><figure class=\"highlight objectivec\"><table><tr><td class=\"code\"><pre><span class=\"line\">GetAppController().rootViewController</span><br /></pre></td></tr></table></figure><p>也就是实际调起时传入参数的全部代码为：</p><figure class=\"highlight objectivec\"><table><tr><td class=\"code\"><pre><span class=\"line\"><span class=\"built_in\">NSMutableDictionary</span> *extParams = [<span class=\"built_in\">NSMutableDictionary</span> dictionary];</span><br /><span class=\"line\">[extParams setObject:GetAppController().rootViewController forKey:<span class=\"string\">@&quot;currentCtr&quot;</span>];</span><br /></pre></td></tr></table></figure><h2 id=\"踩坑总结\"><a class=\"headerlink\" href=\"#踩坑总结\" title=\"踩坑总结\"></a>踩坑总结</h2><ul><li><strong>二次安装白屏</strong>：只有首次运行正常，覆盖安装需要大退 Xcode。这是 Xcode 调试的 bug，不要第一时间怀疑新 SDK。</li><li><strong>Embed 类型</strong>：framework 默认是 Embed &amp; Sign，必须改成 Do Not Embed，否则上传时会报错。</li><li><strong>MultiFactorFacade.framework</strong>：在部分项目中会导致 UnityFramework 运行时加载失败，遇到相同问题时移除该库。</li><li><strong>tbd 系统库</strong>：需要添加两次才能出现在列表中，建议重复添加以防万一。</li></ul><p>完成以上步骤后，RPSDK 到金融级实人认证的迁移就基本完成了。整个过程本身不复杂，坑点大多藏在 Xcode 和 Unity 导出工程的细节里，希望这篇记录能帮到遇到同样问题的朋友。</p>",
+    "published": "2026-08-03T15:16:33Z",
+    "feed_title": "崎径 其镜赵安琪的博客",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-04T08:48:15.024022+00:00",
+    "content_length": 5171
+  },
+  {
+    "guid": "9beb958140c5a992",
+    "title": "复刻 macOS 红绿灯悬停菜单",
+    "link": "https://innei.in/posts/tinkering/macos-zoom-button-hover-menu",
+    "author": "Innei",
+    "content": "<p>往原址览之：<a href=\"https://innei.in/posts/tinkering/macos-zoom-button-hover-menu\">https://innei.in/posts/tinkering/macos-zoom-button-hover-menu</a></p>",
+    "published": "2026-08-03T19:46:39Z",
+    "feed_title": "静かな森",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-04T08:48:15.024022+00:00",
+    "content_length": 150
+  },
+  {
+    "guid": "4480fa274a9d1027",
+    "title": "运维踩坑：nginx 缓存上游容器旧 IP，请求转发到了错误的服务",
+    "link": "https://blog.diqigan.cn/posts/coding/maintenance/nginx-cached-stale-upstream-ip-trap.html",
+    "author": "Seven",
+    "content": "<p>容器化微服务环境，前置 nginx 反代到 Spring Cloud Gateway。某次 gateway 容器重建后，所有经 nginx 的 <code>/api/**</code> 请求开始返回 500，而 gateway 自身、服务发现、各业务服务均正常。</p><p>排查绕了一大圈，根因是 nginx 的一个经典行为：<strong><code>proxy_pass</code> 写主机名时只在启动时解析一次，之后永久缓存。上游容器重建换 IP 后，nginx 仍在连旧 IP——而旧 IP 已被 Docker 分配给了另一个服务。</strong></p><h2 id=\"现场\"><a href=\"#现场\" class=\"headerlink\" title=\"现场\"></a>现场</h2><p>前置 nginx + Spring Cloud Gateway + Nacos 架构，全部跑在同一个 Docker 自定义网络（<code>172.18.0.0/16</code>）里：</p><figure class=\"highlight text\"><table><tr><td class=\"gutter\"><pre><span class=\"line\">1</span><br><span class=\"line\">2</span><br><span class=\"line\">3</span><br><span class=\"line\">4</span><br><span class=\"line\">5</span><br><span class=\"line\">6</span><br><span class=\"line\">7</span><br><span class=\"line\">8</span><br><span class=\"line\">9</span><br><span class=\"line\">10</span><br><span class=\"line\">11</span><br><span class=\"line\">12</span><br><span class=\"line\">13</span><br><span class=\"line\">14</span><br><span class=\"line\">15</span><br><span class=\"line\">16</span><br><span class=\"line\">17</span><br><span class=\"line\">18</span><br><span class=\"line\">19</span><br><span class=\"line\">20</span><br><span class=\"line\">21</span><br><span class=\"line\">22</span><br></pre></td><td class=\"code\"><pre><span class=\"line\">                     Docker 网络 172.18.0.0/16</span><br><span class=\"line\">┌─────────┐         ┌──────────────────────────────────────────────┐</span><br><span class=\"line\">│ 客户端   │ ──8000─▶│ nginx 容器            172.18.0.10            │</span><br><span class=\"line\">└─────────┘         │  location /api/ &#123; proxy_pass ...:8080 &#125;      │</span><br><span class=\"line\">                    └───────────────────┬──────────────────────────┘</span><br><span class=\"line\">                                        │ proxy_pass http://project-gateway:8080</span><br><span class=\"line\">                                        ▼  (nginx 在启动时把主机名解析成 IP 并缓存)</span><br><span class=\"line\">          ┌─────────────────────────────┴─────────────────────────────┐</span><br><span class=\"line\">          ▼                          ▼                                  ▼</span><br><span class=\"line\">┌───────────────────┐     ┌───────────────────┐          ┌───────────────────┐</span><br><span class=\"line\">│ project-gateway    │     │ project-order      │          │ project-auth       │</span><br><span class=\"line\">│ Spring Cloud       │     │ 业务服务            │          │ 业务服务            │</span><br><span class=\"line\">│ Gateway            │     │ 172.18.0.20        │          │ 172.18.0.22        │</span><br><span class=\"line\">│ 172.18.0.21        │     └───────────────────┘          └───────────────────┘</span><br><span class=\"line\">│ 订阅 Nacos 实例     │              ▲</span><br><span class=\"line\">└─────────┬─────────┘              │</span><br><span class=\"line\">          │                        │ nginx worker 实际连的是这个旧 IP</span><br><span class=\"line\">          ▼                        │ —— gateway 重建前它属于 gateway，</span><br><span class=\"line\">┌───────────────────┐               │   重建后被 Docker 重新分配给了 order</span><br><span class=\"line\">│ Nacos              │               │</span><br><span class=\"line\">│ 172.18.0.2         │ ─ ─ ─ ─ ─ ─ ─ ┘</span><br><span class=\"line\">└───────────────────┘   服务发现正常，但与 nginx 转发目标无关</span><br></pre></td></tr></table></figure><p>请求链路本该是 <code>客户端 → nginx → gateway → 业务服务</code>，gateway 再按 Nacos 的实例列表把请求路由到 <code>project-order</code> &#x2F; <code>project-auth</code>。但出问题时 nginx 根本没把请求交给 gateway——某个经 nginx 的接口请求报错：</p><figure class=\"highlight plaintext\"><table><tr><td class=\"gutter\"><pre><span class=\"line\">1</span><br><span class=\"line\">2</span><br></pre></td><td class=\"code\"><pre><span class=\"line\">GET http://10.20.30.40:8000/api/xxx</span><br><span class=\"line\">&#123;&quot;traceId&quot;:null,&quot;code&quot;:1,&quot;data&quot;:null,&quot;message&quot;:&quot;unknow.exception&quot;&#125;   HTTP 500</span><br></pre></td></tr></table></figure><span id=\"more\"></span><p>几个看似矛盾的现象，把排查方向带偏了数次：</p><ul><li><strong>服务发现正常</strong>：目标服务已注册到 Nacos，gateway 也订阅到了实例。</li><li><strong>gateway 容器内直连正常</strong>：<code>curl gateway:8080/xxx</code> 返回 200。</li><li><strong>但经 nginx 的请求，gateway 一条日志都没有</strong>——请求根本没到 gateway。</li><li><strong>nginx 配置看不出问题</strong>：<code>location /api/ { proxy_pass http://project-gateway:8080/; }</code>，<code>proxy_pass</code> 带尾部 <code>/</code> 会剥前缀，没毛病。</li><li><strong><code>docker exec nginx curl project-gateway:8080</code> 也是通的。</strong></li></ul><p>配置对、直连通、<code>exec</code> 也通，唯独经 nginx 就 500 且 gateway 收不到——问题出在 nginx worker 实际把请求转发到了哪。抓 nginx worker 的真实 TCP 连接目标（<code>/proc/net/tcp</code> 解码）：</p><figure class=\"highlight text\"><table><tr><td class=\"gutter\"><pre><span class=\"line\">1</span><br></pre></td><td class=\"code\"><pre><span class=\"line\">38   -&gt; 172.18.0.20:8080     ← nginx worker 在连这个 IP</span><br></pre></td></tr></table></figure><p>对照各容器当前 IP：</p><figure class=\"highlight text\"><table><tr><td class=\"gutter\"><pre><span class=\"line\">1</span><br><span class=\"line\">2</span><br><span class=\"line\">3</span><br></pre></td><td class=\"code\"><pre><span class=\"line\">project-gateway -&gt; 172.18.0.21</span><br><span class=\"line\">project-order   -&gt; 172.18.0.20   ← nginx 连的是它，不是 gateway</span><br><span class=\"line\">project-auth    -&gt; 172.18.0.22</span><br></pre></td></tr></table></figure><p>nginx 把请求转发到了 <code>172.18.0.20</code>（业务服务 <code>project-order</code>），而非 gateway（<code>.21</code>）。该服务没有对应路由，抛异常被框架兜底成 500。</p><blockquote><p>为什么 <code>docker exec</code> 通、worker 却不通？<code>exec</code> 启动的新 shell 用<strong>当前 DNS</strong>（解析到 <code>.21</code>），而 nginx worker 用的是启动时缓存的旧 IP（<code>.20</code>）。同一容器、同一网络栈，DNS 解析的<strong>时机</strong>不同。</p></blockquote><h2 id=\"根因\"><a href=\"#根因\" class=\"headerlink\" title=\"根因\"></a>根因</h2><figure class=\"highlight nginx\"><table><tr><td class=\"gutter\"><pre><span class=\"line\">1</span><br><span class=\"line\">2</span><br><span class=\"line\">3</span><br></pre></td><td class=\"code\"><pre><span class=\"line\"><span class=\"section\">location</span> /api/ &#123;</span><br><span class=\"line\">    <span class=\"attribute\">proxy_pass</span> http://project-gateway:8080/;   <span class=\"comment\"># 静态主机名，全配置无 resolver</span></span><br><span class=\"line\">&#125;</span><br></pre></td></tr></table></figure><ul><li><code>proxy_pass</code> 写的是主机名，且全配置<strong>没有 <code>resolver</code> 指令</strong> → nginx 在<strong>启动时</strong>解析一次并<strong>永久缓存</strong>，之后不再重新解析。</li><li>gateway 容器重建后 IP 由 <code>.20</code> 变 <code>.21</code>，旧 IP <code>.20</code> 被 Docker 重新分配给了 <code>project-order</code>。</li><li>nginx 仍在连旧 IP，于是所有 <code>/api/**</code> 请求都打到了 <code>project-order</code>。</li></ul><p>一句话：<strong><code>proxy_pass</code> 写主机名 &#x3D; 启动期解析一次后缓存，容器 IP 一变就连错。</strong></p><h2 id=\"修复\"><a href=\"#修复\" class=\"headerlink\" title=\"修复\"></a>修复</h2><p><code>resolver</code> + 变量版 <code>proxy_pass</code>，让 nginx 按 TTL 动态解析：</p><figure class=\"highlight nginx\"><table><tr><td class=\"gutter\"><pre><span class=\"line\">1</span><br><span class=\"line\">2</span><br><span class=\"line\">3</span><br><span class=\"line\">4</span><br><span class=\"line\">5</span><br><span class=\"line\">6</span><br><span class=\"line\">7</span><br><span class=\"line\">8</span><br><span class=\"line\">9</span><br><span class=\"line\">10</span><br><span class=\"line\">11</span><br><span class=\"line\">12</span><br><span class=\"line\">13</span><br><span class=\"line\">14</span><br></pre></td><td class=\"code\"><pre><span class=\"line\"><span class=\"section\">http</span> &#123;</span><br><span class=\"line\">    <span class=\"attribute\">resolver</span> <span class=\"number\">127.0.0.11</span> valid=<span class=\"number\">30s</span> ipv6=<span class=\"literal\">off</span>;   <span class=\"comment\"># Docker 内置 DNS</span></span><br><span class=\"line\">&#125;</span><br><span class=\"line\"></span><br><span class=\"line\"><span class=\"section\">location</span> /api/ &#123;</span><br><span class=\"line\">    <span class=\"attribute\">set</span> <span class=\"variable\">$upstream_gateway</span> project-gateway;     <span class=\"comment\"># 变量触发动态解析</span></span><br><span class=\"line\">    <span class=\"attribute\">proxy_set_header</span> Host <span class=\"variable\">$host</span>;</span><br><span class=\"line\">    <span class=\"attribute\">proxy_set_header</span> X-Forwarded-For <span class=\"variable\">$proxy_add_x_forwarded_for</span>;</span><br><span class=\"line\">    <span class=\"attribute\">proxy_set_header</span> X-Forwarded-Proto <span class=\"variable\">$scheme</span>;</span><br><span class=\"line\"></span><br><span class=\"line\">    <span class=\"attribute\">rewrite</span><span class=\"regexp\"> ^/api/(.*)$</span> /<span class=\"variable\">$1</span> <span class=\"literal\">break</span>;            <span class=\"comment\"># 显式剥 /api/ 前缀</span></span><br><span class=\"line\"></span><br><span class=\"line\">    <span class=\"attribute\">proxy_pass</span> http://<span class=\"variable\">$upstream_gateway</span>:8080;  <span class=\"comment\"># 不带尾部 /，配 rewrite 用纯地址</span></span><br><span class=\"line\">&#125;</span><br></pre></td></tr></table></figure><p>三个关键点：</p><ol><li><strong><code>resolver 127.0.0.11 valid=30s</code></strong> —— Docker 内置 DNS，解析结果 30 秒过期。</li><li><strong><code>set $upstream</code> + 变量版 <code>proxy_pass</code></strong> —— <code>proxy_pass</code> 一旦含变量，nginx 就不再启动期静态解析，而是运行时走 <code>resolver</code>。这是社区版 nginx 动态解析上游的唯一方式。</li><li><strong><code>rewrite ^/api/(.*)$ /$1 break</code></strong> —— 必须显式剥前缀（原因见下）。</li></ol><h3 id=\"连环坑：变量版-proxy-pass-不剥前缀\"><a href=\"#连环坑：变量版-proxy-pass-不剥前缀\" class=\"headerlink\" title=\"连环坑：变量版 proxy_pass 不剥前缀\"></a>连环坑：变量版 proxy_pass 不剥前缀</h3><p>从纯文本 <code>proxy_pass http://x:8080/;</code> 改成变量版后，原来自动剥 <code>/api/</code> 前缀的能力<strong>消失了</strong>，后端会收到错误的 path（实测 gateway 收到的是 <code>/</code>）。所以必须配 <code>rewrite ... break</code> 显式剥，并且 <code>proxy_pass</code> 去掉尾部 <code>/</code>（配 <code>rewrite break</code> 时必须是纯地址，带 URI 会二次改写）。</p><h3 id=\"别走这条路\"><a href=\"#别走这条路\" class=\"headerlink\" title=\"别走这条路\"></a>别走这条路</h3><p><code>upstream {}</code> 块里写主机名<strong>同样是启动期一次性解析</strong>，不动态刷新（只有 Nginx Plus 的 <code>resolve</code> 参数才动态）。<code>upstream</code> 块解决不了这个问题。</p><p>改完 <code>nginx -t &amp;&amp; nginx -s reload</code>，容器怎么重建、IP 怎么变，nginx 都会按 30 秒 TTL 自动跟上。</p>",
+    "published": "2026-08-04T03:00:00Z",
+    "feed_title": "Seven's blog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-04T08:48:15.024022+00:00",
+    "content_length": 10193
+  },
+  {
+    "guid": "a7d01a8079aa9185",
+    "title": "20260728的胡言乱语",
+    "link": "https://www.bboy.app/2026/07/28/20260728%E7%9A%84%E8%83%A1%E8%A8%80%E4%B9%B1%E8%AF%AD/",
+    "author": "",
+    "content": "<p><img alt=\"\" src=\"https://www.bboy.app/oss/20260728-1.webp\" /></p>\n<h3 id=\"简介\">简介</h3>\n<p>欢迎关注我的频道，不时发送垃圾消息</p>\n<p><a href=\"https://t.me/bboyapp\">https://t.me/bboyapp</a></p>\n<p>或者关注我的 twitter</p>\n<p><a href=\"https://twitter.com/bboysoulcn\">https://twitter.com/bboysoulcn</a></p>",
+    "published": "2026-07-28T09:36:00Z",
+    "feed_title": "bboysoul的博客",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-04T08:48:15.024022+00:00",
+    "content_length": 281
+  },
+  {
+    "guid": "42e8b2043d9d50a2",
+    "title": "Random Thoughts - 20260728",
+    "link": "https://www.bboy.app/2026/07/28/random-thoughts-20260728/",
+    "author": "",
+    "content": "<p><img alt=\"\" src=\"https://www.bboy.app/oss/20260728-1.webp\" /></p>\n<h3 id=\"introduction\">Introduction</h3>\n<p>Welcome to follow my channel, where I occasionally share random messages</p>\n<p><a href=\"https://t.me/bboyapp\">https://t.me/bboyapp</a></p>\n<p>Or follow me on Twitter</p>\n<p><a href=\"https://twitter.com/bboysoulcn\">https://twitter.com/bboysoulcn</a></p>",
+    "published": "2026-07-28T09:36:00Z",
+    "feed_title": "bboysoul的博客",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-04T08:48:15.024022+00:00",
+    "content_length": 365
+  },
+  {
+    "guid": "f9fe1890460dba64",
+    "title": "递四方速递",
+    "link": "https://www.mmbkz.cn/ba00cc00.html",
+    "author": "绯色之喵",
+    "content": "<p>打师父的师父</p>",
+    "published": "2026-08-04T08:12:58Z",
+    "feed_title": "火喵日记本",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-04T08:48:15.024022+00:00",
+    "content_length": 13
+  },
+  {
+    "guid": "aa58fbcb8b1801e6",
+    "title": "2026 Brazen Summer Breeze 5K 竞赛",
+    "link": "https://leimao.github.io/life/2026-Brazen-Summer-Breeze-5K/",
+    "author": "",
+    "content": "每年都会来 San Leandro 跑几次",
+    "published": "2026-08-01T07:00:00Z",
+    "feed_title": "Lei Mao's Log Book",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-04T08:48:15.024022+00:00",
+    "content_length": 21
   }
 ]
