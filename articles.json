@@ -9761,18 +9761,6 @@
     "content_length": 22
   },
   {
-    "guid": "dae458c0d0c7d3d1",
-    "title": "Memos: 多 子 多 福",
-    "link": "https://blog.yasking.org/a/1784985226.html",
-    "author": "Yieldone",
-    "content": "<div class=\"media-single media-w-100\">\n  <img alt=\"01\" src=\"https://images.yasking.org/memos/1784985226/01.webp\" />\n</div>\n\n<p>下载原图: <a href=\"https://images.yasking.org/memos/1784985226/01.png\">Download</a></p>",
-    "published": "2026-07-25T13:15:00Z",
-    "feed_title": "东东's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-25T19:17:19.784973+00:00",
-    "content_length": 210
-  },
-  {
     "guid": "1f35a19581f1e07b",
     "title": "程序员下班以后做什么副业合适？",
     "link": "https://www.ccgxk.com/codeother/820.html",
@@ -9795,30 +9783,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-25T19:17:19.784973+00:00",
     "content_length": 20280
-  },
-  {
-    "guid": "bcf14427b0b495bd",
-    "title": "How to Fix Invisible Mouse & White Screen in HOI4 on Linux (Steam)|如何在 Linux (Steam) 上解决《钢铁雄心4》鼠标隐形与开局白屏问题",
-    "link": "https://cufezhusy.github.io/issue-25/",
-    "author": "cufezhusy",
-    "content": "<p>If you play Hearts of Iron IV (HOI4) on Linux via Steam, you might encounter a frustrating bug: your mouse cursor disappears inside the game, and when you quit, it remains invisible on your desktop.</p>\n<p>Attempting to fix this by changing display settings (like switching to Borderless Windowed) can sometimes cause a blank white screen on startup.</p>\n<p>Here is the quick, clean fix using the Paradox Launcher—no terminal commands required!</p>\n<p>The Cause\nOn Linux (especially under Wayland or modern X11 compositors), HOI4’s native Linux renderer struggles with hardware cursor locking. Changing display modes can corrupt local display caches, causing the game engine to freeze on a white screen when initializing graphics.</p>\n<p>The Solution\nStep 1: Clear the Game Cache via Paradox Launcher\nIf your game is stuck on a white screen after changing video settings:</p>\n<p>Launch Hearts of Iron IV from Steam to open the Paradox Launcher.</p>\n<p>Go to Game Settings on the left menu.</p>\n<p>Scroll down to the bottom and click Clear User Directory (or Clear Cache).</p>\n<p>Confirm the reset. (Note: This resets graphics and UI settings to default without deleting your save files).</p>\n<p>Step 2: Prevent the Invisible Mouse Bug\nTo keep your cursor visible during and after gameplay:</p>\n<p>Open Steam, right-click Hearts of Iron IV &gt; Properties.</p>\n<p>Go to the Compatibility tab.</p>\n<p>Check \"Force the use of a specific Steam Play compatibility tool\".</p>\n<p>Select Proton Experimental or Proton 9.0.</p>\n<p>Running the game through Proton uses DirectX instead of the native OpenGL/Linux renderer, completely preventing hardware cursor lockup!</p>\n<p>在 Linux 系统上通过 Steam 游玩《钢铁雄心4》（Hearts of Iron IV / HOI4）时，很多玩家会遇到一个让人头疼的 Bug：游戏内鼠标指针完全消失，甚至退出游戏后，系统桌面的鼠标也依然不可见。</p>\n<p>如果你尝试通过修改显示模式（比如切换到无边框窗口）来修复鼠标，往往还会导致游戏启动时出现全屏白屏卡死。</p>\n<p>这里提供一个最简单且干净的解决方案，只需通过 P 社启动器（Paradox Launcher）即可完成，无需使用复杂的终端命令！</p>\n<p>问题原因\n在 Linux 环境下（尤其是使用 Wayland 或新型 X11 窗口管理器时），《钢铁雄心4》的原生 Linux 渲染引擎在处理硬件鼠标锁定机制时存在漏洞。切换显示模式容易导致本地图形缓存损坏，从而引发启动时的白屏卡死。</p>\n<p>解决步骤\n第一步：通过 P 社启动器清理缓存（解决白屏）\n如果修改显示设置后游戏启动变白屏：</p>\n<p>从 Steam 启动 Hearts of Iron IV，打开 Paradox 启动器。</p>\n<p>点击左侧菜单的 游戏设置（Game Settings）。</p>\n<p>滚动到页面最下方，点击 清除用户目录（Clear User Directory）或 清除缓存（Clear Cache）。</p>\n<p>确认重置。(注：这只会恢复默认画面和 UI 设置，不会删除你的游戏存档)。</p>\n<p>第二步：彻底解决鼠标隐形问题\n为确保游戏内和退出后的鼠标始终正常显示：</p>\n<p>打开 Steam，右键点击 Hearts of Iron IV &gt; 属性。</p>\n<p>切换到 兼容性 选项卡。</p>\n<p>勾选 “强制使用特定的 Steam Play 兼容性工具”。</p>\n<p>在下拉菜单中选择 Proton Experimental 或 Proton 9.0。</p>\n<p>通过 Proton 运行 Windows 版本的游戏会改用 DirectX 渲染，彻底避免了原生 Linux 版的硬件鼠标锁死问题！</p>",
-    "published": "2026-07-25T13:39:41Z",
-    "feed_title": "申确收录： cufezhusy's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-25T19:17:19.784973+00:00",
-    "content_length": 2566
-  },
-  {
-    "guid": "eb6f12007f68297b",
-    "title": "复刻足迹页面",
-    "link": "https://hux.ink/posts/footprints/",
-    "author": "",
-    "content": "<p>在 <a href=\"https://www.xiaoten.com/pages/footprints/\">小十</a> 的博客中看到一个足迹页面，想复刻搬运一个到我的 Hugo 博客中。</p>\n<p>有了 AI 的帮忙，页面很快就复现出来了。</p>\n<p>今天台风天，正好有时间在家将这些年走过的地方盘点一下。翻着一张张陈旧的照片，无数回忆如潮水般涌现。</p>\n<p>还翻到一张 14 年前第一次来深圳的火车票，当时盛传“2012 世界末日”预言，而那个传说中的末日，恰好是我抵达深圳的当天：2012 年 12 月 21 日。</p>\n<p><img alt=\"\" src=\"https://img.hux.ink/notion/5770fbc80908.webp\" /></p>\n<p>把标记点逐一添加，看着被点亮的地图，发现一个可怕的事实——作为一个南方人，我从来没去过北方。</p>\n<p>去年中秋同学带安安出去玩了好几次，如果当时能随他们一同出发，便能一举解锁北京、黑龙江、内蒙古、宁夏与陕西了。奈何当时工作变故，难以休假抽身，终究留下了一丝遗憾。</p>\n<p>许个愿：希望早日踏遍祖国的大好河山！</p>\n<p><img alt=\"\" src=\"https://img.hux.ink/notion/72b95e65ff1b.webp\" /></p>\n<p>❤</p>",
-    "published": "2026-07-25T13:13:00Z",
-    "feed_title": "Counting Stars💫",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-25T19:17:19.784973+00:00",
-    "content_length": 597
   },
   {
     "guid": "3687636dec987aff",
@@ -11751,18 +11715,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-30T08:37:47.755822+00:00",
     "content_length": 159
-  },
-  {
-    "guid": "5a131237b782e057",
-    "title": "Memos: 多 子 多 福",
-    "link": "https://blog.yasking.org/a/1784985226",
-    "author": "Yieldone",
-    "content": "<div class=\"media-single media-w-100\">\n  <img alt=\"01\" src=\"https://images.yasking.org/memos/1784985226/01.webp\" />\n</div>\n\n<p>下载原图: <a href=\"https://images.yasking.org/memos/1784985226/01.png\">Download</a></p>",
-    "published": "2026-07-25T13:15:00Z",
-    "feed_title": "东东's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-30T08:37:47.755822+00:00",
-    "content_length": 210
   },
   {
     "guid": "cb39563641c62310",
@@ -16767,5 +16719,17 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-08T07:02:58.312358+00:00",
     "content_length": 7347
+  },
+  {
+    "guid": "cbee7a0ac58f7a4e",
+    "title": "游戏中的对话设计",
+    "link": "https://www.suiyan.cc/blog/20260808084214",
+    "author": "",
+    "content": "游戏中的对话设计的一些思考",
+    "published": "",
+    "feed_title": "碎言博客",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-08T12:59:30.304799+00:00",
+    "content_length": 13
   }
 ]
