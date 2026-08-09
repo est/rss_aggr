@@ -9761,18 +9761,6 @@
     "content_length": 22
   },
   {
-    "guid": "3687636dec987aff",
-    "title": "新手汽车露营和观星踩坑实录",
-    "link": "https://mok.moe/p/gn3x",
-    "author": "mokeyjay",
-    "content": "老婆突然想看星星，我趁女儿生日临时决定去西涌，想顺便看日出、玩沙子。结果三脚架不合用，镜头起雾，手动充气床累得人汗流浃背，女儿却在床上蹦跶到半夜。停车场过夜被车灯和喧闹搅得几乎没睡，但一家人还是赶上了日出，也去沙滩玩了一会儿。虽然狼狈，但新手该踩的坑都踩了，也算攒下了一份下次再出发的底气",
-    "published": "2026-07-25T20:14:00Z",
-    "feed_title": "mok.moe RSS 地址提交",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-25T19:17:19.784973+00:00",
-    "content_length": 144
-  },
-  {
     "guid": "af4270393a09b302",
     "title": "一份指令，三个智能体——给 AI 管记忆的第三课",
     "link": "https://www.fengcan.net/one-config-three-agents/",
@@ -9785,30 +9773,6 @@
     "content_length": 1424
   },
   {
-    "guid": "c411186529569764",
-    "title": "网站出现意外，恢复后部分评论遗失",
-    "link": "https://jiangcl.com/4869",
-    "author": "蒙需",
-    "content": "今天早上操作大意，导致网站出现意外。虽已恢复至昨天下午 14 时的备份，但部分评论遗失。特此说明。",
-    "published": "2026-07-26T00:06:46Z",
-    "feed_title": "蒙需",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-26T03:33:41.904908+00:00",
-    "content_length": 49
-  },
-  {
-    "guid": "85cf6064db9ec403",
-    "title": "关于蒙需和友情链接页面的视觉改版",
-    "link": "https://jiangcl.com/4857",
-    "author": "蒙需",
-    "content": "这几年，我欣赏过许多博客主精心设计的页面，它们美观精致，无可挑剔；但同时，也有许多博客主偏爱极简主义，那种清爽 &#8230; <a class=\"more-link\" href=\"https://jiangcl.com/4857\">继续阅读<span class=\"screen-reader-text\">关于蒙需和友情链接页面的视觉改版</span></a>",
-    "published": "2026-07-25T23:57:45Z",
-    "feed_title": "蒙需",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-26T03:33:41.904908+00:00",
-    "content_length": 181
-  },
-  {
     "guid": "380b8cd9a04485ed",
     "title": "#1524",
     "link": "https://ramble.imzh.me/1524/",
@@ -9819,66 +9783,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-26T08:35:57.398659+00:00",
     "content_length": 24
-  },
-  {
-    "guid": "9920977f7d629d1a",
-    "title": "硬盘不够时借用其他盘合并 VMDK 快照链",
-    "link": "https://www.geekery.cn/note-book/VMware/%E7%A1%AC%E7%9B%98%E4%B8%8D%E5%A4%9F%E6%97%B6%E5%80%9F%E7%94%A8%E5%85%B6%E4%BB%96%E7%9B%98%E5%90%88%E5%B9%B6VMDK%E5%BF%AB%E7%85%A7%E9%93%BE.html",
-    "author": "",
-    "content": "<p>VMware Workstation 虚拟机若长期依赖快照，磁盘会变成「基础盘 + 多层增量盘」：</p>\n<div class=\"language-text line-numbers-mode\"><pre class=\"shiki shiki-themes one-light one-dark-pro vp-code\"><code class=\"language-text\"><span class=\"line\"><span>dev.vmdk</span></span>\n<span class=\"line\"><span>dev-000001.vmdk</span></span>\n<span class=\"line\"><span>dev-000002.vmdk   ← 当前 .vmx 指向这里</span></span></code></pre>\n<div class=\"line-numbers\"><div class=\"line-number\"></div><div class=\"line-number\"></div><div class=\"line-number\"></div></div></div><p>本盘空间不足以 Consolidate / 删除快照时，可在有足够空间的其他盘上，用 <code>vmware-vdiskmanager</code> 把整条快照链克隆成一张独立磁盘，验证通过后改 <code>.vmx</code> 指向新盘、删旧链，再视需要把新盘搬回虚拟机目录。</p>\n<h2>前提条件</h2>\n<ol>\n<li>虚拟机已完全关机，不要处于挂起状态。</li>\n<li>借用盘可用空间 ≥ 合并后预估体积，并留余量。</li>\n<li>操作前尽量备份整个虚拟机目录，或至少确认能回退到旧快照链。</li>\n</ol>\n<h2>一、确认当前磁盘</h2>\n<p>查看目录中的 VMDK，并确认 <code>.vmx</code> 挂载的是最新一层（通常是 <code>*-00000x.vmdk</code>）：</p>\n<div class=\"language-powershell line-numbers-mode\"><pre class=\"shiki shiki-themes one-light one-dark-pro vp-code\"><code class=\"language-powershell\"><span class=\"line\"><span>Get-ChildItem</span><span> -</span><span>File </span><span>-</span><span>Filter </span><span>\"*.vmdk\"</span><span> | </span><span>Select-Object</span><span> Name, Length, LastWriteTime</span></span></code></pre>\n<div class=\"line-numbers\"><div class=\"line-number\"></div></div></div><div class=\"language-text line-numbers-mode\"><pre class=\"shiki shiki-themes one-light one-dark-pro vp-code\"><code class=\"language-text\"><span class=\"line\"><span>scsi0:0.fileName = \"dev-000002.vmdk\"</span></span></code></pre>\n<div class=\"line-numbers\"><div class=\"line-number\"></div></div></div><h2>二、在借用盘上克隆为独立磁盘</h2>\n<p>对当前正在使用的那一层做克隆（工具一般在 <code>C:\\Program Files\\VMware\\VMware Workstation\\vmware-vdiskmanager.exe</code>）：</p>\n<div class=\"language-powershell line-numbers-mode\"><pre class=\"shiki shiki-themes one-light one-dark-pro vp-code\"><code class=\"language-powershell\"><span class=\"line\"><span>mkdir C:\\VMwareMerge</span><span>-</span><span>dev</span></span>\n<span class=\"line\"></span>\n<span class=\"line\"><span>&#x26; </span><span>\"C:\\Program Files\\VMware\\VMware Workstation\\vmware-vdiskmanager.exe\"</span><span> `</span></span>\n<span class=\"line\"><span>  -</span><span>r </span><span>\"Z:\\Virtual Machines\\dev\\dev-000002.vmdk\"</span><span> `</span></span>\n<span class=\"line\"><span>  -</span><span>t </span><span>0</span><span> `</span></span>\n<span class=\"line\"><span>  \"C:\\VMwareMerge-dev\\dev-merged.vmdk\"</span></span></code></pre>\n<div class=\"line-numbers\"><div class=\"line-number\"></div><div class=\"line-number\"></div><div class=\"line-number\"></div><div class=\"line-number\"></div><div class=\"line-number\"></div><div class=\"line-number\"></div></div></div><p><code>-r</code> 会沿 parent 链合并；<code>-t 0</code> 输出单文件可增长磁盘。克隆只读源链，不改写原 VMDK。不要只克隆基础盘，否则会丢掉快照里的改动。</p>\n<h2>三、切换虚拟机到新盘并验证</h2>\n<p>编辑 <code>.vmx</code>：</p>\n<div class=\"language-text line-numbers-mode\"><pre class=\"shiki shiki-themes one-light one-dark-pro vp-code\"><code class=\"language-text\"><span class=\"line\"><span>scsi0:0.fileName = \"C:\\VMwareMerge-dev\\dev-merged.vmdk\"</span></span></code></pre>\n<div class=\"line-numbers\"><div class=\"line-number\"></div></div></div><p>启动虚拟机确认正常。确认无误前不要删除旧盘。</p>\n<h2>四、删除旧快照链</h2>\n<p>关机后删除旧链及快照元数据：</p>\n<div class=\"language-text line-numbers-mode\"><pre class=\"shiki shiki-themes one-light one-dark-pro vp-code\"><code class=\"language-text\"><span class=\"line\"><span>dev.vmdk</span></span>\n<span class=\"line\"><span>dev-000001.vmdk</span></span>\n<span class=\"line\"><span>dev-000002.vmdk</span></span>\n<span class=\"line\"><span>dev.vmsd</span></span></code></pre>\n<div class=\"line-numbers\"><div class=\"line-number\"></div><div class=\"line-number\"></div><div class=\"line-number\"></div><div class=\"line-number\"></div></div></div><h2>五、把新盘搬回虚拟机目录</h2>\n<div class=\"language-powershell line-numbers-mode\"><pre class=\"shiki shiki-themes one-light one-dark-pro vp-code\"><code class=\"language-powershell\"><span class=\"line\"><span>Move-Item</span><span> -</span><span>LiteralPath </span><span>\"C:\\VMwareMerge-dev\\dev-merged.vmdk\"</span><span> `</span></span>\n<span class=\"line\"><span>  -</span><span>Destination </span><span>\"Z:\\Virtual Machines\\dev\\dev-merged.vmdk\"</span></span></code></pre>\n<div class=\"line-numbers\"><div class=\"line-number\"></div><div class=\"line-number\"></div></div></div><p><code>.vmx</code> 改为相对路径，方便以后整体搬迁目录：</p>\n<div class=\"language-text line-numbers-mode\"><pre class=\"shiki shiki-themes one-light one-dark-pro vp-code\"><code class=\"language-text\"><span class=\"line\"><span>scsi0:0.fileName = \"dev-merged.vmdk\"</span></span></code></pre>\n<div class=\"line-numbers\"><div class=\"line-number\"></div></div></div><p>跨盘移动实际是「复制再删除」，期间不要启动虚拟机；完成后可删掉空目录 <code>C:\\VMwareMerge-dev</code>。</p>",
-    "published": "2026-07-25T23:28:35Z",
-    "feed_title": "运维开发绿皮书",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-26T08:35:57.398659+00:00",
-    "content_length": 4733
-  },
-  {
-    "guid": "6b4963117c07dd39",
-    "title": "Tracks#1: Life",
-    "link": "https://blog.verdant.ee/posts/tracks/1/",
-    "author": "im@verdant.ee (五葉地錦)",
-    "content": "<figure><img src=\"https://images.verdant.ee/ab67616d0000e1a392fd546cd292dfb7341857c7.webp\" />\n</figure>\n\n<details>\n专辑信息\n<ul>\n<li>\n<p>名称：Life</p>\n</li>\n<li>\n<p>作者：FreeTEMPO</p>\n</li>\n<li>\n<p>年份：2010</p>\n</li>\n<li>\n<p>风格：House, Electro, Downtempo, Deep House</p>\n</li>\n<li>\n<p>时长：55 min 1 sec</p>\n<p><a href=\"https://open.spotify.com/track/5uL7t3NVaUR8IRS8wNludk?si=3c0f5db553da4c2a\">Spotify</a></p>\n</li>\n</ul>\n</details>\n<p>夏日必备。</p>\n<p>我在 Spotify 的每周推荐中发现了这个专辑的 <em>FAMILY</em> ，温馨舒缓的前奏就吸引住了我，人声进来后更是无法拒绝，直接瞪大了双眼。 <em>FAMILY</em> 也是整张专辑中我最喜欢的。觉得人声的声线很熟悉吗？主唱 Ichiko Aoba 也演唱过 <em>いきのこり●ぼくら</em> 。</p>\n<p>每首歌都值得一听，质量超高！放一下我最爱的两首的歌词。</p>\n<details>\nFAMILY 歌词\n<p>Love is free</p>\n<p>Then love that meet your feel</p>\n<p>Love is fear</p>\n<p>Then love is in your heart</p>\n<p>Life is free</p>\n<p>Maybe past we feel</p>\n<p>Life is fear</p>\n<p>Then life is in your heart</p>\n<p>Even when it down You always out there Makeing every day so happy</p>\n<p>Even when it&rsquo;s hot your feel every time Every day you love the same</p>\n<p>Life is free</p>\n<p>Then love that meet your feel</p>\n<p>Life is fear</p>\n<p>Then love is in your heart</p>\n<p>Life is free</p>\n<p>Maybe does it feel</p>\n<p>Life is fear</p>\n<p>Then life is in our heart</p>\n<p>Even when it down You always out there Makeing every day so happy</p>\n<p>Even when it&rsquo;s hot you feel every time Every day you love the same</p>\n<p>Even when it down You always out there Making every day so happy</p>\n<p>Even day is hot you feel every time Every day you love the same</p>\n<p>You&rsquo;ll fear be damn</p>\n<p>You&rsquo;ll fear every time</p>\n<p>everyday Your love is free</p>\n<p>You&rsquo;ll be always be there in my heart Is every time forever</p>\n<p>Be the for you just that in my heart Is every time forever</p>\n<p>You&rsquo;ll always be there in my heart Is every time forever</p>\n<p>Be the for you just that in my heart Is every time forever</p>\n<p>You&rsquo;ll always be there in my heart Is every time forever</p>\n<p>Be the for you just that in my heart Is every time forever</p>\n<p>You&rsquo;ll always be there in my heart Is every time forever</p>\n<p>Be the for you just that in my heart Is every time forever</p>\n<p>And I know all this be single room</p>\n<p>And I know all this be single room</p>\n</details>\n<details>\nHEART 歌词\n<p>a broken heart just needs some time left to bleed</p>\n<p>a heart is best when it is kind warm and sweet</p>\n<p>an open heart would never lie you see</p>\n<p>so please believe that we were meant to be</p>\n<p>a jealous heart is not a crime nor is it weak</p>\n<p>your heart is blessed when it is mine can&rsquo;t you see</p>\n<p>with every beat a loss of time you see</p>\n<p>so be with me yeah we were meant to be together</p>\n<p>it&rsquo;s you plus me not less me</p>\n<p>gonna laugh with me not at me</p>\n<p>yeah two hearts beat as one beat</p>\n<p>how beautiful it&rsquo;d be</p>\n<p>it&rsquo;s you plus me not less me</p>\n<p>gonna laugh with me not at me</p>\n<p>yeah two hearts beat as one beat</p>\n<p>how beautiful</p>\n<p>a broken heart just needs some time left to bleed</p>\n<p>a heart is best when it is kind warm and sweet</p>\n<p>an open heart would never lie you see</p>\n<p>so please believe that we were meant to be</p>\n<p>a jealous heart is not a crime nor is it weak</p>\n<p>your heart is blessed when it is mine can&rsquo;t you see</p>\n<p>with every beat a loss of time you see</p>\n<p>so be with me yeah we were meant to be together</p>\n<p>it&rsquo;s you plus me not less me</p>\n<p>gonna laugh with me not at me</p>\n<p>yeah two hearts beat as one beat</p>\n<p>how beautiful it&rsquo;d be</p>\n<p>it&rsquo;s you plus me not less me</p>\n<p>gonna laugh with me not at me</p>\n<p>yeah two hearts beat as one beat</p>\n<p>how beautiful</p>\n<p>it&rsquo;s you plus me not less me</p>\n<p>gonna laugh with me not at me</p>\n<p>yeah two hearts beat as one beat</p>\n<p>how beautiful it&rsquo;d be</p>\n<p>it&rsquo;s you plus me not less me</p>\n<p>gonna laugh with me not at me</p>\n<p>yeah two hearts beat as one beat</p>\n<p>yeah you can trust me</p>\n<p>be together</p>\n<p>now and ever</p>\n<p>&hellip;</p>\n</details>\n<p>我觉得这首最好听的地方在于鼓点的节奏<sup id=\"fnref:1\"><a class=\"footnote-ref\" href=\"#fn:1\">1</a></sup>和 <em>how beautiful it&rsquo;d be</em> 中 <em>it&rsquo;d be</em> 的重音。</p>\n<h2 id=\"关于-tracks-系列\">关于 Tracks 系列</h2>\n<h3 id=\"灵感来源\">灵感来源</h3>\n<p>Tracks 是从回声周刊的「声波」栏目独立出来的新系列。激发我写这个系列的是 <a href=\"https://github.com/Spike-Leung/\">Spike Leung</a> 的 <a href=\"https://taxodium.ink/index.html#album\">Album</a> 系列，当然还有激励他写 Album 的 <a href=\"https://github.com/casouri\">casouri</a> 的 <a href=\"https://archive.casouri.cc/rock/day/index.html\">余日摇滚</a>。和 Spike Leung 的想法一样，我觉得周刊的音乐应该没什么人会注意，不如单独拿出来不定时分享一下自己喜欢的音乐。</p>\n<h3 id=\"关于歌词\">关于歌词</h3>\n<p>原本想放一点自己的翻译，也许是因为自己并不擅长把外语翻译成中文，原文的意境和效果大打折扣甚至显得俗气，还请读者自行看原文理解吧~</p>\n<div class=\"footnotes\">\n<hr />\n<ol>\n<li id=\"fn:1\">\n<p>切分或反拍？或二者皆有？又或者全部说错。我记忆本就不深刻的乐理知识已经忘得一干二净。&#160;<a class=\"footnote-backref\" href=\"#fnref:1\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
-    "published": "2026-07-26T00:00:00Z",
-    "feed_title": "映屿",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-26T08:35:57.398659+00:00",
-    "content_length": 4969
-  },
-  {
-    "guid": "1e4423bb0f48661f",
-    "title": "知行合一",
-    "link": "https://blog.chen-di.com/archive/zhi-xing-he-yi/",
-    "author": "",
-    "content": "<p>近期静下心复盘生活、反观自身，我对王阳明先生提出的知行合一的思想有了新的感受。所谓知行合一，本质是认知与实践的统一，是心中明理、脚下践行，二者相融相生、不可分割。</p>\n<p>大多时候挂在嘴边的“知道”，其实从来都不是真正的知。那些所谓的道理、常识、准则，不过是我们被动接收的抽象概念、零散知识，是停留在书本和认知表层的低级认知，从未真正扎根心底、融入思维。这也正是世人常说“听过很多道理，依旧过不好这一生”的根源。很多时候，我们并非不够自律、缺乏毅力，而是认知浅薄、认知模糊。总觉得时机未到、尚可拖延，总给自己找借口暂缓行动，归根结底，是从未真正看到懈怠与拖延背后的代价。</p>\n<p>两件事情，让我对“知行合一”有了新的理解，真切体会到何为真知、何为真行。</p>\n<p>第一件事，是戒烟。</p>\n<p>“吸烟有害健康”是每个成年人都能脱口而出的道理。但绝大多数人对这句话的理解，仅仅停留在文字概念层面，看似知晓，实则懵懂。他们从未真正、真切地意识到，香烟正在一点点侵蚀自己的身体，透支自己的健康。如何真切意识到吸烟的危害？我想劝老烟民去做个肺部 CT ，戒烟的成功率大大地提高。</p>\n<p>人性本是趋利避害的，没有人会心甘情愿持续伤害自己。之所以明知有害却依旧坚持，本质是对行为的后果认知模糊、感知浅薄。当危害只是一个模糊的概念，便无法约束人的行为。而当我真正看透吸烟对心肺、体魄、长远健康的切实伤害，真正从心底正视这份隐患时，戒烟不再是需要咬牙坚持、刻意克制的难事，自然而然便做到了。没有煎熬的挣扎，只有通透后的笃定践行，这便是真知催生真行。</p>\n<p>第二件事，是坚健身。</p>\n<p>从2020年至今，我始终保持着规律的运动习惯。这份长久的坚持，从来不是靠一时的热血和刻意的自律，而是源于对健身意义的深度认知。普通人也知道“运动有益健康”，但这份认知依旧流于表面。他们无法深刻感知，长期不运动，会随着年岁增长慢慢流失肌肉、弱化体能；无法体会充足的肌肉力量、良好的身体状态，是晚年行动自如、生活自理的硬性保证。</p>\n<p>在长期的运动与理论学习中，我慢慢理解了运动的真正价值：它不是为了练出完美的曲线，而是一场对抗衰老、守护底气的长期修行，胸肌、腹肌、马甲线只是健身的副产品。规律运动，能延缓肌肉流失、维持身体机能，让我们在年华老去之后，不必被孱弱的身体束缚生活，能拥有体面、自在、有尊严的晚年生活。正是这份透彻、深刻的认知，支撑我在运动的道路上从未放弃。</p>\n<p>由此我愈发明白：所有的行动滞后、半途而废、拖延懈怠，本质都是认知不足。只有当认知抵达足够的深度，真正读懂一件事的价值与利弊、看清行为背后的因果与后果，我们才会主动践行、长期坚持。</p>\n<p>认知与行动，从来都是一体两面、密不可分。认知指引行动，沉淀的理解融入每一次践行；行动印证认知，反复的实践深化原本的感悟。理解中带着执行，执行中深化理解，认知落地为行动，行动升华认知，二者循环往复、相辅相成，这便是真正的知行合一，也是成长最朴素、最深刻的真谛。</p>",
-    "published": "2026-07-26T00:00:00Z",
-    "feed_title": "当前绑定的 blog.chendi.link 改为 blog.chen-di.com",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-26T08:35:57.398659+00:00",
-    "content_length": 1284
-  },
-  {
-    "guid": "fe402a66be27e7a6",
-    "title": "7.26 随想与近期状态小结",
-    "link": "https://blog.sakoamc.com/posts/26sx003/",
-    "author": "SAK",
-    "content": "<p>我已经陷入这种状态够久的了。能够察觉到的是，我的内心似乎很长一段时间以来，无法获得平静。就像是发动机，没有了一种驱动力，无论是内在的还是外在的。其实很多内容也都是老生常谈，总结一下，权当放松一下内心。</p>\n<h3>🌪️ 工作与现实的挤压</h3>\n<p>工作方面，一来是随着上班时间越来越久，指标考核越来越卷，每天都是无限重复的无聊工作，毫无乐趣可言。二来则是悬在心头的技能等级、职称、考试压力，真想一下子到退休。三来是今年已是工作的第三年，升职的关键期也就在这两年了，这是第一步，也是最关键的一步。四来是我妈像是被洗脑了一样，三天两头让我去考公务员，这实在不是我所愿意的。一是现在的考试大都只招一个，不好考；二是行情这么差，所有人都去的地方，也不见得在未来是好的去处。</p>\n<p>当然了，在熟悉了工作后，目前心态有所好转。工作也只是工作，到点下班，天塌不下来。或许周末无事，一个人安静地加个小班，吹吹空调，我反而还乐在其中。</p>\n<p>因为工作在离家近的地方，还没有独居生活，逐渐开始承担部分家庭责任，倒不是有太大困难。不过代际上难免有些磕磕绊绊。</p>\n<h3>💰 金钱焦虑与人际提耗</h3>\n<p>金钱方面，个人的开销倒还好，不算很大，但想到要买房换车的话，也要掏出来不少，想想有些肉疼。其实离家远些工作，或许我只想租好些的房子吧。如此一来，对于投资的焦虑还是有一些的。毕竟打工永远都致不了富。有时候看看面基的播客，还是深受启发的。我个人的投资还是过于保守，钱不能闲着，哪怕承担一定的风险。</p>\n<p>人际关系中，我接触的人，无论是老朋友还是新朋友，都太少。有时候会觉得麻烦，不想维系关系。而戴着面具的人情世故又实在太累，或许是还没到年纪。我还是想要线下的感受、体验，或者是面对面的交流。</p>\n<h3>🌙 高敏感、距离感与“人生搭子”</h3>\n<p>亲密关系上，这两年倒是接触了几个，都很好，只是我不懂如何交往与谈恋爱，或许和我想象中的不太一样。I人 + 太阴星坐命 + 双鱼 + 高敏感，内心戏多，朦胧地、含蓄地猜，属性叠满了。</p>\n<p>我不喜欢即时信息的反馈，我希望延迟，使得决策或者间隙时间更长。我不会喜欢每周见面，人与人本质上需要一定的距离感和空间感。很久才见一次面、淡淡的、没有甜言蜜语和浪漫故事。潜意识的自卑加上颅内幻想，兴趣爱好也比较怪。</p>\n<p>我在期待什么奥特曼来拯救我这个怪兽呢？人生搭子？不完全无序、时有时无的新鲜感？</p>\n<h3>🔋 丢失的心</h3>\n<p>可能上了年纪，感觉到这两年精力不足，又没什么锻炼，以及各种因素，不再有心力沉下心认真去听、去看书影音。更多的是特别感兴趣了才会看，不再有一些追求和强迫，也不知道是好是坏。</p>\n<p>走了一万步都不到，就开始觉得身心俱疲。看屏幕时间过长，睡眠时间缩短，注意力的缺失。夜幕降临，当夜晚没有乐趣的时候，或许早睡才是归宿。</p>\n<p>高度的信息流、同质化，导致我看到 AI 两个字都想吐。很明显地，我在逐渐失去追赶能力与兴趣，生产力于我而言就是伪命题，甚至是反向的。无聊时间的如何度过依旧是经典的问题。回翻了这两年收藏的内容，有意思的内容真的是越来越少，过去在我看来很有创造力、活人感的内容及其创作者，都在逐渐丧失某些东西，亦或者不再公开创作。</p>\n<p>人一旦心脉受损，没有了心气、心力，心力交瘁，大概就是这样的吧。</p>\n<p>席地而坐，抬头观云，你会心情突然变好吗？临崖而立，探头向下，你会想来一次信仰的飞跃吗？</p>",
-    "published": "2026-07-26T00:00:00Z",
-    "feed_title": "神仙鱼不吃鱼鱼",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-26T08:35:57.398659+00:00",
-    "content_length": 1485
-  },
-  {
-    "guid": "3b8931a3b50db30f",
-    "title": "公共项目：Catbash 猫脚本、IX 专线监测 & 字幕子集化",
-    "link": "https://catcat.blog/2026/07/catbash-and-ix-monitoring/",
-    "author": "",
-    "content": "<hr />\n<h2>一、Catbash 猫脚本（SICK）</h2>\n<p>::github{repo=\"Yuri-NagaSaki/SICK\"}</p>\n<ul>\n<li>官网：<a href=\"https://catbash.net/\">https://catbash.net/</a></li>\n<li>仓库：<a href=\"https://github.com/Yuri-NagaSaki/SICK\">https://github.com/Yuri-NagaSaki/SICK</a></li>\n</ul>\n<pre><code>菜单：curl -sL https://catbash.net/menu | bash\n硬件检测：curl -sL https://catbash.net/sick | bash\nIPERF3：curl -sL https://catbash.net/nets | bash\nGeekBench：curl -sL https://catbash.net/cpux | bash \n</code></pre>\n<h3>预览</h3>\n<p>SICK 硬件报告：</p>\n<p><img alt=\"SICK 预览\" src=\"https://cdn.nodeimage.com/i/nBu2RRSLC5ebMCcWDzdPMUaYQq5wg8hA.webp\" /></p>\n<p>NETS 网络吞吐：</p>\n<p><img alt=\"NETS 预览\" src=\"https://cdn.nodeimage.com/i/f5eoaoJfF5hAGGbCafRStVZQrFZeS3xD.webp\" /></p>\n<p>CPUX Geekbench：</p>\n<p><img alt=\"CPUX 预览\" src=\"https://cdn.nodeimage.com/i/cXXg1mmSfDkxBvseInICpQmrUy5w8M3I.webp\" /></p>\n<h3>简单用法</h3>\n<p>菜单</p>\n<pre><code>curl -sL https://catbash.net/menu | bash\n</code></pre>\n<p>直接跑某一项也行：</p>\n<pre><code># 硬件信息（中文）\ncurl -sL https://catbash.net/sick | bash -s -- -cn\n\n# 缺工具时自动装一下\ncurl -sL https://catbash.net/sick | bash -s -- -y -cn\n\n# 只要 JSON\ncurl -sL https://catbash.net/sick | bash -s -- --json\n</code></pre>\n<p>网络测速：</p>\n<pre><code># 精简节点 + 每方向 5 秒\ncurl -sL https://catbash.net/nets | bash -s -- -r -t 5\n\n# 只测亚太\ncurl -sL https://catbash.net/nets | bash -s -- --region apac -4\n</code></pre>\n<p>CPU 跑分：</p>\n<pre><code># 交互选 GB5 / GB6 / GB7\ncurl -sL https://catbash.net/cpux | bash\n\n# 直接跑 Geekbench 6\ncurl -sL https://catbash.net/cpux | bash -s -- 6\n\n# 三套全跑\ncurl -sL https://catbash.net/cpux | bash -s -- all\n</code></pre>\n<hr />\n<h2>二、公有云到 IX 专线监测</h2>\n<p>买了一些公有云机器和 IX / 专线路由，想直观看看延迟和连通情况，就做了个公开 Dashboard。</p>\n<ul>\n<li>监测页：<a href=\"https://s.ee/ixm\">https://s.ee/ixm</a></li>\n</ul>\n<p><img alt=\"公有云到 IX 专线监测\" src=\"https://s3.catcat.blog/images/2026/07/20260726134721906.avif\" /></p>\n<p>目前探测点大概有：</p>\n<ul>\n<li>阿里云 深圳</li>\n<li>火山引擎 上海</li>\n<li>火山引擎 广州</li>\n<li>腾讯云 上海</li>\n</ul>\n<p>对端线路（Mk 云那边的几条 + 其他）：</p>\n<ul>\n<li>上海 IX → 日本 BGP</li>\n<li>上海 IX → 香港 BGP</li>\n<li>深圳 IX → 香港 BGP</li>\n<li>广州腾讯 BGP → 香港 IEPL</li>\n<li>上海电信 → 日本 IPLC</li>\n<li>4299 云计算 POP 沪日</li>\n</ul>\n<p>后面有合适的线路还会继续加。</p>\n<hr />\n<h2>三、在线字幕子集化 FontInAss</h2>\n<p>做番剧 / BD 字幕时常见的坑：不带字体，特效和字体名对不上就糊成一团；把整套字体塞进 MKV，体积又会胖一圈。<strong>子集化</strong>就是只留下字幕实际用到的字，再嵌回 ASS，体积能砍掉一大截，换机播放也不用再装字体。</p>\n<p>::github{repo=\"Yuri-NagaSaki/FontInAss\"}</p>\n<ul>\n<li>在线服务：<a href=\"https://font.anibt.net\">https://font.anibt.net</a></li>\n<li>仓库：<a href=\"https://github.com/Yuri-NagaSaki/FontInAss\">https://github.com/Yuri-NagaSaki/FontInAss</a></li>\n</ul>\n<p>本地 / 自托管也行：仓库里有 Docker Compose，挂上自己的 <code>fonts</code> 目录就能跑；还有跨平台 CLI，适合字幕组批量处理。Emby/Jellyfin 侧的部署写法之前写过，有需要可以看下面两篇：</p>\n<ul>\n<li><a href=\"/2026/03/ass-font-subsetting-fontinass.html\">ASS 字幕字体子集化：从原理到实践</a>（原理 + 在线版）</li>\n<li><a href=\"/2026/01/deploy-fontinass-emby-subtitle-font.html\">Docker 部署 fontInAss（Emby 字幕字体）</a>（本地/反代集成）</li>\n</ul>\n<hr />",
-    "published": "2026-07-26T00:00:00Z",
-    "feed_title": "猫猫博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-26T08:35:57.398659+00:00",
-    "content_length": 2916
   },
   {
     "guid": "5ab0c44b9e4f53ce",
@@ -9903,18 +9807,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-26T08:35:57.398659+00:00",
     "content_length": 50
-  },
-  {
-    "guid": "27ff0c50106f74b5",
-    "title": "专治“局部磨损”：我的AI牛仔裤选购指南",
-    "link": "https://blog.196000.xyz/2026/2026-07-26-life-ai-jeans.html",
-    "author": "",
-    "content": "<h1 id=\"专治局部磨损我的ai牛仔裤选购指南\">专治“局部磨损”：我的AI牛仔裤选购指南</h1>\n<p><img src=\"../uploads/images/2026/jeans.svg\" /></p>\n<h2 id=\"缘起一个困扰多年的问题\">缘起：一个困扰多年的问题</h2>\n<p>平时穿得最多的就是牛仔裤。回顾那些被淘汰的裤子，无论价格高低，“死因”惊人地一致——后裆十字缝附近的布料，要么摩擦变色，要么越磨越薄，最后直接拉丝破洞。</p>\n<p>我一直想不通：就算是久坐，受力最大的明明是臀部正中间，为什么先报废的反而是它下面那一圈？</p>\n<p>为了解开这个心结，我和 AI 进行了下面这场对话，并最终据此挑到了一条相对满意的牛仔裤。</p>\n<h2 id=\"与-ai-的对话过程\">与 AI 的对话过程</h2>\n<p><strong>第一步：角色设定</strong></p>\n<pre class=\"text\"><code>你是一名衣服导购助手，擅长根据客户身高体重和指定衣物材质等，挑选最适合的衣物。</code></pre> <p><a href=\"https://blog.196000.xyz/2026/2026-07-26-life-ai-jeans.html\">点击阅读全文</a></p>",
-    "published": "2026-07-26T01:00:00Z",
-    "feed_title": "我的笔记",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-26T08:35:57.398659+00:00",
-    "content_length": 566
   },
   {
     "guid": "4f49f27b02b352fa",
@@ -16755,5 +16647,137 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-08T18:46:17.964778+00:00",
     "content_length": 2019
+  },
+  {
+    "guid": "ba87adb20e8aaf21",
+    "title": "半日闲",
+    "link": "https://xiaochopin.github.io/2026/08/04/halfday-in-changsha",
+    "author": "Chopin",
+    "content": "<p>由于走亲戚去长沙玩了半天。逛了一下 IFS 和解放路那边的一家影碟店。</p>\n\n<p><img alt=\"\" src=\"https://xiaochopin.dpdns.org/1786199716998.webp\" /></p>\n<center>恰若青石的街道向晚</center>\n\n<p><img alt=\"\" src=\"https://xiaochopin.dpdns.org/1786199716947.webp\" /></p>\n<center>到长沙啥也不干暴走二十分钟买老登碟片的来了🤖🤖🤖</center>\n\n<p>另外还喝了茶颜悦色旗下的新品，味道还不错。</p>\n\n<p>晚上回酒店细细品鉴了一下鲍家街43号乐队的二专《风暴来临》，另有人生社会之大思考此次不表。</p>",
+    "published": "2026-08-03T16:00:00Z",
+    "feed_title": "重生云",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T02:10:06.274526+00:00",
+    "content_length": 349
+  },
+  {
+    "guid": "63be81aafcf3ef5e",
+    "title": "秋天的第一个版本：Cassotis IME（言泉输入法）v1.12.0",
+    "link": "https://nicrosoft.net/blog/2340/",
+    "author": "nicrosoft",
+    "content": "<p class=\"\">昨天立秋，深夜我发布了 Cassotis IME（言泉输入法）v1.12.0。用这个稍微有点烂俗的标题，标记一个重要的里程节点。</p>\n<p class=\"\">去年十二月，冬天，当 GPT-5.2 让 Codex 变得真正可用的时候，Codex 写下了言泉输入法的第一行代码。不过，起初我并没有太上心，项目早期的基础设施搭建比较繁琐，尤其是 TSF 框架与稳定性的建立，磨合过程十分琐碎，我只是在有闲暇时才偶尔推进一下。</p>\n<p class=\"\">就这么慢慢磨合直到除夕那天，期间 Codex 背后的模型也升级到了 GPT-5.3。我觉得项目终于进展到了可以公开的程度，便将其开源至 GitHub。自此，项目才真正进入了“上心”且持续开发的阶段。</p>\n<p class=\"\"><img class=\"alignnone size-full wp-image-540\" src=\"https://nicrosoft.net/blog/wp-content/uploads/2026/08/Snipaste_2026-08-08_13-04-48.png\" /></p>\n<p class=\"\">三月底，输入法框架终于趋于稳定，我便发布了第一个 Release 版本——v0.1.0。此后，根据身边朋友的反馈，我开始加入对长句/整句输入模式的支持，并在四月中旬，发布了第一个支持长句输入的 v0.2.0 版本。为了更准确地评估长句输入模式的质量，在四月的最后一天，我从自己仍在写作的小说《永恒的舞动》已完成章节中，抽取了16300句符合条件（没有数字、英文字母等）的长句作为语料，创建了 Cassotis 长句基准测试-16300。</p>\n<p class=\"\">随着 v0.x 系列版本的持续迭代，长句输入的准确率一点一点提升。不过，由于我个人的日常习惯偏向短词输入，长句体验并非我的痛点。对我而言，让输入法停留在“可用”而非“好用”的关键瓶颈，在于不跟手——逐键输入时的延迟比较高。但当时的精力仍然主要聚焦在长句算法的改进上。</p>\n<p class=\"\">7月4日，一位用户在 GitHub 上提交了一个名为<a href=\"https://github.com/shenmin/cassotis-ime/issues/6\">“性能优化请求”</a>的 issue：长句输入时程序会明显卡顿，敲完键盘后往往还要再等上几秒，视频中的单次延迟甚至接近八秒；而同一台设备上的 Rime 却几乎感知不到延迟。这个 issue 提醒了我，必须正面面对这个性能问题了，因为这不是提升机器配置或者放慢输入速度就能掩盖的问题了，不是“输入法本来就这样”，因为别人（Rime）完全能够做好。</p>\n<p class=\"\">输入本质上是一次次的搜索。一串拼音有许多种切分方式，每段拼音又对应若干词条，可能的组合会迅速铺开；人是一个字母一个字母敲的，相邻两次输入高度重叠，其中许多后缀、切分和词库查询却会被反复计算。句子越长，冗余计算就越多，卡顿与延迟便是这样一点点积聚出来的。关于这个问题，我此前并非没有尝试让 Codex 优化过，只是过去总是在“快一点但准得少一点”之间反复权衡，始终未能真正解决。</p>\n<p class=\"\">7月10日，Codex 换上了 gpt-5.6-sol max。“言出法随”这个词我用过很多次，但我发现它其实也是有程度之分的。我曾用“言出法随”来形容 gpt-5.3-xhigh，可当 gpt-5.6-sol 登场时，我却又一次忍不住感叹：这才是“真正”的言出法随。</p>\n<p class=\"\">升级到 gpt-5.6-sol 的 Codex 不再止步于小修小补，而是开始着手清理那些被白白浪费的计算：同一段后缀只要计算过一次，就按位置记录下来以供复用；相邻按键频繁检索到的词库结果，被放入有界缓存中；搜索和后处理环节则设定了明确的时间预算，避免极少数复杂句子无休止地拖长响应。这其中并没有什么玄妙之处，归根结底依旧是经典的优化思路：减少重复查询与合理缓存。但效果很好，在我特意于基准测试中加入延时指标后，数据明确显示输入延迟降低了近一个数量级，同时准确性不仅没有受到破坏，甚至还略有提升。</p>\n<p class=\"\">于是，我将版本号正式定为 v1.0.0。在我看来，它终于跨过了“好用”这道门槛。</p>\n<p class=\"\"><a href=\"https://nicrosoft.net/blog/2313/\">之前提过</a>，做输入法最初的念头，是将输入法与 AI 大模型相结合。此前我也做过接入本地大模型的尝试，但结论是目前尚不具备工程实用性，最终还是将这些测试代码彻底清理掉了。</p>\n<p class=\"\">在 v1.0.0 发布后，我问 Codex，要更大幅度提升输入法的候选排序质量以及长句模式的寻路算法的准确性，下一步应该做什么。Codex 提到可以通过统计语言模型来计算字词之间的转移关系，这需要使用比较大规模的语料。正好，我在7月1日启动了一个实验性的 GPT 模型训练项目，计划在单张 RTX-4090 显卡上训练一个 1.2B 参数的小型 GPT——nc-GPT。它和输入法本毫无关联，只是又一个个人探索性的项目。但为了训练这个 GPT，Codex 帮我找了几十 GB 清洗过的合规中英文语料。其中的中文部分，正好可以在此时作为输入法统计模型的训练语料。</p>\n<p class=\"\">统计语言模型不像 GPT 模型训练那么耗费算力。没有使用到显卡，在v1.0.0 发布后的第二天，第一版统计语言模型就构建完成，其量化后的结果被写入词库，于是就有了 v1.1.0。这样的模型在运行时，仅仅是本地静态函数打分，不需要联网，不依赖显卡算力，也不需要额外的推理框架，却让“长句-16300”的基准测试的 Top1 相比 v1.0.0 提升了3.5个百分点。随后发布的 v1.2.0 则进一步扩展了字符语言模型，使其能够更早地参与长句路径保留与完整候选排序。</p>\n<p class=\"\">后来，引擎里逐步加入真正的小型神经模型。v1.3.0 有了项目的第一个可部署的长句残差重排器：模型在离线环境中训练，参数转换成确定性的原生代码，运行时只对已经生成的少量候选做一次谨慎复核。v1.4.0 和 v1.5.0 又把类似的思路用到短词上，让输入法参考光标前的文字，判断同一个拼音下更可能是哪一个词。v1.6.0 把模型前移到长句路径搜索，由第二阶段和最终候选模型逐级复核， 并复用中间计算控制延迟；v1.7.0 依据语料训练的词路径转移证据识别四音节输入中的双词组合；v1.8.0 为完整长句增加成对比较、局部差异和最终可见候选的残差复核，并为没有可用前文的短词建立独立排序， 模型证据不足时仍以高置信度的精确匹配为准；v1.9.0 将多种完整路径汇入统一候选池， 再结合语言模型、N-best 共识和残差信号统一复核；v1.10.0 将语料转移证据扩展到三音节 1+2 / 2+1 精确词组合，并为长句首两项加入保守复核；v1.11.0 进一步利用小说、聊天和大规模中文语料训练转移证据， 覆盖 1+2、2+1、2+2、2+3 和 3+2 精确词组合；</p>\n<p class=\"\">现在，v1.12.0 又将语料证据扩展到最细的一格：受控的 1+1 单字组合。</p>\n<p class=\"\">如今，在“长句-16300”基准测试中，Top1 已经从最初 v0.2.0 的 16.39%，提升到了 59.92%。这在理论上意味着，它已经能够应付日常长句输入的大多数场景了。“好用”更进一步——“越来越好用”。</p>\n<p class=\"\">在建立了“长句-16300”基准测试之后，针对我日常习惯的短词输入模式，我觉得也应该有一套对应的基准测试，来评估和衡量后续的改进。Claude Fable 5 发布后，我便借助 Claude Code 让 Fable 5 同样基于《永恒的舞动》，整理出 65000 个二至四字词（排除了人名、机构名等专有名词）及其真实出现的位置，并保留每个词之前已经上屏的前文。由此创建了“短词上下文基准测试-65000”。尤其是，其中包含 11728 条案例的竞争集（同一拼音串对应多个不同候选词的歧义项）是一个极具价值的测试子集——它的 Top1 从 v1.3.0 的 70.99%，提升到了如今的 79.33%。</p>\n<p class=\"\">除了性能与准确率的提升，迭代中还根据用户反馈，增加了双拼（六种方案）和模糊拼音的支持。</p>\n<p class=\"\">回看这大半年，言泉输入法从零起步，逐渐变成了一款“很不错的输入法”。在 Vibe Coding 中，模型能力的升级非常关键。没有 gpt-5.6-sol，延迟这一关或许至今仍卡在原地。但同样关键的，还有这个项目终于有了可靠的度量体系。之前我曾写过 Codex 在性能、长句、短句三者之间来回摇摆，犹如打地鼠。后来我才明白，那种困境的根源在于判断依据的缺失：当一次修改的收益无法被稳定测量，AI 便会不知疲倦地一直改下去，而你无法判断它是在前进还是原地打转，它自己也不知道。</p>\n<p class=\"\">基准测试将结果量化，“这一版是不是真的更好”才不再只是感觉问题。新版本的寻路算法是不是更好，我说了不算，Codex 说了也不算，只有基准测试的数据说了才算。</p>\n<p class=\"\">与 AI 一起做一件需要长期迭代的复杂工程，应该先建立度量，再谈优化。方向是你的，判断依据也必须由你预先设定。</p>\n<p class=\"\">秋天大概是个适合盘点的季节。从去年冬天写下第一行代码至今，言泉输入法已经成了我唯一在用的中文输入法。这句话在<a href=\"https://nicrosoft.net/blog/2317/\">那时</a>还只是一个计划。</p>\n<p class=\"\">官网：<a href=\"https://www.cassotis.org\">https://www.cassotis.org</a> 或者 <a href=\"https://www.yanquan.org\">https://www.yanquan.org</a><br />输入法：<a href=\"https://github.com/shenmin/cassotis-ime\">https://github.com/shenmin/cassotis-ime</a><br />词库：<a href=\"https://github.com/shenmin/cassotis-lexicon\">https://github.com/shenmin/cassotis-lexicon</a></p>",
+    "published": "2026-08-08T08:14:08Z",
+    "feed_title": "农码生涯 无酒无花",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T02:10:06.274526+00:00",
+    "content_length": 4496
+  },
+  {
+    "guid": "07b6e3092d6d2e4d",
+    "title": "BlogsClub 签到助手发布",
+    "link": "https://howiehz.top/archives/blogsclub-check-in-helper",
+    "author": "HowieHz",
+    "content": "<img alt=\"\" height=\"1\" src=\"https://howiehz.top/plugins/feed/assets/telemetry.gif?title=BlogsClub%20%E7%AD%BE%E5%88%B0%E5%8A%A9%E6%89%8B%E5%8F%91%E5%B8%83&amp;url=/archives/blogsclub-check-in-helper\" width=\"1\" />为了避免忘记签到，我开发了 BlogsClub 签到助手。 BlogsClub 签到助手是一个用户脚本，用于后台检查 BlogsClub 每日签到状态，在需要时提醒你，并在你完成 Geetest 验证码后提交签到。 脚本不会自动识别、绕过或代替你完成验证码，验证码必须由你手动完成。 开源地址：How",
+    "published": "2026-08-08T16:05:00Z",
+    "feed_title": "皓子的小站",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T02:10:06.274526+00:00",
+    "content_length": 362
+  },
+  {
+    "guid": "480e2ce318115b83",
+    "title": "Re: Bloggers, can we make better titles for our posts?",
+    "link": "https://taxodium.ink/re-bloggers-can-we-make-better-titles-for-our-posts.html",
+    "author": "",
+    "content": "<div class=\"content e-content\" id=\"content\">\n<header>\n<h1 class=\"title p-name\">Re: Bloggers, can we make better titles for our posts?</h1>\n</header><p>\nMichael Harley 寫了篇 <a href=\"https://michaelharley.net/posts/2026/06/15/bloggers-can-we-make-better-titles-for-our-posts/\">Bloggers, can we make better titles for our posts?</a>，請你先去讀一遍原文吧，在這裡等你，几分鐘後再見 :)\n</p>\n\n<hr />\n\n<p>\n歡迎回來！接下來我想分享一些我的感受。\n</p>\n\n<p>\nMichael Harley 說博客文章應該用描述性標題，讓人一眼就知道是關於什麼的，而不是一些不明所以的標題，例如 「最近的想法&hellip;」，是關於的什麼想法，看不出來；以及他討厭標題黨，例如「他這樣做減掉了這麼多體重&hellip;」之類的標題。\n</p>\n\n<p>\n這我認同，通過標題能大致知道是關於什麼，如果感興趣就點進去看，不感興趣就可以略過。如果標題不明所以，但我又有點好奇，就會糾結要不要點進去看，而當我點進去看了，發現也沒寫什麼嘛，就會有些失望，甚至是生氣。當一個博客的文章大多是這樣的，還大量更新，我就會取消訂閱了。標題黨則是會有一種被欺騙的感覺，標題誘导你點擊，但裡面的內容會讓你後悔花了時間去讀，我也很討厭。\n</p>\n\n<p>\n如果標題是描述性的，但點進去却發現和標題描述的不一樣，也會感到不爽吧；而標題看起來奇奇怪怪，但內容讀著意外的有趣，會不會覺得這樣的標題也还不赖呢？所以我想更重要的是內容，當內容一般，標題也不明所以，才會讓人恼火。我不反對非描述性的標題，如果所有文章的標題都是描述性的，那也太無聊了，類比書名，如果全都是實用類書籍的名字，不會太無趣了嗎？\n</p>\n\n<p>\n不過大多時候，描述性的標題是不錯的選擇。以我自己為例，我之前寫 Zine，標題是 Zine#XX，看名字確實不知道裡面會有什麼。一個原因是裡面包含的東西太多了，讓我怎麼在標題裡寫完 <span style=\"white-space: nowrap;\">_​(:3 」∠)_​</span>。後來我開始嘗試把其中我印象深的，或者希望讀者去看的部分寫在子標題，這方便了我自己回忆每期 Zine 裡都大概寫了些什麼，也可以讓讀者對內容有一個模糊的預期 <small>(也許也能讓讀者更願意點進來看看)</small>。\n</p>\n\n<p>\n說到底，作為作者，博客是你的，你愛怎麼寫就怎麼寫，<a href=\"https://danq.me/2026/07/02/you-dont-have-to-blog-like-me/\">你不必像別人一樣</a>，儘管去寫就好了，寫出你自己的聲音，<a href=\"https://ratfactor.com/cards/personal-website#:~:text=There%20is,saying\">這裡沒有錯誤答案</a>。而作為讀者，如果某些內容或某個作者你不喜歡，你可以不去訂閱或者取消訂閱，看到了也可以忽略掉。\n</p>\n\n<p>\nMichael Harley 的問題在於，\nBubbles 這個博客聚合平台不是他能控制的，會有什麼內容也不是他說了算，我想如果 Bubbles 上能加一個過濾功能，就能解决他的問題了，不想看的博客就過濾掉，也就不會看著心煩。就算 Bubbles 不加這個功能，他也可以用 <a href=\"https://github.com/openstyles/stylus\">openstyles/stylus</a> 或 <a href=\"https://www.tampermonkey.net/\">Tampermonkey</a> 自己實現過濾<small> (如果想在 iOS 上也隱藏，可以用 <i>Custom JS &amp; CSS for Safari</i> 插件)</small>。例如，在 stylus 裡，加上這段樣式就可以隱藏 Bubbles 中的某些博客：\n</p>\n\n<div class=\"org-src-container\">\n<pre class=\"src src-css\"><code><span class=\"org-css-selector\">.entry:has(</span>\n<span class=\"org-css-selector\">  a[title=</span><span class=\"org-string\">\"some.blog.com\"</span><span class=\"org-css-selector\">],</span>\n<span class=\"org-css-selector\">  a[title=</span><span class=\"org-string\">\"some.blog.com\"</span><span class=\"org-css-selector\">],</span>\n<span class=\"org-css-selector\">  a[title=</span><span class=\"org-string\">\"some.blog.com\"</span><span class=\"org-css-selector\">],</span>\n<span class=\"org-css-selector\">  a[title=</span><span class=\"org-string\">\"some.blog.com\"</span><span class=\"org-css-selector\">]</span>\n<span class=\"org-css-selector\">)</span> {\n  <span class=\"org-css-property\">display</span>: none;\n}\n</code></pre>\n</div>\n\n<p>\nMichael Harley 把問題寫出來是件好事，毕竟 <a href=\"https://blog.jim-nielsen.com/2026/blogging-stating-the-obvious/\">對你而言顯而易見的事，對別人來說則未必，所以有人陳述出來是也很好</a>。但不要用自己的標準去要求別人，文末中 Bri 的留言我很認同：\n</p>\n\n<blockquote>\n<p>\n作为博主，你应该鼓励人们创作。而不是通过说 “你应该写更好的文章” 并指出你不喜欢某些类型的文章来打击他们的积极性。如果你不喜欢读，不读就是了。你不喜欢某种类型的文章也没关系。\n</p>\n\n<p>\n<a href=\"https://michaelharley.net/posts/2026/06/15/bloggers-can-we-make-better-titles-for-our-posts/#:~:text=post%2E-,As,post,-%2E\">Source</a>\n</p>\n</blockquote>\n\n<hr />\n\n<p>\nMichael Harley 對「每週筆記」、「本週回顧」、「每週連結」類的文章也不喜歡，他的建議是：\n</p>\n\n<blockquote>\n<p>\n這一點與其說是寫更好的標題，不如說是寫更好的文章。我想很多人把這些文章當作鍛鍊寫作能力的工具。我建議一個更好的工具是那個老掉牙的最愛：寫關於部落格經營的文章，就像我現在正在做的一樣。\n</p>\n\n<p>\n<a href=\"https://michaelharley.net/posts/2026/06/15/bloggers-can-we-make-better-titles-for-our-posts/#:~:text=them%2E-,This,here\">Source</a>\n</p>\n</blockquote>\n\n<blockquote>\n<p>\n如果你想鍛鍊寫作能力並養成習慣，另一個尋找寫作題材的好方法就是回應別人的文章。\n</p>\n\n<p>\n這類型的文章比大雜燴式的文章好得多。\n</p>\n\n<p>\n<a href=\"https://michaelharley.net/posts/2026/06/15/bloggers-can-we-make-better-titles-for-our-posts/#:~:text=%23-,If,posts,-%2E\">Source</a>\n</p>\n</blockquote>\n\n<p>\n大雜燴式的文章我自己也寫了不少，Zine 系列，日常系列都是如此，我訂閱的博客裡也有大量這類文章。這種文章可以大致分成兩類，一類是記录󠄃作者生活的，最近做了什麼、看了什麼、玩了什麼，像是公開的周記；一類是收集連結的，罗列作者最近看到的覺得有趣、有用、有啟發的連結。\n</p>\n\n<p>\n從讀者的角度，這類文章我會快速瀏覧一遍，大部分都是略讀，看到感興趣的我就仔細看看，花不了多少時間。生活類的能讓我看到許多不一樣的生活，讓我感覺作者更像是一個活生生的人，我還挺喜歡的，如果我看厭了，我取消訂閱就是了。而我自己的 Zine 就是連結類的，連結類文章是我的信息來源，我也喜歡。\n</p>\n\n<p>\n從作者的角度，生活類是作者用來記录󠄃自己生活的，記录󠄃自己的生活方便以後回頋，或者給熟悉的朋友了解自己的近況，不是挺好的嗎？至於連結類的文章，從我自己的角度來說，我主要是想做一些分享，那麼多的內容也沒有很好的去处，做成一個連結合集是不錯的選擇，因為：\n</p>\n\n<ul class=\"org-ul\">\n<li>有的感想很短，不適合獨立成一篇文章。</li>\n<li>假如我能每個連結寫成一篇「Re:&hellip;」，一天分享 3 ~ 4 篇，你的 RSS 閱讀器裡就會塞滿了我的文章，這你受得了嗎，反正我受不了。這麼看合集是不是還挺好？</li>\n<li>還有，我也愛寫這樣的連結類文章。</li>\n</ul>\n\n<p>\nRe 類的文章就比大雜繪文章更好嗎？什麼是更好的，每個人都有自己的評判標準，我就覺得 Re 和大雜繪都很好。如果某類文章你不喜歡，不看就好了，如果你覺得某類文章更好，你也可以多去寫。\n</p>\n\n<hr />\n\n<p>\nMichael Harley 的這篇文章是從 Cytrogen 的 <a href=\"https://blog.cytrogen.icu/posts/ea71.html\">RE：Bloggers, can we make better titles for our posts?</a> 裡看到的。\n</p>\n\n<p>\n下面我也回應一些 Cytrogen 文章中的內容，所以可以請你先去讀讀嗎？一會儿見！\n</p>\n\n<p>\n她說 Michael Harley 的文章是她開始寫很多 Re 的原因。\n</p>\n\n<p>\n我也因為 Jake Archibald 的 <a href=\"https://jakearchibald.com/2025/give-footnotes-the-boot/\">Give footnotes the boot</a> 而大改了脚注，但他不喜歡的旁注我還是保留了 <small>(見 <a href=\"https://taxodium.ink/on-give-footnotes-the-boot.html\">关于 \"Give footnotes the boot\" 的思考</a>)</small>；因為 Chlorine 說 <a href=\"https://chlo.is/almanach-25/#:~:text=%E9%97%AE%E9%A2%98%EF%BC%9A-,%E8%AE%B8%E5%A4%9A,%E6%9A%B4%E6%94%BF\">88x31 可能會引起光敏性癫痫</a>，我改了博客的 88x31 按鈕，在 <a href=\"https://taxodium.ink/88x31.html\">88x31 頁面裡加了提醒</a> <small>(本來還用 JS 去靜止 88x31 的，但禁了之後 88x31 就失去特點了)</small>。因為 Lea Verou 的 <a href=\"https://lea.verou.me/blog/2026/dark-mode-toggles/\">Dark mode toggles: two states are enough</a> 我更新了頁面的明暗切換按鈕。\n</p>\n\n<p>\n最近也看到一這作者避免用破折號，因為怕被誤以為文章是生成的，而不是自己寫的。又看到 unstory 的 <a href=\"https://unstory.eu/ihp/\">They love RSS</a>，作者說，很多人在頁要放一個「我愛 RSS」的徽章，但「那些在頁尾放愛心的人，連親手寫一條項目都撐不下去。」或許有的人真就不會親手寫，看了這篇文章後，悄悄把頁面上的 RSS 徽章移除了 <small>(<a href=\"https://danq.me/2026/08/08/they-love-rss/\">DanQ 回複了這篇文章</a>，感興趣也可以看看)</small>。\n</p>\n\n<p>\n我想我們都很容易因為別人的看法而去做出一些改變，但這其中有的是合理的，有的則未必，例如禁用破折號，何必 <a href=\"https://psychotechnology.substack.com/p/em-dashes-are-fucking-amazing#:~:text=%E2%80%9CBut,default\">為一個除了尋找破折號之外沒別的事可做的網路路人寫作</a> 呢？請不要被別人的看法裹挾，這是你的博客，是你的一個自由的小角落，你喜歡怎麼做就怎麼做，自己開心、自在才是最重要的。\n</p>\n\n<hr />\n\n<p>\n「博主们应不应该发表自己讨厌的东西？」\n</p>\n\n<p>\n當然可以寫，博主可以自由表達自己的喜好，只是不要用自己的喜好去要求和干涉別人就好 <small>(我這又何嘗不是一種要求呢)</small>。\n</p>\n\n<p>\nMichael 這篇文章如果是指出描述性標題的优點，并以建議的語氣表遠，我會更喜歡。但我讀下來，總有一種你應該如何如何的感覺，就會有點反感。\n</p>\n\n<p>\n但還是那句，作者可以自由寫，我不喜歡我不看就是了。\n</p>\n\n<hr />\n\n<p>\n「為什麼英文的独立博客经常会出现 Re 类文章，而使用中文的独立博客鲜少看到它们？」\n</p>\n\n<p>\nem&hellip;我也不知道，但我可以說說我為什麼很少寫 Re：\n</p>\n\n<ul class=\"org-ul\">\n<li>我只有很強烈地想回應一篇文章，并且需要用長篇幅去回應，并且可以公開時，我才會寫 Re，如果只是簡短的想法，就會去留言或者 Email，或者就放到 Zine 裡。像是 <a href=\"https://taxodium.ink/56.html\">Zine#56 - 數位園藝</a> 裡我有一些對 <a href=\"https://e89295.com/blog/\">我的部落格</a> 的回應，我覺得就不適合獨立成章，沒必要寫成 Re。</li>\n<li>Zine 裡有的感想也不短，確實可以獨立出來，但都摘出來的話，Zine 看起來就很單薄了，後面也許會考慮一下。摘出來獨立成 Re 也是有好处的，可以更容易通過標題檢索到。</li>\n<li>文章裡提到的情绪色彩也會有一些，如果是一篇反駁對方觀點的 Re，也許讓對方覺得有敵意，最後變成争吵，我不想博客裡有太多這種負能量的文章。</li>\n</ul>\n\n<hr />\n\n<p>\n在 Michael Harley 的文章最後，他還說「閱讀他人的部落格文章時，有哪些令妳/你感到反感的地方？」：\n</p>\n\n\n<details>\n這我可有很多要吐槽的\n\n<p>\n<b>RSS 相關</b>\n</p>\n\n<ul class=\"org-ul\">\n<li>RSS 裡的文章標題，有的只有 URL 而沒有標題；有的連 URL 也沒有，是空的。這要點開看才知道是什麼，而大多數內容也讓我失望。</li>\n\n<li>RSS 的文章時間問題，有的文章時間寫錯了，寫了一個未來的時間，會出現在所有文章的頂部。</li>\n\n<li>RSS 中有的文章是針對別人文章的評論，但在 RSS 中寫的連結不是自己文章，打開原文，就跳到了別人的文章裡去了。</li>\n</ul>\n\n<p>\n以上，如果作者自己看看 RSS 應該都能發現問題。如果博客內容不是很吸引我，我就會取消訂閱了。\n</p>\n\n<ul class=\"org-ul\">\n<li><p>\n更新太頻䌓的，每天發 3 條以上的博客。\n</p>\n\n<p>\n內容我不是特別感興趣的話，在 <a href=\"https://taxodium.ink/elfeed-4-0-0-usage-sharing.html\">Elfeed</a> 裡我可以給這些訂閱流設置上 <code>:no-update t</code> 暂停它們的更新，而不用将它們移除，只有在我想看時才去拉取 <small>(不過很多我都忘了去拉取，久而久之我也會把它們移除)</small>。如果是大多都是信息量很低的，例如就兩三句話、轉發自己 Twitter等，我會取消訂閱。如果經常發說說類的，笔記類的，可以考慮添加一個獨立的 RSS，将長文和笔記分開，讓讀者有選擇。\n</p></li>\n\n<li><p>\n網站裡找不到 RSS 訂閱連結\n</p>\n\n<p>\n關注你的博客有點廢勁呀。\n</p></li>\n</ul>\n\n<p>\n<b>博客相關</b>\n</p>\n\n<ul class=\"org-ul\">\n<li><p>\n打開就放歌的\n</p>\n\n<p>\n「Oh my god，你嚇到我啦。」\n</p></li>\n\n<li><p>\n只有暗色主題，對比度太高，顏色刺眼\n</p>\n\n<p>\n看久了眼睛很不舒服，不過我可以開閱讀模式或用 <a href=\"https://taxodium.ink/share-some-zen-browser-useful-features-boost-and-live-folder.html\">Zen 瀏覧器的 Boost 功能</a> 應付。\n</p></li>\n\n<li><p>\n字體太小\n</p>\n\n<p>\n我可以調大了看。\n</p></li>\n\n<li><p>\n<a href=\"https://taxodium.ink/google-turn-on-javascript-to-keep-searching.html\">不開 JS 看不了的</a>\n</p>\n\n<p>\n我會打開 JS 看一眼，如果內容我不感興趣，以後我就不會再看了。這類網站往往要加載很多資源，有的打開 Network 一看，都快 10M 了，這大小都够打開的的網站 40 多次了 <small>(我現在的首頁沒緩存也才 252 K 哦)</small>。而且運行大量 JS，我年迈的手機受不了這麼大的刺激，會發燙，為了手機和我的手著想，我只能赶紧把網頁關了。如果你真的要加載很大的資源，例如字體，記得 <a href=\"https://taxodium.ink/blog-static-resource-caching-issues.html\">設置好緩存</a>。\n</p></li>\n\n<li><p>\n頁面佈局太雜亂的，內容太䌓雜的\n</p>\n\n<p>\n太多東西會干扰閱讀 <small>(我是不是又要開閱讀模式了？)</small>，有時我都分不清正文了。有的網站內容太䌓雜，我有點不知所措，不知道該看什麼，有點迷失和焦慮，像是打開了一個龐雜的支付應用，我只想點開完成支付，但頁面上元素太多，我要花不少時間才能找到支付功能。\n</p></li>\n\n<li><p>\n用 AI 寫的\n</p>\n\n<p>\n作者不想花時間寫，我也不想花時間看。如果 <a href=\"https://taxodium.ink/about-ai-summary-in-blog.html\">开头有 AI 总结</a> 的，AI 總結的挺好的，看完我覺得就不用看正文了。我不反對作者用 AI 輔助寫作，寫得好我還是會看的，但目前看到的大多數都讓人不想讀下去。\n</p></li>\n</ul>\n</details>\n\n<hr />\n<p>\n說到底，作者有寫的自由，按自己喜歡的方式盡情地寫便是，<a href=\"https://borretti.me/article/i-wish-people-were-more-public\">多寫一點</a>，<a href=\"https://simonwillison.net/2026/Aug/6/simon-willison-on-technical-blogging/#atom-everything:~:text=here%3A-,My,else\">就算有些瑕疵也發出來</a>。讀者也有選擇讀什麼的自由，請去看你喜歡的內容，而那些不喜歡的，就忽略它們吧，沒人強迫你去看，也不用為難自己。\n</p>\n\n<p>\n感謝你把這篇長長的文章讀完，祝你寫作順利，閱讀開心，再見！\n</p>\n</div>\n<hr />\n<p>感谢你的阅读！</p>\n<p>欢迎 <a href=\"mailto:l-yanlei@hotmail.com\">邮件</a> 跟我分享你的想法 :)</p>\n<p>你也可以 <a href=\"https://taxodium.ink/subscribe.html\">訂閱</a> 我的博客，保持更新 :P</p>\n<p>祝好，素未某面的读者。</p>\n<a href=\"https://taxodium.ink/re-bloggers-can-we-make-better-titles-for-our-posts.txt\">純文本版本</a> <a href=\"https://taxodium.ink/re-bloggers-can-we-make-better-titles-for-our-posts.org\">原始 org 文件</a>",
+    "published": "2026-08-08T14:35:00Z",
+    "feed_title": "Taxodium",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T02:10:06.274526+00:00",
+    "content_length": 9412
+  },
+  {
+    "guid": "f71076ec8ae51a4f",
+    "title": "五运六气的顺逆法则与特殊年份",
+    "link": "https://jiangcl.com/4936",
+    "author": "蒙需",
+    "content": "在《五运六气中主客运气的排盘推演》中，我们详细梳理了五运六气的排盘逻辑。作为系列文章的第三篇，本文将深入探讨五 &#8230; <a class=\"more-link\" href=\"https://jiangcl.com/4936\">继续阅读<span class=\"screen-reader-text\">五运六气的顺逆法则与特殊年份</span></a>",
+    "published": "2026-08-09T01:22:00Z",
+    "feed_title": "蒙需",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T02:10:06.274526+00:00",
+    "content_length": 179
+  },
+  {
+    "guid": "0bc22cccf7a0ba5b",
+    "title": "Web 出海之反查网站作者的其他站和 sitemap 游戏监控站",
+    "link": "https://www.ccgxk.com/codeother/837.html",
+    "author": "独元殇",
+    "content": "让 AI 给你写个网页，然后提交给 谷歌 就能挣钱。 当然，没有一句话这么简单，但逻辑也难不到哪里。就是谷歌有人搜什么，你就做什么，就做搜的人多的。。。 至于为什么你在搜索结果页第一名，就按照前人摸索好的 SEO 套路老实干就行了。然后你就有了好多好多用户，然后要么广告位挣钱，要么线上收费开会员挣钱。 国内的互联网生态不是很好，海外非常繁荣，所以出海。这行叫... <a href=\"https://www.ccgxk.com/codeother/837.html\">阅读全文</a>",
+    "published": "2026-08-08T15:54:11Z",
+    "feed_title": "独元殇",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T02:10:06.274526+00:00",
+    "content_length": 243
+  },
+  {
+    "guid": "4183907bf87074cb",
+    "title": "博客评论系统的一些设计",
+    "link": "https://blog.goodboyboy.top/posts/2809720001.html",
+    "author": "",
+    "content": "<h2 id=\"前言\">前言</h2><p>开发接近尾声了，这里展示一下部分设计细节</p><h2 id=\"凭据种类与类型\">凭据种类与类型</h2><p>总共设计有三种凭据，均为JWT凭据</p><h3 id=\"第一方登录凭据\">第一方登录凭据</h3><p>该凭据为评论系统本站使用的登录凭据，用于操作评论系统</p><h3 id=\"登录模式评论凭据\">登录模式评论凭据</h3><p>在登录模式下，第三方网站中的Widget使用</p><h3 id=\"匿名模式评论凭据\">匿名模式评论凭据</h3><p>在匿名模式下，第三方网站中的Widget使用</p><h2 id=\"凭据存储\">凭据存储</h2><p>三种凭据均存储于Cookie中，请求时由浏览器自动提交，并设置<code>__Host-</code>头，禁止子域写入</p><p>其中评论凭据采用CHIPS，以支持第三方Cookie嵌入。</p><h2 id=\"评论提交\">评论提交</h2><p>系统总共有两种模式：匿名模式和登录模式</p><p>这个是匿名模式评论提交时序图</p><pre><code class=\"highlight mermaid\">sequenceDiagram    autonumber    participant U as 用户    participant W as Widget    participant CA as 匿名凭据端点    participant CC as 评论端点    U-&gt;&gt;W: 填写昵称、邮箱、网址    W-&gt;&gt;CA: 请求匿名凭据    CA--&gt;&gt;W: 返回评论凭据    W-&gt;&gt;CC: 携带评论凭据提交评论</code></pre><p>这个是登录模式评论提交时序图</p><pre><code class=\"highlight mermaid\">sequenceDiagram    autonumber    participant U as 用户    participant W as Widget    participant A as 授权页面    participant T as 凭据交换端点    participant C as 评论端点    U-&gt;&gt;W: 填写昵称、邮箱、网址    W-&gt;&gt;A: 附带邮箱参数跳转授权页面    A--&gt;&gt;W: 授权后返回授权码    W-&gt;&gt;T: 使用授权码请求评论凭据    T--&gt;&gt;W: 返回评论凭据    W-&gt;&gt;C: 携带评论凭据提交评论</code></pre><h2 id=\"登录方式\">登录方式</h2><p>总共设计有四种登录方式</p><h3 id=\"邮箱验证码\">邮箱验证码</h3><p>通过邮箱验证码进行无密码登录，未注册情况下自动完成注册。</p><p>一般来说推荐开启登录模式时采用该方式，兼顾安全与便利</p><h3 id=\"Passkey\">Passkey</h3><p>通过通行密钥进行无用户名，无密码登录</p><p>但是需要用户提前去评论系统网站注册Passkey才可用，便利程度与邮箱验证码相比较低，但是安全性最高。</p><h3 id=\"密码\">密码</h3><p>通过邮箱，密码进行登录，便利程度较低，安全性取决于密码复杂度</p><h3 id=\"第三方登录\">第三方登录</h3><p>支持GitHub，Google，OIDC等第三方登录。</p><p>便利程度一般，安全性取决于第三方身份提供商。</p><p>另外如果邮箱已经被注册，则会禁止从未绑定的第三方登录进行登录。</p><p>需要进入评论系统手动绑定对应的第三方账户才可通过第三方登录进行登录。</p><h2 id=\"Captcha支持\">Captcha支持</h2><p>支持市面上常见的CloudFlare Turnstile、Google ReCaptcha、hcaptcha、Cap</p><p>Geetest后续考虑支持</p><h2 id=\"后记\">后记</h2><p>其实系统本身不复杂（迫真），有三到四天的时间全在调整架构，果然让AI从零开始写就喜欢乱搞架构</p><p>目前大部分架构已经确立完毕，现在正边打磨细节，边慢慢处理AI拉的屎。</p>",
+    "published": "2026-08-08T12:34:43Z",
+    "feed_title": "GoodBoyboy 's Blog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T02:10:06.274526+00:00",
+    "content_length": 1851
+  },
+  {
+    "guid": "ca53f3bd31745d23",
+    "title": "GitLab 将删除中国大陆、香港和澳门用户账号：9 月 7 日前请备份迁移",
+    "link": "https://blog.renfei.net/posts/1626402130325676143",
+    "author": "",
+    "content": "GitLab 通知将停止服务中国大陆、香港和澳门地区账号，并计划于 2026 年 9 月 7 日后删除账号。收到邮件后，建议尽快备份代码、项目数据与 CI 配置。",
+    "published": "2026-08-08T23:54:12Z",
+    "feed_title": "任霏博客",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T02:10:06.274526+00:00",
+    "content_length": 81
+  },
+  {
+    "guid": "ebce80430dbe5b02",
+    "title": "一场说走就走的旅行-西安",
+    "link": "https://blog.coook.top/archives/99b03174-a336-42a8-b09a-d4d8f3a1ab7a",
+    "author": "",
+    "content": "人生难得几次冲动，上一次说走就走，还是高中去网吧。 灵机一动 七月底的一个周三，老婆说想请假休息下，要来找我玩。要请一周，这样的话，不如我也请两天假，正好周四周五两天，加上周末就是5天小长假了！ 最开始是想着去苏州周边玩一下，可以开车也方便，不过正好当天看了君在西安的视频，馋了，问了下老婆，她也想去",
+    "published": "2026-08-08T13:51:41Z",
+    "feed_title": "博客： Cook's Blog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T02:10:06.274526+00:00",
+    "content_length": 150
+  },
+  {
+    "guid": "e031d31894740c8a",
+    "title": "注意力",
+    "link": "https://limboy.me/posts/attention",
+    "author": "",
+    "content": "<h3 id=\"注意力构成经验\">注意力构成经验</h3>\n<ul>\n<li>生活本身充满了丰富的细节，但我们真正体验到的，只是其中被注意力照亮的一部分。</li>\n<li>注意力不只是照亮。被光照见的东西不会改变，但被持续注意的事物会生长，会长出层次、纹理和你原先看不见的细节。</li>\n<li>同样的现实，因为关注对象不同，可以形成完全不同的主观世界。调整关注的粒度和角度，可以让熟悉的世界重新变得陌生而丰富。一条走了三年的路，某天你开始留意墙根的植物，它就不再是同一条路了。</li>\n<li>两个人经历「同一件事」，因为注意力的投射不同，记住的可能是两个不同的事件。</li>\n<li>人生并不完全由「发生了什么」构成，也由「我们持续注意什么」构成。</li>\n</ul>\n<h3 id=\"注意力是一种分配\">注意力是一种分配</h3>\n<ul>\n<li>注意力有机会成本：投向一个地方，就意味着无法同时投向另一个地方。</li>\n<li>每一次持续关注，其实都在隐含地回答一个问题：什么值得占据我的生命？</li>\n<li>注意力的分配，暴露的不是我们声称的价值排序，而是实际的。人对自己在乎什么这件事常常判断错误，但注意力的去向不会说谎。</li>\n<li>注意力也是被争夺的。有庞大的产业在研究如何劫持它，而且它们比我们更懂我们的注意力如何运作。不要试图与其抗争，让不值得的东西没有机会进入视野或许才是解决方案。</li>\n</ul>\n<h3 id=\"注意力塑造感知\">注意力塑造感知</h3>\n<ul>\n<li>经常关注什么，就会越来越容易发现什么。焦虑的人更容易注意到危险，感恩的人更容易注意到善意。</li>\n<li>注意力会形成路径依赖，从一次次选择变成一种习惯性的观看方式。</li>\n<li>持续关注也会放大对象。疑心病、关系中的反刍都是同一件事的反面：不是注意得太少，而是注意力像探照灯一样卡在某处不动，把小事照成庞然大物。</li>\n</ul>\n<h3 id=\"注意力的质地\">注意力的质地</h3>\n<ul>\n<li>注意力有质地，不只有方向。同样是注意一个人，可以是审视、评估、防备，也可以是欣赏、好奇、接纳。带着什么样的注意力去注意，和注意什么同样重要。</li>\n<li>被一个人真正注意到，大概是人能给出的最实在的东西之一。</li>\n</ul>\n<h3 id=\"注意力与连接\">注意力与连接</h3>\n<ul>\n<li>分配给自己的注意力过少，就容易忽略身体和情绪发出的信号，渐渐失去与自己的连接。</li>\n<li>分配给住所的注意力过少，就容易忽略熵增的过程，渐渐失去与住所的连接。</li>\n<li>分配给亲密关系的注意力过少，就容易产生罅隙，拉开距离，让亲密关系变得疏远。</li>\n<li>分配给手上的事情的注意力过少，就容易停留在「完成了」，而不会变成「更好了」。</li>\n</ul>\n<h3 id=\"注意力是可训练的\">注意力是可训练的</h3>\n<ul>\n<li>训练不等于把它拧紧，发呆、走神、无所事事也有自己的功能。</li>\n<li>能把游移的注意力一次次自主地拉回来，这个动作本身可能比意志力更接近意志力的本质。</li>\n<li>知道什么值得自己的注意，和有能力真的把注意力放回那里，中间隔着一段没有捷径的距离。这段距离本身，大概就是修行。</li>\n</ul>",
+    "published": "2026-08-08T00:00:00Z",
+    "feed_title": "limboy's HQ",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T02:10:06.274526+00:00",
+    "content_length": 1417
+  },
+  {
+    "guid": "bd2e3f07ecc9d2ed",
+    "title": "价值观",
+    "link": "https://limboy.me/posts/values",
+    "author": "",
+    "content": "<ul>\n<li>价值观像内裤，要有，但不用见人就展示。</li>\n<li>价值观，本质上是在回答「什么值得」：什么值得追求，什么值得牺牲，什么值得承受，什么不值得交换。</li>\n<li>目标回答「我想得到什么」，价值观回答「为什么这值得我去得到」。</li>\n<li>价值观的重点在排序，不在列举。说「我重视家庭也重视事业」等于什么都没说，只有在必须损失一个的时候，选择才是价值观。清单免费，排序昂贵。</li>\n<li>价值观的功能不是「正确」，是省事，让某些选项不再进入计算。</li>\n<li>没有探究过自己的价值观，就会自动套用社会尊崇的那套。默认值不一定错，但对你不一定对。就怕它失效时你不会换，只会怪自己不够努力。</li>\n<li>嫉妒比成就感诚实。你嫉妒谁、嫉妒他哪一点，几乎无法自欺。</li>\n<li>环境的力量大于反思。长期和什么人待在一起，对你的塑造超过你想清楚的一切。</li>\n<li>只有付出代价时，价值观才被测量，不要代价的价值观是偏好。你说你诚实，如果诚实让你亏钱的时候还能不能选择诚实。</li>\n<li>一个人声称自己重视什么，并不一定等于他真正重视什么。相比语言，更值得观察的是：时间花在哪里，钱花在哪里，注意力流向哪里，关键时刻如何选择。</li>\n<li>可以通过做事之后的反馈反推自己的价值观：什么事情很累却觉得值得，什么成功得到了却觉得空虚，什么东西失去以后才发现不能接受。</li>\n</ul>",
+    "published": "2026-08-08T00:00:00Z",
+    "feed_title": "limboy's HQ",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T02:10:06.274526+00:00",
+    "content_length": 624
   }
 ]
