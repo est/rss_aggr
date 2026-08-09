@@ -9761,30 +9761,6 @@
     "content_length": 22
   },
   {
-    "guid": "af4270393a09b302",
-    "title": "一份指令，三个智能体——给 AI 管记忆的第三课",
-    "link": "https://www.fengcan.net/one-config-three-agents/",
-    "author": "创见思考",
-    "content": "<p>前两篇记了两个教训：<a href=\"https://www.fengcan.net/ai-memory-one-source-of-truth/\">一条铁律</a>——给 AI 配的长期记忆只能有一份真相源，不能分散在几个地方各记各的；<a href=\"https://www.fengcan.net/ai-memory-sole-writer/\">一条规矩</a>——记忆只能由一家 AI 写入，别的几家只读，要添东西先投到收件箱等归并。</p>\n<p>这第三课更琐碎一些，不关记忆，关指令本身。</p>\n<p>我现在同时用三个 AI 编程工具。一个是主力，干活最多；另外两个各有长处，轮班上场。三个工具都需要一份指令文件告诉它：我是谁、我偏好什么、哪些事该做哪些事别碰。</p>\n<p>最早的做法很直觉：给每家手写一份，大意差不多，但各有些针对工具特性的小差异。写完那天，三家的行为高度一致，令人短暂地以为&#8221;问题已解决&#8221;。</p>\n<p>一周后就不对了。</p>\n<p>原因很具体：我改了主力工具的指令——加了一条行为规则，删了一条过时的约定——改完顺手就继续用了。另外两家的文件还停在旧版本上。又过几天，某个工具的做法让我觉得别扭，查了半天才发现它在忠实执行我两周前已经删掉的规矩。</p>\n<p>它没有错。制造混乱的人是我。</p>\n<p>用软件工程的话说，这叫&#8221;配置漂移&#8221;——同一套规则有三份拷贝，改了一份忘了另外两份，时间一长就各说各话。做过运维的人都知道，三台服务器的配置一旦漂移开来，bug 会从你想不到的角落冒出来。</p>\n<p>后来收敛出的办法不复杂，甚至有点笨：只维护一份指令原件，放在一个固定的地方；写一个同步脚本，每次改完原件跑一遍，由脚本自动生成三个工具各自需要的入口文件。入口文件不许手改——改了也白改，下次同步一律覆盖。</p>\n<p>核心约束只一条：<strong>人只改原件，不碰生成物。</strong></p>\n<p>听着像常识。实际操作起来，随手改某个工具的入口文件比去找原件、改原件、跑脚本要快得多，每一次省事的冲动都在邀请你绕过流程。而每一次绕过，都在制造下一次漂移。</p>\n<p>记忆那边的纪律亦是同理。三家工具都能读我积攒的笔记——关于偏好、工作习惯、过往决策的几百个文件——但只有一家有权直接写入。另外两家发现值得长期记住的东西，只能写一条候选投到收件箱，由主力工具定期归并。限制写入权限，并非不信任那两家。两个写入者同时改一份文件的后果，比延迟归并几小时要严重得多——这一点<a href=\"https://www.fengcan.net/ai-memory-sole-writer/\">上一篇</a>已经吃过亏了。</p>\n<p>三课攒下来，隐约有一条线串在里面：跑偏的根源，每一次都不在工具身上。AI 不会自己决定去哪里找真相——你给它哪份指令，它照办；AI 也不会自己决定谁有权写记忆——你的流程决定的。出问题的那个环节，从头到尾是操作者本人：改了一处忘了另外两处的是你，嫌跑脚本麻烦直接手改的也是你。</p>\n<p>工具越听话，操作者的纪律就越是那个真正的瓶颈。</p>\n\n<p><a href=\"https://www.fengcan.net/one-config-three-agents/\">Source</a></p>",
-    "published": "2026-07-26T03:18:59Z",
-    "feed_title": "创见思考",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-26T03:33:41.904908+00:00",
-    "content_length": 1424
-  },
-  {
-    "guid": "380b8cd9a04485ed",
-    "title": "#1524",
-    "link": "https://ramble.imzh.me/1524/",
-    "author": "me@imzh.me (John Zhang)",
-    "content": "<p>周末在家睡了两天，感觉人都变臭了。</p>",
-    "published": "2026-07-26T06:02:17Z",
-    "feed_title": "JZ's Rambles",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-26T08:35:57.398659+00:00",
-    "content_length": 24
-  },
-  {
     "guid": "5ab0c44b9e4f53ce",
     "title": "02-GitHubPages的使用",
     "link": "https://blog.share888.top/note/efficiency/gitHub/02-GitHubPages的使用.html",
@@ -9819,30 +9795,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-26T19:21:25.162977+00:00",
     "content_length": 120
-  },
-  {
-    "guid": "3f07d956f0c75c60",
-    "title": "最近惦念 20260716",
-    "link": "https://z.arlmy.me/posts/TILs/thoughts/20260716_Recently/",
-    "author": "素生",
-    "content": "<p>一种生物最难搞清的就是自己</p><p>越想发展和定义智能，就越需要知道人类到底是什么</p><p>还是得做项目大家才能进步</p><ul><li><p>给定空间，给定定义，协作，然后四散</p></li><li><p>在项目里学习，利用各自的所学，解决，满意，然后离开</p></li></ul><p>游牧地活着</p><ul><li><p>把一切不归属自己，在自己之外的决策系统，全部去除，回到自我，守住自我，外在的一切，都试着以自己是采集者、游牧者、狩猎者的身份来获取，而不是被统御，游牧民族总要与农耕打仗，这也是原因之一，一个想收编和占有，一个只能应对和冲突，游牧（采集同理）是生命的本来样貌，任意而行，欲望、忙碌或奔波都有其节律，而不是没有尽头</p></li><li><p>重建一种心态，素生的定义，可以再向前一步了</p></li><li><p>甚至不需要进入“熵”的叙事，终点也不曾存在</p></li><li><p>如何能在继承的人类式的现实中，找到一种游牧的自我生存的方法？因为哪怕回到退守到农耕，也一样的劳累，因为退守到游牧已经几乎不可能了</p></li></ul><p>感觉自己的个人时间都被系统消耗和吞噬掉了（无意识之奴）</p><p>增加现实入侵“我”的阻力和摩擦，降低“我”的反馈敏感度和反馈周期，将其风险降低至我可以泰然处之的程度</p><ul><li><p>主动与外部世界之间建立一套阻尼体系（Damper），把人造系统导致的波动，减弱至个人生活中微小、可控的程度</p></li><li><p>游牧降低的是非人造的波动和风险（地震、火灾等，早期人类不可避免的）</p></li></ul><p>这是我的人生，没法给你你想要的答案，但我的人生对我爱的人永远开放</p><p>当一切的外部逻辑都不存在，组织、规则，尤其国家，自己应该如何生活，如何过完一生，是最重要的课题</p><p>立即上路的勇气</p><p>经验，靠时间，靠波动，靠反馈，靠真金白银，而什么是经验，我又不知道了</p><p>陌生的花再次盛开</p><p>人迷恋的只是自己</p><hr /><p>CHANGELOG</p><ul><li>20260716 Arlmy 创建</li><li>20260726 Arlmy 发布</li></ul>",
-    "published": "2026-07-26T04:10:27Z",
-    "feed_title": "素生",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-26T19:21:25.162977+00:00",
-    "content_length": 977
-  },
-  {
-    "guid": "c693d1c94ede07a5",
-    "title": "Toots 429 2026 Jul.19 - Jul.25",
-    "link": "https://z.arlmy.me/posts/MastodonArchives/2026/MastodonTootsArchives_20260725/",
-    "author": "素生",
-    "content": "<h2 id=\"Jul-19\" tabindex=\"-1\">Jul.19</h2><ul><li>芦笋，多年生，第二年开始抽新茎；莴笋，一年生，秋冬种下春夏采摘，第二年抽薹开花。</li><li>巴菲特摔断了一次腿，一下子就老得好明显</li><li>原来音乐是可以降温的</li><li>每个店都是一个空间结界啊，重点是定义一种在这个范围内的指标，完全不同的参照系，这似乎就是真实世界里的异世界呢。</li><li>“强制性的高分红机制，相当于抽干了管理层手中可供挥霍的闲钱，倒逼他们在做资本开支和并购时必须极其严谨。”</li></ul><h2 id=\"Jul-20\" tabindex=\"-1\">Jul.20</h2><ul><li>AI并不加速，而只会导致更多的拥堵</li><li>kimi 13日就已经开始收缩token的使用了，我的龙虾那天down掉，今天才抽时间修好</li><li>经验，靠时间，靠波动，靠反馈，靠真金白银</li><li>今天又是教科书般的一天</li><li>比看球刺激</li></ul><h2 id=\"Jul-21\" tabindex=\"-1\">Jul.21</h2><ul><li>原来是汪汪队救了我，感恩</li><li>零食有鸣竟然是成都本地的</li><li>认知以外的果然都赔回去了，今年刚好清零</li><li>国家真的很像一种无意识概念，在阎汁排的镜头里，我们想象苏联，一样摸不到确定的感觉，只有一些故事，只有一些碎片</li><li>如果只是一个概念，为何要去怀念它，追忆它</li><li>国家只是个记账本，没得灵魂</li><li>丝滑不是好事</li></ul><h2 id=\"Jul-22\" tabindex=\"-1\">Jul.22</h2><ul><li><a href=\"https://www.youtube.com/watch?v=olmRW_91rHw\">CNBC’s Interview with Warren Buffett July 15th 2026 (1080p HD) - YouTube</a></li><li>老巴说重资产投入的互联网行业在变成传统行业，我又悟了</li><li>“投资就是要想出好的策略”</li><li>开始认为股票市场确实很适合用于学习和验证，100块也能启动</li></ul><h2 id=\"Jul-23\" tabindex=\"-1\">Jul.23</h2><ul><li>“大概二十年前，我在管理上最崇拜的是杰克·韦尔奇（ GE 的前 CEO）。现在来看，他说的大部分东西可能都已经不对了，但是他有一点说对了：一个公司最重要的是愿景。愿景不是挂在墙上的标语，<strong>不是怎么说，而是怎么做。</strong>”</li><li>“开源也属于克制的一部分。在定价上，我们也肯定不是以公司收入最高或者利润最高作为出发点的。从短期来讲，价格高一点，收入多一点；但从长期来讲，还真不好说。对我来讲，克制是一种战略。”</li><li>高波动的一天</li><li>感觉llmwiki不适合我</li><li>我等ADHD（瓦老师帮我确诊的）还是积累好素材，等更大的可用工具出现吧</li><li>flomo新出的那种功能也不行，太克制了，不够癫</li><li>怎么免费白用未来的通用算力和过载的运算能力，类似serveless服务那样的，藉此来完成自己的数据整理和归档，对我来说会更经济</li><li>铁路比公路更少养护成本</li></ul><h2 id=\"Jul-24\" tabindex=\"-1\">Jul.24</h2><ul><li><a href=\"https://www.merelkarhof.nl/\">Merel Karhof - Design Studio</a> 风力织围巾</li><li>斯咪拆斯Smichess，啾是山雀，季风来信，雾面象限，十三悬玥，静静meow，浮光纸屿，关于雾，尖角帽，無境，汇总了下买过的手帐摊摊主</li></ul><p>25</p><ul><li>新到市场的泡椒是神</li></ul><hr /><p>CHANGELOG</p><ul><li>20260726 Arlmy 创建、整理</li><li>20260726 Arlmy 发布</li></ul>",
-    "published": "2026-07-26T04:02:27Z",
-    "feed_title": "素生",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-26T19:21:25.162977+00:00",
-    "content_length": 1818
   },
   {
     "guid": "66b7142c67b4d2a6",
@@ -11105,30 +11057,6 @@
     "content_length": 5158
   },
   {
-    "guid": "a6a44bb65a3b6eb6",
-    "title": "Raptor Encounter In Morgan Hill 观摩",
-    "link": "https://leimao.github.io/life/Raptor-Encounter-In-Morgan-Hill-2026-07-26/",
-    "author": "",
-    "content": "2026 年湾区猛禽展示和教育活动",
-    "published": "2026-07-26T07:00:00Z",
-    "feed_title": "Lei Mao's Log Book",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T08:50:13.292149+00:00",
-    "content_length": 17
-  },
-  {
-    "guid": "f758c808246f481d",
-    "title": "Raptor Encounter In Morgan Hill",
-    "link": "https://leimao.github.io/photography/Raptor-Encounter-In-Morgan-Hill-2026-07-26/",
-    "author": "",
-    "content": "Peninsula Open Space Trust Raptor Education In 2026",
-    "published": "2026-07-26T07:00:00Z",
-    "feed_title": "Lei Mao's Log Book",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-29T08:50:13.292149+00:00",
-    "content_length": 51
-  },
-  {
     "guid": "eabcbc7392351d0f",
     "title": "Windows 的 HEVC 扩展收费跟苹果无关",
     "link": "https://yipai.me/post/2543.html",
@@ -11547,18 +11475,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-07-30T08:37:47.755822+00:00",
     "content_length": 159
-  },
-  {
-    "guid": "cb39563641c62310",
-    "title": "韵止 - P27",
-    "link": "https://kekkj123.github.io/posts/suiyuan/20260726/",
-    "author": "",
-    "content": "<blockquote>\n<p><strong><font size=\"5\">随缘手记 —— <em>随心而想，随缘而写</em></font></strong></p>\n<p><font size=\"4\"><strong>Random Essays - <em>Think",
-    "published": "2026-07-26T03:05:00Z",
-    "feed_title": "KEKKJ BLOG",
-    "feed_category": "Blogs",
-    "cached_at": "2026-07-30T08:37:47.755822+00:00",
-    "content_length": 137
   },
   {
     "guid": "b69108cacf974776",
@@ -13215,18 +13131,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-01T19:17:58.134456+00:00",
     "content_length": 721
-  },
-  {
-    "guid": "bdf61cb73fc51507",
-    "title": "入蜀记 day428 好吃的pizza",
-    "link": "https://z.arlmy.me/posts/BBBPandINSW/INSW-ko/INSW_428/",
-    "author": "素生",
-    "content": "<h2 id=\"20260726\" tabindex=\"-1\">20260726</h2><p>周日也全是事情，一直在忙，还好下午就有了起色。</p><p>中午点了pizza，是正月初八去试吃但还没开门的pizza店。</p><p>买的是绿酱味的，但到了发现没有罗勒碎，只是芝士粉和绿酱粉，风味差很多，还好自己有种！哈哈哈，夹了罗勒叶，amazing！味道立刻就立体了，真香！</p><p>真的是火炉烤的，非常快送到，于是味道非常感人，下次要去店里吃，扫二维码加了老板的微信，同时给了好评和吐槽哈哈。</p><p>天还是很热，明天会有台风红霞带来的降雨，非常期待。</p><p>阳台的剩菜都不生虫了，连续的炎热，湿度还低，虫子也失去了生长条件。</p><p>晚上要出门，早早吃了晚饭，煎了牛排，香迷糊了哈哈。</p><p>时隔很久，坐到了一辆司机不开关脚的快车。</p><p>跟司机聊天，不下雨啊，家里的菜都枯死了，辣椒都死了，红薯也没得了，养鱼的亏惨了，他是宜宾的。</p><p>聊着事情，看窗外刮起大风了，要下雨啦！十点多打车返程。</p><p>感觉全成都的人都在等雨，哈哈哈。</p><p>感觉到一种民意的汹涌。</p><hr /><p>CHANGELOG</p><ul><li>20260801 Arlmy 创建、发布</li></ul>",
-    "published": "2026-07-26T04:48:27Z",
-    "feed_title": "素生",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-01T19:17:58.134456+00:00",
-    "content_length": 573
   },
   {
     "guid": "07ed481f8f141b1d",
@@ -16779,5 +16683,53 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-09T02:10:06.274526+00:00",
     "content_length": 624
+  },
+  {
+    "guid": "d18650f296e6e060",
+    "title": "用地标改进 A star 寻路的启发函数",
+    "link": "https://blog.codingnow.com/2026/08/improved_a_star_heuristics.html",
+    "author": "云风",
+    "content": "<p>今天读到 <a href=\"https://www.redblobgames.com/pathfinding/heuristics/differential.html\">redblobgames 写的关于如何改进寻路算法中启发式函数的文章</a> ，感觉很棒。我们可以用很简单的方法改进 A star 算法中的传统计算欧氏距离的方式实现启发函数的方法。</p>\n\n<p>这意味着，可以直接利用<a href=\"https://blog.codingnow.com/2025/05/a_star_pathfinding.html\">之前写好的寻路模块</a> 改变一下启发函数，就可以大幅提升性能。</p>\n\n        <p>A star 寻路算法，本质上是对 Dijkstra 算法的一种改进：即从一个端点扩展节点时不盲目的向外扩展，而是利用一个启发函数优先尝试最可能在最短路径上的邻接节点。启发函数设计的越好，每一步的估计都和正确路径一致，那么就越快。依靠启发函数的结果就能避开所有不必要的节点。</p>\n\n<p>但是，启发函数的复杂度不能太高，最好是 O(1) 的。因为每一步都要调用一次，时间复杂度乘在整个运算过程中。这使得启发函数不能去探测远方的状态。通常我们用当前位置到目标点的直线距离作为启发值，这个值一定小于实际路径距离，这样才能保证按启发值得到的路径一定不会比真实路径更糟糕。但在有墙和复杂迷宫的地图中，它几乎难以起到正确的引导作用。</p>\n\n<p>例如，当起点在一个房间中，目标点在东边，而房间的门在西边。采用这种启发函数，算法一定会向东尝试完几乎所有路径后，才会从西边的门出去。毕竟启发函数感知不到门的位置，房间内部的东侧距离目标点的直线距离一定更近。如果房间是密闭的那就更糟了，算法会尝试完房间内的每个位置才会停下来。</p>\n\n<hr />\n\n<p>有没有什么简单的方法可以改进启发函数，让它可以识别出墙，却不增加时间复杂度呢？最简单的方法是用一个地标。</p>\n\n<p>在现实里，如果一个人要从北京出发去广州某地，他肯定不会从出发点地开始用 A 星算法寻路。而是先去到广州再说，北京到广州的路径是事前就已知的。到了广州再找怎么去特定地点。广州作为一个区域比较抽象，但我们可以预算计算出到广州某距离地点（例如广州塔）的路线图。对于固定目的地，可以用 Dijkstra 算法计算出到地图每个点的最短路径图（ <a href=\"https://blog.codingnow.com/2014/01/routemap.html\">流图</a> ），全部缓存下来。这样从任意点都可以用 O(1) 查询到如何去广州塔的当前移动方向。</p>\n\n<p>当目的地离地标很近且当前位置离目的地很远时（从北京出发，还没进广州），按着去地标点的预设路径走一段肯定没错。直到离目的地比较近了（已经到了广州），就没必要按预设路径（去广州塔）行进了。</p>\n\n<p>问题在于怎么确定离目标点比较近了？还是计算欧氏距离。</p>\n\n<p>假设当前位置是 S（北京某地） ，目标点为 E （广州某地），地标点为 L （广州塔） 。这三个点可以构成一个三角形。因为三角形的任意两条边之和大于等于第三边，所以有 SE + EL >= SL 。也就是说在估价函数中，我们判断 SE 是不是大于等于 SL - EL ，即北京某地到广州某地的直线距离是不是小于等于出发地到广州塔的已知距离减去广州塔到目的地的已知距离。如果是，说明直线距离太短了，不值得按直线方向行进，应该遵循直接计算好的去广州塔的路径行进。反之，直线路径指向的方向可能是更有效的。</p>\n\n<p>再看前面的房间例子：如果起点和东边的目的地之隔着一堵墙，直线距离为 1 ，但实际路径必须先绕向西侧的墙。而如果我们在目的地附近有一个预设的地标，距离目的地路程为 2，而当前位置到地标点的路程为 10 ；那么显然，从当前位置去目的地的最短路程不可能小于 10 - 2  = 8 。因为假设目的地就在去地标点的路径上，那么我们向地标行进，在剩下路程还有 2 的时候，就能抵达终点。这已经是最短路径，如果目的地偏离了这条路径，路程只能更远。</p>\n\n<p>用地标的预设路程，可以更容易的排除目的地不可达的情况：如果我们可以去到地标，而地标到目的地不可达，那么目的地就不可达；同样，如果地标到目的地可达，而我们无法去到地标，目的地也不可达。如果目的地和当前位置都可以抵达地标，路径一定是存在的。只有当前位置和目的地都无法通向地标试，可达性才是未知的。</p>\n\n<hr />\n\n<p>所以，我们在估价函数中，只要利用预算计算好的地标流图，就可以 O(1) 计算出是否可以复用到地标的流图给出预设方向，或是退化成传统以直线方向给出的估价值。</p>\n\n<p>我们还可以多计算几个地标，比较它们哪个更有效：SL - EL  中较小的那个，决定采用到哪个地标的预设路径。地标可以是提前计算的，也可以是在多次寻路中生成的。可以想象成，如果我们没有去过广州，那么就先以一个离广州比较近的去过的地标，比如深圳为地标导引路径，一旦抵达目的地，就把新的这个目的地广州为地标记录下来，方便后续的寻路。</p>",
+    "published": "2026-08-09T01:17:32Z",
+    "feed_title": "云风的 BLOG",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T07:05:46.331210+00:00",
+    "content_length": 2175
+  },
+  {
+    "guid": "781cebde9606b0cf",
+    "title": "OPPO 快游戏在浏览器复现运行（七）之远程资源离线化",
+    "link": "https://www.liesauer.net/blog/post/1040.html",
+    "author": "LiesAuer",
+    "content": "<div class=\"md_content\" id=\"md_content_1\"><textarea id=\"append-test\" style=\"display: none;\">**完全的离线化仅适用于走快游戏 API 的资源，部分资源是直接通过 `img` 标签或者其他方式加载的（最终会 fallback 到 XHR）还是会到本地服务器发起请求。`web.sdk.js` 不对此类资源做特殊拦截处理，做离线化的本意是解决版本更新后在线资源的失效问题，对快游戏做 web 移植本身就需要一个静态服务器托管，所以这个并不算大问题。如果需要完完全全的离线化，可自行对游戏逻辑做魔改拦截。**\n\n针对使用 Cocos Creator 框架制作的游戏，在 `_CCSettings` 中一般能看到以下字段：`remoteBundles`、`bundleVers`，`remoteBundles`是远程 Bundle 列表，`bundleVers`是所有 Bundle 列表，比如：\n<!--more-->\n```js\nwindow._CCSettings = {\n    remoteBundles: [\"resources\"],\n    bundleVers: {\n        internal:\"b3cad\",\n        b0:\"10607\",\n        b1:\"f37a4\",\n        data:\"5bf88\",\n        resources:\"011ae\",\n        main:\"c0c83\"\n    }\n};\n```\n\n远程 Bundle 可能会依赖其他 Bundle，为了远程 Bundle 能顺利的加载，需要先通过 `loadBundle` 拿到 Bundle 配置中的 `deps`，统计完整依赖链，再按依赖顺序逐个加载。\n\n```js\nasync function loadCCBundle(names, unload = false) {\n    names = Array.isArray(names) ? names : [names];\n\n    const bundles = Object.create(null);\n    const visited = Object.create(null);\n    const visiting = Object.create(null);\n    const order = [];\n\n    function unloadBundle(name) {\n        const bundle = cc.assetManager.getBundle(name);\n\n        if (bundle) {\n            bundle.releaseAll();\n            cc.assetManager.removeBundle(bundle);\n        }\n    }\n\n    function loadBundle(name) {\n        return new Promise(function (resolve, reject) {\n            if (unload) {\n                unloadBundle(name);\n            }\n\n            const exists = cc.assetManager.getBundle(name);\n\n            if (exists) {\n                resolve(exists);\n                return;\n            }\n\n            cc.assetManager.loadBundle(name, function (err, bundle) {\n                if (err) {\n                    reject(err);\n                    return;\n                }\n\n                resolve(bundle);\n            });\n        });\n    }\n\n    function loadDir(bundle) {\n        return new Promise(function (resolve, reject) {\n            window.qg.consolelog('loadDir start: ' + bundle.name);\n\n            bundle.loadDir('', function (err) {\n                if (err) {\n                    reject(err);\n                    return;\n                }\n\n                window.qg.consolelog(bundle.name + ' resources loaded');\n                resolve(bundle);\n            });\n        });\n    }\n\n    async function visit(name, stack) {\n        if (visited[name]) {\n            return;\n        }\n\n        if (visiting[name]) {\n            throw new Error('Circular bundle deps: ' + stack['concat'](name).join(' -> '));\n        }\n\n        visiting[name] = true;\n\n        const bundle = await loadBundle(name);\n        const deps = bundle.deps || [];\n\n        bundles[name] = bundle;\n        window.qg.consolelog('bundle deps: ' + name + ' -> ' + JSON.stringify(deps));\n\n        for (let i = 0; i < deps.length; i++) {\n            await visit(deps[i], stack['concat'](name));\n        }\n\n        visiting[name] = false;\n        visited[name] = true;\n        order.push(name);\n    }\n\n    try {\n        for (let i = 0; i < names.length; i++) {\n            await visit(names[i], []);\n        }\n\n        window.qg.consolelog('bundle load order: ' + order.join(' -> '));\n\n        for (let i = 0; i < order.length; i++) {\n            const name = order[i];\n            const bundle = bundles[name] || await loadBundle(name);\n\n            await loadDir(bundle);\n        }\n\n        window.qg.consolelog('all bundle resources loaded');\n    } catch (err) {\n        window.qg.consoleerror(err);\n    }\n}\n\n// 然后就可以正式下载远程 Bundle 了\nloadCCBundle(window._CCSettings.remoteBundles);\n```\n\n此时应该可以看到控制台已经在疯狂下载资源了，但还不够，因为我们需要将这些资源保存放到本地，以便后续离线化加载。\n\n这时候就到了 `remote-cache` 上场了，它本质上就是一个转发保存程序，收到请求后，重定向到真正的远程资源，并将资源原样返回的同时将资源保存到本地。\n\n修改 `_CCSettings` 中的 `server` 字段：\n\n```js\nwindow._CCSettings = {\n    server: `http://127.0.0.1:9999/${originServer}`,\n};\n```\n\n然后再次尝试 `loadCCBundle`，当所有远程 Bundle 都进行 `loadCCBundle`之后，就可以对 `_CCSettings` 中的 `server` 字段做一个小调整，将远程资源改成本地资源：\n\n```js\nwindow._CCSettings = {\n    server: `/https.xxx.com/xxxxxxxxxx`,\n};\n```\n\n此时游戏已经完成远程资源的本地化了。\n\n某些游戏是运行时通过 JS 动态加载的，此类逻辑没法提前预加载，只能通过人工的方式去到对应的场景下触发下载，做这类逻辑的游戏一般都比较捞。</textarea></div>",
+    "published": "2026-08-09T06:21:00Z",
+    "feed_title": "LiesAuer's Blog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T07:05:46.331210+00:00",
+    "content_length": 4108
+  },
+  {
+    "guid": "31f3fa289445a328",
+    "title": "OPPO 快游戏在浏览器复现运行（六）之触摸适配",
+    "link": "https://www.liesauer.net/blog/post/1039.html",
+    "author": "LiesAuer",
+    "content": "<div class=\"md_content\" id=\"md_content_3\"><textarea id=\"append-test\" style=\"display: none;\">一部分游戏会将游戏内的UI交互逻辑直接写死 `touch` 系列事件，导致在电脑上运行的话，鼠标点击完全没反应，因此需要将鼠标事件映射转发成触摸事件，这个问题可以使用 [touch-emulator.js](https://github.com/hammerjs/touchemulator \"touch-emulator.js\") 很好的解决，这个库就是专门做这件事。\n\n至于多点触控（左右手操控）、WASD 转轮盘、按键转技能，这块后面再说，这是大工程。</textarea></div>",
+    "published": "2026-08-09T04:51:00Z",
+    "feed_title": "LiesAuer's Blog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T07:05:46.331210+00:00",
+    "content_length": 338
+  },
+  {
+    "guid": "781229d82bb6b592",
+    "title": "OPPO 快游戏在浏览器复现运行（五）之竖屏适配",
+    "link": "https://www.liesauer.net/blog/post/1038.html",
+    "author": "LiesAuer",
+    "content": "<div class=\"md_content\" id=\"md_content_5\"><textarea id=\"append-test\" style=\"display: none;\">大部分竖屏快游戏都很少有兼顾宽屏分辨率的情况，Laya 游戏会有一个自动横屏的机制，会将整个画面横向显示，而像 CC 游戏，基本都是 UI 位置大小严重失调，要么导致某些区域点不了，要么导致 UI 飞出屏幕外，根本看不到点不着。针对这两个常见的游戏框架做了一个竖屏适配修复，可以用修复代码在启动阶段将游戏画面按设定好的比例强制自适配调整。推荐比例：`9:16`、`10:16`、`9:20`。\n<!--more-->\n```js\nfixPortrait() {\n    if (window.cc) {\n        _fixCCPortrait();\n    } else if (Laya) {\n        _fixLayaPortrait();\n    }\n}\n\n_fixLayaPortrait() {\n    if (!Laya) return;\n\n    const bestRatio = window.sdkConfig?.bestRatio;\n    let maxRatio = 9 / 20;\n\n    if (bestRatio) {\n        const [w, h] = bestRatio.split(':').map(Number);\n        maxRatio = w / h;\n    }\n\n    Laya._stage = Laya.stage;\n\n    Object.defineProperty(Laya, 'stage', {\n        set: function(val) {\n            Laya._stage = val;\n\n            const setScreenSize = val.setScreenSize;\n\n            let _rawWidth = 0;\n            let _rawHeight = 0;\n\n            val.setScreenSize = function(width, height) {\n                const pixelRatio = Laya.Browser.pixelRatio;\n                let rawWidth = width / pixelRatio;\n                let rawHeight = height / pixelRatio;\n\n                if (rawWidth / rawHeight > maxRatio) {\n                    rawWidth = rawHeight * maxRatio;\n\n                    width = rawWidth * pixelRatio;\n                    height = rawHeight * pixelRatio;\n                }\n\n                _rawWidth = rawWidth;\n                _rawHeight = rawHeight;\n\n                setScreenSize.apply(val, [width, height]);\n            };\n\n            const identity = val._canvasTransform.identity;\n\n            val._canvasTransform.identity = function(...args) {\n                identity.apply(val._canvasTransform, args);\n                val._canvasTransform.tx = (Laya.Browser.clientWidth - _rawWidth) / 2;\n\n                return val._canvasTransform;\n            };\n\n            const scale = val._canvasTransform.scale;\n\n            val._canvasTransform.scale = function(...args) {\n                scale.apply(val._canvasTransform, args);\n                val._canvasTransform.tx = (Laya.Browser.clientWidth - _rawWidth) / 2;\n\n                return val._canvasTransform;\n            };\n        },\n        get: function() {\n            return Laya._stage;\n        },\n        configurable: true,\n        enumerable: true,\n    });\n}\n\n_fixCCPortrait() {\n    const cc = window.cc;\n    const view = cc?.view;\n    const canvas = cc?.game?.canvas;\n\n    if (!view || !canvas) return;\n\n    const bestRatio = window.sdkConfig?.bestRatio;\n    let maxRatio = 9 / 20;\n\n    if (bestRatio) {\n        const [w, h] = bestRatio.split(':').map(Number);\n        maxRatio = w / h;\n    }\n\n    const getViewport = (width?: number, height?: number) => {\n        const viewportWidth = width || window.innerWidth || document.documentElement.clientWidth;\n        const viewportHeight = height || window.innerHeight || document.documentElement.clientHeight;\n\n        return {\n            width: Math.max(1, viewportWidth),\n            height: Math.max(1, viewportHeight),\n        };\n    };\n\n    const applyViewportStyle = (viewportWidth?: number, viewportHeight?: number) => {\n        const viewport = getViewport(viewportWidth, viewportHeight);\n        const width = Math.min(viewport.width, viewport.height * maxRatio);\n        const height = viewport.height;\n\n        if (view._frameSize) {\n            view._frameSize.width = width;\n            view._frameSize.height = height;\n        }\n\n        if (canvas.style) {\n            canvas.style.position = \"fixed\";\n            canvas.style.left = `${Math.round((viewport.width - width) / 2)}px`;\n            canvas.style.top = \"0px\";\n            canvas.style.width = `${Math.round(width)}px`;\n            canvas.style.height = `${Math.round(height)}px`;\n            canvas.style.margin = \"0px\";\n        }\n    };\n\n    const initFrameSize = view._initFrameSize;\n    view._initFrameSize = function() {\n        initFrameSize.apply(this, arguments);\n        applyViewportStyle();\n    };\n\n    const setDesignResolutionSize = view.setDesignResolutionSize;\n    view.setDesignResolutionSize = function() {\n        const result = setDesignResolutionSize.apply(this, arguments);\n        applyViewportStyle();\n        return result;\n    };\n\n    const setCanvasSize = view.setCanvasSize;\n    if (typeof setCanvasSize === \"function\") {\n        view.setCanvasSize = function(width: number, height: number) {\n            const viewport = getViewport(width, height);\n            const result = setCanvasSize.call(this, viewport.width, viewport.height);\n            applyViewportStyle(viewport.width, viewport.height);\n            return result;\n        };\n    }\n\n    const refreshResolution = () => {\n        applyViewportStyle();\n\n        const resolution = view._originalDesignResolutionSize || view._designResolutionSize;\n        if (!resolution || resolution.width <= 0 || resolution.height <= 0) return;\n\n        view.setDesignResolutionSize(\n            resolution.width,\n            resolution.height,\n            view._resolutionPolicy,\n        );\n    };\n\n    window.addEventListener(\"resize\", refreshResolution);\n    window.addEventListener(\"orientationchange\", refreshResolution);\n    this.onWindowResize(refreshResolution);\n\n    if (typeof view._resizeEvent === \"function\") {\n        view._resizeEvent(true);\n    } else {\n        refreshResolution();\n    }\n}\n```</textarea></div>",
+    "published": "2026-08-09T04:41:35Z",
+    "feed_title": "LiesAuer's Blog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-09T07:05:46.331210+00:00",
+    "content_length": 5389
   }
 ]
