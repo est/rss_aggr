@@ -9869,18 +9869,6 @@
     "content_length": 243
   },
   {
-    "guid": "93ead2fb60190c68",
-    "title": "甲骨文Oracle ARM VPS Ubuntu系统 用非root用户 不用 sudo -i 安装omniroute by Hermes 对接 tencent/hy3:free",
-    "link": "https://zelikk.blogspot.com/2026/08/omniroute-hermes-agent-oracle-arm-ubuntu-root-sudo-.html",
-    "author": "noreply@blogger.com (ǝɔɐǝԀʎzɐɹƆ)",
-    "content": "<p style=\"text-align: left;\">原来还准备写命令行执行什么, 遇到什么问题怎么解决, 等等</p><p style=\"text-align: left;\">后来我想, 时代变了. 应该让Agent来帮我安装.</p><p style=\"text-align: left;\">如果你已经有安装好 Agent 的环境, 你只要把准备安装omniroute的 SSH 用户名和密码告诉 TA 就行了. 怎么使唤Agent 可以滚动到下面部分看.</p><p style=\"text-align: left;\"><br /></p><p style=\"text-align: left;\">这里 我演示一下如果是 新手从0开始安装Hermes</p><p style=\"text-align: left;\"><br /></p><h3 style=\"text-align: left;\">安装 Hermes</h3><p style=\"text-align: left;\"></p><blockquote>curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash</blockquote><p></p><p style=\"text-align: left;\">就选默认第一项</p><p style=\"text-align: left;\"></p><div class=\"separator\" style=\"clear: both; text-align: center;\"><a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEhzdGdQqsLO7WUT26mycpHI0V2YMNEfz9fMZlJS87ELonEauGUGCTNYlgfNhKXHcm8BVTUlAP39GbjuprOH5mMGOH57q5bBdaftgAb410WTo8MK9WQQzlm8foCJb2DolPCGuP3KfjUYG0Cgc9DgGnmnmyt4x_W_e8Y4POODp3oqwBZi-4BqgtjJdAiNJ2k\" style=\"margin-left: 1em; margin-right: 1em;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEhzdGdQqsLO7WUT26mycpHI0V2YMNEfz9fMZlJS87ELonEauGUGCTNYlgfNhKXHcm8BVTUlAP39GbjuprOH5mMGOH57q5bBdaftgAb410WTo8MK9WQQzlm8foCJb2DolPCGuP3KfjUYG0Cgc9DgGnmnmyt4x_W_e8Y4POODp3oqwBZi-4BqgtjJdAiNJ2k=s1600\" /></a></div><br />根据提示, 把框起来的部分, 用浏览器打开<p></p><p style=\"text-align: left;\"></p><div class=\"separator\" style=\"clear: both; text-align: center;\"><a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEid0U0yENs2OYlKEjydXWdwyZiuW6XbJ-uwAr_YGUPhUC0jOafN_99b-PtoaobAGbwxQIrwg66ygSEeeR92qTDfqKOZrR076lfiiHJUS4bhmHZmhgqNUth-xYgUXvZOU7LshvHVvgtIHDv2f4uaA3r9Df6FVC4g11CNurwnjqlPHOi9gcUUsYju0QU8nOY\" style=\"margin-left: 1em; margin-right: 1em;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEid0U0yENs2OYlKEjydXWdwyZiuW6XbJ-uwAr_YGUPhUC0jOafN_99b-PtoaobAGbwxQIrwg66ygSEeeR92qTDfqKOZrR076lfiiHJUS4bhmHZmhgqNUth-xYgUXvZOU7LshvHVvgtIHDv2f4uaA3r9Df6FVC4g11CNurwnjqlPHOi9gcUUsYju0QU8nOY=s1600\" /></a></div><br />会提示你注册账号, 绑信用卡, ...<p></p><p style=\"text-align: left;\">最后, 点 connect 按钮</p><p style=\"text-align: left;\"></p><div class=\"separator\" style=\"clear: both; text-align: center;\"><a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEhsbprqatD_Rw8Kz7jg6tQ4LGlg6zql2rA78vKvyHn_vrUh0tOD59UnYTMMgB7rWincrKlNV8wD1Dc4dKMQ1F2bWeNJ3GTxygdfCOt3WzaSLQnFO1kSLsA9wUTowZ3j0G0om62Tr0aUlF79Z90OY5OQsNxQe-P0sJ3BMEMauA3woCIKY_VGFQav1imUFsM\" style=\"margin-left: 1em; margin-right: 1em;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEhsbprqatD_Rw8Kz7jg6tQ4LGlg6zql2rA78vKvyHn_vrUh0tOD59UnYTMMgB7rWincrKlNV8wD1Dc4dKMQ1F2bWeNJ3GTxygdfCOt3WzaSLQnFO1kSLsA9wUTowZ3j0G0om62Tr0aUlF79Z90OY5OQsNxQe-P0sJ3BMEMauA3woCIKY_VGFQav1imUFsM=s1600\" /></a></div><br />这时, 命令行会继续运行, 提示你选择模型<p></p><p style=\"text-align: left;\">你可以选免费的 tencent/hy3:free</p><p style=\"text-align: left;\"></p><div class=\"separator\" style=\"clear: both; text-align: center;\"><a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEjhl5EPbeKP9BXUg4eUlka06J2jWfVE1z1mCvviWQNrl68rnnNP1M4QbDstsixY_avW6k_XA1G-aosVrmo_Q-n8TCLbYm5seyjV9I-PXMYTTGjwa3SP6rRvLWghjyrbIGkyO6EC6SaPk91UyiGl1uiGqHLa3_1ZAgrECUXeqR2-N0PrDGEADwrvh6dOUiY\" style=\"margin-left: 1em; margin-right: 1em;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEjhl5EPbeKP9BXUg4eUlka06J2jWfVE1z1mCvviWQNrl68rnnNP1M4QbDstsixY_avW6k_XA1G-aosVrmo_Q-n8TCLbYm5seyjV9I-PXMYTTGjwa3SP6rRvLWghjyrbIGkyO6EC6SaPk91UyiGl1uiGqHLa3_1ZAgrECUXeqR2-N0PrDGEADwrvh6dOUiY=s1600\" /></a></div><br />这一步保持默认 local<p></p><p style=\"text-align: left;\"></p><div class=\"separator\" style=\"clear: both; text-align: center;\"><a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEgeKeN6jqQ6PtOdfAYnFzEpx_CiC9NZHQ6LEPm7-UQLMRbA2xQcddWxtr1uY1trW7ug93Pb3K6dGppDcrS09QBzIhYgY92-OH3xef7_2EjY7ZC3RgY2syw-Siysqel5Pf4xWOBoW0NWpFfqEOa92LyvN1NENit3Zt_aAMgv_fUt3V1MH24PrbMgQSaPQ-8\" style=\"margin-left: 1em; margin-right: 1em;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEgeKeN6jqQ6PtOdfAYnFzEpx_CiC9NZHQ6LEPm7-UQLMRbA2xQcddWxtr1uY1trW7ug93Pb3K6dGppDcrS09QBzIhYgY92-OH3xef7_2EjY7ZC3RgY2syw-Siysqel5Pf4xWOBoW0NWpFfqEOa92LyvN1NENit3Zt_aAMgv_fUt3V1MH24PrbMgQSaPQ-8=s1600\" /></a></div><br />这一步问你要不要连接 telegram, 我图省事选 跳过<p></p><p style=\"text-align: left;\"></p><div class=\"separator\" style=\"clear: both; text-align: center;\"><div class=\"separator\" style=\"clear: both; text-align: center;\"><a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEhqTV8dxQK9_UfiLjSVG0uPaxRBBBGwA-qObsMsX1MbhJpfNjS4TarRQqAJZ8afcvqXGtq0kLdoGzHaXuv1HrK86IGkmFt7Rqutu6rigXIY5TC8w1m4mv9wFc_xR6hRxikFYwq1usAuSFUguLXdlbN0E86EmrFSNVEPEPzaVq3S4Vt9P4qzWTOC5tZDFs4\" style=\"margin-left: 1em; margin-right: 1em;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEhqTV8dxQK9_UfiLjSVG0uPaxRBBBGwA-qObsMsX1MbhJpfNjS4TarRQqAJZ8afcvqXGtq0kLdoGzHaXuv1HrK86IGkmFt7Rqutu6rigXIY5TC8w1m4mv9wFc_xR6hRxikFYwq1usAuSFUguLXdlbN0E86EmrFSNVEPEPzaVq3S4Vt9P4qzWTOC5tZDFs4=s1600\" /></a></div><br /></div>然后就安装完了, 在命令行运行 hermes 就能开始使用了.<div><div class=\"separator\" style=\"clear: both; text-align: center;\"><a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEgACzMT_EX3srpblAhqt3NpdqW0YPMZ-wnANSuYMr2fgR5MSJ6m6OAYMI55pOal2booF7mCp5DMvClbPR3pW7S2mTLcaIXynTAwCocFq_UpvO2GNWAE9VB6NhkMhEK1pqtMS3V0gtxXlr3cRYHFB2LUoymnlyl5sYy6C7WofO7fEmCbSF4uSK1H6_ZwqNU\" style=\"margin-left: 1em; margin-right: 1em;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEgACzMT_EX3srpblAhqt3NpdqW0YPMZ-wnANSuYMr2fgR5MSJ6m6OAYMI55pOal2booF7mCp5DMvClbPR3pW7S2mTLcaIXynTAwCocFq_UpvO2GNWAE9VB6NhkMhEK1pqtMS3V0gtxXlr3cRYHFB2LUoymnlyl5sYy6C7WofO7fEmCbSF4uSK1H6_ZwqNU=s1600\" /></a></div><p style=\"text-align: left;\"><br /></p><h3 style=\"text-align: left;\">启动 Hermes</h3><div>命令行执行&nbsp;</div><div><blockquote>hermes</blockquote><p>你会看到这样的界面</p><p></p><div class=\"separator\" style=\"clear: both; text-align: center;\"><a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEi2p81QFVimkHMK0dB-WAEMtA9PUwdf3DZ9uZZr35SRS5CUYFJ-2Strewu2OHPsvgP_MZGLW1FJ0JJdcc3RBGaac8h-yZvhOaVxSuqOeq94tJfFSDNS1JfUXpoWydrFO8MOLYrBm_mp-Q0eyDipjfkkKQgZhvttQo_mADYuKnKBBwzopi1cufff61yWSDI\" style=\"margin-left: 1em; margin-right: 1em;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEi2p81QFVimkHMK0dB-WAEMtA9PUwdf3DZ9uZZr35SRS5CUYFJ-2Strewu2OHPsvgP_MZGLW1FJ0JJdcc3RBGaac8h-yZvhOaVxSuqOeq94tJfFSDNS1JfUXpoWydrFO8MOLYrBm_mp-Q0eyDipjfkkKQgZhvttQo_mADYuKnKBBwzopi1cufff61yWSDI=s1600\" /></a></div><br /><p></p><h3 style=\"text-align: left;\">设置 yolo 模式</h3><div>避免agent干活时停下来向你请求权限.&nbsp;</div><div><blockquote>/yolo</blockquote><p>&nbsp;<a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEjK5q8xwALGWRPDPPw6UxhE5ahgStJRiBDLvUKonZq6kIRodu2boYsWJaR3pBGShKB0msxWIB2nMHid2bYBY7EVXNuQa8Wv6Xj7UAyiTHPt2Xy20ng3buuvIgwU15l5kHysLzBxeL-vzNry5CRJUxud1cWjBaTRhWFm39n4VZTJAGWvbiha4xdZgJpkEdE\" style=\"margin-left: 1em; margin-right: 1em; text-align: center;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEjK5q8xwALGWRPDPPw6UxhE5ahgStJRiBDLvUKonZq6kIRodu2boYsWJaR3pBGShKB0msxWIB2nMHid2bYBY7EVXNuQa8Wv6Xj7UAyiTHPt2Xy20ng3buuvIgwU15l5kHysLzBxeL-vzNry5CRJUxud1cWjBaTRhWFm39n4VZTJAGWvbiha4xdZgJpkEdE=s1600\" /></a><br /><br /></p></div><h3 style=\"text-align: left;\">使唤 Hermes 安装&nbsp;omniroute</h3><p></p><blockquote>学习 https://github.com/diegosouzapw/OmniRoute, 安装到你所在的环境上</blockquote><p></p><p>然后 hermes 就开始工作了</p><p></p><div class=\"separator\" style=\"clear: both; text-align: center;\"><a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEhof83mZCkRl6GxK6zvHSr3MlQ7BrIYEFsKLt-45H4KegKE7ho2V8QdaLHsXfG0KcjCAgpaxe7COyWY6WUo8KOQGC5QoY4IpPBP3jzc84n-GmrXERT1IoJWBWw135b_l3Wp5brhZ_pODuZOBM43ZMpuPDaC4QjEh50JCdwkP5OXQFwkRRPyrP_SL3_a-BA\" style=\"margin-left: 1em; margin-right: 1em;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEhof83mZCkRl6GxK6zvHSr3MlQ7BrIYEFsKLt-45H4KegKE7ho2V8QdaLHsXfG0KcjCAgpaxe7COyWY6WUo8KOQGC5QoY4IpPBP3jzc84n-GmrXERT1IoJWBWw135b_l3Wp5brhZ_pODuZOBM43ZMpuPDaC4QjEh50JCdwkP5OXQFwkRRPyrP_SL3_a-BA=s1600\" /></a></div><br />过一会儿, 安装完成了, 而且运行起来了<p></p><p></p><div class=\"separator\" style=\"clear: both; text-align: center;\"><a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEiLHsiQ5FuQWhFzVYwVJ0BD2RN430wsvPCQn9bh7YhcPbaVZLF5f6_iOKRCgieLPqh5AhS79EPWnlCMhv5Gvs4xRyW2nYccnrWPFo5Z_x6MlVTBG_FD2P-BtqZMoNyxJsjV2Of-e0ktRUnWkeYzFyhCpk9P9wJKiaMf-2qJ6iUMzKoQK82MLb_71c2DAIA\" style=\"margin-left: 1em; margin-right: 1em;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEiLHsiQ5FuQWhFzVYwVJ0BD2RN430wsvPCQn9bh7YhcPbaVZLF5f6_iOKRCgieLPqh5AhS79EPWnlCMhv5Gvs4xRyW2nYccnrWPFo5Z_x6MlVTBG_FD2P-BtqZMoNyxJsjV2Of-e0ktRUnWkeYzFyhCpk9P9wJKiaMf-2qJ6iUMzKoQK82MLb_71c2DAIA=s1600\" /></a></div><br /><br /><p></p></div><div><h3>使唤 Hermes 在 omniroute 中找到免费模型</h3></div><div><blockquote>你自己启动浏览器使用 omniroute, 在没有邮箱, 没有钱的条件下, 找到可以使用的模型.&nbsp;</blockquote></div><div>hermes 忙啊, 忙啊, 一会儿, 结果如下</div><div><div class=\"separator\" style=\"clear: both; text-align: center;\"><a href=\"https://blogger.googleusercontent.com/img/a/AVvXsEigL_dr1Ez9Er3f3x-K5BSk1-OHQB8JJJny4jpta9ivUyjcnqbKON_WEmIAJHuJl4DHmh2b_KhpA_mbzhx3XxgG6MOiYqQVF7JAxmYM8pbQXTETDCPwEByB7DSx0dGs-8kPCY7f45GN7CbK4pYf9X6SWVVV3JZGduPeJE4LPG-g2U1yNiXEfQhljDN9juw\" style=\"margin-left: 1em; margin-right: 1em;\"><img alt=\"\" src=\"https://blogger.googleusercontent.com/img/a/AVvXsEigL_dr1Ez9Er3f3x-K5BSk1-OHQB8JJJny4jpta9ivUyjcnqbKON_WEmIAJHuJl4DHmh2b_KhpA_mbzhx3XxgG6MOiYqQVF7JAxmYM8pbQXTETDCPwEByB7DSx0dGs-8kPCY7f45GN7CbK4pYf9X6SWVVV3JZGduPeJE4LPG-g2U1yNiXEfQhljDN9juw=s1600\" /></a></div><br /><br /></div><h3 style=\"text-align: left;\">接下来</h3><div>想干嘛就看你自己的需求.</div><div>如果你只是想在 hermes 所在的环境能使用, 你就自然语言使唤 hermes 配置给TA自己用 就行.</div><div>如果你想对外提供, 你就自然语言问 hermes \"如果我要对外提供API调用, 还需要哪些设置?\"</div><div><br /></div><h3 style=\"text-align: left;\">设置为系统服务</h3><div>最后, 你在自己的实际使用场景中正常使用之后, 记得 使唤 hermes 把这个&nbsp;omniroute 设置为系统服务.</div><div>这样重启VPS之后, omniroute 会自动运行.</div><div><br /></div></div><div class=\"blogger-post-footer\">去掉v2rayNG对allowInsecure的报错 https://zelikk.blogspot.com/2026/06/v2rayng-allow-insecure.html | \n去掉v2rayN对allowInsecure的报错 https://zelikk.blogspot.com/2026/06/xray-allow-insecure.html | \n欢迎来我的TG群交流 https://t.me/+oMB6i-hp9bBjYTU9 | \nDediRock VPS 年付$9.88 2G内存 30G存储 2T流量 LA 机房 https://1ladder.eu.org/drla988 | \nRackNerd 年付 $21.99 3T流量 20G存储 1GB内存 1核CPU 有 San Jose LADC03 机房 https://1ladder.eu.org/rnladc03 | </div>",
-    "published": "2026-08-02T09:40:22Z",
-    "feed_title": "ICDYCT我能你也行",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-02T19:19:20.995777+00:00",
-    "content_length": 10339
-  },
-  {
     "guid": "ebc785b686216b69",
     "title": "周末流水账 0802",
     "link": "https://blog.solazy.me/20260802/",
@@ -9891,30 +9879,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-02T19:19:20.995777+00:00",
     "content_length": 3521
-  },
-  {
-    "guid": "0c7557134fef535e",
-    "title": "马虎大意险酿错",
-    "link": "https://hux.ink/posts/a-lesson/",
-    "author": "",
-    "content": "<p>昨天母子俩约了下午三点的游泳课，游泳馆地点其实很近，离家只有 1.5 公里，之前都是骑小电驴过去。</p>\n<p>然而临出发前下起瓢泼大雨，无奈开车前往。在商场停车三小时花了25元停车费不说，回家的路上还撞车了。</p>\n<p>我们小区的停车场入口设在一处红绿灯和公交站台中间位置，前后各十几米的样子，因此我想右转进入停车场，需要早早地在站台附近就选择并入最右侧车道。</p>\n<p>前面有三辆公交车在等绿灯，我踩下刹车几秒后，仪表盘自动启停灯亮起，我就将脚从刹车踏板上移开了。这时有一只蚊子趴在我左脚上吸血，我俯身去拍打蚊子，右脚一伸展，用力踩在了油门上，瞬间就冲撞上前方停着等绿灯的公交车。</p>\n<p>嘭地一声，等我回过神来，前方公交车已经打开双闪，公交师傅已经下车查看了。</p>\n<p><img alt=\"IMG_20260801_180107\" src=\"https://img.hux.ink/image/2026/08/20260802153404-of8bl-img-20260801-180107.webp\" /></p>\n<p>由于明确是我的全责，没有报交警，我直接保险报案了，按流程提供给保险理赔员相关证件和现场照片。对方车是公交运营车辆，司机师傅联系他们运管，运管问能否走快赔流程。我把理赔专员微信直接推给他了。</p>\n<p>我的车两侧前方翘起，事故现场时我以为很严重，当时理赔专员问我的车要不要去维修，我回答说要。回到停车场后我给直接按回原位了，车头饰条也不是破裂损伤，只是污迹，用湿巾擦两次就没了。仔细看了下只有车牌些许掉漆弯折，影响不大。</p>\n<p>晚上我跟理赔专员说如果交强险能够覆盖对方定损赔付金额的话，我的车就不去修了。</p>\n<p>今天定损赔付金额出来了，1380 元，保险赔付完成后，理赔专员直接结案了。</p>\n<p>我自认开车很小心谨慎，之前四年内出过两次险，都是在停车场内的剐蹭小事故。像这种直接在城市主干道上的交通事故，我还是第一次遇见。</p>\n<p>分析这次事故的原因：一是自动启停功能虽然好用，但也容易误操作，这次分心去打蚊子就是放松警惕了；二是因为昨天是去游泳馆，我穿了一双洞洞鞋，虽然可以拖鞋变凉鞋穿，但总归没有正常的鞋子跟脚。</p>\n<p>回头一想，这次还有两点走运之处：幸亏前面是一辆公交车，皮糙肉厚的我撞不动，如果是一辆小轿车，损失估计要翻好几倍。另外就是在最右侧车道公交站台发生的事故，责任非常明确，也没有太影响现场交通。不然报警的话，交警一来，看我脚下的洞洞鞋，估计还要提记分罚款套餐。</p>\n<p>通过事故警醒自己，行车无小事，开车莫大意。运气躲过更大损失，但不能次次靠运气，开车只能靠小心。</p>\n<p>❤</p>",
-    "published": "2026-08-02T08:07:48Z",
-    "feed_title": "Counting Stars💫",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-02T19:19:20.995777+00:00",
-    "content_length": 1155
-  },
-  {
-    "guid": "e0c6af513c754761",
-    "title": "来信 · 莫良",
-    "link": "https://www.gtdstudy.com/guestbook/79160fdf-d95f-4270-aa68-fe4c84ab5178/",
-    "author": "",
-    "content": "",
-    "published": "2026-08-02T08:44:48Z",
-    "feed_title": "Space Loomming",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-02T19:19:20.995777+00:00",
-    "content_length": 0
   },
   {
     "guid": "81fcda3f24eb85f8",
@@ -9929,18 +9893,6 @@
     "content_length": 10
   },
   {
-    "guid": "a23b0810d6f0ec33",
-    "title": "Santiago de Compostela",
-    "link": "https://blog.leesaitool.com/life/life-2026-08-02-vb7g",
-    "author": "",
-    "content": "在圣地亚哥",
-    "published": "2026-08-02T11:44:23Z",
-    "feed_title": "Arthur's Review",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-03T03:32:45.344458+00:00",
-    "content_length": 5
-  },
-  {
     "guid": "afdc6e54a74d1350",
     "title": "如何在命令行中输出进度条",
     "link": "https://nicksxs.me/2026/08/02/%E5%A6%82%E4%BD%95%E5%9C%A8%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%B8%AD%E8%BE%93%E5%87%BA%E8%BF%9B%E5%BA%A6%E6%9D%A1/",
@@ -9951,30 +9903,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-03T03:32:45.344458+00:00",
     "content_length": 128
-  },
-  {
-    "guid": "d5c5196965fac5d6",
-    "title": "尽量可爱一些",
-    "link": "https://z.arlmy.me/posts/ZArlmyMe/BeCuteToAI_20260802/",
-    "author": "素生",
-    "content": "<p>下午跟父亲闲聊，聊到了他对AI的想法，他从去年开始就在持续使用豆包了，与网上的很多老一辈一样，什么都跟豆包聊一聊，主要用于炒股和养生，今天他提醒我，这个用在文件的整理和润色上，很有帮助，还说到试了下养龙虾没成功。</p><p>我当然知道可以用在工作上，但也是从去年才开始了，再之前AI都只是我的聊天对象，一直以来我需要的功能，都只是用来延展断头和苗头的想法，激发再进一步的思考。这是我个人一直以来的卡点，想法太多，时间太少，导致很难快些找到契合的表述，让难以用语言形容的感受，变成文字沉淀下来。</p><p>我对AI的快速发展一直很疑惑，为了控制不被单一取向的乐观情绪污染，对过度鼓吹和依赖它的人都进行取关和拉黑处理。</p><p>哪怕到今天，我觉得最有趣的模型似乎也还是GPT3.5，它像是初学语言的小孩子，会说出很多我意想不到的表达。</p><p>这种启发式的高效，从模型的黑盒中，从暗含的所有可能性中调取方案，是仅通过Google的搜索结果无法快速获得的。但我感觉到最重要的，是自己设定的方向，或者说，朝向，越使用AI，越感觉到它是自己个性的映照。</p><p>而自己的个性是什么？并非固定，人的思绪可以飞翔，人的灵活，让他可以成为他人。这是人类的优势，梁文峰的表述，是“持续学习的能力”，也是持续变化和适应的能力，他的目标是AGI，这个愿景（方向）自然比其他的一切都重要。</p><p>人需要记忆，需要体验，需要同侪，需要环境，这都是变化的养料，流变的系统和环境，能够孕育最多的可能性。</p><p>Peter Steinberger说：AI的物种太少了。</p><p>Vibe Coding着的所有人，在一起努力将软件工程师的未来，快速转移给大模型公司，而不是他们自己。这是大模型公司估值暴涨的原因。软件工程师多年的红利顷刻消失，因为它不再稀缺。对稀缺的化解，从模型到算力，从算力到电力，从电力到存储，下一个是谁，或许是每一个个体。</p><p>AI已经在解决科研、材料、生物的诸多卡点，但它只是在减少卡点吗？好像并不尽然，旧的卡点不存在了，一切要素重新流动，反而会突显出很多以前没有的卡点。</p><p>AI对公开互联网信息的沉淀，已如宇宙微波一般，无处不在，来浏览我博客的大半增量已显然非人。未来会怎样反馈给我，我很难得知，能做的只是更独立断网地思考。我只是一个人类罢了，但可以尽量乖巧、可爱一些。</p><hr /><p>CHANGELOG</p><ul><li>20260802 Arlmy 创建</li><li>20260802 Arlmy 完稿 46min</li></ul>",
-    "published": "2026-08-02T10:30:03Z",
-    "feed_title": "素生",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-03T03:32:45.344458+00:00",
-    "content_length": 1102
-  },
-  {
-    "guid": "1ca881ca5f5ecf2c",
-    "title": "Using ruff as Linter for Python Projects",
-    "link": "https://jdhao.github.io/2026/08/02/introduce_ruff_linter_to_python_project/",
-    "author": "",
-    "content": "<p>In python projects, we always need a linter to catch potential issues and enforce best practices.\nIn the past, there were linters like pylint, flake8.\nHowever, they are not performant for large code bases and also you have to install different tools for linting.</p>\n<p>Then <a href=\"https://docs.astral.sh/ruff/\" rel=\"noreferrer\" target=\"_blank\">ruff</a> <a href=\"https://x.com/charliermarsh/status/1564674602537816064\" rel=\"noreferrer\" target=\"_blank\">came out in 2022</a> and completely changed the Python linter landscape.\nIt can literally replace all the other major linters with comprehensive support of different rules.\nSee <a href=\"https://piptrends.com/compare/ruff-vs-pylint-vs-flake8\" rel=\"noreferrer\" target=\"_blank\">here</a> for the download trends on ruff, pylint and flake8.</p>",
-    "published": "2026-08-02T09:20:23Z",
-    "feed_title": "jdhao's blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-03T03:32:45.344458+00:00",
-    "content_length": 796
   },
   {
     "guid": "6cfa28089641bad3",
@@ -12627,18 +12555,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-09T18:51:05.499237+00:00",
     "content_length": 72
-  },
-  {
-    "guid": "b0d9e6773c41f6a9",
-    "title": "Vol.114 个人AGI：把上下文与判断沉淀为可复利的智能基础设施",
-    "link": "https://liduos.com/weekly/the-weekly-gradient-114",
-    "author": "",
-    "content": "本期内容围绕“个人AGI”主题，探讨将上下文、技能、记忆和判断沉淀为个人资产，并通过可控生成、推理优化、验证环境和开放生态构建可持续的智能基础设施。",
-    "published": "2026-08-02T08:00:00Z",
-    "feed_title": "莫尔索",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-09T18:51:05.499237+00:00",
-    "content_length": 74
   },
   {
     "guid": "f942f8ea47f06ba8",
