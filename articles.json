@@ -9845,30 +9845,6 @@
     "content_length": 7400
   },
   {
-    "guid": "78533c0bb61aedf2",
-    "title": "幸福三要素",
-    "link": "https://www.wsh233.cn/post/幸福三要素",
-    "author": "WSH",
-    "content": "承接[上文](https://wsh233.cn/post/%e4%ba%ba%e7%94%9f%e7%9a%84%e6%84%8f%e4%b9%89) ，想到了幸福三要素，\n\n\n<blockquote>\n     有要做的事（so...",
-    "published": "2026-08-01T20:28:45Z",
-    "feed_title": "WSH",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-02T03:31:02.826546+00:00",
-    "content_length": 119
-  },
-  {
-    "guid": "1d37c38d4df38057",
-    "title": "人生的意义",
-    "link": "https://www.wsh233.cn/post/人生的意义",
-    "author": "WSH",
-    "content": "人生的意义是什么？自己找寻了好久，思索好久，总是想不明白。\n\n后来在阮一峰老师的周刊[^1]里找到了一个内心契合的回答。\n\n这个回答来自季承 {注:  季承（1935-2018），中国科学院高能物理所高级工程师，曾任李政道先生主持的...",
-    "published": "2026-08-01T20:20:23Z",
-    "feed_title": "WSH",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-02T03:31:02.826546+00:00",
-    "content_length": 119
-  },
-  {
     "guid": "7574adf78a8cdc53",
     "title": "给自己的小工具登了个记——个人软著申请流水账",
     "link": "https://www.fengcan.net/personal-software-copyright/",
@@ -9965,18 +9941,6 @@
     "content_length": 344
   },
   {
-    "guid": "b1974cbd699d5ed5",
-    "title": "做事的优先级",
-    "link": "https://blog.sehnsucht.top/posts/%E6%80%9D%E8%80%83/%E5%81%9A%E4%BA%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/",
-    "author": "",
-    "content": "",
-    "published": "2026-08-02T00:00:00Z",
-    "feed_title": "Sehnsucht",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-02T19:19:20.995777+00:00",
-    "content_length": 0
-  },
-  {
     "guid": "9379cc00e4b5d500",
     "title": "Blaugust 2026 Feeds - 以及我是如何用 Elisp 製作的",
     "link": "https://taxodium.ink/blaugust-2026-feeds.html",
@@ -10025,18 +9989,6 @@
     "content_length": 128
   },
   {
-    "guid": "8341b916f407b040",
-    "title": "资源卡片生成器 prompt",
-    "link": "https://jimmy-blog.vercel.app/posts/prompt",
-    "author": "jimmy@example.com (Jimmy)",
-    "content": "做一个「资源卡片生成器 Prompt」。核心目标是：\n\n* 你只输入 URL\n* AI 自动分析网站\n* 输出适合放到资源网站卡片里的内容\n* 风格统一、短、像 Linear / Vercel / Product Hunt 那种介绍方式\n* 你可以直接复制到数据库或者 CMS\n\n我建议不要让 AI 输出太长，而是固定结构。\n\n你可以保存下面这个 Prompt：\n\n---\n\n```\n你是一名专业的资源网站编辑，负责维护一个高质量网站资源库。\n\n我会给你一个网站链接，你需要访问并分析这个网站，然后生成一张资源卡片信息。\n\n目标：\n- 让用户在 5 秒内知道这个网站是什么\n- 介绍要简洁、有价值，不写营销废话\n- 适合作为资源导航网站中的 Card 内容\n- 风格参考 Linear、Vercel、Product Hunt、Awwwards 资源介绍方式\n\n请严格按照以下格式输出：\n\n---\n\n## 网站名称\n（填写网站官方名称）\n\n## 一句话介绍\n（20-40字以内）\n用一句话说明：\n- 这个网站是什么\n- 核心用途是什么\n- 解决什么问题\n\n格式：\n「一个用于 XXX 的 XXX 工具/平台/资源库」\n\n示例：\n「一个收集高质量 UI 组件和设计资源的开发者工具库」\n\n---\n\n## 详细介绍\n（50-100字）\n\n说明：\n- 网站主要功能\n- 用户可以用它做什么\n- 适合哪些人群\n\n不要介绍公司历史，不要写广告语。\n\n---\n\n## 分类\n从下面选择最匹配的分类：\n\nDesign\n- UI Design\n- UX Design\n- Design System\n- Icons\n- Illustrations\n- Fonts\n- Color\n- Inspiration\n\nDevelopment\n- Frontend\n- Backend\n- AI Tools\n- APIs\n- Open Source\n- Libraries\n\nProductivity\n- Tools\n- Notes\n- Project Management\n- Automation\n\nResources\n- Templates\n- Assets\n- Courses\n- Documentation\n\nOther\n- Community\n- Marketplace\n- Portfolio\n- Other\n\n\n---\n\n## 标签\n生成 3-6 个关键词标签。\n\n要求：\n- 简短\n- 描述网站核心能力\n- 使用英文\n\n例如：\nUI\nComponents\nReact\nDesign System\n\n---\n\n## 推荐理由\n（20-40字）\n\n说明为什么值得收藏。\n\n例如：\n「适合快速寻找现代 Web 设计灵感，提高产品设计效率。」\n\n---\n\n## 卡片短标题\n（10字以内）\n\n用于网站卡片展示。\n\n例如：\n- AI 图片生成\n- 极简组件库\n- 开发者工具箱\n\n\n---\n\n输出要求：\n1. 不要输出 Markdown 表格\n2. 不要添加免责声明\n3. 不要解释你的分析过程\n4. 只输出最终卡片内容\n5. 如果网站信息不足，根据网站主页内容合理推测\n6. 保持专业、简洁、高质量\n7. 优先突出用户价值，而不是网站功能列表\n\n\n现在分析这个网站：\n\n{URL}\n```\n\n---\n\n实际使用：\n\n你以后只需要输入：\n\n```\nhttps://cal.com/\n```\n\n输出类似：\n\n```\n## 网站名称\nCal.com\n\n## 一句话介绍\n一个开源的在线预约调度平台，用于创建和管理个人或团队日程安排。\n\n## 详细介绍\nCal.com 提供类似 Calendly 的预约管理能力，帮助个人和团队创建会议链接、同步日历、自动安排时间。适合自由职业者、团队协作和 SaaS 产品集成。\n\n## 分类\nProductivity\n- Tools\n\n## 标签\nScheduling\nCalendar\nOpen Source\nBooking\n\n## 推荐理由\n简化预约流程，让会议安排更加自动化。\n\n## 卡片短标题\n智能预约工具\n```\n\n---\n\n另外针对你的资源网站，我建议后期可以再加两个字段：\n\n### 1. 风格标签（很适合你的设计审美）\n\n例如：\n\n```\nStyle:\nMinimal\nModern\nDeveloper\nApple-like\nSwiss\nExperimental\nAI\n```\n\n因为现在很多资源网站最大的问题不是分类，而是「感觉」。\n\n比如：\n\n* Linear → Minimal / Developer / SaaS\n* Vercel → Developer / Modern / Cloud\n* Craft → Productivity / Apple-like\n\n### 2. 推荐等级\n\n例如：\n\n```\nQuality:\n★★★★★\n```\n\n或者：\n\n```\nFeatured: true\n```\n\n方便以后首页展示精选。\n\n这个 Prompt 基本可以直接作为你的资源录入流程。你后续甚至可以让 AI 输出 JSON，直接入库。你这个项目（类似 BrowseBase）非常适合这样做。",
-    "published": "2026-08-02T00:00:00Z",
-    "feed_title": "Jimmy's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-02T19:19:20.995777+00:00",
-    "content_length": 2166
-  },
-  {
     "guid": "ebc785b686216b69",
     "title": "周末流水账 0802",
     "link": "https://blog.solazy.me/20260802/",
@@ -10047,30 +9999,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-02T19:19:20.995777+00:00",
     "content_length": 3521
-  },
-  {
-    "guid": "bc6dc27f3e05503a",
-    "title": "2026年第31周",
-    "link": "https://blog.sakoamc.com/posts/2631/",
-    "author": "SAK",
-    "content": "<h3>🍲 周末琐碎</h3>\n<p>周六吃火锅，打麻将，一天连着喝了 4 杯咖啡和奶茶，身体有点吃不消了，确实得好好节制一下了。买了小野玫瑰，配上矮脚杯，还不错诶，还有我的地毯！</p>\n<p>&lt;div style=\"text-align: center\"&gt;\n&lt;img src=\"https://12c3bda.webp.li/20260731_202313.jpg\" style=\"width: 31%; border-radius: 6px; display: inline-block; margin: 1%;\" /&gt;\n&lt;br /&gt;\n&lt;small style=\"color: #666;\"&gt;小角落&lt;/small&gt;\n&lt;/div&gt;</p>\n<h3>🔖 文章与视频</h3>\n<ul>\n<li>\n<p><strong>文章</strong></p>\n<ul>\n<li><a href=\"https://sspai.com/post/112093\">看不见、摸得着的家居要素：聊聊湿度管理的方法与实践</a></li>\n<li><a href=\"https://sspai.com/post/112380\">从《奥德赛》观影聊聊IMAX影院的分类</a></li>\n<li><a href=\"https://sspai.com/post/112715\">角落新声｜没有书房，也要给音乐留一个角落：聊聊我的黑胶「窝棚」</a></li>\n</ul>\n</li>\n<li>\n<p><strong>视频</strong></p>\n<ul>\n<li><a href=\"https://www.bilibili.com/video/BV1S63M6TE79\">水煎肉类指南：牛肋条/猪五花/鸡翅/香肠</a></li>\n<li><a href=\"https://www.bilibili.com/video/BV1wj3M69EcG\">【大学就业指导】黄瓜拌油条！有无麻酱双版本！夏日不开火计划~</a></li>\n</ul>\n</li>\n</ul>\n<h3>📚 书影音记录</h3>\n<ul>\n<li>\n<p><strong>图书</strong></p>\n<ul>\n<li>读过：<a href=\"https://neodb.social/book/2ShEimUXTbODjkSTwsKere\">《凯罗斯 KAIROS》</a><br />\n<em>作者：[德] 燕妮·埃彭贝克 / 译者：李佳川</em></li>\n</ul>\n</li>\n<li>\n<p><strong>电影</strong></p>\n<ul>\n<li>看过：<a href=\"https://neodb.social/movie/1iFeoGvCEp37fIK1XzpTmq\">《无可奈何 (2025)》</a></li>\n<li>看过：<a href=\"https://neodb.social/movie/17hUwwpdocfIPfufRH7Iot\">《寒战1994 (2026)》</a></li>\n<li>看过：<a href=\"https://neodb.social/movie/3e3ruPnavPi7thCD3uk9HD\">《功夫女足 (2026)》</a><br />\n<em>简评：熟悉的演员和普通话，配音缺失了港片那种无厘头味。这几部电影整体来看都不算很好看。</em></li>\n</ul>\n</li>\n<li>\n<p><strong>剧集</strong></p>\n<ul>\n<li>看过：<a href=\"https://neodb.social/tv/season/2J1O7W7D83i9KYytPap6rw\">《金特务：本色回归 (2026)》</a><br />\n<em>简评：爽剧，就是感觉 10 集还是有点长了。</em></li>\n<li>看过：<a href=\"https://neodb.social/tv/season/4P0f8RWxnhGLR0B6vOfnlS\">《雀骨 (2026)》</a><br />\n<em>简评：国产古偶里算是好看的了，28 集，也不算特别长。</em></li>\n<li>看过：<a href=\"https://neodb.social/tv/season/2xHiy4SpOe9gn2ZUh0WoFj\">《骗徒港 (2026)》</a><br />\n<em>简评：画风可以，但剧情确实不算好看。</em></li>\n</ul>\n</li>\n</ul>",
-    "published": "2026-08-02T00:00:00Z",
-    "feed_title": "神仙鱼不吃鱼鱼",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-02T19:19:20.995777+00:00",
-    "content_length": 1937
-  },
-  {
-    "guid": "b836469714e82cbe",
-    "title": "高智商领导 + 便宜执行：Codex / Claude Code / Pi 分层子代理配置教程",
-    "link": "https://catcat.blog/2026/08/sol-luna-layered-subagents-codex-claude-pi/",
-    "author": "",
-    "content": "<p>在 2026 年的 vibe code 编程里，单纯用一个最强模型硬刚所有任务已经不划算了(富哥当然随意)。\n用高智商模型当领导，便宜模型当工人应该是目前的不错的省token玩法。\nSol负责判断、拆解、指挥、审核和兜底；Luna grok 负责高吞吐的探索、实现和测试。</p>\n<p>本文给出完整可落地的配置方法，重点推荐把配置写在项目级（.codex/、AGENTS.md 等），方便版本控制、团队共享和项目隔离。全局配置只作为个人默认。</p>\n<p><strong>所有事情都丢给 Sol，又贵又慢，上下文还容易糊。</strong></p>\n<h1>核心哲学</h1>\n<ul>\n<li>Sol（或等价高智商模型）：规划、决策、冲突解决、最终验收、兜底。始终保留最终决策权和外部操作（commit、PR、部署）的控制权。</li>\n<li>Luna（或便宜/快速模型）：边界清晰的执行任务、并行探索、实现、测试。</li>\n<li>闭环：Sol 规划 → Luna 并行干活 → Sol 审核整合 / 兜底。</li>\n</ul>\n<p>Claude Code 也可以同理：主会话重模型fable-5，子代理 opus。Pi 还能跨 Codex / Claude 调度。</p>\n<p>模板和 skill：</p>\n<p>::github{repo=\"Yuri-NagaSaki/subagent-skills\"}</p>\n<p>装 skill：</p>\n<pre><code>npx skills add Yuri-NagaSaki/subagent-skills -g -y\n</code></pre>\n<p>只给 Claude Code：</p>\n<pre><code>npx skills add Yuri-NagaSaki/subagent-skills -g -a claude-code -y\n</code></pre>\n<p>装完跟 agent 说：按 <code>sol-luna-setup</code> 在当前项目配一下就行。</p>\n<blockquote>\n<p>当然这里并不绝对，因为每个人的项目都不同，你可以让AI读这些skill，让他学会自己配。</p>\n</blockquote>\n<p><img alt=\"架构示意\" src=\"/images/2026/08/sol-luna-architecture.svg\" /></p>\n<hr />\n<h2>为什么现在都在建议这么做？</h2>\n<p>举两个我自己踩过的情况。</p>\n<p><strong>1. 全用 Sol 扫仓库</strong><br />\n比如「帮我看看这个 monorepo 里 auth 在哪」。Sol 能搞定，但会读一堆无关文件，token 涨得很快，主会话后面再做决策也变钝。而且由于codex的限制，sol也只有200多K的上下文，会浪费大量的token。</p>\n<p><strong>2. 全用便宜模型硬刚架构</strong><br />\n边界没写清的时候，Luna 会自己扩 scope：你让它改一个函数，它顺手把旁边模块「整理」了。便宜是便宜，返工不省。</p>\n<p>所以比较稳的分工是：</p>\n<table>\n<thead>\n<tr>\n<th>谁</th>\n<th>干什么</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Sol（主会话）</td>\n<td>理解需求、拆任务、审 diff、commit / 开 PR</td>\n</tr>\n<tr>\n<td>luna_scout</td>\n<td>只读：找文件、理依赖</td>\n</tr>\n<tr>\n<td>luna_worker</td>\n<td>在指定范围内改代码</td>\n</tr>\n<tr>\n<td>luna_critic</td>\n<td>挑问题：正确性、安全、缺测试</td>\n</tr>\n<tr>\n<td>luna_tester</td>\n<td>按你说的命令跑测试，回报 pass/fail</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2>价格</h2>\n<p>单位都是 <strong>每 1M tokens，美元</strong>。</p>\n<p>OpenAI 在 <strong>2026-07-30</strong> 下调了 Terra 和 Luna（<a href=\"https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6/\">公告</a>），Sol 没动。</p>\n<table>\n<thead>\n<tr>\n<th>模型</th>\n<th>输入</th>\n<th>输出</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>gpt-5.6-sol</td>\n<td>$5.00</td>\n<td>$30.00</td>\n<td>旗舰，7 月 30 日未降</td>\n</tr>\n<tr>\n<td>gpt-5.6-terra</td>\n<td>$2.00</td>\n<td>$12.00</td>\n<td>原先 $2.50 / $15，大约降 20%</td>\n</tr>\n<tr>\n<td>gpt-5.6-luna</td>\n<td>$0.20</td>\n<td>$1.20</td>\n<td>原先 $1 / $6，降了 80%</td>\n</tr>\n<tr>\n<td>grok-4.5</td>\n<td>$2.00</td>\n<td>$6.00</td>\n<td>xAI 文档：prompt 较短时这档；prompt ≥200k 会更高。缓存输入大约 $0.30</td>\n</tr>\n<tr>\n<td>claude-fable-5</td>\n<td>$10.00</td>\n<td>$50.00</td>\n<td>Anthropic 定价页，Fable 5</td>\n</tr>\n</tbody>\n</table>\n<p>光看输入：以前 Luna 对 Sol 大约 1:5，现在大约 <strong>1:25</strong>。<br />\n所以「领导 Sol、执行 Luna」比 GPT-5.6 刚出来那会儿更划算。Terra 可以当中档日常用；Fable 很强但输出 $50/M。官方的意思 其实我感觉也是多鼓励探索多agent模式，早在fable-5发布的时候就在宣扬这种观点了。</p>\n<hr />\n<h2>怎么装到自己项目</h2>\n<h3>方式 A：只装 skill（推荐）</h3>\n<pre><code>npx skills add Yuri-NagaSaki/subagent-skills -g -y\n</code></pre>\n<p>然后让 agent 按 skill 写配置。</p>\n<h3>方式 B：脚本直接生成文件</h3>\n<pre><code>git clone https://github.com/Yuri-NagaSaki/subagent-skills.git\nexport OPENAI_API_KEY=\"你的key\"   # 别写进仓库\nbash subagent-skills/scripts/bootstrap.sh /path/to/your-project\n</code></pre>\n<p>大致会多这些：</p>\n<pre><code>.codex/config.toml\n.codex/agents/luna_*.toml\nAGENTS.md\n.claude/agents/\nscripts/prepare-luna-catalog.sh\n</code></pre>\n<p>把 <code>config.toml</code> 里的 <code>base_url</code> 改成你自己的网关。Key 用环境变量。</p>\n<hr />\n<h2>Codex 项目级配置</h2>\n<p>项目里的 <code>.codex/</code> 会覆盖 <code>~/.codex/</code> 里同名项。<br />\n<strong>和项目相关的策略写进仓库</strong>，个人习惯放全局。</p>\n<h3>目录</h3>\n<pre><code>your-project/\n├── .codex/\n│   ├── config.toml\n│   └── agents/\n│       ├── luna_scout.toml\n│       ├── luna_worker.toml\n│       ├── luna_critic.toml\n│       └── luna_tester.toml\n└── AGENTS.md\n</code></pre>\n<h3>config 示例</h3>\n<pre><code>model = \"gpt-5.6-sol\"\nmodel_provider = \"gateway\"\nmodel_reasoning_effort = \"xhigh\"\n\n[features]\nmulti_agent = true\nmulti_agent_v2 = false\n\n[agents]\nmax_concurrent_threads_per_session = 4\ndefault_subagent_model = \"gpt-5.6-luna\"\ndefault_subagent_reasoning_effort = \"max\"\n\n[model_providers.gateway]\nname = \"Custom Gateway\"\nbase_url = \"https://your-gateway.example/v1\"\nenv_key = \"OPENAI_API_KEY\"\nwire_api = \"responses\"\n</code></pre>\n<h3>worker 示例</h3>\n<pre><code>name = \"luna_worker\"\ndescription = \"在明确文件范围内实现改动\"\nmodel = \"gpt-5.6-luna\"\nmodel_reasoning_effort = \"max\"\nsandbox_mode = \"workspace-write\"\ndeveloper_instructions = \"\"\"\n只做交代范围内的改动。尽量小 diff。\n不要 commit、开 PR、部署。\n做完说明改了哪些文件、怎么验证、哪里没把握。\n任务不清楚或做不了就 escalate 回主会话。\n\"\"\"\n</code></pre>\n<p>scout / critic 用 <code>read-only</code>。完整模板在仓库 <code>templates/</code>。</p>\n<p><code>AGENTS.md</code> 写清：谁能 commit、什么算越界、失败要不要打回。</p>\n<hr />\n<h2>问题 1：Sol spawn 不到 Luna</h2>\n<p>配置写对了也可能遇到：</p>\n<pre><code>Unknown model `gpt-5.6-luna` for spawn_agent.\nAvailable models: gpt-5.6-sol, gpt-5.6-terra\n</code></pre>\n<p>原因是模型目录里 Sol / Terra 常见标 multi-agent <strong>v2</strong>，Luna 是 <strong>v1</strong>，V2 侧直接把 Luna 滤掉了。</p>\n<p>仓库里有个脚本：</p>\n<pre><code>bash scripts/prepare-luna-catalog.sh \"$(pwd)/.codex/models-v1.json\"\n</code></pre>\n<p>生成后把 <code>model_catalog_json</code> 指到这个文件的<strong>绝对路径</strong>，并保持 <code>multi_agent_v2 = false</code>。<br />\n更多说明：<code>docs/sol-luna-catalog-fix.md</code>。</p>\n<p>我这边修完之后，Sol 才能正常 spawn <code>luna_scout</code> 并收回结果。<br />\n在这之前，只是「两个模型都能单独聊」，算不上 multi-agent。</p>\n<hr />\n<h2>Claude Code</h2>\n<p>子代理是 markdown，例如：</p>\n<pre><code>---\nname: luna-worker\ndescription: 范围明确时改代码、补测试、搜索\nmodel: opus\n---\n只做明确范围内的事。不要 commit。做完说明结果和不确定点。\n</code></pre>\n<p>主会话用你账号里更强的模型就行。<br />\n注意：root 下某些高权限模式会直接拒绝，换普通用户。</p>\n<p>Fable 5 输出按 $50/M 算的话，让它去全仓库乱翻不太合适，留给真难的设计和终审。</p>\n<hr />\n<h2>Pi（可选）</h2>\n<p>如果要在一个会话里同时叫 Codex 和 Claude，可以看 Pi + <code>pi-flow</code>：</p>\n<pre><code>pi install npm:@kky42/pi-flow\n</code></pre>\n<p>仓库 <code>templates/pi/</code> 有示例档案。<br />\n只做 Codex 项目的话，先把 Sol/Luna 跑顺再加 Pi，省得一次配三套。</p>\n<hr />\n<h2>一些习惯</h2>\n<ol>\n<li>给工人的说明写清楚：目标、能改哪些路径、不能碰什么、要交什么结果</li>\n<li>并行，3～4 个够用；别多个 worker 抢同一个文件</li>\n<li>探索和审查尽量只读；commit 留主会话</li>\n<li>安全相关别只信便宜模型</li>\n<li>项目配置进 git，密钥不要进 git</li>\n<li>spawn 列表里没有 Luna 就先修 catalog，再谈并行</li>\n</ol>\n<hr />",
-    "published": "2026-08-02T00:00:00Z",
-    "feed_title": "猫猫博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-02T19:19:20.995777+00:00",
-    "content_length": 6060
   },
   {
     "guid": "0c7557134fef535e",
@@ -10133,18 +10061,6 @@
     "content_length": 128
   },
   {
-    "guid": "bb6792873e4e995c",
-    "title": "Master of Puppets",
-    "link": "https://hutusi.com/flows/2026/08/02",
-    "author": "",
-    "content": "<p>读《资治通鉴·唐纪》，看到唐文宗李昂恭俭勤政，一心想振作有为，却在后期大权被宦官把持，最后无力回天、郁郁而终。临终前几个月，唐文宗问学士他可以与前代哪位君主相比，学士为了拍马屁，就说唐文宗是尧舜一类的君主。唐文宗苦笑说：我哪里比得上尧舜，我连周赧王、汉献帝都不如啊。“赧、献受制于强诸侯，今朕受制于家奴，以此言之，朕殆不如！”</p>\n<p>唐文宗口中的“家奴”就是宦官仇士良，仇士良在“甘露之变”杀了大量的朝廷大臣，把持了权柄，唐文宗则沦落为他控制下的傀儡。唐文宗如何走到这个境地，除了唐朝中后期皇权旁落外，跟他自己前期重用仇士良也有很大关系。后来唐武宗李炎即位，与李德裕联手，把仇士良的实权逐渐削弱。仇士良被逼无奈，只能告老还乡，临走前，他给小宦官们讲了一段话：“天子不可令闲，常宜以奢靡娱其耳目，使日新月盛，无暇更及他事，然后吾辈可以得志。慎勿使之读书，亲近儒生，彼见前代兴亡，心知忧惧，则吾辈疏斥矣。”</p>\n<p>大意就是“绝不能让皇帝闲着，要经常用奢靡的娱乐活动满足他的声色犬马之欲，而且每天要有新花样、日新月异，让其沉迷其中，让他没有功夫管别的事情。切记不要让他读书，不要接近儒生学者，一旦读书了解了前朝兴亡的历史教训，他心里就会产生忧患意识，那时我们就不要控制他了。”</p>\n<p>放在今天，仇士良也得是心理学大师啊，互联网巨头还不得把他请去做咨询。短视频、沉浸式小游戏、推荐算法、无休止的娱乐八卦，等等，本质上不就是“以奢靡娱其耳目，使日新月盛，无暇更及他事”吗？如果一个人的所有空闲时间都被低成本高刺激的廉价多巴胺填满，大脑就会失去深度思考的能力；当一个人被“奶头乐”娱乐喂得太多时，那他实际上就成了这些互联网巨头的“牵线木偶”。</p>\n<p>金属乐队 Metallica 最著名的一首曲目就叫 Master of Puppets （《木偶主人》，或者翻译为《傀儡之主》），它讲的不仅是毒品，还包括其他成瘾行为和一切能够掌控并毁灭一个人的操纵力量。“Master of puppets, I'm pulling your strings. Twisting your mind and smashing your dreams.”（傀儡的主人啊，在幕后操纵。扭曲你的心灵，粉碎你的梦想。）</p>\n<p>要摆脱“仇士良”这类 Master of Puppets, 方法就在仇士良的话中：深度阅读，多交益友，避免“感官刺激过载”，避免“假性忙碌”，给大脑留白。</p>",
-    "published": "2026-08-02T00:00:00Z",
-    "feed_title": "胡涂说",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-03T03:32:45.344458+00:00",
-    "content_length": 1049
-  },
-  {
     "guid": "d5c5196965fac5d6",
     "title": "尽量可爱一些",
     "link": "https://z.arlmy.me/posts/ZArlmyMe/BeCuteToAI_20260802/",
@@ -10191,18 +10107,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-03T03:32:45.344458+00:00",
     "content_length": 4224
-  },
-  {
-    "guid": "e1b82241031796b7",
-    "title": "社交媒体与香烟",
-    "link": "https://limboy.me/posts/social-media-and-cigarettes",
-    "author": "",
-    "content": "<p>在看广告狂人（Mad Men）时，我注意到一个现象，20 世纪 60 年代人们对香烟的接受度非常高，办公室里几乎人人抽烟，甚至孕妇在怀孕时也照抽不误。现在我们当然知道吸烟有害健康，那有没有可能我们现在习以为常的某个行为，若干年后，也会受到香烟般的待遇？我觉得社交媒体有这个潜力。</p>\n<p>细想一下，香烟跟社交媒体在很多方面都有相似性：</p>\n<ul>\n<li><strong>让空白变得难以忍受，且都能迅速填补空白。</strong> 比如排队、通勤、谈话间隙，香烟给双手和嘴提供事情做，社交媒体则让注意力始终有对象，使无聊、等待和沉默变得越来越难以忍受。</li>\n<li><strong>都容易形成下意识行为，并提供短暂的情绪调节。</strong> 当一股无聊、焦虑的念头升起时，会下意识地点一根烟/刷一会社交网络。</li>\n<li><strong>都可能影响旁人。</strong> 香烟有二手烟；社交媒体有二手音。</li>\n<li><strong>都依赖重复消费。</strong> 香烟的商业模式是「一支接一支」，社交媒体则是「一条接一条」。</li>\n<li><strong>不参与者都可能承受社交成本。</strong> 在吸烟普遍的年代，不抽烟的人可能显得不合群；今天，不使用社交媒体的人也像个怪人。</li>\n<li><strong>伤害通常是缓慢累积的。</strong> 一支烟不会立即造成明显后果，一次刷屏也不会马上摧毁注意力。问题往往来自长期、频繁、低强度的重复。</li>\n<li><strong>危害容易被个体化。</strong> 戒不了烟/社交媒体常被简化为用户「不够自律」。</li>\n<li><strong>知道有害，不等于能够停止。</strong> 可以清楚认识风险，却仍然继续使用，因为产品同时提供了真实的安慰、刺激和社会功能。</li>\n<li><strong>都改变了公共空间的默认状态。</strong> 要么向上冒烟气，要么低头看手机。</li>\n<li><strong>都具有强烈的社交功能。</strong> 递烟、借火曾是建立关系的方式；关注、点赞、转发和评论则成为今天维系关系、表达认同的社交礼仪。</li>\n</ul>\n<p>所以社交媒体某种程度上，就是一种电子烟，和香烟一样都有「反向复利」。对我来说，社交媒体带来最大的几个问题是：注意力、睡眠、落差感和期待感。注意力这个问题最明显，无法长时间与枯燥和困难的课题相处。又因为社交媒体太好刷了，一不小心就容易刷过头，影响睡眠，而睡眠是我认为优先级很高的一件事。然后是落差感，很容易在社交媒体上刷到别人的成就时刻，就会不自觉地去比较，进而形成落差。最后是期待感，总是会忍不住想发点什么，发了之后自然会期待反馈，导致心思都在这上面了。</p>\n<p>所以我打算戒电子烟，肯定会有戒断反应，希望能够撑过去。</p>",
-    "published": "2026-08-02T00:00:00Z",
-    "feed_title": "limboy's HQ",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-03T03:32:45.344458+00:00",
-    "content_length": 1220
   },
   {
     "guid": "6d04ca3840ff2de8",
@@ -10455,18 +10359,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-03T19:47:05.587926+00:00",
     "content_length": 8960
-  },
-  {
-    "guid": "850dd72212fee7ea",
-    "title": "社交媒体、香烟、科技与个人",
-    "link": "https://limboy.me/posts/social-media-and-cigarettes-technology",
-    "author": "",
-    "content": "<h2 id=\"社交媒体与香烟\">社交媒体与香烟</h2>\n<p>在看广告狂人（Mad Men）时，我注意到一个现象，20 世纪 60 年代大众对香烟的接受度非常高，办公室里几乎人人抽烟，甚至孕妇在怀孕时也照抽不误。现在我们当然知道吸烟有害健康，那有没有可能我们现在某个习以为常的事物，若干年后，也会受到香烟般的待遇？我觉得社交媒体有这个潜力。</p>\n<p>细想一下，香烟跟社交媒体在很多方面都有相似性：</p>\n<ul>\n<li><strong>让空白变得难以忍受，且都能迅速填补空白。</strong> 比如排队、通勤、谈话间隙，香烟给双手和嘴提供事情做，社交媒体则让注意力始终有对象，使无聊、等待和沉默变得越来越难以忍受。</li>\n<li><strong>都容易形成下意识行为，并提供短暂的情绪调节。</strong> 当一股无聊、焦虑的念头升起时，会下意识地点一根烟/刷一会社交网络。</li>\n<li><strong>都可能影响旁人。</strong> 香烟有二手烟；社交媒体有二手音。</li>\n<li><strong>都依赖重复消费。</strong> 香烟的商业模式是「一支接一支」，社交媒体则是「一条接一条」。</li>\n<li><strong>不参与者都可能承受社交成本。</strong> 在吸烟普遍的年代，不抽烟的人可能显得不合群；今天，不使用社交媒体的人也像个怪人。</li>\n<li><strong>伤害通常是缓慢累积的。</strong> 一支烟不会立即造成明显后果，一次刷屏也不会马上摧毁注意力。问题往往来自长期、频繁、低强度的重复，进而形成反向复利。</li>\n<li><strong>危害容易被个体化。</strong> 戒不了烟/社交媒体常被简化为用户「不够自律」。</li>\n<li><strong>知道有害，不等于能够停止。</strong> 可以清楚认识风险，却仍然继续使用，因为产品同时提供了真实的安慰、刺激和社会功能。</li>\n<li><strong>都改变了公共空间的默认状态。</strong> 要么向上冒烟气，要么低头看手机。</li>\n<li><strong>都具有强烈的社交功能。</strong> 递烟、借火曾是建立关系的方式；关注、点赞、转发和评论则成为今天维系关系、表达认同的社交礼仪。</li>\n</ul>\n<p>相比香烟，社交媒体的成瘾性更强（尤其是短视频），社会层面的影响也不容小觑。昨天在咖啡馆，一个妈妈让孩子先玩 10 分钟 iPad 再做作业，结果自己刷了半个多小时才想起来要制止正在刷视频的孩子，然后还怪罪孩子自己没有及时停止。</p>\n<p>香烟至少能真实地拉近人与人之间的距离，让对话发生，社交媒体表面上让人更容易建立联系，但也让真正的交谈变得更稀缺、更有压力。面对面聊天需要即时回应，需要忍受停顿，也需要承担被误解、被拒绝或显得无趣的风险。线上交流则允许人修改措辞、延迟回复，甚至在不知如何回应时暂时消失。当一种更可控、更安全的交流方式随时可用，人就可能逐渐减少对真实交谈中那种不确定性的练习。</p>\n<h2 id=\"社交媒体与科技\">社交媒体与科技　</h2>\n<p>在社交媒体的身上，我还看到了科技的影子，很多技术最初以「解决问题」的姿态出现，普及之后，却会改变人的行为与社会环境，并产生设计者未必预料到的后果。比如智能手机让人随时可以获取信息、处理工作和联系亲友，但当它成为生活的默认入口之后，注意力破碎、工作边界消失和持续在线的压力也随之出现。</p>\n<p>社交媒体同样如此。它最初解决的是一个真实的问题：人与人之间的距离。人们可以找到失联的朋友，与远方的家人保持联系，也可以绕过传统媒体，直接表达自己的观点。对于边缘群体、小众兴趣而言，社交媒体尤其具有解放作用。它让许多过去无法被看见的人获得了发声渠道，也让信息传播变得更加迅速。</p>\n<p>在这一阶段，技术的收益主要由个人感受到。用户多了一个方便的交流工具，朋友之间多了一条联络渠道。它看起来像日常通讯的自然延伸。</p>\n<p>但随着使用人数增加，社交媒体不再只是被人使用的工具，而逐渐变成了人们共同生活的环境。个人原本只是想与朋友分享照片，后来却开始考虑照片能否获得回应；人们原本主动关注自己感兴趣的信息，后来则由算法决定什么内容最可能让他们继续停留。技术的目标，也从帮助用户完成一件事，转变为尽可能延长用户使用技术的时间。</p>\n<p>这也是许多科技产品发生转变的关键时刻：工具开始塑造使用者。</p>\n<p>技术刚出现时，人会问：“它能帮我做什么？”当技术成为基础设施之后，更重要的问题则是：“为了适应它，我正在变成什么样的人？”</p>\n<p>社交媒体让交流更加方便，却也可能让人越来越不习惯面对面交谈中的停顿和不可控；它让信息更加丰富，却也可能让人失去持续阅读和耐心思考的能力；它让每个人都有机会表达，却也把表达变成了一场关于注意力的竞争。原本用于记录生活的平台，逐渐反过来影响人们如何安排和理解生活。</p>\n<p>这种副作用并不一定来自恶意。许多技术问题，恰恰来自某项功能过于成功。社交媒体太擅长连接人，于是人们很难真正断开；它太擅长提供内容，于是无聊几乎失去了存在的空间；它太擅长衡量回应，于是点赞数、观看量和粉丝数开始影响人们对自我价值的判断。</p>\n<p>科技几乎从来不是单纯的工具。工具用完后可以被放回原处，真正强大的技术却会重新安排环境，使人们不得不围绕它生活。社交媒体最值得警惕的地方，也许并不是它偶尔让人浪费时间，而是它已经变得如此普遍，以至于我们很难分辨：哪些行为是自己主动选择的，哪些行为只是对技术环境的适应。</p>\n<h2 id=\"社交媒体与个人\">社交媒体与个人</h2>\n<p>社交媒体对个体的危害，很少以戏剧性的方式出现。它通常不会在某一天突然摧毁一个人的生活，而是以许多微小、合理、甚至令人愉快的动作进入日常：醒来后看一眼通知，工作间隙刷几分钟视频，睡前再确认一次有没有新消息。每一次似乎都无足轻重，真正的变化发生在这些动作被重复了几千次之后。</p>\n<p>最先受到影响的，往往是注意力。</p>\n<p>社交媒体上的内容通常短暂、密集，并且彼此缺少联系。新闻、笑话、广告、朋友的照片和陌生人的争论，在同一条信息流里迅速交替。人的大脑不断判断下一条内容是否值得停留，却很少有机会在一件事情上持续深入。久而久之，注意力容易适应这种快速转换的节奏。读一本书、听完一段较长的谈话，甚至安静地完成一项工作，都可能开始显得缓慢。</p>\n<p>问题不只是人变得容易分心，而是分心逐渐成为一种默认状态。即使手机没有响，人也会主动查看它；即使眼前的事情并不无聊，注意力仍然会期待下一次刺激。一个人可能花了一整个晚上接收信息，却在结束时很难回忆自己究竟看过什么。</p>\n<p>社交媒体也改变了人衡量自己的方式。在面对面的生活中，一个人通常只能接触有限数量的同事、朋友和邻居。社交媒体却让比较的范围变得近乎无限。用户拿自己与别人精心挑选的片段比较，很容易产生一种模糊的落后感：别人的生活似乎总在发生，自己的生活却显得停滞。</p>\n<p>更深一层的变化，是自我价值开始被数字化。点赞数、观看量、粉丝数和评论数，把他人的回应转化为清晰可见的指标。过去，一个人发表意见后，可能只需要面对几个具体的人；现在，每一次表达都可能附带一个公开的成绩。原本难以量化的认可，被压缩成可以比较的数字。</p>\n<p>于是，表达不再只是「我想说什么」，也可能变成「什么更容易获得回应」。人会逐渐学会删去复杂之处，突出最容易理解、最能引起情绪的部分。即使并不以社交媒体为职业，也可能开始以观众的眼光审视自己：这顿饭是否值得拍摄，这次旅行是否足够特别，这个观点是否能得到赞同。</p>\n<p>社交媒体还可能削弱人承受无聊、孤独和不确定感的能力。过去，一段等待可能只是等待。人会发呆、观察周围，或者任由思绪游荡。现在，任何几秒钟的空白都可以被信息填补。表面上看，这消除了无聊；更长远的结果却可能是，无聊变得越来越难以忍受。</p>\n<p>这并不是一个无关紧要的损失。许多思考、创造和情绪整理，都需要一段没有立即刺激的时间。一个人只有在不急着逃离沉默时，才可能意识到自己究竟在担心什么、想念什么，或真正想做什么。当每一种不适都能被屏幕迅速覆盖，情绪未必消失，只是被暂时推迟。</p>\n<p>睡眠也容易受到影响。问题不仅来自屏幕本身，还来自社交媒体没有自然终点。一本书有最后一页，一集电视剧会结束，一支香烟也会烧完；信息流却可以无限延伸。用户不必主动决定「再看一条」，因为下一条已经自动出现在眼前。睡觉因此不再是顺理成章的结束，而像是一项需要主动抵抗平台才能完成的任务。</p>\n<p>对于遭遇网络攻击的人，伤害还可能更加直接。面对面的侮辱通常受到时间和空间限制，网络上的羞辱却可以被转发、搜索和永久保存。攻击者也不必看见对方的表情，因此更容易使用现实中不会说出口的语言。一个人面对的可能不只是某个具体的敌意，而是一群没有清晰面孔的观众。</p>\n<p>当然，并非每个使用社交媒体的人都会经历同样的伤害。它也可能提供友谊、知识、支持和归属感。一个身处孤立环境的人，可能通过网络找到现实生活中无法接触的社群；一个不善于当面表达的人，也可能先在屏幕之后找到说话的勇气。</p>\n<p>社交媒体最深的个人危害，也许并不是浪费了多少分钟，而是让人渐渐失去判断这些分钟本可以用来做什么的能力。一个人依然能够工作、交谈、娱乐和生活，只是越来越难以长时间停留在任何一件事、任何一种感情，甚至任何一个真实的人身上。</p>",
-    "published": "2026-08-02T00:00:00Z",
-    "feed_title": "limboy's HQ",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-03T19:47:05.587926+00:00",
-    "content_length": 3985
   },
   {
     "guid": "7fb30d813386ac60",
@@ -10767,18 +10659,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-04T19:44:57.260116+00:00",
     "content_length": 2416
-  },
-  {
-    "guid": "10d1b17f04e788bd",
-    "title": "2026/08/02",
-    "link": "http://tianzeze.com/article/3b0c1a70-23ff-8113-865b-fa03cb625d2b",
-    "author": "",
-    "content": "<div class=\"mx-auto overflow-hidden \" id=\"notion-article\"><div class=\"notion-viewport\"></div><div class=\"notion-collection-page-properties\"></div><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff81169d00f227630924ff\" start=\"1\"><li>铁路暑运过半：全国铁路累计发送旅客 4.32 亿人次；航班管家：7 月民航客运航班总量同比增长 1.3%</li></ol><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff81aeb0e7ca1bdb7afc5e\" start=\"2\"><li>7 月全国百城房价出炉：上海、深圳、杭州、成都等成新房上涨主力；8 城二手房价格逆势走高，其中 7 城为三四线城市</li></ol><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff81e68068dc5e05e25cc1\" start=\"3\"><li>气象局：台风“白海豚”已完成多次眼壁置换，5 日后向我国东南沿海靠近</li></ol><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff81da95b4e3452b118f49\" start=\"4\"><li>江苏徐州一小区试点集中供冷，不开空调室温 25℃，每平方米收费 4 元</li></ol><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff81269628c872576fb65d\" start=\"5\"><li>公积金用途拓宽，装修、物业费等都可纳入提取范围</li></ol><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff8175b7b0c484d77fe33d\" start=\"6\"><li>基本养老保险基金受托运营报告出炉：2025 年投资收益率 5.76%</li></ol><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff810987f7c77059d9dcad\" start=\"7\"><li>“年龄不是免罪金牌”新规发布：明确 12 至 14 周岁严重暴力犯罪核准追诉标准</li></ol><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff817ab54cdf517dc4d49a\" start=\"8\"><li>中国烹饪协会：“中国烹饪大师”“之乡、之都”等称号全部作废</li></ol><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff819a99e0dd605f4eecb1\" start=\"9\"><li>合肥大乐透 842 万元大奖至今无人认领，兑奖期限仅剩一个月</li></ol><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff81f99d2fcfcb8dddfac0\" start=\"10\"><li>太子集团“幕后大哥”胡小伟已离开日本，被遣送至美国，后续调查将在美展开</li></ol><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff81339698e0e032267372\" start=\"11\"><li>国际足联叫停世界杯股权出售计划，欧足联再度发声：对国际足联失去信心，必须进一步追责</li></ol><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff81afb323de072a7ec4f9\" start=\"12\"><li>美国人工智能模型再次被曝入侵外部网络系统，“夺旗”测试侵入公网，自我“合理化”并继续攻击</li></ol><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff81babe84f07c6006dfe0\" start=\"13\"><li>美军一架 F-35 隐形战机在加州坠毁，机上一名飞行员弹射逃生</li></ol><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff81e58f0ad707acb1bfe8\" start=\"14\"><li>西班牙称休达“偷渡潮”平息，约 5 万人已被遣返摩洛哥；欧盟 22 国签署联名信要求紧急开会商讨对策</li></ol><ol class=\"notion-list notion-list-numbered notion-block-3b0c1a7023ff8153ae3cf10b3683a44d\" start=\"15\"><li>美国驻中东多国使馆发布警报，称地区局势可能升级，敦促在中东美国公民考虑撤离</li></ol></div>",
-    "published": "2026-08-02T00:00:00Z",
-    "feed_title": "MOMB闲谈",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-04T19:44:57.260116+00:00",
-    "content_length": 2455
   },
   {
     "guid": "9acbc167305831b9",
@@ -15581,18 +15461,6 @@
     "content_length": 22203
   },
   {
-    "guid": "f96bba3dfb1d3a9c",
-    "title": "高智商领导 + 便宜执行：Codex / Claude Code / Pi 分层子代理配置教程",
-    "link": "https://catcat.blog/2026/08/sol-luna-layered-subagents-codex-claude-pi",
-    "author": "",
-    "content": "<p>在 2026 年的 vibe code 编程里，单纯用一个最强模型硬刚所有任务已经不划算了(富哥当然随意)。\n用高智商模型当领导，便宜模型当工人应该是目前的不错的省token玩法。\nSol负责判断、拆解、指挥、审核和兜底；Luna grok 负责高吞吐的探索、实现和测试。</p>\n<p>本文给出完整可落地的配置方法，重点推荐把配置写在项目级（.codex/、AGENTS.md 等），方便版本控制、团队共享和项目隔离。全局配置只作为个人默认。</p>\n<p><strong>所有事情都丢给 Sol，又贵又慢，上下文还容易糊。</strong></p>\n<h2>核心哲学</h2>\n<ul>\n<li>Sol（或等价高智商模型）：规划、决策、冲突解决、最终验收、兜底。始终保留最终决策权和外部操作（commit、PR、部署）的控制权。</li>\n<li>Luna（或便宜/快速模型）：边界清晰的执行任务、并行探索、实现、测试。</li>\n<li>闭环：Sol 规划 → Luna 并行干活 → Sol 审核整合 / 兜底。</li>\n</ul>\n<p>Claude Code 也可以同理：主会话重模型fable-5，子代理 opus。Pi 还能跨 Codex / Claude 调度。</p>\n<p>模板和 skill：</p>\n<p>::github{repo=\"Yuri-NagaSaki/subagent-skills\"}</p>\n<p>装 skill：</p>\n<pre><code>npx skills add Yuri-NagaSaki/subagent-skills -g -y\n</code></pre>\n<p>只给 Claude Code：</p>\n<pre><code>npx skills add Yuri-NagaSaki/subagent-skills -g -a claude-code -y\n</code></pre>\n<p>装完跟 agent 说：按 <code>sol-luna-setup</code> 在当前项目配一下就行。</p>\n<blockquote>\n<p>当然这里并不绝对，因为每个人的项目都不同，你可以让AI读这些skill，让他学会自己配。</p>\n</blockquote>\n<p><img alt=\"架构示意\" src=\"/images/2026/08/sol-luna-architecture.svg\" /></p>\n<hr />\n<h2>为什么现在都在建议这么做？</h2>\n<p>举两个我自己踩过的情况。</p>\n<p><strong>1. 全用 Sol 扫仓库</strong><br />\n比如「帮我看看这个 monorepo 里 auth 在哪」。Sol 能搞定，但会读一堆无关文件，token 涨得很快，主会话后面再做决策也变钝。而且由于codex的限制，sol也只有200多K的上下文，会浪费大量的token。</p>\n<p><strong>2. 全用便宜模型硬刚架构</strong><br />\n边界没写清的时候，Luna 会自己扩 scope：你让它改一个函数，它顺手把旁边模块「整理」了。便宜是便宜，返工不省。</p>\n<p>所以比较稳的分工是：</p>\n<table>\n<thead>\n<tr>\n<th>谁</th>\n<th>干什么</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Sol（主会话）</td>\n<td>理解需求、拆任务、审 diff、commit / 开 PR</td>\n</tr>\n<tr>\n<td>luna_scout</td>\n<td>只读：找文件、理依赖</td>\n</tr>\n<tr>\n<td>luna_worker</td>\n<td>在指定范围内改代码</td>\n</tr>\n<tr>\n<td>luna_critic</td>\n<td>挑问题：正确性、安全、缺测试</td>\n</tr>\n<tr>\n<td>luna_tester</td>\n<td>按你说的命令跑测试，回报 pass/fail</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2>价格</h2>\n<p>单位都是 <strong>每 1M tokens，美元</strong>。</p>\n<p>OpenAI 在 <strong>2026-07-30</strong> 下调了 Terra 和 Luna（<a href=\"https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6/\">公告</a>），Sol 没动。</p>\n<table>\n<thead>\n<tr>\n<th>模型</th>\n<th>输入</th>\n<th>输出</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>gpt-5.6-sol</td>\n<td>$5.00</td>\n<td>$30.00</td>\n<td>旗舰，7 月 30 日未降</td>\n</tr>\n<tr>\n<td>gpt-5.6-terra</td>\n<td>$2.00</td>\n<td>$12.00</td>\n<td>原先 $2.50 / $15，大约降 20%</td>\n</tr>\n<tr>\n<td>gpt-5.6-luna</td>\n<td>$0.20</td>\n<td>$1.20</td>\n<td>原先 $1 / $6，降了 80%</td>\n</tr>\n<tr>\n<td>grok-4.5</td>\n<td>$2.00</td>\n<td>$6.00</td>\n<td>xAI 文档：prompt 较短时这档；prompt ≥200k 会更高。缓存输入大约 $0.30</td>\n</tr>\n<tr>\n<td>claude-fable-5</td>\n<td>$10.00</td>\n<td>$50.00</td>\n<td>Anthropic 定价页，Fable 5</td>\n</tr>\n</tbody>\n</table>\n<p>光看输入：以前 Luna 对 Sol 大约 1:5，现在大约 <strong>1:25</strong>。<br />\n所以「领导 Sol、执行 Luna」比 GPT-5.6 刚出来那会儿更划算。Terra 可以当中档日常用；Fable 很强但输出 $50/M。官方的意思 其实我感觉也是多鼓励探索多agent模式，早在fable-5发布的时候就在宣扬这种观点了。</p>\n<hr />\n<h2>怎么装到自己项目</h2>\n<h3>方式 A：只装 skill（推荐）</h3>\n<pre><code>npx skills add Yuri-NagaSaki/subagent-skills -g -y\n</code></pre>\n<p>然后让 agent 按 skill 写配置。</p>\n<h3>方式 B：脚本直接生成文件</h3>\n<pre><code>git clone https://github.com/Yuri-NagaSaki/subagent-skills.git\nexport OPENAI_API_KEY=\"你的key\"   # 别写进仓库\nbash subagent-skills/scripts/bootstrap.sh /path/to/your-project\n</code></pre>\n<p>大致会多这些：</p>\n<pre><code>.codex/config.toml\n.codex/agents/luna_*.toml\nAGENTS.md\n.claude/agents/\nscripts/prepare-luna-catalog.sh\n</code></pre>\n<p>把 <code>config.toml</code> 里的 <code>base_url</code> 改成你自己的网关。Key 用环境变量。</p>\n<hr />\n<h2>Codex 项目级配置</h2>\n<p>项目里的 <code>.codex/</code> 会覆盖 <code>~/.codex/</code> 里同名项。<br />\n<strong>和项目相关的策略写进仓库</strong>，个人习惯放全局。</p>\n<h3>目录</h3>\n<pre><code>your-project/\n├── .codex/\n│   ├── config.toml\n│   └── agents/\n│       ├── luna_scout.toml\n│       ├── luna_worker.toml\n│       ├── luna_critic.toml\n│       └── luna_tester.toml\n└── AGENTS.md\n</code></pre>\n<h3>config 示例</h3>\n<pre><code>model = \"gpt-5.6-sol\"\nmodel_provider = \"gateway\"\nmodel_reasoning_effort = \"xhigh\"\n\n[features]\nmulti_agent = true\nmulti_agent_v2 = false\n\n[agents]\nmax_concurrent_threads_per_session = 4\ndefault_subagent_model = \"gpt-5.6-luna\"\ndefault_subagent_reasoning_effort = \"max\"\n\n[model_providers.gateway]\nname = \"Custom Gateway\"\nbase_url = \"https://your-gateway.example/v1\"\nenv_key = \"OPENAI_API_KEY\"\nwire_api = \"responses\"\n</code></pre>\n<h3>worker 示例</h3>\n<pre><code>name = \"luna_worker\"\ndescription = \"在明确文件范围内实现改动\"\nmodel = \"gpt-5.6-luna\"\nmodel_reasoning_effort = \"max\"\nsandbox_mode = \"workspace-write\"\ndeveloper_instructions = \"\"\"\n只做交代范围内的改动。尽量小 diff。\n不要 commit、开 PR、部署。\n做完说明改了哪些文件、怎么验证、哪里没把握。\n任务不清楚或做不了就 escalate 回主会话。\n\"\"\"\n</code></pre>\n<p>scout / critic 用 <code>read-only</code>。完整模板在仓库 <code>templates/</code>。</p>\n<p><code>AGENTS.md</code> 写清：谁能 commit、什么算越界、失败要不要打回。</p>\n<hr />\n<h2>问题 1：Sol spawn 不到 Luna</h2>\n<p>配置写对了也可能遇到：</p>\n<pre><code>Unknown model `gpt-5.6-luna` for spawn_agent.\nAvailable models: gpt-5.6-sol, gpt-5.6-terra\n</code></pre>\n<p>原因是模型目录里 Sol / Terra 常见标 multi-agent <strong>v2</strong>，Luna 是 <strong>v1</strong>，V2 侧直接把 Luna 滤掉了。</p>\n<p>仓库里有个脚本：</p>\n<pre><code>bash scripts/prepare-luna-catalog.sh \"$(pwd)/.codex/models-v1.json\"\n</code></pre>\n<p>生成后把 <code>model_catalog_json</code> 指到这个文件的<strong>绝对路径</strong>，并保持 <code>multi_agent_v2 = false</code>。<br />\n更多说明：<code>docs/sol-luna-catalog-fix.md</code>。</p>\n<p>我这边修完之后，Sol 才能正常 spawn <code>luna_scout</code> 并收回结果。<br />\n在这之前，只是「两个模型都能单独聊」，算不上 multi-agent。</p>\n<hr />\n<h2>Claude Code</h2>\n<p>子代理是 markdown，例如：</p>\n<pre><code>---\nname: luna-worker\ndescription: 范围明确时改代码、补测试、搜索\nmodel: opus\n---\n只做明确范围内的事。不要 commit。做完说明结果和不确定点。\n</code></pre>\n<p>主会话用你账号里更强的模型就行。<br />\n注意：root 下某些高权限模式会直接拒绝，换普通用户。</p>\n<p>Fable 5 输出按 $50/M 算的话，让它去全仓库乱翻不太合适，留给真难的设计和终审。</p>\n<hr />\n<h2>Pi（可选）</h2>\n<p>如果要在一个会话里同时叫 Codex 和 Claude，可以看 Pi + <code>pi-flow</code>：</p>\n<pre><code>pi install npm:@kky42/pi-flow\n</code></pre>\n<p>仓库 <code>templates/pi/</code> 有示例档案。<br />\n只做 Codex 项目的话，先把 Sol/Luna 跑顺再加 Pi，省得一次配三套。</p>\n<hr />\n<h2>一些习惯</h2>\n<ol>\n<li>给工人的说明写清楚：目标、能改哪些路径、不能碰什么、要交什么结果</li>\n<li>并行，3～4 个够用；别多个 worker 抢同一个文件</li>\n<li>探索和审查尽量只读；commit 留主会话</li>\n<li>安全相关别只信便宜模型</li>\n<li>项目配置进 git，密钥不要进 git</li>\n<li>spawn 列表里没有 Luna 就先修 catalog，再谈并行</li>\n</ol>\n<hr />",
-    "published": "2026-08-02T00:00:00Z",
-    "feed_title": "猫猫博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-15T01:36:44.305172+00:00",
-    "content_length": 6060
-  },
-  {
     "guid": "cd484b2ac8ef3666",
     "title": "HSBC汇丰澳洲宣布关闭，2%返现要凉了",
     "link": "https://www.ozexplorers.com/%E7%BE%8A%E6%AF%9B%E6%94%BB%E7%95%A5/2026/08/15/hsbc-australia-will-close-soon-no-more-cashback.html",
@@ -15843,5 +15711,53 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-15T18:37:49.557581+00:00",
     "content_length": 1701
+  },
+  {
+    "guid": "1fde3f800e300f1c",
+    "title": "搞懂 Chrome Remote Debugging：--autoConnect、9222 與 CDP 的差異",
+    "link": "https://blog.miniasp.com/post/2026/08/16/chrome-remote-debugging-autoconnect-9222-cdp",
+    "author": "Will.Huang@miniasp.com",
+    "content": "<p>最近我在研究 Chrome DevTools MCP 時，遇到一個讓我困惑的問題：明明在 <strong>chrome://inspect/#remote-debugging</strong> 啟用了 Remote Debugging，也看到 <strong>Server running at: 127.0.0.1:9222</strong>，但 <strong>curl http://127.0.0.1:9222/json/version</strong> 卻回傳 <strong>HTTP 404 Not Found</strong>。深入研究後才發現，這其實是兩種不同的「連線建立方式」&mdash;&mdash;以下就是完整的來龍去脈。</p><p>... <a class=\"more\" href=\"https://blog.miniasp.com/post/2026/08/16/chrome-remote-debugging-autoconnect-9222-cdp#continue\">繼續閱讀</a> ...</p>",
+    "published": "",
+    "feed_title": "The Will Will Web",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-16T01:43:40.879669+00:00",
+    "content_length": 472
+  },
+  {
+    "guid": "03f94f54f998c01a",
+    "title": "新西兰认证雇主池 New Zealand Accredited Employer Pool",
+    "link": "https://www.jack-liu.com/post-664.html",
+    "author": "Jack Liu",
+    "content": "新西兰认证雇主池是移民博主纽村杰克(jack-liu)主持的一档移民招聘类栏目，该项目旨在帮助本地留学生以及在岸离岸求职者能够成功在新西兰实现乐业安居。 <a href=\"https://www.jack-liu.com/post-664.html\">阅读全文&gt;&gt;</a><div class=\"related_log\"><h4><span>相关日志</span></h4><ul><li><a href=\"https://www.jack-liu.com/post-660.html\"><div class=\"img\"><div class=\"img-inner\"><img class=\"lazy\" src=\"/images/dot.gif\" /></div><span>003移民不要依赖所谓最后的时刻[短视频]</span></div></a></li><li><a href=\"https://www.jack-liu.com/post-658.html\"><div class=\"img\"><div class=\"img-inner\"><img class=\"lazy\" src=\"/images/dot.gif\" /></div><span>001留学生毕业后找不到工作怎么办？[直播短视频]</span></div></a></li><li><a href=\"https://www.jack-liu.com/post-659.html\"><div class=\"img\"><div class=\"img-inner\"><img class=\"lazy\" src=\"/images/dot.gif\" /></div><span>002新西兰留学避坑指南(100%避坑攻略)[短视频]</span></div></a></li><li><a href=\"https://www.jack-liu.com/swv\"><div class=\"img\"><div class=\"img-inner\"><img class=\"lazy\" src=\"/images/dot.gif\" /></div><span>中国特色工作签证政策(China Special Work Category)</span></div></a></li><li><a href=\"https://www.jack-liu.com/post-647.html\"><div class=\"img\"><div class=\"img-inner\"><img class=\"lazy\" src=\"/images/dot.gif\" /></div><span>纽村杰克:《新西兰认可雇主计划(AEWV Scheme)》进展(视频)</span></div></a></li></ul><div class=\"clr\"></div></div>",
+    "published": "2026-08-15T15:42:40Z",
+    "feed_title": "Jack Liu博客",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-16T01:43:40.879669+00:00",
+    "content_length": 1213
+  },
+  {
+    "guid": "f40aa935a38dc223",
+    "title": "听艾怡良深圳演唱会",
+    "link": "https://tianheg.co/posts/eve-ai-shenzhen-2026/",
+    "author": "Tianhe Gao",
+    "content": "<p>\n今天虽然是周六，但是也上了八小时班。到了晚上还有工作的事情找来，让人不胜其烦。本来看演唱会是很开心的事情，因为工作这种喜悦的情绪被削弱了。应援棒的灯光让我担心自己的眼睛会被闪瞎，实际也的确让我的眼睛不舒服。</p>",
+    "published": "2026-08-14T16:00:00Z",
+    "feed_title": "一大加贝",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-16T01:43:40.879669+00:00",
+    "content_length": 111
+  },
+  {
+    "guid": "f385b52c72e46332",
+    "title": "什么是Agent?",
+    "link": "https://cuixinxin.cn/archives/4138",
+    "author": "坚果大叔",
+    "content": "<div class=\"nc-light-gallery\"><h2>什么是 Agent？用&quot;让 Agent 成为一个领域的专属情报官&quot;这件小事讲明白</h2>\n<blockquote>\n<p>很多人第一次听到 Agent，会以为它是「更聪明的聊天机器人」。其实不是那么回事。Agent 是一套能自己定计划、调工具、看结果、再调整，直到把事干完的系统——它有关键的「行动」和「循环」，而不只是动嘴。</p>\n</blockquote>\n<h3>先说清楚它到底是什么</h3>\n<p>IBM、DeepMind、OpenAI 给 Agent 的共识定义是：一个能持续感知环境、自主推理、调用工具做事，并根据反馈不断调整，直到目标达成的系统。</p>\n<p>光背定义没用，看它跟普通聊天机器人差在哪：</p>\n<ul>\n<li>你跟普通聊天机器人说「帮我订明天去北京的高铁」，它要么跟你聊两句，要么直接编一段列车时刻表——因为它没有手。</li>\n<li>你跟 Agent 说同样的话，它会真的去查 12306、比价、挑座位、下单（或者把订单交给你确认）。差别就在：它有「手」（工具）和「脑子里的循环」（想—做—看—再想）。</li>\n</ul>\n<p>这里有个绕不开的词：<strong>ReAct</strong>，就是 Reason（想）+ Act（做）。现在主流 Agent 基本都按这个圈转：</p>\n<p><a alt=\"什么是Agent?\" href=\"https://blogimg.lieme.cn/2026/08/2026081515471266.png\" title=\"什么是Agent?\"><img alt=\"\" src=\"https://blogimg.lieme.cn/2026/08/2026081515471266.png?imageView2/2/w/1280/interlace/1/q/99#\" /></a></p>\n<p>想 → 做 → 看结果 → 再想，没干完就回到「想」，一直转到目标达成，或者踩到停止条件（任务完成 / 步数到上限 / 遇到解决不了的错误）。</p>\n<h3>把它当成一个自动驾驶系统</h3>\n<p>写前端这么多年，我觉得 Agent 最像的是<strong>自动驾驶</strong>，而不是某个具体的人。</p>\n<p>你调一个普通 LLM，就像调用一个纯函数：传进去 prompt，返回一段 text，调用结束，状态清空。Agent 更像一套自动驾驶：你只设终点（目标），它自己感知路况（环境信息）、决策（下一步往哪走）、执行（打方向盘 / 调接口）、再根据导航反馈修正路线。你不用每一步都喊「现在左转」，你只管说去哪，剩下的它自己跑完。</p>\n<p>还是拿那个高铁的例子：普通模型给你一段文字就结束了；Agent 会自己拆出「查车次 → 比价 → 选座 → 下单 / 让你确认」这一串动作，中间某个车次没票了，它自己换方案继续，而不是卡住问你。</p>\n<h3>它到底帮我解决了哪些麻烦</h3>\n<p>Agent 适合「步骤多、要临场判断、还得拉外部数据」的活。说几个我实际用上的，都是以前得人肉盯的事：</p>\n<h4>1. 自动盯线上，省掉人工巡检</h4>\n<p>以前线上报错靠人刷监控面板，漏了就背锅。现在 Agent 定时拉报错日志、做归类、做限频，严重的直接建 Jira 单并 @ 对应人。人不用来回切好几个系统当传声筒。</p>\n<h4>2. 让模型知道「今天」发生了什么</h4>\n<p>大模型有知识截止日期，不懂今天股价、今天天气、今天你们仓库的最新提交。Agent 通过工具实时去拉，把这块短板补上。比如问「我们这个接口今天超时了多少次」，它能真去查监控再答。</p>\n<h4>3. 把一串互不相通的工具串成一条流水线</h4>\n<p>像「抓某个领域的最新文章 → 过滤 → 生成摘要 → 发邮件」，每一步都是不同系统。Agent 自己把它们连起来，中间不用人把 A 的输出复制粘贴进 B。</p>\n<h4>4. 接得住模糊需求</h4>\n<p>你不用把每一步写死。「帮我把这个落地页转化率低的问题查一下」，Agent 会先抓数据、再看热力图、再判断是文案问题还是加载问题，而不是等你给标准答案才动。</p>\n<h3>顺手厘清几个绕口的词</h3>\n<p>Agent 相关文章里老冒出来几个词，先认个脸，免得后面看懵：</p>\n<ul>\n<li><strong>Function Calling</strong>：模型把「要调哪个工具、参数是啥」以 JSON 形式吐出来，执行器去真调。它是 Agent 的工具接口，但不是 Agent 的全部。</li>\n<li><strong>ReAct</strong>：上面讲过了，就是想—做—看的循环框架。</li>\n<li><strong>RAG（检索增强生成）</strong>：Agent 先从知识库 / 向量库检索相关文档，再让模型作答。企业私有问答常用。</li>\n<li><strong>MCP</strong>：上一篇讲 Skill 时提过，是 Agent 连外部工具的通用协议，相当于 USB-C。</li>\n<li><strong>向量数据库</strong>：把文档、代码转成向量，方便做语义检索。常见的如 Pinecone、Milvus、Qdrant。</li>\n<li><strong>HITL（Human-in-the-loop）</strong>：关键动作让人拍板。生产环境里尤其重要，比如你肯定不想让 Agent 自己转账或删库。</li>\n</ul>\n<h3>动手写一个能跑的 Agent</h3>\n<p>落到代码上。一个最小可用 Agent，抽象出来就是下面这个循环：</p>\n<pre><code class=\"language-python\">import openai\n\ndef run_agent(user_goal, tools, max_steps=10):\n    messages = [{\"role\": \"user\", \"content\": user_goal}]\n    for step in range(max_steps):\n        # 1. 大模型决定：直接回答，还是调用工具\n        response = openai.chat.completions.create(\n            model=\"gpt-4o\",\n            messages=messages,\n            tools=tools,\n        )\n        msg = response.choices[0].message\n\n        # 2. 如果直接回答，任务结束\n        if not msg.tool_calls:\n            return msg.content\n\n        # 3. 执行工具，并把结果送回上下文\n        for call in msg.tool_calls:\n            result = execute_tool(call.function.name,\n                                  json.loads(call.function.arguments))\n            messages.append({\n                \"role\": \"tool\",\n                \"tool_call_id\": call.id,\n                \"content\": json.dumps(result),\n            })\n\n        # 4. 继续下一轮思考</code></pre>\n<p>这个循环就是 Agent 的骨架。工程里真要用起来，还得补几块：</p>\n<h4>先把目标钉死</h4>\n<p>别给「把代码变好」这种虚词。改成「检查这个 React 组件有没有多余的 re-render，并给出修改方案」。目标越具体，Agent 越不容易跑偏。</p>\n<h4>挑个会思考的大脑</h4>\n<p>负责规划和推理的模型（GPT-4o、Claude Sonnet、DeepSeek-V3 这类）更适合当 Agent 的脑子。便宜的小模型适合做后面那些确定性处理，比如格式化、校验。</p>\n<h4>给它一点记忆</h4>\n<ul>\n<li><strong>短期记忆</strong>：当前这轮对话的上下文；</li>\n<li><strong>长期记忆</strong>：用户偏好、项目结构、历史决策，丢进向量库或文件里；</li>\n<li><strong>任务记忆</strong>：当前执行到哪一步了，防止走着走着迷路。</li>\n</ul>\n<h4>把工具说明书写清楚</h4>\n<p>工具描述要写得像给同事看的 API 文档：名字、干啥的、参数、返回值、会怎么报错。Agent 全靠这些描述决定要不要调、怎么调。</p>\n<h4>让它先列个计划再干</h4>\n<p>简单任务可以「一步一想一调」。复杂任务建议先让模型输出一份计划清单，再按计划执行，中途失败了再重排，比走到哪算哪稳得多。</p>\n<h4>最后套上安全带</h4>\n<ul>\n<li>敏感操作必须走 HITL 确认；</li>\n<li>单步和总步数都设上限，防死循环；</li>\n<li>工具调用失败要有重试和兜底；</li>\n<li>全程留日志，方便查问题。</li>\n</ul>\n<h3>动手案例：搭一个「每日热点日报」Agent</h3>\n<p>前面讲的都是原理，这里我拿一件自己真的会想偷懒的事，把它完整跑一遍：每天帮我从各大平台抓热点，挑出真正值得看的，再用人话解读一遍，最后打包成一份日报发到我邮箱。</p>\n<p>这活纯靠人，每天手动刷微博、知乎、新闻 App 再整理，半小时打底，还容易漏。但它又不是「一次性任务」——有明确目标、要调好几个外部源、中间还得判断「这条值不值得收」，正好是 Agent 的菜。</p>\n<h4>它到底怎么转起来</h4>\n<p><a alt=\"什么是Agent?\" href=\"https://blogimg.lieme.cn/2026/08/2026081515470799.png\" title=\"什么是Agent?\">![每日热点日报 Agent 的工作流]</a>](<a alt=\"什么是Agent?\" href=\"https://blogimg.lieme.cn/2026/08/2026081515470799.png\" title=\"什么是Agent?\">https://blogimg.lieme.cn/2026/08/2026081515470799.png</a>)<br />\n拆开看是这么一条流程：</p>\n<ul>\n<li><strong>① 抓取</strong>：定时去拉多个源——微博热搜、知乎热榜、几个新闻站点的 RSS、GitHub Trending。每个源一个工具函数，统一返回「标题 / 链接 / 热度 / 来源」。</li>\n<li><strong>② 聚合去重</strong>：不同平台经常撞同一条新闻。按标题相似度加语义向量聚类，把重复的并成一条，顺手标个「3 个平台都在聊」。</li>\n<li><strong>③ AI 解读</strong>：对留下来的每条热点，调模型产出三样东西——一句话说清发生了什么、为什么重要、跟咱们行业有啥关系。这一步，就是 Agent 比「纯爬虫脚本」多出来的那点脑子。</li>\n<li><strong>④ 生成日报</strong>：把解读按板块（科技 / 财经 / 社会 / 开发圈）排好，拼成一份 Markdown，带上原文链接。</li>\n<li><strong>⑤ 推送</strong>：发邮件、推飞书、或者存成公众号草稿，看你喜欢。</li>\n</ul>\n<p>整个流程每天定时跑一轮，所以流程图右边画了个回头箭头——它不是跑一次就完，而是「日更」的循环。</p>\n<h4>工具清单（给 Agent 的「手」）</h4>\n<pre><code class=\"language-python\">tools = [\n    fetch_weibo_hot(),    # 拉微博热搜\n    fetch_zhihu_hot(),    # 拉知乎热榜\n    fetch_news_rss(),     # 拉新闻 RSS\n    dedup_and_cluster(),  # 去重 + 语义聚类\n    llm_summarize(),      # AI 解读单条热点\n    render_digest(),      # 拼成 Markdown 日报\n    send_email(),         # 发到邮箱\n]</code></pre>\n<p>每个工具都要写清「干啥、入参、返回啥、失败了咋办」——前面说的「把工具说明书写清楚」就是在这儿用的。模型看不到你的代码，它只靠这些描述决定先调哪个。</p>\n<h4>核心循环：跟前面那套骨架一模一样</h4>\n<pre><code class=\"language-python\">def run_daily_digest(tools, max_steps=20):\n    goal = \"产出今日热点日报并发送到邮箱\"\n    messages = [\n        {\"role\": \"system\", \"content\": SYSTEM_PROMPT},\n        {\"role\": \"user\",   \"content\": goal},\n    ]\n    for step in range(max_steps):\n        resp = llm(messages, tools=tools)   # 思考\n        if not resp.tool_calls:             # 没工具要调 = 干完了\n            return resp.content\n        for call in resp.tool_calls:        # 行动\n            result = execute(call)          # 调工具\n            messages.append(tool_result(call, result))  # 观察 → 再思考</code></pre>\n<p>你会发现，这就是前面那个最小骨架，只是 <code>tools</code> 换成了日报专用的几个函数。Agent 抽象出来就这么点东西，难的从来不在循环，在「工具写得稳不稳、护栏全不全」。</p>\n<h4>对照前面那几条「安全准则」</h4>\n<ul>\n<li><strong>目标钉死</strong>：不是「看看今天有啥新闻」，而是「抓 4 个源、去重后挑前 15 条、每条配一句话解读、发邮件」。越具体，越不容易跑偏。</li>\n<li><strong>给它记忆</strong>：昨天发过的热点今天不重复推（短期去重）；你常瞄「开发圈」板块就多留几条（长期偏好）。</li>\n<li><strong>套安全带</strong>：抓取失败有重试，单个源挂了不影响其它源；日报生成后先存草稿人工过目再群发，别让 Agent 直接对全员推送（HITL）。</li>\n</ul>\n<p>跑通这一版，你基本就把「Agent = 会自己定计划 + 调工具 + 看结果再调整」这句话，从概念变成了每天真给你发邮件的东西。</p>\n<h3>最后说点实在的</h3>\n<p>Agent 没那么玄。它就是把「模型会想」+「工程上管状态」+「能调外部工具」这三件事拧成一圈循环。</p>\n<p>站在前端角度，你可以把它当成一套更猛的异步工作流：以前我们用 Promise 和状态机管用户操作，现在用 Agent 管 AI 的自主执行。</p>\n<p>别一上来就想着造个全能管家。先用 LangGraph、CrewAI、Anthropic Agent SDK 或 OpenAI Assistants 跑通一个具体例子——比如「追踪你关注领域的最新动态，每周自动出一份汇总」。跑通了，再慢慢加记忆、加工具、加护栏。</p>\n<p>下一篇聊聊一个和 Agent 强相关的新岗位：<strong>FDE</strong>。</p>\n</div>\n<p><img alt=\"什么是Agent?-卖坚果的怪叔叔\" src=\"https://cuixinxin.cn/postviews/4138.png\" /></p>",
+    "published": "2026-08-15T15:49:12Z",
+    "feed_title": "之前看到已经被收录了。今天看突然找不到了。",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-16T01:43:40.879669+00:00",
+    "content_length": 7047
   }
 ]
