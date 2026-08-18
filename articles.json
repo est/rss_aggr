@@ -9857,42 +9857,6 @@
     "content_length": 8
   },
   {
-    "guid": "be536399a3e147da",
-    "title": "2026.7 投资收入以及目前的策略",
-    "link": "https://www.p1gd0g.cc/blog/110/",
-    "author": "",
-    "content": "",
-    "published": "2026-08-04T02:31:27Z",
-    "feed_title": "www.p1gd0g.cc",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-04T03:16:07.952541+00:00",
-    "content_length": 0
-  },
-  {
-    "guid": "73e0360c8b4c8dab",
-    "title": "WAF加白放行渗透流量引发nginx到ingress异常连接的排查",
-    "link": "https://199604.com/3623",
-    "author": "阿俊",
-    "content": "WAF加白放行渗透流量引发nginx到ingress异常连接的排查 记录时间：2026-07-31 环境：外层 [&#8230;]",
-    "published": "2026-08-04T02:24:10Z",
-    "feed_title": "， https://199604.com",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-04T03:16:07.952541+00:00",
-    "content_length": 65
-  },
-  {
-    "guid": "4480fa274a9d1027",
-    "title": "运维踩坑：nginx 缓存上游容器旧 IP，请求转发到了错误的服务",
-    "link": "https://blog.diqigan.cn/posts/coding/maintenance/nginx-cached-stale-upstream-ip-trap.html",
-    "author": "Seven",
-    "content": "<p>容器化微服务环境，前置 nginx 反代到 Spring Cloud Gateway。某次 gateway 容器重建后，所有经 nginx 的 <code>/api/**</code> 请求开始返回 500，而 gateway 自身、服务发现、各业务服务均正常。</p><p>排查绕了一大圈，根因是 nginx 的一个经典行为：<strong><code>proxy_pass</code> 写主机名时只在启动时解析一次，之后永久缓存。上游容器重建换 IP 后，nginx 仍在连旧 IP——而旧 IP 已被 Docker 分配给了另一个服务。</strong></p><h2 id=\"现场\"><a href=\"#现场\" class=\"headerlink\" title=\"现场\"></a>现场</h2><p>前置 nginx + Spring Cloud Gateway + Nacos 架构，全部跑在同一个 Docker 自定义网络（<code>172.18.0.0/16</code>）里：</p><figure class=\"highlight text\"><table><tr><td class=\"gutter\"><pre><span class=\"line\">1</span><br><span class=\"line\">2</span><br><span class=\"line\">3</span><br><span class=\"line\">4</span><br><span class=\"line\">5</span><br><span class=\"line\">6</span><br><span class=\"line\">7</span><br><span class=\"line\">8</span><br><span class=\"line\">9</span><br><span class=\"line\">10</span><br><span class=\"line\">11</span><br><span class=\"line\">12</span><br><span class=\"line\">13</span><br><span class=\"line\">14</span><br><span class=\"line\">15</span><br><span class=\"line\">16</span><br><span class=\"line\">17</span><br><span class=\"line\">18</span><br><span class=\"line\">19</span><br><span class=\"line\">20</span><br><span class=\"line\">21</span><br><span class=\"line\">22</span><br></pre></td><td class=\"code\"><pre><span class=\"line\">                     Docker 网络 172.18.0.0/16</span><br><span class=\"line\">┌─────────┐         ┌──────────────────────────────────────────────┐</span><br><span class=\"line\">│ 客户端   │ ──8000─▶│ nginx 容器            172.18.0.10            │</span><br><span class=\"line\">└─────────┘         │  location /api/ &#123; proxy_pass ...:8080 &#125;      │</span><br><span class=\"line\">                    └───────────────────┬──────────────────────────┘</span><br><span class=\"line\">                                        │ proxy_pass http://project-gateway:8080</span><br><span class=\"line\">                                        ▼  (nginx 在启动时把主机名解析成 IP 并缓存)</span><br><span class=\"line\">          ┌─────────────────────────────┴─────────────────────────────┐</span><br><span class=\"line\">          ▼                          ▼                                  ▼</span><br><span class=\"line\">┌───────────────────┐     ┌───────────────────┐          ┌───────────────────┐</span><br><span class=\"line\">│ project-gateway    │     │ project-order      │          │ project-auth       │</span><br><span class=\"line\">│ Spring Cloud       │     │ 业务服务            │          │ 业务服务            │</span><br><span class=\"line\">│ Gateway            │     │ 172.18.0.20        │          │ 172.18.0.22        │</span><br><span class=\"line\">│ 172.18.0.21        │     └───────────────────┘          └───────────────────┘</span><br><span class=\"line\">│ 订阅 Nacos 实例     │              ▲</span><br><span class=\"line\">└─────────┬─────────┘              │</span><br><span class=\"line\">          │                        │ nginx worker 实际连的是这个旧 IP</span><br><span class=\"line\">          ▼                        │ —— gateway 重建前它属于 gateway，</span><br><span class=\"line\">┌───────────────────┐               │   重建后被 Docker 重新分配给了 order</span><br><span class=\"line\">│ Nacos              │               │</span><br><span class=\"line\">│ 172.18.0.2         │ ─ ─ ─ ─ ─ ─ ─ ┘</span><br><span class=\"line\">└───────────────────┘   服务发现正常，但与 nginx 转发目标无关</span><br></pre></td></tr></table></figure><p>请求链路本该是 <code>客户端 → nginx → gateway → 业务服务</code>，gateway 再按 Nacos 的实例列表把请求路由到 <code>project-order</code> &#x2F; <code>project-auth</code>。但出问题时 nginx 根本没把请求交给 gateway——某个经 nginx 的接口请求报错：</p><figure class=\"highlight plaintext\"><table><tr><td class=\"gutter\"><pre><span class=\"line\">1</span><br><span class=\"line\">2</span><br></pre></td><td class=\"code\"><pre><span class=\"line\">GET http://10.20.30.40:8000/api/xxx</span><br><span class=\"line\">&#123;&quot;traceId&quot;:null,&quot;code&quot;:1,&quot;data&quot;:null,&quot;message&quot;:&quot;unknow.exception&quot;&#125;   HTTP 500</span><br></pre></td></tr></table></figure><span id=\"more\"></span><p>几个看似矛盾的现象，把排查方向带偏了数次：</p><ul><li><strong>服务发现正常</strong>：目标服务已注册到 Nacos，gateway 也订阅到了实例。</li><li><strong>gateway 容器内直连正常</strong>：<code>curl gateway:8080/xxx</code> 返回 200。</li><li><strong>但经 nginx 的请求，gateway 一条日志都没有</strong>——请求根本没到 gateway。</li><li><strong>nginx 配置看不出问题</strong>：<code>location /api/ { proxy_pass http://project-gateway:8080/; }</code>，<code>proxy_pass</code> 带尾部 <code>/</code> 会剥前缀，没毛病。</li><li><strong><code>docker exec nginx curl project-gateway:8080</code> 也是通的。</strong></li></ul><p>配置对、直连通、<code>exec</code> 也通，唯独经 nginx 就 500 且 gateway 收不到——问题出在 nginx worker 实际把请求转发到了哪。抓 nginx worker 的真实 TCP 连接目标（<code>/proc/net/tcp</code> 解码）：</p><figure class=\"highlight text\"><table><tr><td class=\"gutter\"><pre><span class=\"line\">1</span><br></pre></td><td class=\"code\"><pre><span class=\"line\">38   -&gt; 172.18.0.20:8080     ← nginx worker 在连这个 IP</span><br></pre></td></tr></table></figure><p>对照各容器当前 IP：</p><figure class=\"highlight text\"><table><tr><td class=\"gutter\"><pre><span class=\"line\">1</span><br><span class=\"line\">2</span><br><span class=\"line\">3</span><br></pre></td><td class=\"code\"><pre><span class=\"line\">project-gateway -&gt; 172.18.0.21</span><br><span class=\"line\">project-order   -&gt; 172.18.0.20   ← nginx 连的是它，不是 gateway</span><br><span class=\"line\">project-auth    -&gt; 172.18.0.22</span><br></pre></td></tr></table></figure><p>nginx 把请求转发到了 <code>172.18.0.20</code>（业务服务 <code>project-order</code>），而非 gateway（<code>.21</code>）。该服务没有对应路由，抛异常被框架兜底成 500。</p><blockquote><p>为什么 <code>docker exec</code> 通、worker 却不通？<code>exec</code> 启动的新 shell 用<strong>当前 DNS</strong>（解析到 <code>.21</code>），而 nginx worker 用的是启动时缓存的旧 IP（<code>.20</code>）。同一容器、同一网络栈，DNS 解析的<strong>时机</strong>不同。</p></blockquote><h2 id=\"根因\"><a href=\"#根因\" class=\"headerlink\" title=\"根因\"></a>根因</h2><figure class=\"highlight nginx\"><table><tr><td class=\"gutter\"><pre><span class=\"line\">1</span><br><span class=\"line\">2</span><br><span class=\"line\">3</span><br></pre></td><td class=\"code\"><pre><span class=\"line\"><span class=\"section\">location</span> /api/ &#123;</span><br><span class=\"line\">    <span class=\"attribute\">proxy_pass</span> http://project-gateway:8080/;   <span class=\"comment\"># 静态主机名，全配置无 resolver</span></span><br><span class=\"line\">&#125;</span><br></pre></td></tr></table></figure><ul><li><code>proxy_pass</code> 写的是主机名，且全配置<strong>没有 <code>resolver</code> 指令</strong> → nginx 在<strong>启动时</strong>解析一次并<strong>永久缓存</strong>，之后不再重新解析。</li><li>gateway 容器重建后 IP 由 <code>.20</code> 变 <code>.21</code>，旧 IP <code>.20</code> 被 Docker 重新分配给了 <code>project-order</code>。</li><li>nginx 仍在连旧 IP，于是所有 <code>/api/**</code> 请求都打到了 <code>project-order</code>。</li></ul><p>一句话：<strong><code>proxy_pass</code> 写主机名 &#x3D; 启动期解析一次后缓存，容器 IP 一变就连错。</strong></p><h2 id=\"修复\"><a href=\"#修复\" class=\"headerlink\" title=\"修复\"></a>修复</h2><p><code>resolver</code> + 变量版 <code>proxy_pass</code>，让 nginx 按 TTL 动态解析：</p><figure class=\"highlight nginx\"><table><tr><td class=\"gutter\"><pre><span class=\"line\">1</span><br><span class=\"line\">2</span><br><span class=\"line\">3</span><br><span class=\"line\">4</span><br><span class=\"line\">5</span><br><span class=\"line\">6</span><br><span class=\"line\">7</span><br><span class=\"line\">8</span><br><span class=\"line\">9</span><br><span class=\"line\">10</span><br><span class=\"line\">11</span><br><span class=\"line\">12</span><br><span class=\"line\">13</span><br><span class=\"line\">14</span><br></pre></td><td class=\"code\"><pre><span class=\"line\"><span class=\"section\">http</span> &#123;</span><br><span class=\"line\">    <span class=\"attribute\">resolver</span> <span class=\"number\">127.0.0.11</span> valid=<span class=\"number\">30s</span> ipv6=<span class=\"literal\">off</span>;   <span class=\"comment\"># Docker 内置 DNS</span></span><br><span class=\"line\">&#125;</span><br><span class=\"line\"></span><br><span class=\"line\"><span class=\"section\">location</span> /api/ &#123;</span><br><span class=\"line\">    <span class=\"attribute\">set</span> <span class=\"variable\">$upstream_gateway</span> project-gateway;     <span class=\"comment\"># 变量触发动态解析</span></span><br><span class=\"line\">    <span class=\"attribute\">proxy_set_header</span> Host <span class=\"variable\">$host</span>;</span><br><span class=\"line\">    <span class=\"attribute\">proxy_set_header</span> X-Forwarded-For <span class=\"variable\">$proxy_add_x_forwarded_for</span>;</span><br><span class=\"line\">    <span class=\"attribute\">proxy_set_header</span> X-Forwarded-Proto <span class=\"variable\">$scheme</span>;</span><br><span class=\"line\"></span><br><span class=\"line\">    <span class=\"attribute\">rewrite</span><span class=\"regexp\"> ^/api/(.*)$</span> /<span class=\"variable\">$1</span> <span class=\"literal\">break</span>;            <span class=\"comment\"># 显式剥 /api/ 前缀</span></span><br><span class=\"line\"></span><br><span class=\"line\">    <span class=\"attribute\">proxy_pass</span> http://<span class=\"variable\">$upstream_gateway</span>:8080;  <span class=\"comment\"># 不带尾部 /，配 rewrite 用纯地址</span></span><br><span class=\"line\">&#125;</span><br></pre></td></tr></table></figure><p>三个关键点：</p><ol><li><strong><code>resolver 127.0.0.11 valid=30s</code></strong> —— Docker 内置 DNS，解析结果 30 秒过期。</li><li><strong><code>set $upstream</code> + 变量版 <code>proxy_pass</code></strong> —— <code>proxy_pass</code> 一旦含变量，nginx 就不再启动期静态解析，而是运行时走 <code>resolver</code>。这是社区版 nginx 动态解析上游的唯一方式。</li><li><strong><code>rewrite ^/api/(.*)$ /$1 break</code></strong> —— 必须显式剥前缀（原因见下）。</li></ol><h3 id=\"连环坑：变量版-proxy-pass-不剥前缀\"><a href=\"#连环坑：变量版-proxy-pass-不剥前缀\" class=\"headerlink\" title=\"连环坑：变量版 proxy_pass 不剥前缀\"></a>连环坑：变量版 proxy_pass 不剥前缀</h3><p>从纯文本 <code>proxy_pass http://x:8080/;</code> 改成变量版后，原来自动剥 <code>/api/</code> 前缀的能力<strong>消失了</strong>，后端会收到错误的 path（实测 gateway 收到的是 <code>/</code>）。所以必须配 <code>rewrite ... break</code> 显式剥，并且 <code>proxy_pass</code> 去掉尾部 <code>/</code>（配 <code>rewrite break</code> 时必须是纯地址，带 URI 会二次改写）。</p><h3 id=\"别走这条路\"><a href=\"#别走这条路\" class=\"headerlink\" title=\"别走这条路\"></a>别走这条路</h3><p><code>upstream {}</code> 块里写主机名<strong>同样是启动期一次性解析</strong>，不动态刷新（只有 Nginx Plus 的 <code>resolve</code> 参数才动态）。<code>upstream</code> 块解决不了这个问题。</p><p>改完 <code>nginx -t &amp;&amp; nginx -s reload</code>，容器怎么重建、IP 怎么变，nginx 都会按 30 秒 TTL 自动跟上。</p>",
-    "published": "2026-08-04T03:00:00Z",
-    "feed_title": "Seven's blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-04T08:48:15.024022+00:00",
-    "content_length": 10193
-  },
-  {
     "guid": "f9fe1890460dba64",
     "title": "递四方速递",
     "link": "https://www.mmbkz.cn/ba00cc00.html",
@@ -9953,18 +9917,6 @@
     "content_length": 243
   },
   {
-    "guid": "e5ee3d65e324683b",
-    "title": "又一个黑客模拟游戏",
-    "link": "https://watermelonabc.top/p/4be45b93/",
-    "author": "Watermelonabc",
-    "content": "<p>新发正式版的 Hacker 模拟游戏：<a href=\"https://store.steampowered.com/app/2980270/HackHub__Ultimate_Hacker_Simulator/\">HackHub - Ultimate Hacker Simulator</a>，属于渗透 / 红队领域</p><p>正如制作组所说的 “A hacking game that actually feels real”<sup class=\"footnote-ref\"><a href=\"#fn1\" id=\"fnref1\">[1]</a></sup>，此游戏的一个优势在于制作组确实构建了一个真实向的终端环境——简化的 KDE 桌面、Firefox、Discord、apt-get、bash 等，还有 Gmail、Twitter（小蓝鸟复活）、Github，并引入了一些真实存在的 CLI 工具。至少这个游戏没有追求炫酷但何意味的 “过场动画式” 工具，而选择融入实际的命令行。</p><div class=\"tag-plugin image\"><div class=\"image-bg\" style=\"padding:6px;aspect-ratio:2560/1600;\"><img class=\"lazy\" src=\"https://rt265-blog.oss-cn-hongkong.aliyuncs.com/img/hackhub-ui.webp\" data-src=\"https://rt265-blog.oss-cn-hongkong.aliyuncs.com/img/hackhub-ui.webp\" alt=\"Hackhub游戏界面\" onerror=\"this.src='/asset/image/image-error-cat.webp'\"><div class=\"lazy-icon\" style=\"background-image:url(/asset/image/Fructose-Content-running-medium.webp);\"></div></div><div class=\"image-meta\"><span class=\"image-caption center\">Hackhub 游戏界面</span></div></div><p>不过，既然是游戏，那么就存在 “不是那么现实” 的情况。比如前期游戏就虚构了一个信息搜集工具，堪称 “一键开盒”，但是很多理应存在的信息却显示 No data，只输出任务直接相关的信息。以及有些任务也是出于 “游戏性” 考虑的。</p><p>我玩的是学习版，还没有玩多少内容…… 原价￥48，一般打八折。我不会花这个钱的，不如真的去装个 Linux 虚拟机，真的去安装并使用那些实际存在的工具。这种游戏还是属于激发兴趣、简要入门以及安全的 Playground</p><p>看了一下创意工坊（对，支持 MOD），现在社区都做出了暗网、媒体播放器、NES 模拟器、密码管理器、加密货币以及 <code>python-is-python3</code> 🤣，那么什么时候进化到支持引入 AI 呢？</p><p>封面来自制作组 <a href=\"https://hotbunny.dev\">Hotbunny Interactive</a></p><hr class=\"footnotes-sep\"><section class=\"footnotes\"><ol class=\"footnotes-list\"><li id=\"fn1\" class=\"footnote-item\"><p><a href=\"https://hotbunny.dev/hackhub\">Hackhub | Hotbunny Interactive</a> <a href=\"#fnref1\" class=\"footnote-backref\">↩︎</a></p></li></ol></section>",
-    "published": "2026-08-04T03:19:57Z",
-    "feed_title": "Watermelonabc的Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-04T19:44:57.260116+00:00",
-    "content_length": 1687
-  },
-  {
     "guid": "949e33b59785c2c4",
     "title": "Forkgram Mute All 功能移植到 Telegram Web K版 部署到 Cloudflare Page by Hermes 对接 oc/deepseek-v4-flash-free",
     "link": "https://zelikk.blogspot.com/2026/08/forkgram-mute-all-telegram-web-k.html",
@@ -9975,18 +9927,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-04T19:44:57.260116+00:00",
     "content_length": 5698
-  },
-  {
-    "guid": "b7115d5901fe5a67",
-    "title": "裸辞 12 个月，做个小结",
-    "link": "https://www.p1gd0g.cc/blog/111/",
-    "author": "",
-    "content": "",
-    "published": "2026-08-04T03:51:57Z",
-    "feed_title": "www.p1gd0g.cc",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-04T19:44:57.260116+00:00",
-    "content_length": 0
   },
   {
     "guid": "b22a18d92ee862a1",
@@ -10515,18 +10455,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-06T08:47:29.461224+00:00",
     "content_length": 1403
-  },
-  {
-    "guid": "61b028f2364bbda6",
-    "title": "入蜀记 day436 钟美美",
-    "link": "https://z.arlmy.me/posts/BBBPandINSW/INSW-ko/INSW_436/",
-    "author": "素生",
-    "content": "<h2 id=\"20260803\" tabindex=\"-1\">20260803</h2><p>梦。什么比赛在用大马，吓得狗见马就跑，吓得没了命。还有幼儿园游泳比赛，同事家的娃第三，第一场没热身进入状态，同事很懊悔……</p><p>真希望还是周末啊……好像一进入工作状态，很多属于自己的东西，就要躲在一边，不能继续享受与自己相处，世界都变得暗淡了。</p><p>有点出太阳，连续几天的阴天后，这一小时的晒背刚刚好。</p><p>租客忽然联系我，说下个月房子不续租了，今年的业务很少，经营遇到困难，然后聊了半天ai对他们工作室的影响，吓人，渲染和出图几乎完全被ai替代了，一张几百元的图片，现在几毛钱就搞定了。</p><p>以及，中间的设计公司赚了更多钱，生成量也大增了，省掉了很多成本，但售价没变，怪不得这两年这么多设计公司有钱砸广告，服务更收缩（可以在内部控制，而不是受制于外部）了，也更全面了，服务附加值继续升高。</p><p>图片对人类的影响很大，大量的ai图片和视频已经到处都是，但在某些特定领域里，我也很难分辨，但我最近也放弃了，如果真的能蒙混过我，那说明做的质量还不算差（算是一种自我安慰），但重点是减少接触这类信息的机会。</p><p>然后就有一搭没一搭聊了好多，说到我开始打算简单装修一下，他还给了我很多装修房间的建议哈哈，毕竟他住的时间比我长多了，感觉已经大致知道要怎么搞了，跟lili盘算下，差不多十几万可以搞定，终于可以结束租房生活了。</p><p>最近好几个朋友资金周转出了问题，问我借钱，忽然觉得，今年的经济真的有点危险了。</p><p>然后就一直忙到晚上了，中间看了会儿钟美美来鲁豫的对谈，真的是年轻一代啊，没有包袱没有负担，却有一层对土地和乡土的特殊偏爱，好有意思，这样的对谈很有意义。</p><p>很少能看到这么深入地观察和与新一代人这样对话。</p><p>我已经想不起自己在这个年龄时的样子，应该也是一样的懵懂和轻松吧，做成年人真没意思啊，有太多的记忆和经历，无法说忘记就忘记，身体容纳了很多，但很难完全排除，时间长了，便一点点开始接受，这就是自己，那些伤痛和不快，只能用更长的时间来抹平（还要做好永远不会抹平的准备）。</p><p>晚饭做了麻婆豆腐，大致是那个味道了。</p><p>好像比鱼香肉丝简单一些，主要是备料少一些哈哈。</p><p>下楼走了半个多小时，每天还是要走路才行，身体都会觉得舒服。</p><p>跟lili都觉得可以考虑装修下房子了，反正预算也是有的，还要在成都待几年，能有个根据地还是会好很多，实在是搬不动家了，人生也需要好好做一次整理。</p><hr /><p>CHANGELOG</p><ul><li>20260806 Arlmy 创建、发布</li></ul>",
-    "published": "2026-08-04T04:48:27Z",
-    "feed_title": "素生",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-06T08:47:29.461224+00:00",
-    "content_length": 1161
   },
   {
     "guid": "64db1c5c68a42628",
@@ -15459,5 +15387,125 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-18T01:36:31.545228+00:00",
     "content_length": 1397
+  },
+  {
+    "guid": "ba135d72be1fc8be",
+    "title": "观《牛来》后记",
+    "link": "https://www.ixiqin.com/2026/08/18/afterword-to-niu-lai/",
+    "author": "白宦成",
+    "content": "<blockquote class=\"wp-block-quote is-layout-flow wp-block-quote-is-layout-flow\">\n<p class=\"wp-block-paragraph\">先说评价：牛来这部电影在票价合适的时候，是可以考虑去看的；虽然制作稀烂，但故事本身的元素还行；现场也氛围很轻松，如果你去一个人很多的场次，会很欢乐。</p>\n</blockquote>\n\n\n\n<p class=\"wp-block-paragraph\">最近《牛来》很火，作为一个乐子人，我自然也想去凑热闹；于是便看看附近的影院是否有《牛来》上映。大多数排片都在晚上十一点以后了，对我来说太晚，就考虑跑远一点，最后在三公里外的大学门口的影院找到了一个九点五十开演的，果断买了票。</p>\n\n\n<div class=\"wp-block-image\">\n<figure class=\"aligncenter size-full\"><img alt=\"1787021661 image\" class=\"wp-image-10065\" height=\"299\" src=\"https://files.ixiqin.com/2026/08/18025421/1787021661-image.png\" title=\"观《牛来》后记 - 4\" width=\"452\" /></figure>\n</div>\n\n\n<p class=\"wp-block-paragraph\">买票的时候，惊讶的发现。。。接近满场最好的几个位置已经没有了，不过好在是个小场，所以我买了边座倒是也不影响。到了晚上快开场的时候，看到这场已经彻底满座了。</p>\n\n\n\n<h2 class=\"wp-block-heading\">观影体验</h2>\n\n\n\n<h3 class=\"wp-block-heading\">电影制作</h3>\n\n\n\n<p class=\"wp-block-paragraph\">坦诚的讲，《牛来》的制作极差，画质拙劣、镜头语言奇怪（会有一些奇怪的镜头，镜头之间的切换能让人产生眩晕）。</p>\n\n\n\n<figure class=\"wp-block-image size-large\"><img alt=\"1787020209 img202608172306454500201394676795843\" class=\"wp-image-10061\" height=\"768\" src=\"https://files.ixiqin.com/2026/08/18023014/1787020209-img202608172306454500201394676795843-1024x768.jpg\" title=\"观《牛来》后记 - 5\" width=\"1024\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">在非主角牛的时候，建模之简单可以看下图</p>\n\n\n\n<figure class=\"wp-block-image size-large\"><img alt=\"1787019970 img202608172220125390357931174298923\" class=\"wp-image-10060\" height=\"768\" src=\"https://files.ixiqin.com/2026/08/18022620/1787019970-img202608172220125390357931174298923-1024x768.jpg\" title=\"观《牛来》后记 - 6\" width=\"1024\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">给我一种 ——“诶，这个是大学生毕业习作吧。。。”的感觉。</p>\n\n\n\n<p class=\"wp-block-paragraph\">对应的音效也很廉价，虽然感觉不像是买来的成品音频，但也有点诡异。</p>\n\n\n\n<h3 class=\"wp-block-heading\">现场体验</h3>\n\n\n\n<p class=\"wp-block-paragraph\">虽说制作比较拙劣，但现场体验不错，可能是因为大家本身对于《牛来》的预期并不高，甚至是负面预期来的，奔着“我倒要看看《牛来》有多么的拙劣”的理念来的，所以反而从一开始，大家就很开心，我们从开场笑到结尾。</p>\n\n\n\n<p class=\"wp-block-paragraph\">如朋友 bobo 所说，《牛来》其实和世界杯之类的线下观看，给大家了一个共同观赏的场域，给大家一个狂欢节，大家可以不用像看其他电影一样，不敢评论，不敢哈哈大笑。在《牛来》所有人都可以开怀大笑。</p>\n\n\n\n<p class=\"wp-block-paragraph\">这些体验，是当下压抑的我们一个不错的选择。</p>\n\n\n\n<p class=\"wp-block-paragraph\">因此，如果你要去看《牛来》，一定要选一个人多的场子，这样才好玩。</p>\n\n\n\n<h2 class=\"wp-block-heading\">故事</h2>\n\n\n\n<p class=\"wp-block-paragraph\">《牛来》的故事其实底色还不错，讲述了一只小牛的成长的故事，其中杂揉了亲情、友情、成长、责任，还借助了南柯一梦的形式，在最后回溯到开始。</p>\n\n\n\n<p class=\"wp-block-paragraph\">整个故事中，牛群和豹拉的误解、牛妈妈的牺牲，都让牛来本身的故事性丰满。如果同样的剧本，用更新的技术去制作，可能是一个还不错的小电影（不一定能是大片级别，但绝对算不上差）。</p>\n\n\n\n<h2 class=\"wp-block-heading\">片尾曲</h2>\n\n\n\n<p class=\"wp-block-paragraph\">《牛来》的片尾曲是导演的妈妈演唱的，唱法颇有60-70年代生人的习惯，吟唱和长音，对于我来说，颇有种听自己母亲唱歌的感觉。</p>\n\n\n\n<p class=\"wp-block-paragraph\">如果你想听原版，<a href=\"https://www.bilibili.com/video/BV13DbU6eEHe/?vd_source=bc2eca30591cc528ff3e3111c03da942\" rel=\"nofollow noopener\" target=\"_blank\">https://www.bilibili.com/video/BV13DbU6eEHe/?vd_source=bc2eca30591cc528ff3e3111c03da942</a> 这个视频中有个盗录的版本，可以感受一下。网易云的版本（<a href=\"https://music.163.com/song?id=3422318789&amp;uct2=U2FsdGVkX1/1O5dEeyaVq+DdVNFnVYekj94YfKKdztk=\" rel=\"nofollow noopener\" target=\"_blank\">https://music.163.com/song?id=3422318789&amp;uct2=U2FsdGVkX1/1O5dEeyaVq+DdVNFnVYekj94YfKKdztk=</a>）会更好听，但没有原版的情绪那么充沛。</p>\n\n\n\n<h2 class=\"wp-block-heading\">总结</h2>\n\n\n\n<p class=\"wp-block-paragraph\">如果你周围有 30 块钱左右一场，且人比较多的场次，去看看，还不错；但如果是自己在家看的话。。。我觉得大可不必折磨自己，这个电影还是去电影院感受一下氛围比较好。</p>",
+    "published": "2026-08-18T03:12:10Z",
+    "feed_title": "西秦公子",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-18T06:53:36.842566+00:00",
+    "content_length": 3251
+  },
+  {
+    "guid": "1628c08e32ff9299",
+    "title": "观《老式喜剧》后记",
+    "link": "https://www.ixiqin.com/2026/08/17/afterword-to-old-style-comedy/",
+    "author": "白宦成",
+    "content": "<p class=\"wp-block-paragraph\">因为小学背过《雷雨》，演过《雷雨》，我对于人艺就很好奇。后面从深圳去北京工作，有了机会，我就曽和太太一起去人艺看了《蔡文姬》，后面种种原因，就一直没看；那一场有杨立新和濮存晰，还挺好的，不过时间久了，有点忘了hhh。</p>\n\n\n\n<p class=\"wp-block-paragraph\">最近收到了人艺的新的推送，鬼使神差就点进去了，发现《老式喜剧》的演员是李幼斌（李云龙！）。于是就重新起了兴趣，决定去人艺看看老式喜剧。</p>\n\n\n<div class=\"wp-block-image\">\n<figure class=\"aligncenter size-large is-resized\"><img alt=\"1786587956 image\" class=\"wp-image-9933\" height=\"1024\" src=\"https://files.ixiqin.com/2026/08/13022603/1786587956-image-683x1024.png\" style=\"width: 452px; height: auto;\" title=\"观《老式喜剧》后记 - 16\" width=\"683\" /></figure>\n</div>\n\n\n<p class=\"wp-block-paragraph\">提前买票，然后坐车前往人艺，等待入场；在等待入场的时候，我还在人艺的文创书店买了杯咖啡，在等咖啡的时候，发现他们正在卖阿尔布卓夫的《戏剧六种》，我发现里面有老式喜剧的剧本，果断下单买了剧本来看。</p>\n\n\n\n<figure class=\"wp-block-image size-large\"><img alt=\"1786964966 img 2333\" class=\"wp-image-9938\" height=\"1024\" src=\"https://files.ixiqin.com/2026/08/17110930/1786964966-img_2333-768x1024.jpeg\" title=\"观《老式喜剧》后记 - 17\" width=\"768\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">就老式喜剧这部剧而言：</p>\n\n\n\n<ul class=\"wp-block-list\">\n<li>我个人觉得李幼斌演的很好。他和他太太一起演爱情戏剧很不错（真夫妻就是好磕)</li>\n\n\n\n<li>我是奔着给李幼斌一张票钱去的，毕竟以前也看过盗版的亮剑（我一直觉得应该买一份亮剑的盘存着，蛮好的电视剧）。</li>\n\n\n\n<li>我觉得老李的给人的感觉和这部剧很搭，剧中他扮演的是一个60岁的，从战场上下来的外科医生，和李云龙很搭。</li>\n</ul>\n\n\n\n<p class=\"wp-block-paragraph\">当然，也有一些事情让我感受到了话剧的有意思的地方：</p>\n\n\n\n<ul class=\"wp-block-list\">\n<li>并不是完全按照剧本演的，因为我买了《戏剧六种》刚好就看到了一些台词，其实老李并没有讲，但并没有影响整个剧的情绪表达。很好！</li>\n\n\n\n<li>看这部剧给我种草了俄罗斯 Lube 乐队，他们的 <a href=\"https://music.163.com/#/song?id=4151537&amp;uct2=U2FsdGVkX18WEDg8psiVrZELAm85D9GiOcSxFrH+pbM=\" rel=\"nofollow noopener\" target=\"_blank\">《<em>Позови меня тихо по имени</em>》</a>很好听</li>\n</ul>\n\n\n\n<p class=\"wp-block-paragraph\">给大家看点剧照，推荐大家去看看！很好！</p>\n\n\n\n<figure class=\"wp-block-gallery has-nested-images columns-default is-cropped wp-block-gallery-1 is-layout-flex wp-block-gallery-is-layout-flex\">\n<figure class=\"wp-block-image size-large\"><img alt=\"1786587913 image\" class=\"wp-image-9929\" height=\"683\" src=\"https://files.ixiqin.com/2026/08/13022516/1786587913-image-1024x683.png\" title=\"观《老式喜剧》后记 - 18\" width=\"1024\" /></figure>\n\n\n\n<figure class=\"wp-block-image size-large\"><img alt=\"1786587908 image\" class=\"wp-image-9928\" height=\"683\" src=\"https://files.ixiqin.com/2026/08/13022511/1786587908-image-1024x683.png\" title=\"观《老式喜剧》后记 - 19\" width=\"1024\" /></figure>\n</figure>\n\n\n\n<figure class=\"wp-block-gallery has-nested-images columns-default is-cropped wp-block-gallery-2 is-layout-flex wp-block-gallery-is-layout-flex\">\n<figure class=\"wp-block-image size-large\"><img alt=\"1786587964 image\" class=\"wp-image-9934\" height=\"682\" src=\"https://files.ixiqin.com/2026/08/13022606/1786587964-image.png\" title=\"观《老式喜剧》后记 - 20\" width=\"1023\" /></figure>\n\n\n\n<figure class=\"wp-block-image size-large\"><img alt=\"1786587935 image\" class=\"wp-image-9930\" height=\"683\" src=\"https://files.ixiqin.com/2026/08/13022537/1786587935-image-1024x683.png\" title=\"观《老式喜剧》后记 - 21\" width=\"1024\" /></figure>\n</figure>\n\n\n\n<figure class=\"wp-block-gallery has-nested-images columns-default is-cropped wp-block-gallery-3 is-layout-flex wp-block-gallery-is-layout-flex\">\n<figure class=\"wp-block-image size-large\"><img alt=\"1786587942 image\" class=\"wp-image-9931\" height=\"683\" src=\"https://files.ixiqin.com/2026/08/13022544/1786587942-image-1024x683.png\" title=\"观《老式喜剧》后记 - 22\" width=\"1024\" /></figure>\n\n\n\n<figure class=\"wp-block-image size-large\"><img alt=\"1786587948 image\" class=\"wp-image-9932\" height=\"683\" src=\"https://files.ixiqin.com/2026/08/13022550/1786587948-image-1024x683.png\" title=\"观《老式喜剧》后记 - 23\" width=\"1024\" /></figure>\n</figure>\n\n\n\n<figure class=\"wp-block-image size-full\"><img alt=\"1786587978 image\" class=\"wp-image-9935\" height=\"682\" src=\"https://files.ixiqin.com/2026/08/13022620/1786587978-image.png\" title=\"观《老式喜剧》后记 - 24\" width=\"1023\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\"></p>\n\n\n\n<p class=\"wp-block-paragraph\">BTW,我觉得现在去看话剧真的是我圆梦的一部分，可以在线下看一些小时候看的电视剧的演员，蛮独特的体验。</p>",
+    "published": "2026-08-17T11:21:16Z",
+    "feed_title": "西秦公子",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-18T06:53:36.842566+00:00",
+    "content_length": 3860
+  },
+  {
+    "guid": "1c8ed7e2204308fb",
+    "title": "Bing搜索site:指令失灵了？",
+    "link": "https://zooyoo.top/article/57/",
+    "author": "热衷于",
+    "content": "<blockquote><strong>本文要解决的问题</strong>：在微软必应（Bing）搜索引擎中，使用 <code>site:domain</code> 语法查询站点收录情况时，返回结果与目标站点毫不相干，或经过多次跳转后出现类似明显错误。  <br /><strong>拓展阅读</strong>：文末附常用搜索引擎指令速查表。</blockquote><hr /><p>必应是我目前最常使用的搜索引擎。作为微软旗下的产品，界面简洁、无广告干扰、收录效率高、覆盖范围广，使我一直将它作为首选。然而，它也有不少让人头大的地方：反垃圾策略不够高效，导致下拉框推荐等流量入口被恶意滥用；疑似“后门”的仿站收录，排名甚至优于正版站点；中文客服渠道基本不通；各种难以理解的限制策略。</p><p>如果你了解过 SEO 优化，想必会知道 <code>site:domain</code> 这个指令，它能够快速筛选出某个域名在搜索引擎中的收录条目。不过从去年开始，我发现必应和百度两家都对这个指令做了限制（已在 GitHub 等社区确认并非个例）。具体表现为：返回结果不准确、完全无结果、需要特殊网络环境才能返回正确内容。</p><p>拿我昨天的经历作为例子，我在必应搜索框中键入 <code>site:zooyoo.top</code> 后发起搜索，返回的所有条目却都不约而同地指向了豆包 AI 的各个入口，与我的站点只能说是毫不相干。起初我以为无解了，摸索中却意外发现了另一个必应独有指令<code>domain:domain</code>。看着文章介绍它的用途类似，我就先入为主地认为它会受到同样的防护策略，但实测效果却出奇地好：67 条本站搜索结果整齐地列出，翻页后依然正常。</p><p>我不禁疑惑，这种神秘的限制到底是配置错误，还是有意为之？意义何在？不过转念想想，这倒也符合必应有点“抠门”的风范。我曾统计过一段时间内本站日志中各大搜索引擎爬虫的访问频率，必应位列第二，仅次于谷歌。但在必应上搜索资料时，常常会落入它的“翻页陷阱”：第一页结果正常，从第二页起内容就完全不相关了，数据库满满当当，不给用户看。初步分析，这可能与 IP 黑洞中版权信息隐藏机制有关，但连我这种原生家庭宽带用户都被波及，只能说过滤规则过于严苛。</p><p>更令我大开眼界的，是一次在必应搜索“百度”这个关键词时，页面居然做了特殊样式：屏幕上半部分约 85% 的区域被“用必应搜索，赢哔哩哔哩大会员”的标语和高级渐变粉色填充，中间是搜索框，下方小字写着“由 Microsoft 推广”，整个布局宛如一个全新的标签页；而“百度一下，你就知道”的字样，只能在页面底部狭窄的区域内露出半截。今天好奇之下又搜了一次，可能是推广期过了，亦或是其它因素，推广样式收敛不少，不过输入框的堆叠弄得我有些强迫，立马加了一条广告拦截规则。有兴趣的朋友可以<a href=\"https://cn.bing.com/search?q=%E7%99%BE%E5%BA%A6\">点此查看效果</a>。</p><hr /><h3>附：搜索引擎常用指令速查</h3><table><thead><tr><th align=\"left\">指令</th><th align=\"left\">是否必应独有</th><th align=\"left\">功能简介</th><th align=\"left\">使用示例</th></tr></thead><tbody><tr><td align=\"left\"><strong><code>site:</code></strong></td><td align=\"left\">否</td><td align=\"left\">将结果限制在指定网站或域名（包含子域名）</td><td align=\"left\"><code>气候 site:example.com</code></td></tr><tr><td align=\"left\"><strong><code>domain:</code></strong></td><td align=\"left\"><strong>是</strong></td><td align=\"left\">仅限制在主域名，不深入子域名</td><td align=\"left\"><code>数据 domain:example.org</code></td></tr><tr><td align=\"left\"><strong><code>intitle:</code></strong></td><td align=\"left\">否</td><td align=\"left\">查找页面标题包含指定关键词的网页</td><td align=\"left\"><code>intitle:&quot;年度报告&quot;</code></td></tr><tr><td align=\"left\"><strong><code>inbody:</code></strong></td><td align=\"left\">否</td><td align=\"left\">查找页面正文包含指定关键词的网页</td><td align=\"left\"><code>inbody:可再生能源</code></td></tr><tr><td align=\"left\"><strong><code>inanchor:</code></strong></td><td align=\"left\">否</td><td align=\"left\">查找被其他网页的链接锚文本包含指定关键词的页面</td><td align=\"left\"><code>inanchor:&quot;更多信息&quot;</code></td></tr><tr><td align=\"left\"><strong><code>url:</code></strong></td><td align=\"left\">否</td><td align=\"left\">查询特定精确 URL 是否被收录</td><td align=\"left\"><code>url:example.com/page</code></td></tr><tr><td align=\"left\"><strong><code>ip:</code></strong></td><td align=\"left\"><strong>是</strong></td><td align=\"left\">查找托管在特定 IP 地址上的所有网站</td><td align=\"left\"><code>ip:192.0.1.1</code></td></tr><tr><td align=\"left\"><strong><code>filetype:</code></strong></td><td align=\"left\">否</td><td align=\"left\">搜索特定文件格式的文件</td><td align=\"left\"><code>标书 filetype:pdf</code></td></tr><tr><td align=\"left\"><strong><code>contains:</code></strong></td><td align=\"left\"><strong>是</strong></td><td align=\"left\">查找包含指向特定文件类型链接的网页</td><td align=\"left\"><code>数据 contains:xlsx</code></td></tr><tr><td align=\"left\"><strong><code>feed:</code></strong></td><td align=\"left\"><strong>是</strong></td><td align=\"left\">查找关于特定主题的 RSS 或 Atom 订阅源</td><td align=\"left\"><code>feed:科技</code></td></tr><tr><td align=\"left\"><strong><code>hasfeed:</code></strong></td><td align=\"left\"><strong>是</strong></td><td align=\"left\">查找页面本身包含 RSS 或 Atom 订阅源的网页</td><td align=\"left\"><code>hasfeed:博客</code></td></tr><tr><td align=\"left\"><strong><code>&quot; &quot;</code> (双引号)</strong></td><td align=\"left\">否</td><td align=\"left\">精确短语匹配，按顺序查找完整词组</td><td align=\"left\"><code>&quot;人工智能大语言模型&quot;</code></td></tr><tr><td align=\"left\"><strong><code>-</code> 或 <code>NOT</code></strong></td><td align=\"left\">否</td><td align=\"left\">排除包含特定关键词的结果（<code>NOT</code> 必须大写）</td><td align=\"left\"><code>苹果 -水果</code></td></tr><tr><td align=\"left\"><strong><code>OR</code> 或 <code>管道符</code></strong></td><td align=\"left\">否</td><td align=\"left\">查找包含任一关键词的页面（<code>OR</code> 必须大写）</td><td align=\"left\"><code>可再生能源 OR 清洁能源</code></td></tr><tr><td align=\"left\"><strong><code>( )</code> (括号)</strong></td><td align=\"left\">否</td><td align=\"left\">组合关键词和运算符，明确搜索逻辑优先级</td><td align=\"left\"><code>(气候 OR 天气) 模型</code></td></tr><tr><td align=\"left\"><strong><code>+</code> (加号)</strong></td><td align=\"left\">否</td><td align=\"left\">强制包含某个可能被忽略的常用词</td><td align=\"left\"><code>+如何 +编程</code></td></tr><tr><td align=\"left\"><strong><code>*</code> (星号)</strong></td><td align=\"left\">否</td><td align=\"left\">通配符，代表短语中的一个或多个未知词</td><td align=\"left\"><code>&quot;最 * 的语言&quot;</code></td></tr><tr><td align=\"left\"><strong><code>define:</code></strong></td><td align=\"left\">否</td><td align=\"left\">快速获取某个词或短语的定义</td><td align=\"left\"><code>define:算法</code></td></tr><tr><td align=\"left\"><strong><code>language:</code></strong></td><td align=\"left\">否</td><td align=\"left\">将结果限制为特定语言的页面</td><td align=\"left\"><code>&quot;HTML&quot; language:zh</code></td></tr><tr><td align=\"left\"><strong><code>location:</code></strong></td><td align=\"left\">否</td><td align=\"left\">将结果限制在特定地理位置</td><td align=\"left\"><code>气温 location:贵阳</code></td></tr><tr><td align=\"left\"><strong><code>imagesize:</code></strong></td><td align=\"left\">否</td><td align=\"left\">在图片搜索中按指定尺寸（小、中、大）筛选</td><td align=\"left\"><code>城市 imagesize:large</code></td></tr><tr><td align=\"left\"><strong><code>near:</code></strong></td><td align=\"left\">否</td><td align=\"left\">指定关键词之间在文本中的距离（以词数计）</td><td align=\"left\"><code>&quot;机器学习&quot; near:3 &quot;应用&quot;</code></td></tr></tbody></table><hr /><blockquote>由 AI 进行病句修复和错句调整，部分表格内容来自 Bing 搜索 AI 摘要，经人工重构和校对，欢迎留言增改建议。</blockquote>",
+    "published": "2026-08-18T02:40:00Z",
+    "feed_title": "热衷于的博客",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-18T06:53:36.842566+00:00",
+    "content_length": 5724
+  },
+  {
+    "guid": "fe933a26c54bbedd",
+    "title": "西藏行 (下)：人物志",
+    "link": "https://www.chaoniulian.com/blog/tibet-2026-people.html",
+    "author": "",
+    "content": "- **70后：** 退休金兜底、安逸、会玩、舍得玩。\n- **80后：** 上有老、下有小，负重前行。\n- **90后：** 婚恋价值观幅度太大，漂泊着，最迷茫。\n- **00后：** 我行我素，较浮躁，年轻有才华。",
+    "published": "2026-08-18T02:04:09Z",
+    "feed_title": "骑行超过牛",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-18T06:53:36.842566+00:00",
+    "content_length": 109
+  },
+  {
+    "guid": "818ab68c6b3deed0",
+    "title": "西藏行 (中)：拉萨 林芝 日喀则 羊湖  珠峰日记",
+    "link": "https://www.chaoniulian.com/blog/tibet-2026-journal.html",
+    "author": "",
+    "content": "到了108拐山口，突然，浮云散去，我的天，海市蜃楼一般，世界5大雪峰，浮现在眼前，上百人，停车拍照打卡，儿子激动的，满山跑，找机位，不顾高反。 \n\n \n珠峰，最靓的仔。\n\n云天、雪峰，海拔高，视野百里外，清晰可见，空气稀薄，所以百里外 依稀可见。",
+    "published": "2026-08-18T02:04:09Z",
+    "feed_title": "骑行超过牛",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-18T06:53:36.842566+00:00",
+    "content_length": 123
+  },
+  {
+    "guid": "bdb76be7889ba9d3",
+    "title": "西藏行 (上)：唐古拉山口  隆中对",
+    "link": "https://www.chaoniulian.com/blog/tibet-2026-good-story.html",
+    "author": "",
+    "content": "自西安高铁到西宁，然后1小时倒车，坐上了拉萨的卧铺 Z8981, 累计超过24小时火车，上次超过24小时火车，还是西安长春求学路上，22年啦。",
+    "published": "2026-08-18T02:04:09Z",
+    "feed_title": "骑行超过牛",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-18T06:53:36.842566+00:00",
+    "content_length": 71
+  },
+  {
+    "guid": "94886ac20ed1b78b",
+    "title": "申请收录：中国电竞幕后史",
+    "link": "https://www.v2ex.com/t/1235278#reply0",
+    "author": "bkingfilm",
+    "content": "网站<br /><a href=\"https://bkingfilm.github.io/china-esports-history/\" rel=\"nofollow noopener\" target=\"_blank\">https://bkingfilm.github.io/china-esports-history/</a><br /><br />RSS<br /><a href=\"https://bkingfilm.github.io/china-esports-history/feed_rss_created.xml\" rel=\"nofollow noopener\" target=\"_blank\">https://bkingfilm.github.io/china-esports-history/feed_rss_created.xml</a><br /><br />JSON Feed<br /><a href=\"https://bkingfilm.github.io/china-esports-history/feed_json_created.json\" rel=\"nofollow noopener\" target=\"_blank\">https://bkingfilm.github.io/china-esports-history/feed_json_created.json</a><br /><br />内容是一本写完的书，67 篇，记 1998 年到 2018 年中国电子竞技的幕后事，我自己写的，2013 年起陆续首发在知乎专栏，今年整理成书开源在 GitHub ，另有英韩繁三种译文。<br /><br />feed 里的日期是各篇当年的首发日，不是入库日，所以条目时间集中在 2015 到 2018 年。",
+    "published": "2026-08-18T05:53:36Z",
+    "feed_title": "VXNA 聚合了很多 RSS，而它本身也是一个 RSS，不用一直刷页面，订阅就好了",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-18T06:53:36.842566+00:00",
+    "content_length": 771
+  },
+  {
+    "guid": "f0c970e7ac694e78",
+    "title": "邂逅博斯普鲁斯",
+    "link": "https://linlin.website/blog/star",
+    "author": "linlin",
+    "content": "",
+    "published": "2026-08-17T21:50:00Z",
+    "feed_title": "linlin.works",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-18T06:53:36.842566+00:00",
+    "content_length": 0
+  },
+  {
+    "guid": "11eb36567c96da7e",
+    "title": "低技术，高烹饪（十一）：反思饮水[更新] | UNTAG",
+    "link": "https://utgd.net/article/21277/",
+    "author": "Minja",
+    "content": "<p><img src=\"https://cdn.utgd.net/images/banner_f000_11.jpeg\" /></p>饮水机为首的厨房大件，没有资格固化你的生活方式。<p><a href=\"https://utgd.net/article/21277/\">阅读全文</a></p><br /><p>本文<a href=\"https://utgd.net/article/21277/\"><b> 《低技术，高烹饪（十一）：反思饮水[更新]》 </b></a>首发于<a href=\"https://utgd.net\"> #UNTAG </a></p><p><a href=\"https://utgd.net/member/\">成为会员</a>，享受全文 RSS </p>",
+    "published": "2026-08-18T03:59:00Z",
+    "feed_title": "#UNTAG",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-18T06:53:36.842566+00:00",
+    "content_length": 343
+  },
+  {
+    "guid": "17d89ac11486f48e",
+    "title": "关于死亡",
+    "link": "https://www.seis-jun.xyz/blog/2026-08-18-about-death.html",
+    "author": "",
+    "content": "<p>继续我的关于系列。之前说要写关于死亡，这就开始。</p>\n<p>妻子说，每次想到死亡的时候，头脑就一片空白，或者一片黑。</p>\n<p>我说，我没有啊，我一般不想。但死亡是不得不想的。然后我一想，糟糕，我也是空白。</p>\n<p>这是正常的吧，没有空白才是怪哉了啊。我们能够“想”这回事是基于高速运行的大脑神经元，而死大约是这些神经元不动了，或者不连接了。所以，“死”了还能“想”那真怪了。</p>\n<p>死，就是啥都没了，慢慢的就变尘埃了，和宇宙拥抱了。这就是我对死亡的定义。</p>\n<p>但是不够，完全构成不了死亡观。我们不能因为死了就一了百了而不去讨论它，而且我们讨论它大多时候不是去讨论死亡了以后我们去哪的问题，而是明白了死亡是什么之后知道我们活着应该干什么。</p>\n<p>所以我对死亡的认识是，终结。终结了就是没了，没有所谓的死后的事情，没有灵魂游离身体，没有天堂兜底，没有轮回分期。灵魂也只是我们的想法，想法来自神经元。相信所谓死后世界和灵魂归处的大约还是因为对不可知的恐惧。但这世上不可知的东西多了去了，这算哪根。</p>\n<p>所以知道了死亡是终结，然后呢？然后就该指导我们的生活了。</p>\n<p>因为有死亡，我们活着的库存用一分少一分。年少时我们疯狂的生长和挥霍，完全意识不到。还有一个比较吊诡且有意思的其实是，我们不知道我们的库存还有多少。也许只有一天，也许还有数十年。</p>\n<p>我们可以活得浑浑噩噩，也可以活得小心谨慎。但归根到底我们要追寻的是意义。</p>\n<p>当意识到死亡是终结的时候，我们的选择开始变得有分量。你做了事情A就可能做不了B，很多时候没有课可以补。你是拼命挣扎，悔恨，还是坦然接受你的选择？</p>\n<p>但你仔细想想，意义也会失去寄存。觉得有来世的人会把意义寄托到下辈子，所谓十八年后又是一条好汉。有时你又觉得这类人活着也挺有劲儿。不愿去戳破，然而他活得可能比你直接和纯粹。对于他们，&#8221;恐惧&#8221;和&#8221;纯粹&#8221;是并存的。信来世的人也许怕死，但正因为怕，他们把每一天都认真过。对他们，恐惧是纯粹的燃料；而对我，理性是止痛药。</p>\n<p>那么什么才叫活得值？\n这是一个无约束的优化问题。是不收敛的，解有无穷多个，哪个都不比哪个好。</p>\n<p>“会死”就是那个让人生收敛的约束条件。它把无穷解空间压成一条你必须走的路径。</p>\n<p>我建议人生“<a href=\"/blog/2026-05-31-about-inversion.html\">不要陷入局部极小值</a>”，但值得注意的是，能陷入局部极小值，恰恰是因为问题有约束、有目标、有终点，那样才显得更“有意义”。</p>\n<p>永生者的烦恼不是“太多选择”，是“选择全部失效”。因为反正总有一天会做，那今天做和一万年后做没区别。</p>\n<p>好了，理性和逻辑可以对死亡进行无情的凌迟似的拆解，但面对死亡恐惧本身，你还是一脸懵，一片空白。你半夜在被窝想到死亡时候的那种无助我治不了，哲人似乎也治不了。</p>\n<p><a href=\"/blog/2026-05-31-humanity3.html\">人生是体验</a>，而单程票应该怎么花是自己的事情，是你的功课。</p>\n<p>妻子问我死亡是什么，现在仍然是一片空白，但空白就是答案。</p>\n<p>好了，我去花去了。</p>",
+    "published": "2026-08-18T02:40:40Z",
+    "feed_title": "seisamuse",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-18T06:53:36.842566+00:00",
+    "content_length": 1420
   }
 ]
