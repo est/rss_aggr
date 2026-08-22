@@ -80,7 +80,10 @@
       "etag": "W/\"695a54d1-506e9\"",
       "last_modified": "Sun, 04 Jan 2026 11:53:53 GMT",
       "last_error": "403 Client Error: Forbidden for url: https://droidyue.com/atom.xml",
-      "failed_at": "2026-08-22T06:50:18.908415+00:00"
+      "failed_at": "2026-08-22T06:50:18.908415+00:00",
+      "disabled": true,
+      "disabled_at": "2026-08-22T12:49:36.619381+00:00",
+      "disabled_reason": "failed 3x consecutively"
     },
     "https://vzardlloo.github.io/atom.xml": {
       "last_ok": "2026-08-16T01:43:40.801344+00:00",
@@ -1546,7 +1549,10 @@
       "etag": "W/\"155de25964be4cacd0ae0c109803e591\"",
       "last_modified": "Sun, 16 Aug 2026 09:39:13 GMT",
       "last_error": "HTTPSConnectionPool(host='chegva.com', port=443): Max retries exceeded with url: /feed/ (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1010)')))",
-      "failed_at": "2026-08-22T06:50:18.908774+00:00"
+      "failed_at": "2026-08-22T06:50:18.908774+00:00",
+      "disabled": true,
+      "disabled_at": "2026-08-22T12:49:36.619530+00:00",
+      "disabled_reason": "failed 3x consecutively"
     },
     "https://leonson.me/feed.xml": {
       "last_ok": "2026-08-22T00:59:20.795006+00:00",
@@ -2199,8 +2205,8 @@
       "last_modified": "Fri, 14 Aug 2026 04:25:31 GMT"
     },
     "https://www.eluyee.com/feed/": {
-      "last_ok": "2026-08-21T18:45:10.372515+00:00",
-      "consecutive_failures": 1,
+      "last_ok": "2026-08-22T12:49:37.588505+00:00",
+      "consecutive_failures": 0,
       "last_error": "HTTPSConnectionPool(host='www.eluyee.com', port=443): Read timed out. (read timeout=15)",
       "failed_at": "2026-08-22T06:50:18.911396+00:00"
     },
@@ -8684,7 +8690,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "http://fetchrss.com/rss/60e1767cf877a4023a2caee260e176387504cf483957bf43.xml": {
-      "last_ok": "2026-08-21T18:45:10.376774+00:00",
+      "last_ok": "2026-08-22T12:49:37.588499+00:00",
       "consecutive_failures": 0
     },
     "https://www.kxit.net/blog/feed/": {
@@ -8853,7 +8859,7 @@
       "last_modified": "Mon, 17 Aug 2026 16:43:32 GMT"
     },
     "http://yibie.github.io/index.xml": {
-      "last_ok": "2026-08-21T18:45:10.376764+00:00",
+      "last_ok": "2026-08-22T12:49:37.588479+00:00",
       "consecutive_failures": 0,
       "etag": "W/\"6a6fe268-8d6\"",
       "last_modified": "Mon, 03 Aug 2026 00:35:52 GMT"
@@ -11596,7 +11602,10 @@
       "last_ok": "2026-08-21T06:56:26.436961+00:00",
       "consecutive_failures": 3,
       "last_error": "503 Server Error: Service Unavailable for url: https://ryanuo.cc/sitemap.xml",
-      "failed_at": "2026-08-22T06:50:18.908435+00:00"
+      "failed_at": "2026-08-22T06:50:18.908435+00:00",
+      "disabled": true,
+      "disabled_at": "2026-08-22T12:49:36.620181+00:00",
+      "disabled_reason": "failed 3x consecutively"
     },
     "https://www.momb.top/rss/feed.xml": {
       "etag": "\"e68c8003858a8925aa405b273a6f7776\"",
