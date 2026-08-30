@@ -9965,42 +9965,6 @@
     "content_length": 472
   },
   {
-    "guid": "9204b31c268cc191",
-    "title": "让chatgpt来给我讲解下deepseek harness的插件体系",
-    "link": "https://nicksxs.me/2026/08/16/%E8%AE%A9chatgpt%E6%9D%A5%E7%BB%99%E6%88%91%E8%AE%B2%E8%A7%A3%E4%B8%8Bdeepseek-harness%E7%9A%84%E6%8F%92%E4%BB%B6%E4%BD%93%E7%B3%BB/",
-    "author": "",
-    "content": "<p>最近deepseek发布了harness，试用了一下结合deepseek-4-flash，用它尝试写一个php的现代版phpmyadmin，因为也是一个比较重要且有一点复杂度的应用<br />试了下除了数据展示有点问题，修了一轮就完成了，整体表现还是不错的<br />然后看了下它主",
-    "published": "2026-08-16T15:07:34Z",
-    "feed_title": "Nicksxs's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-16T18:38:08.613581+00:00",
-    "content_length": 144
-  },
-  {
-    "guid": "45bb5fed28516c93",
-    "title": "说说：#2026-08-16 12:22",
-    "link": "https://www.mmbkz.cn/74cb6358.html",
-    "author": "绯色之喵",
-    "content": "<p>烧豆角土豆条，再炖一会好了，吃着有些硬qaq，下次就多煮一会儿，再放点粉条，哈哈哈哈</p><p><img alt=\"\" src=\"https://image.mmbkz.cn/blog2026/app_2026_08_16__20_21_44_7880.webp-shuiyin\" title=\"\" /></p>",
-    "published": "2026-08-16T12:22:09Z",
-    "feed_title": "火喵日记本",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-17T01:42:29.706353+00:00",
-    "content_length": 160
-  },
-  {
-    "guid": "b73451e506cb9737",
-    "title": "Canvas 可以替代 DOM 了吗？",
-    "link": "https://www.ccgxk.com/front-end/846.html",
-    "author": "独元殇",
-    "content": "好问题！我是个搞 SaaS 的，我也一直在研究两者的优劣区别。 2026 AI 时代了。到底命令 AI 去使用 Canvas 还是 DOM 去写我们的应用？ 今天聊聊吧（顺便再加几个技巧），我是一个已经被时代抛弃的  前端程序员 。大家以后选择到底是 DOM 还是 canvas ，这个是很重要的事儿，两者差太多了。选对的，不要走火入魔了。不得不说，我也感慨，... <a href=\"https://www.ccgxk.com/front-end/846.html\">阅读全文</a>",
-    "published": "2026-08-16T15:04:56Z",
-    "feed_title": "独元殇",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-17T01:42:29.706353+00:00",
-    "content_length": 243
-  },
-  {
     "guid": "7ba323117510c97c",
     "title": "碎碎念一下（15），新框架新征程~",
     "link": "https://www.sumi233.top/posts/mouthtalk/sumi-thoughts-15/",
@@ -10013,42 +9977,6 @@
     "content_length": 4824
   },
   {
-    "guid": "9e608f0ada0779b4",
-    "title": "将 626 个访客 IP 全查了一遍，其中 190 个是全球通缉的惯犯",
-    "link": "https://www.paddysun.top/archives/4872",
-    "author": "Paddy",
-    "content": "<p class=\"meta\">四层防护日志全量分析 · 626 个拦截 IP · AbuseIPDB 交叉回查 · 数据窗口 2026-07-17 ~ 2026-08-16</p>\n\n<blockquote>我的站近半年没有更新过一篇内容,却在这 30 天里接待了 626 个&#8221;访客&#8221;——全部被防护拦截。我把四层日志导出来做了一次全量交叉分析,并把这 626 个 IP 在 AbuseIPDB 上批量举报后回查了全球置信分。这篇文章只呈现数据和从中得到的客观结论,不作任何布道。</blockquote>\n\n<div class=\"hero\">\n  <div class=\"n\">626</div>\n  <div class=\"t\">30 天内被四层防护拦截的去重 IP。其中 <strong>190 个</strong> AbuseIPDB 置信分满分(全球公认恶意),<strong>81 个</strong>是官方白名单(合法爬虫与共享代理出口),另有 <strong>58 个</strong>是我的站发起的全球首次举报。</div>\n</div>\n\n<div class=\"kpis\">\n  <div class=\"tile\"><div class=\"lab\">拦截 IP 总数</div><div class=\"val\">626</div><div class=\"sub\">剔除本人与内网段后</div></div>\n  <div class=\"tile\"><div class=\"lab\">WAF 攻击拦截</div><div class=\"val\">390</div><div class=\"sub\">次 / 78 个 IP</div></div>\n  <div class=\"tile\"><div class=\"lab\">黑名单拦截</div><div class=\"val\">1,176</div><div class=\"sub\">次 / 310 个 IP</div></div>\n  <div class=\"tile\"><div class=\"lab\">登录爆破拦截</div><div class=\"val\">744</div><div class=\"sub\">次 / 100 个 IP</div></div>\n  <div class=\"tile\"><div class=\"lab\">CDN 边缘挑战</div><div class=\"val\">106</div><div class=\"sub\">次 / 73 个 IP</div></div>\n</div>\n\n<h2>一、攻击类型:64% 是 SQL 注入,且漏洞平均&#8221;年龄&#8221;超过十年</h2>\n<p>WAF 层 30 天拦截 390 次攻击,类型分布高度集中。SQL 注入 252 次里,绝大多数打在 <code>/</code>、<code>/index.php</code>、<code>/blog/</code> 这类通用路径上,而非任何具体业务接口——这是无差别扫描的典型特征,不是对站点做过功课的定向攻击。</p>\n\n<div class=\"card\">\n  <h3>WAF 拦截的攻击类型分布</h3>\n  <div class=\"cap\">30 天 · 主机 WAF 层 · 共 390 次 · 悬停查看数值</div>\n  <figure class=\"chart\" id=\"chart-types\"></figure>\n  <details class=\"tbl\">表格视图\n    <table class=\"view\"></table>\n  </details>\n</div>\n\n<p>两个可量化的&#8221;低技术含量&#8221;证据:其一,代码执行类攻击的 payload 是 ThinkPHP <code>invokefunction</code> 远程调用——一个 2018 年的老漏洞,而目标根本不是 PHP 框架站;其二,代码注入类全部是 PHP-CGI 参数注入(<code>%ADd</code> 前缀,CVE-2012-1823 变体),甚至还在请求 <code>php-cgi.exe</code> 这个 Windows 路径。<strong>攻击载荷与站点实际技术栈完全脱节</strong>,扫描器不在乎你是什么站,它只是把十几年攒下的漏洞清单对每个 IP 撒一遍。</p>\n\n<h2>二、目标路径:WordPress 暴露面的精确画像</h2>\n<p>黑名单层 1,176 次拦截的目标路径,几乎就是 WordPress 站点暴露面的一份清单。前八名中五个是 WordPress 原生或插件接口:</p>\n\n<div class=\"card\">\n  <h3>被拦截请求的目标路径 Top 8</h3>\n  <div class=\"cap\">30 天 · 黑名单情报层 · 1,176 次拦截</div>\n  <figure class=\"chart\" id=\"chart-paths\"></figure>\n  <details class=\"tbl\">表格视图\n    <table class=\"view\"></table>\n  </details>\n</div>\n\n<p>逐项客观解读:<code>/xmlrpc.php</code>(59 次)同时具备爆破与 pingback 放大两种攻击价值;<code>/wp-json/wp/v2/users</code> 系列(约 60 次)是登录名枚举——REST API 未鉴权时会把作者登录名直接返回给请求方;<code>/robots.txt</code>(66 次)是扫描前的踩点动作,正常浏览器极少直接请求它;而 <code>/wp-json/wp/v2/users/me</code> 那 83 次里,有 84 次其实来自我本人(下一节详述)。信息泄露类攻击(WAF 层 64 次)的目标高度一致:<code>/.git/config</code>、<code>/.env</code>、<code>/proc/self/environ</code>、云厂商凭证路径——攻击者要的是源码仓库和密钥,不是内容。</p>\n\n<h2>三、时间结构:攻击以&#8221;波次&#8221;而非&#8221;背景噪音&#8221;到来</h2>\n<p>按天聚合后能看到清晰的波次结构。8 月 6 日黑名单拦截单日 502 次,是平日的 10-30 倍,由多个 IP 在数小时内协同完成——典型的分布式集中扫描。此外 7 月 30-31 日、8 月 10 日各有一波 WAF 攻击高峰。</p>\n\n<div class=\"card\">\n  <h3>每日拦截量</h3>\n  <div class=\"cap\">蓝:WAF 攻击拦截 · 橙:黑名单拦截 · 悬停查看当日双数值</div>\n  <figure class=\"chart\" id=\"chart-timeline\"></figure>\n  <div class=\"legend\">\n    <span class=\"key\"><span class=\"stroke\"></span>WAF 攻击拦截</span>\n    <span class=\"key\"><span class=\"stroke\"></span>黑名单拦截</span>\n  </div>\n  <details class=\"tbl\">表格视图\n    <table class=\"view\"></table>\n  </details>\n</div>\n\n<p>一个值得注意的细节:两类拦截的波峰并不同步。WAF 高峰日(7/30、8/10)黑名单拦截量平平,黑名单高峰日(8/6)WAF 拦截为零——<strong>两波是不同来源、不同工具的独立行动</strong>,而非同一批攻击者换手法。</p>\n\n<h2>四、全量回查:626 个 IP 的全球&#8221;信用档案&#8221;</h2>\n<p>把 626 个 IP 提交 AbuseIPDB 后批量回查,每个 IP 拿到三项关键数据:置信分(0-100)、历史总举报数、举报者数量。分布如下:</p>\n\n<div class=\"card\">\n  <h3>626 个 IP 的全球置信分分布</h3>\n  <div class=\"cap\">颜色越深 = 社区确认恶意程度越高 · 数据来源:AbuseIPDB 批量回查(2026-08-16)</div>\n  <figure class=\"chart\" id=\"chart-scores\"></figure>\n  <details class=\"tbl\">表格视图\n    <table class=\"view\"></table>\n  </details>\n</div>\n\n<p>三个层面的客观结论:</p>\n<ul>\n  <li><strong>本地拦截与全球判断高度一致</strong>:217 个 IP(34.7%)置信分 80+,190 个满分。我的四层规则拦下的东西,全球几百个站点也拦下了同样的东西。</li>\n  <li><strong>头部惯犯的&#8221;作案广度&#8221;惊人</strong>:27 个 IP 全球总举报数 ≥ 500,其中 13 个被 ≥ 300 个不同站点举报过,最高的一个(荷兰某主机商)被 559 个站点举报 2,292 次。这些 IP 长期、稳定、大规模地扫描整个互联网。</li>\n  <li><strong>举报者数量的中位数只有 10</strong>:一半以上的 IP 只有零星记录——大量扫描节点是&#8221;新面孔&#8221;,单靠黑名单情报无法覆盖,这也是为什么它们能穿透到我的第三、四层才被拦。</li>\n</ul>\n\n<div class=\"card\">\n  <h3>头部惯犯的全球举报广度</h3>\n  <div class=\"cap\">每个点 = 一个 IP · 横轴:全球举报它的站点数 · 纵轴:总举报次数 · 颜色:置信分</div>\n  <figure class=\"chart\" id=\"chart-breadth\"></figure>\n  <details class=\"tbl\">表格视图\n    <table class=\"view\"></table>\n  </details>\n</div>\n\n<h2>五、81 个白名单:一次数据质量事故的完整解剖</h2>\n<p>回查发现了本次分析最重要的一件事:81 个我当作&#8221;恶意 IP&#8221;上报的地址,是 AbuseIPDB <strong>官方白名单</strong>。构成如下:</p>\n\n<div class=\"card\">\n  <h3>81 个白名单 IP 构成</h3>\n  <div class=\"cap\">44 个 CDN 共享代理出口 + 37 个搜索引擎/SEO 官方爬虫</div>\n  <figure class=\"chart\" id=\"chart-wl\"></figure>\n  <details class=\"tbl\">表格视图\n    <table class=\"view\"></table>\n  </details>\n</div>\n\n<p>其中 44 个 CDN 代理出口 IP 值得完整还原:我的应用层防火墙统计曾显示&#8221;德国、瑞典是攻击来源前几名&#8221;——回查后确认这些 IP 属于某 CDN 的共享出口段。也就是说,<strong>攻击者把自己的域名套上免费 CDN 反代再回源,我的日志记录的只是 CDN 边缘节点</strong>。这 44 个 IP 在应用层被拦截了 300+ 次,看起来像 44 个不同攻击者,实际背后是若干个借道者,而且我永远无法从日志里得知它们的真实地址。</p>\n\n<blockquote>客观事实是:站点挂在 CDN/代理后面时,若防护层取的是 TCP 连接 IP 而非 <code>X-Forwarded-For</code> 透传的真实客户端 IP,则日志、统计、封禁列表记录的都是代理影子。我在不知情的情况下,把 44 个影子当攻击者封了、上报了。剩余 37 个(SEO 爬虫与搜索引擎 bot)则是被应用层规则当攻击拦截的合法抓取——个人博客的高频爬虫流量本身属于正常互联网行为。</blockquote>\n\n<h2>六、来源结构:数据中心占六成,大陆流量平均分仅 14.5</h2>\n<p>626 个 IP 的基础设施属性与地域分布,呈现出明确的二元结构:</p>\n\n<div class=\"card\">\n  <h3>IP 的基础设施类型</h3>\n  <div class=\"cap\">回查字段 usageType · 626 个 IP</div>\n  <figure class=\"chart\" id=\"chart-usage\"></figure>\n  <details class=\"tbl\">表格视图\n    <table class=\"view\"></table>\n  </details>\n</div>\n\n<div class=\"card\">\n  <h3>中国大陆 IP vs 境外 IP</h3>\n  <div class=\"cap\">数量 vs 平均置信分 · 大陆 204 个 / 境外 422 个</div>\n  <figure class=\"chart\" id=\"chart-cnvs\"></figure>\n  <details class=\"tbl\">表格视图\n    <table class=\"view\"></table>\n  </details>\n</div>\n\n<ul>\n  <li><strong>380 个 IP(61%)来自数据中心/主机托管</strong>,229 个(37%)来自固定宽带——攻击主体是租来的服务器,而非个人电脑。固定宽带里则集中了几个被植入扫描脚本的家宽网段。</li>\n  <li><strong>大陆 IP 与境外 IP 性质截然不同</strong>:204 个大陆 IP 平均置信分 14.5,其中 123 个为 0-4 分(基本无恶意记录);422 个境外 IP 平均 62.8 分。大陆拦截量高主要来自 CDN 边缘挑战层(106 次全部为大陆 IP),而穿透到 WAF 层的攻击 97% 来自境外。</li>\n  <li>满分 IP 的国家分布:美国 51、德国 24、新加坡 17、法国 13、荷兰 12——与全球数据中心分布基本重合。</li>\n</ul>\n\n<h2>七、网段聚类:攻击基础设施高度集中</h2>\n<p>按网段聚类后发现,626 个 IP 并非均匀散布,而是集中在少数几个来源。最大单一集群 62 个 IP 来自同一海外云服务商网段,平均置信分 97;第二集群 58 个 IP 来自华东某省运营商家宽段——<strong>这 58 个 IP 此前全球零举报,我的上报是首报</strong>,是一个新启用的扫描集群。</p>\n\n<div class=\"card\">\n  <h3>主要攻击网段聚类</h3>\n  <div class=\"cap\">气泡大小 = IP 数量 · 颜色 = 平均置信分(越深越危险) · 网段已模糊化</div>\n  <figure class=\"chart\" id=\"chart-seg\"></figure>\n  <details class=\"tbl\">表格视图\n    <table class=\"view\"></table>\n  </details>\n</div>\n\n<p>附带的独立事实:确认 6 个 Tor 出口节点(5 个置信分满分,单节点最高被举报 226 次);一家印尼大学的服务器(549 次举报/274 个举报站点)出现在扫描源里;多家对滥用投诉不作为的低价主机商合计贡献了约三分之一的惯犯 IP。</p>\n\n<h2>八、流量侧画像:&#8221;访客&#8221;的构成</h2>\n<p>CDN 层的 30 天流量统计(按流量字节)可以和拦截数据互为印证。这个近半年无更新的站,流量构成如下:</p>\n\n<div class=\"card\">\n  <h3>客户端操作系统构成(按流量)</h3>\n  <div class=\"cap\">CDN 层统计 · 30 天 · Bot 类占 14.2%,另有 25.7% 无法识别</div>\n  <figure class=\"chart\" id=\"chart-os\"></figure>\n  <details class=\"tbl\">表格视图\n    <table class=\"view\"></table>\n  </details>\n</div>\n\n<p>User-Agent 维度:流量第一的&#8221;Chrome 142 / Windows&#8221;占 8.1%——一个最新主版本号出现在无更新站点的流量榜首,且无对应的人类访问理由;空 UA(<code>-</code>,纯脚本直连)占 4.1%;声明为 <code>curl</code> 的占 1.7%;两家中文博客聚合爬虫合计约 8%。应用层防火墙拦截的 100 个&#8221;顶级 IP&#8221;里,回查确认 44 个是 CDN 共享出口、约 37 个是合法爬虫——<strong>应用层眼中的&#8221;攻击榜&#8221;与真实攻击者的重合度,比表面数字低得多</strong>。</p>\n\n<h2>九、数据汇总</h2>\n\n<div class=\"card\">\n  <h3>四层防护拦截量对比</h3>\n  <div class=\"cap\">拦截次数与涉及 IP 数 · 各层职责不同,量级递减</div>\n  <figure class=\"chart\" id=\"chart-layers\"></figure>\n  <details class=\"tbl\">表格视图\n    <table class=\"view\"></table>\n  </details>\n</div>\n\n<table class=\"view\" style=\"margin-top: 1em;\">\n  <tbody><tr><th>指标</th><th>数值</th></tr>\n  <tr><td>拦截 IP 总数(去重、剔除本地)</td><td>626</td></tr>\n  <tr><td>其中 AbuseIPDB 置信分 80+</td><td>217(34.7%)</td></tr>\n  <tr><td>其中满分 100</td><td>190(30.4%)</td></tr>\n  <tr><td>其中官方白名单(误报)</td><td>81(12.9%)</td></tr>\n  <tr><td>其中全球首报 IP</td><td>58(华东家宽集群)</td></tr>\n  <tr><td>数据中心来源占比</td><td>61%</td></tr>\n  <tr><td>大陆 IP 平均置信分 / 境外</td><td>14.5 / 62.8</td></tr>\n  <tr><td>全球总举报 ≥500 次的惯犯</td><td>27 个</td></tr>\n  <tr><td>Tor 出口节点</td><td>6 个(5 个满分)</td></tr>\n  <tr><td>单波最高单日拦截</td><td>502 次(8 月 6 日)</td></tr>\n</tbody></table>\n\n<h2>写在最后</h2>\n<p>把 30 天的数据摊开,得到的最核心的客观事实有三个。<strong>第一,攻击的绝对量与站点价值无关</strong>:一个半年无更新的个人站,30 天被 626 个 IP 光顾,其中三分之一是全球确认的惯犯——互联网上的扫描是全天候、无差别、按漏洞库存货循环的背景活动。<strong>第二,攻击质量与攻击数量严重不匹配</strong>:没有发现任何针对站点实际技术栈的攻击,全部是对着错误目标撒网的老漏洞。<strong>第三,观测数据本身会说谎</strong>:626 个&#8221;恶意 IP&#8221;里,81 个是白名单,44 个是代理影子——在修正取数方式之前,我的日志、统计与封禁决策都在与幻影作战。</p>\n\n<p class=\"meta\" style=\"margin-top: 2.5em;\">数据与方法:四层防护(CDN 边缘 / 主机 WAF / 黑名单情报 / 应用防火墙)日志导出 · IP 去重并剔除本地与内网段 · AbuseIPDB 批量举报与回查交叉验证 · 网段与厂商名称已模糊化 · 图表数据内嵌本页,无外部请求 · 所有数字可由表格视图复核</p>\n\n<tr><th></th></tr><tr><td></td></tr><div class=\"row\"><span class=\"tv\"></span><span class=\"tl\"></span></div><div class=\"tl\"></div><div class=\"tl\" style=\"margin-bottom: 3px;\"></div><div class=\"row\"><span class=\"lk\"></span><span class=\"tv\"></span><span class=\"tl\"></span></div><div class=\"row\"><span class=\"lk\"></span><span class=\"tv\"></span><span class=\"tl\"></span></div><div class=\"row\"><span class=\"tv\"></span><span class=\"tl\"></span></div><div class=\"tl\"></div><div class=\"row\"><span class=\"tv\"></span><span class=\"tl\"></span></div><div class=\"row\"><span class=\"tv\"></span><span class=\"tl\"></span></div><div class=\"tl\"></div><div class=\"row\"><span class=\"tv\"></span><span class=\"tl\"></span></div><div class=\"tl\"></div><div class=\"row\"><span class=\"tv\"></span><span class=\"tl\"></span></div><div class=\"tl\"></div><div class=\"row\"><span class=\"tv\"></span><span class=\"tl\"></span></div><div class=\"tl\"></div><div class=\"row\"><span class=\"tv\"></span><span class=\"tl\"></span></div><div class=\"tl\"></div>",
-    "published": "2026-08-16T12:10:33Z",
-    "feed_title": "Under the Sun with Paddy",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-17T01:42:29.706353+00:00",
-    "content_length": 9714
-  },
-  {
-    "guid": "63a75d10aaf56017",
-    "title": "暑假里的一个月，我都去干什么了？",
-    "link": "https://blog.224418.xyz/posts/ca766f9d/",
-    "author": "",
-    "content": "<img src=\"https://cdn.harmony5.cn/square/20870383233990131.jpg\" />\n  最近一个月都没有发文章，上一次还是在7月15号。消失了一个月，主要还是因为在家里太安逸了，比较懒😂。7月24号的时候早上本来准备去小南海水库玩的，但是开车到中途下雨了就没去。7月30号上午我就去看了下《蜘蛛侠：崭新之日》，很好看。紧接着7月31号到8月5号，我跟我二姐从安阳到郑州，到武汉，到长沙，特种兵式旅游。回来了之后我就没什么事情了，就在家躺倒今天，然后想起来，“我得发个文章记录一下这个月”。然后，接下来，我来呈现的是为：大一的暑假。",
-    "published": "2026-08-16T15:06:12Z",
-    "feed_title": "傥师妹TangShiMei的小空间",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-17T01:42:29.706353+00:00",
-    "content_length": 290
-  },
-  {
-    "guid": "321f2d26af263e5f",
-    "title": "Trip in Emirates",
-    "link": "https://linlin.website/blog/emirates",
-    "author": "linlin",
-    "content": "",
-    "published": "2026-08-16T15:22:00Z",
-    "feed_title": "linlin.works",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-17T01:42:29.706353+00:00",
-    "content_length": 0
-  },
-  {
     "guid": "7c2e15dfb19ab269",
     "title": "记首次 .NET 跨平台开发——Deepseek Harness Desktop",
     "link": "https://nigzu.com/csharp-dotnet-avalonia-deepseek-harness-client-ai/",
@@ -10059,42 +9987,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-17T01:42:29.706353+00:00",
     "content_length": 20303
-  },
-  {
-    "guid": "6c53f0f76819c6c6",
-    "title": "从可编程到表现力：构建更好的 Agent 运行时重塑用户体验",
-    "link": "http://www.phodal.com/blog/from-programmability-to-expressiveness/",
-    "author": "Phodal Huang",
-    "content": "最近，我重新看了 remio 在 PPT DSL 上的尝试，也注意到 OpenAI 的 **Artifact Tool**（产物工具）正逐渐演进成一套完整的专业文档运行时。",
-    "published": "2026-08-16T15:09:00Z",
-    "feed_title": "全栈应用开发:精益实践",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-17T01:42:29.706353+00:00",
-    "content_length": 86
-  },
-  {
-    "guid": "637726a1a6454e20",
-    "title": "什么是真正的痛苦",
-    "link": "https://kaix.in/2026/0816/",
-    "author": "dimlau",
-    "content": "<p>这几天经常看到一段李娟和李诞的对话，对话中李娟说世界上真正的痛苦，只有一种，叫贫穷——所有痛苦都是虚构的，只有贫穷才是真实的痛苦。我相信李娟是真诚的，她有她的逻辑，她接着就说自己没资格谈痛苦，因为她现在有好几套房、物质充裕。</p>\n<p>为了不造成误导，有必要说一句，她这些话的语境是说精神上的内耗与纠结是可以「想开」的，属于相对虚构的假痛苦。而贫穷带来的是物质匮乏和生存危机，无法单纯靠心理调节来消解。</p>\n<p>不过显然很多人还是不认可这个观点，有人评论说，孤独才是最痛苦的，有人说生病才是最痛苦的……有人又反驳说，那是因为妳们没真的穷过。不过照这个逻辑来说，前面的人也可以继续反驳——那是因为妳没真的孤独过，妳没真的陷入病痛过。可见，许多人的痛苦，苦的还是「我执」。我孤独过，妳们不了解，那太痛苦了；我尝过病痛，妳们不知道那有多煎熬；我穷过，天下再没有比穷更真实的痛苦了。谁能说不对呢。</p>\n<p>要问我的想法，我只能说，妳经历的痛——不论是孤独、疾病、贫穷——都是真实的，但是那种痛，到底苦不苦，只对妳一个人是真实的。有人穷着逍遥自在，有人在病痛中乐观，更别提孤独——是我的珍馐美味。还有什么才是真正的痛苦呢，大概就是「看不透」吧。</p>\n<p class=\"endof\">fin.</p>\n<div class=\"kxd\"><i id=\"kxdn\"><a href=\"https://kaix.in/donation\">激赏</a>！</i><i id=\"kxcm\"><a href=\"mailto:hi@kaix.in?subject=回应 %e4%bb%80%e4%b9%88%e6%98%af%e7%9c%9f%e6%ad%a3%e7%9a%84%e7%97%9b%e8%8b%a6\">来信</a>。</i></div>",
-    "published": "2026-08-16T13:06:04Z",
-    "feed_title": "KAIX.IN",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-17T07:08:01.647528+00:00",
-    "content_length": 777
-  },
-  {
-    "guid": "663252cb5c294d94",
-    "title": "AI 时代我的开发工作流：从踩坑复盘到多项目并行验证",
-    "link": "https://innei.in/posts/tinkering/ai-era-dev-workflow-review-and-verify",
-    "author": "Innei",
-    "content": "<p>往原址览之：<a href=\"https://innei.in/posts/tinkering/ai-era-dev-workflow-review-and-verify\">https://innei.in/posts/tinkering/ai-era-dev-workflow-review-and-verify</a></p>",
-    "published": "2026-08-16T16:32:40Z",
-    "feed_title": "静かな森",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-17T07:08:01.647528+00:00",
-    "content_length": 168
   },
   {
     "guid": "03eb0ab01192a7f5",
@@ -10241,18 +10133,6 @@
     "content_length": 3072
   },
   {
-    "guid": "408721f6cc07311c",
-    "title": "放弃自证的减负感",
-    "link": "https://blog.solazy.me/20260816/",
-    "author": "sol (hidden)",
-    "content": "<p><img alt=\"pawel-czerwinski-7dVBX9ecSzQ-unsplash\" src=\"https://bear-images.sfo2.cdn.digitaloceanspaces.com/sol/pawel-czerwinski-7dvbx9ecszq-unsplash.webp\" /></p>\n<p>前几天和一个很久没深入聊过的朋友喝咖啡。</p>\n<p>中间聊到一个挺具体的业务判断，我随口提了一句我最近在做的事情和接下来的打算。他听完愣了一下，然后用一种非常笃定的语气说：「你现在变得挺保守的，以前你不是这种风格，现在怎么开始算这些细账了。」</p>\n<p>我当时下意识的反应，是想立刻把前后因果给他展开讲一遍。我想告诉他，我不是保守，而是我算过边际成本之后发现之前的路径走不通；我想告诉他我手里真实的资源配比；我想向他证明，我其实比以前更激进，只是激进的维度变了。</p>\n<p>话都到了嘴边，我突然觉得特别累。最后我只是笑了笑，端起杯子喝了口水，说：「可能吧，现在确实更想先把眼前的事情做扎实。」</p>\n<p>那一瞬间，我放弃了解释。</p>\n<p>回家路上我一直在想这件事情。换作两三年前，我大概率会在微信上再给他发几大段文字，甚至拉着他复盘一遍我的思考逻辑。那时候我对「被理解」有一种近乎强迫症的执念。如果别人对我产生了一个我认为不准确的标签，比如觉得我冷漠、觉得我功利、觉得我退缩了，我就会产生一种强烈的认知失调，非要把这个信息差抹平不可。</p>\n<p>但现在我越来越觉得，试图纠正别人对你的误解，是一件投资回报率极低的事情。</p>\n<p>说白了，绝大多数人对你的评价，并不是建立在对你完整人生的审视上，而是建立在他自己有限的认知框架、当下的情绪，以及你在他世界里投射出的那一点点碎片上。</p>\n<p>他觉得你保守，可能只是因为你的做法不符合他对某种「正确」的想象；他觉得你难以接近，可能只是因为你没有配合他进行一场低质量的寒暄；他觉得你变了，其实只是你没有按照他脑海里的旧剧本继续演下去。</p>\n<p>你花一个小时去解释背景、动机、底层逻辑，对方听进去的可能只有百分之十，剩下的百分之九十依然会被他自己的认知系统过滤掉。最后的结果往往是：你耗尽了心力，试图捍卫一个「客观真实的我」，而在对方眼里，你只是在急于自证。</p>\n<p>自证是人最容易踩进去的陷阱。一旦你开始向别人证明自己「不是那样的人」，你就已经把定义权交出去了。</p>\n<p>我后来想了想，人之所以害怕被误解，本质上还是对自己的边界不够笃定。你需要外界的反馈来确认自己的坐标，所以当外界给出的坐标系发生偏离时，你才会感到恐慌。但事实是，除了极少数真正和你深度协作、利益捆绑，或者在精神上有深层共鸣的人之外，剩下绝大多数人对你的看法，对你的生活根本构不成任何实质性的影响。</p>\n<p>他怎么看你，那是他的认知课题，不是你的交付任务。</p>\n<p>允许别人对你有一个错误的认识，其实是一种非常高级的减负。</p>\n<p>这意味着你承认了信息传递的必然损耗，承认了人与人之间理解的局限性，也承认了你没有义务在每个人的脑海里都维持一个完美、清晰、高保真的形象。别人觉得你算计也好，觉得你冷血也罢，觉得你江郎才尽或者不近人情，都随他去。</p>\n<p>省下那些用来解释、争辩、自我剖白的精力，足够你去写几千行代码，读完半本书，或者干脆安安静静地睡个好觉。</p>\n<p>这事儿其实没那么复杂。真实的自我不是靠口头争辩捍卫出来的，而是靠你日复一日的产出和选择堆出来的。把精力收回到自己的物理现实里，至于别人怎么拼凑你的碎片，那是他们的自由。</p>",
-    "published": "2026-08-16T15:00:00Z",
-    "feed_title": "—— So!azy",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-17T18:48:24.963394+00:00",
-    "content_length": 1534
-  },
-  {
     "guid": "238c7890d345c959",
     "title": "2024",
     "link": "https://mer.run/posts/2024/",
@@ -10359,18 +10239,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-18T01:36:31.545228+00:00",
     "content_length": 3608
-  },
-  {
-    "guid": "09c2429eb30f9947",
-    "title": "公共游戏的典范：纪念贾君鹏君",
-    "link": "http://weiwuhui.com/11070.html",
-    "author": "魏武挥",
-    "content": "<p><span>这两日，一个其实并没有多少内容可供讨论的东西，因为参与者越来越多、数字不断上涨，突然变成了一件大众关注的事——这不仅只是网上过个嘴瘾，是真金白银几百万堆出来的事。</span></p>\n<p><span>诸位还记得十七年前的贾君鹏君么？</span></p>\n<section style=\"text-align: center;\"><img class=\"rich_pages wxw-img js_insertlocalimg\" src=\"http://weiwuhui.com/wp-content/uploads/2026/08/wechat_5ab99baf.jpg\" type=\"block\" /></section>\n<p><span>09年7月16日，这句话出现在百度“魔兽世界吧”，正文只有两个字母：RT，如题。既无新闻，亦无观点，甚至无法确定是否真有一个名叫贾君鹏的人（至今这依然是个迷）。但几分钟后，“贾君鹏本人”出现了，接着是他的妈妈、爸爸、爷爷、奶奶、同学和女友。网民们注册新账号、编造新关系，最终盖出几万乃至几十万的“高楼”。</span></p>\n<section><img class=\"rich_pages wxw-img\" src=\"http://weiwuhui.com/wp-content/uploads/2026/08/wechat_f5827edb.jpg\" /></section>\n<p><span>彼时著名游戏《魔兽世界》大陆服务器因种种原因停运了四十余日，大量玩家滞留在贴吧。所谓“哥回的不是帖子，是寂寞”，确实解释了第一批人为什么愿意起哄。但它其实很难解释为什么后来全网都在参与。真正推动帖子继续增长的，已经不再是魔兽，也不是贾君鹏，而是帖子正在增长这件事本身。</span></p>\n<section style=\"text-align: center;\"><img class=\"rich_pages wxw-img js_insertlocalimg\" src=\"http://weiwuhui.com/wp-content/uploads/2026/08/wechat_1c88b50a.png\" type=\"block\" /></section>\n<p><span>原帖与其说是一篇文本，不如说更像一个按钮。它几乎没有预先设定的意义，故而每个人都可以跑来按一下：有人扮演亲属，有人续写故事，有人只回一个“顶”，有人想在著名帖子里留下自己的楼层——所谓火钳刘明。最初是内容引来回复，后来却是回复数量反过来制造内容。一千楼、一万楼、几十万楼，数字变成了一条所有人都能看见、也都能亲手推动的进度条。</span></p>\n<p><span>但共同推动一条进度条，却未必等于共同表达一种意见——甚至，没有什么意见。</span></p>\n<p><span>有人无聊，有人好奇，有人跟着朋友进来，有人想见证纪录，有人只是看到一辆正在向山下滚动的车，顺手又推了一把。上班、送孩子、看病和旅游的人可以共同制造一场堵车，但堵车却不是他们联合发表的交通宣言。同样，一百万人做出了相同动作，不等于一百万人怀有相同思想。</span></p>\n<p><span>因此，把“贾君鹏”解释成对家庭温情的呼唤、魔兽玩家的集体抗议，或者草根对权威话语的消解，都只能解释其中一部分参与者。理论家们正襟危坐，习惯从整齐的数字里寻找统一的时代精神，但数字只记录行为，从不负责说明动机。</span></p>\n<p><span>还有更高明的理论家，觉得“没有意义”也是一种意义，甚至是更高维度的意义。只要冠以狂欢、解构、反抗之名，一次集体起哄便能被拔高成文化宣言。只可惜，消解意义本身不会自动产生更高的意义。有些事情当然具有传播研究价值，却没有多少思想需要从中开采。它可以壮观、好笑，甚至成为一代人的共同记忆，但它依然，只是一场公共游戏。</span></p>\n<p><span>后来，互联网出现过许多同样无聊而流行的句子，却很难再出现一座由全网共同建设、楼层清晰可见的高楼。今天的流量被分散在无数账号、视频和平台之间，大家仍在玩同一个梗，却难以再共同修改同一个数字。第一次是意外，第二次也容易被识别为拙劣模仿，或者刻意营销。</span></p>\n<p><span>但那座楼，并未真正消失。每隔一些年，它都会换一个形状回来。有时进度条显示楼层，有时显示点击、销量或者其他不断跳动的数字。参与者未必认同那个对象，甚至未必真的对它感兴趣；他们只是想看看，自己再推一下之后，事情究竟还能走到哪里。</span></p>\n<p><span>十七年过去，贾君鹏有没有回家吃饭，大约是没人关心的。因为似乎从一开始，是否存在这样一个人便已无关紧要。我们怕是没人在等待他的回答，只不过在等待下一个人继续把楼盖高。</span></p>\n<p><span>面对这数十万条记录，我们当然可以研究它如何发生，却完全没必要替这些记录编出同一种思想。一场公共游戏被玩得很high，也许仍然只是一场公共游戏，仅此而已。</span></p>\n<p><span>“批评的作用，应当是说明它何以如此，甚至只是说明它就是如此，而不是说明它意味着什么。”——苏珊·桑塔格，《反对阐释》</span></p>\n<p><span>——  首发 扯氮集 ——</span></p>\n<p><span>顺祝各位投资者牛气冲天，紫气东来。</span></p>\n<p style=\"display: none;\"></p>",
-    "published": "2026-08-16T12:31:21Z",
-    "feed_title": "扯氮集",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-18T01:36:31.545228+00:00",
-    "content_length": 2312
   },
   {
     "guid": "6fc5213f6ddd6b62",
@@ -17415,5 +17283,53 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-30T11:41:53.509636+00:00",
     "content_length": 5951
+  },
+  {
+    "guid": "107e93ffb3dea9bc",
+    "title": "从使用 AI 到委托 AI（下）：我想要的可委托性",
+    "link": "https://fatbobman.com/zh/posts/from-using-ai-to-delegating-work-to-ai-2/",
+    "author": "Fatbobman",
+    "content": "<p>AI 工作流的核心其实很简单——人定好验收标准，AI 执行并且按标准验收。说得没错，但实现起来并不容易。“标准”如何而来？如何得到尊重？随着上下文的增长或换一个新上下文，标准难免偏移甚至会被篡改。我需要一种可被信任的 AI 使用方式，简单来说就是“可委托”</p>\n                   <div style=\"margin-top: 20px;\">\n                   <p><a href=\"https://fatbobman.com/rss.xml\"><b>Subscribe English RSS</b></a></p>\n                   </div>\n                   <div style=\"margin-top: 20px;\">\n                   <p><a href=\"https://fatbobman.com/zh/posts/from-using-ai-to-delegating-work-to-ai-2/\"><b>阅读全文</b></a></p>\n                   </div>",
+    "published": "2026-08-27T09:00:00Z",
+    "feed_title": "肘子的 Swift 记事本",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-30T16:28:18.388770+00:00",
+    "content_length": 513
+  },
+  {
+    "guid": "0500465a1dbd52aa",
+    "title": "Memos #2026-08-27",
+    "link": "https://www.taober.blog/memos/memo_20260827013049_4202nz",
+    "author": "",
+    "content": "<p><strong>09:33</strong></p><p>昨晚下雨，九点准时打车，快十点才上车。到家空调吹得眼睛特别干。晚上做了个梦，导致今天又九点十五才醒，纠结了一阵还是去公司上班吧。</p>\n<p>真两眼一睁就是干！</p>",
+    "published": "2026-08-28T00:00:00Z",
+    "feed_title": "https://www.taober.blog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-30T16:28:18.388770+00:00",
+    "content_length": 117
+  },
+  {
+    "guid": "d7eb58450a6bf1f9",
+    "title": "Memos #2026-08-26",
+    "link": "https://www.taober.blog/memos/memo_20260826125704_5jg1z9",
+    "author": "",
+    "content": "<p><strong>20:57</strong></p><p>顶级吃法：麦当劳薯条沾甜筒！</p>\n<p>甜加咸，冷加热，好吃到打摆子！</p>",
+    "published": "2026-08-27T00:00:00Z",
+    "feed_title": "https://www.taober.blog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-30T16:28:18.388770+00:00",
+    "content_length": 73
+  },
+  {
+    "guid": "7746567f96d6a8ca",
+    "title": "周记 #16 - 不喜欢宏大叙事",
+    "link": "https://www.taober.blog/posts/weekly-16-20260824",
+    "author": "",
+    "content": "<blockquote>\n<p><code>2026-08-17</code> 至 <code>2026-08-23</code></p>\n</blockquote>\n<p>随着毕业后进入工作和生活，真正接触社会后，愈发觉得自己是一个不太喜欢宏大叙事的人。从听的歌、看的影视剧，到最近常听的播客，那些宏大叙事的主题和内容都难真正地打动到我，我也不喜欢精英言论，相比之下，更喜欢那些私密的、具体的，能让我共鸣的情感。</p>\n<p>我不关心社会，我只关心我自己的生活。</p>\n<h2>同学小聚</h2>\n<p>这周六伟哥来深圳玩，大家约着一起吃大仟里的雪乡情，六点半集合。</p>\n<p>雄先到，排了个大桌号，说是得等位一小时。我和宗霖到了之后，觉得实在太久，就临时换了三楼的江西土菜。</p>\n<p>其实我还蛮想吃东北菜的，确实很久没吃了，加上我对雪乡情的印象一直还不错。不过几个东北同事都说一般般，我对东北菜确实也没什么发言权。</p>\n<p>江西菜看着还行，味道就是正常商场店水平，无功无过。</p>\n<p>被寄予厚望的莲花血鸭江西辣版，完全没达到预期。在我看来最多就是个普通中辣的水平，伟哥还是永州人，也觉得完全比不上永州血鸭。反而是烟笋炒腊肉还不错，很下饭，挺合我这个湘西人的口味。</p>\n<p><img alt=\"江西土菜\" src=\"/api/image/assets/posts/weekly_16_%E8%8E%B2%E8%8A%B1%E8%A1%80%E9%B8%AD.webp\" /></p>\n<p>吃完后，大家跟着宗霖去了一家清吧，一人点了杯酒。</p>\n<p>我想到最近播客里听到的「瞎掰王」游戏，就找了个小程序，开玩。语言类游戏真的有意思，几个人一起胡说八道，欢声笑语里时间过得很快。瞎掰王最大的乐趣，就在于每个人都能参与进去。</p>\n<p>玩下来也发现自己知识面还是太窄了，算是印证了「人无法想象出自己没见过的东西」这句话，掰来掰去，都是在自己的知识储备里打转。</p>\n<p>时间过得很快，喝酒、聊天、玩游戏，很开心。最开心的，大概还是发现大家都没怎么变吧！</p>\n<h2>Ownership Sticker</h2>\n<p>公司发起了围绕「Ownership」价值观的 Sticker 设计活动，参与就能获得一份实体贴纸。</p>\n<p>本着重在参与的精神，直接把我的 Slack 头像挂了上去，顺便讲了个故事。当然，里面很大一部分是在抖机灵。</p>\n<p>大家笑一笑就好，哈哈。</p>\n<p><img alt=\"OwnerShip Sticker\" src=\"/api/image/assets/posts/weekly_16_ownership_sticker.webp\" /></p>\n<h2>AI</h2>\n\n\n<p>X 上看到这篇帖子，有感而发。</p>\n<p>平时用 Agent 做事，经常会遇到是不是蹦出几句黑话，夹着着大量琐碎的信息。</p>\n<p>GPT 尤其明显，特别喜欢在一些非核心事项上大做文章，比如测试、健壮性建设等，经常在我预期之外加了大量的低收益内容。又或者方案讨论时，某个已经明确被否决的选项，被当成重要记录写进注释或者 PR body 里。</p>\n<p>这周从同事那儿学到了一个提示词：</p>\n<blockquote>\n<p>我有 ADHD 和注意力缺陷。</p>\n</blockquote>\n<p>结合我平时经常说的，最后变成：</p>\n<blockquote>\n<p>我有 ADHD 和注意力缺陷，请输出的信息尽可能精简、准确、易懂。</p>\n</blockquote>\n<p>做方案探讨的时候非常有效。</p>\n<p>如果涉及到不是自己领域的问题，还可以加上一句「我有智力缺陷」。虽说方法有点抽象，但Agent 往往会主动降低理解门槛，用更简单的语言或者类比来把事情讲清楚。</p>\n<p>除此之外，我还有一个痛点：项目里配置 N 个 skills，尤其是哪些规范类、期望 Agent 在执行过程中自动匹配触发的，在实际开发时并不能保证每次都严格遵守。</p>\n<p>所以我现在的做法是，开发前先让 Agent 自己匹配 Skills，不做过多的指定。一轮开发完成后，再主动点名规范类的 Skill，让 Agent 针对产出再优化一轮。完成后才进入功能验收和 code review。</p>\n<p>这样做是为了确保产出的规范尽可能接近预期。理论上当然是轮次越多越稳，但在工作里适当即可。</p>\n<p>我一般会用 <code>/itaober-guidlines</code> 做一轮，让这次改动的代码尽量符合最佳实践。如果代码变更比较大，会补一轮 <code>/ponytail-review</code>，避免 Agent 排泄。</p>\n<p><code>/itaober-guidlines</code> 参考了 <a href=\"https://github.com/multica-ai/andrej-karpathy-skills/blob/main/skills/karpathy-guidelines/SKILL.md\">Karpathy Guidelines</a>：</p>\n<ul>\n<li>编码前先思考：明示假设，明示困惑和权衡。</li>\n<li>第一性原理：把问题拆到本质，从根本上推导真正解决问题的方案，而不是顺手抓一个最省事的做法。</li>\n<li>简单优先：只写解决问题所需的最少代码，不做投机性的扩展。</li>\n<li>外科手术式改动：只动必须动的地方，只清理自己制造的烂摊子。</li>\n<li>目标驱动执行：先定义成功标准，再循环直到验证通过。</li>\n<li>注释规范：只解释代码本身说不清的东西，解释 why，不复述 what。</li>\n<li>纠正与汇报：接受纠正就直接改，最终只汇报交付状态。</li>\n</ul>\n<p>随着大模型越来越聪明，Skill 更多是在辅助模型、明确方向和收敛行为的边界，而不应该是事无巨细地教它做事。这也是为什么现阶段 <code>grill-me</code> 比 <code>superpowers</code> 更让人喜爱的原因。</p>\n<h2>其他</h2>\n<h3>播客</h3>\n<p>依旧是贤鱼浓度拉满的一周，历史好听的基本都已经听完了，现在进入等待更新的戒断期。</p>\n<ul>\n<li><a href=\"https://www.xiaoyuzhoufm.com/episode/6a6f3e32ab3a91c24a0e90f3\">加更《椿萱并茂》01+02.椿萱并茂新起点，收费赚钱不要脸！</a>：最喜欢的椿萱并茂组合，历史最佳梗「讨厌鬼，喜欢你！」</li>\n<li><a href=\"https://www.xiaoyuzhoufm.com/episode/6a8011a017676351c57239b8\">vol.602 贤鱼：从线下唱到线上的“时光时光慢些吧”，听懂 掌声！</a>：鱼宝的来时路，真诚！btw，之前一直觉得贤鱼和教主的声音很像，这期两人正好对谈，可惜贤鱼声音哑了，没法做对比。</li>\n<li><a href=\"https://www.xiaoyuzhoufm.com/episode/6a783e76c4079d62c57f9c61\">加更《椿萱并茂》02.史上最难绷的一集！X不帮我，因为X信我！</a>：从这期开始真正感受到了老刘的幽默，椿萱并茂还是太顶级了！</li>\n<li><a href=\"https://www.xiaoyuzhoufm.com/episode/6a1460758b5c94538eb235eb\">EP34.我的童年没有钱，我的童年比蜜甜</a>：不愧是小宇宙暗网，主打的就是下三路。</li>\n<li><a href=\"https://www.xiaoyuzhoufm.com/episode/6a12d81ae59ebca936341711\">vol.214 摊开回忆旧地图，怀念来时的路途</a>：话题有意思，回忆就是让人怀念啊。</li>\n</ul>\n<h3>电影</h3>\n<ul>\n<li><p>《欢迎来龙餐馆》：周五晚上去家附近影院看的深夜档。在网上已经夸遍了的高预期下，看完依旧觉得很好看。</p>\n<p>有两点让我印象比较深。一点自然是顶级 ABC 托尼王，几乎承包了我的全部笑点；另一点则是徐福和陈俊生，无论在任何情况下都保留着尊严，没有卑躬屈膝。</p>\n<p>现在想把电影拍的好看，我觉得编剧写故事的能力太重要了。故事不能俗套，情节不能轻易被观众猜到，主题又不能悬在空中。龙餐馆在这几点上都做得很好，用厨子的视角去讲一个反战故事，发展既在意料之外，又在情理之中。</p>\n<p>结尾赛夫没有回头的留白，也证明了导演的功力。</p>\n</li>\n</ul>\n<h3>音乐</h3>\n<ul>\n<li><p>《灰太阳》：说实话，我并不了解施鑫文月，也没听过他其他的歌，但《灰太阳》一直在我的喜爱榜单里，这次终于把整张专辑完整地听了一遍。</p>\n<p>整体给我的感受和专辑名很像：忧郁、浪漫、松弛，带着一些淡淡的小欢快。很容易让人想到春末雾蒙蒙的天里，挂着一轮灰太阳的画面。</p>\n<p>btw，专辑封面很好看。</p>\n</li>\n</ul>\n<h2>博客优化</h2>\n<ul>\n<li><strong>工程化</strong>：用 Biome 替换 ESLint + Prettier，并补上 CI</li>\n<li><strong>安全</strong>：修复图片代理可读取内容仓库任意文件的漏洞</li>\n<li><strong>正确性</strong>：修复并发编辑时的静默覆盖，以及图片说明文字重复转义的问题</li>\n<li><strong>性能</strong>：文章页和 Records 页改为预渲染，正文不再依赖 JS 才能显示</li>\n<li><strong>结构</strong>：整理代码结构与命名</li>\n<li><strong>排版</strong>：正文配色改用站点色板，并补充中文字体回退</li>\n<li><strong>X 预览</strong>：MDX 支持 <code>react-tweet</code> 组件</li>\n</ul>",
+    "published": "2026-08-18T23:39:00Z",
+    "feed_title": "https://www.taober.blog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-08-30T16:28:18.388770+00:00",
+    "content_length": 4334
   }
 ]
