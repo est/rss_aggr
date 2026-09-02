@@ -9989,18 +9989,6 @@
     "content_length": 8
   },
   {
-    "guid": "be6542336dc3040e",
-    "title": "Cloudflare R2 图床在微信公众号排版时的踩坑",
-    "link": "https://macin.org/2026/08/19/r2-image-wechat/",
-    "author": "Macin CHEN",
-    "content": "<p class=\"feed-more\"><a href=\"https://macin.org/2026/08/19/r2-image-wechat/\">阅读全文 →</a></p><blockquote>\n<p><strong>结论先行</strong>：R2 图床在公众号裂图的真凶，不是水印、不是跨境、也不是 Workers 的 CPU 上限，而是 <strong>Worker 冷启动 + 实时图片处理管线</strong>导致首请求超时。治本是「让公众号绕过 Worker，走 R2 原生直出」，同时用子域分流把水印保留给博客。本文复盘完整排查链路。",
-    "published": "2026-08-19T19:28:49Z",
-    "feed_title": "Macin",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-19T18:42:39.897511+00:00",
-    "content_length": 280
-  },
-  {
     "guid": "0ec341eb2d9fde10",
     "title": "AI Agent 之下，中台会消失吗",
     "link": "https://www.chenshaowen.com/blog/will-middle-platform-disappear-under-ai-agent.html",
@@ -16947,5 +16935,29 @@
     "feed_category": "Blogs",
     "cached_at": "2026-09-02T16:23:01.872100+00:00",
     "content_length": 5215
+  },
+  {
+    "guid": "10754a299cc3023b",
+    "title": "SwiftData：优化从建模开始",
+    "link": "https://fatbobman.com/zh/posts/swiftdata-optimization-starts-with-modeling/",
+    "author": "Fatbobman",
+    "content": "<p>数据集一大，SwiftData 的列表就开始卡。这是这几年里我听到最多的性能抱怨。SwiftUI 确实有责任，但并非最主要的问题。真正花时间之后会发现，慢的不只是一开始加载时间长，巨大的内存占用同样会把性能拖垮。本文将聊聊在 SwiftData 中为什么会出现这些问题，以及该从哪里下手改善。</p>\n                   <div style=\"margin-top: 20px;\">\n                   <p><a href=\"https://fatbobman.com/rss.xml\"><b>Subscribe English RSS</b></a></p>\n                   </div>\n                   <div style=\"margin-top: 20px;\">\n                   <p><a href=\"https://fatbobman.com/zh/posts/swiftdata-optimization-starts-with-modeling/\"><b>阅读全文</b></a></p>\n                   </div>",
+    "published": "2026-09-02T14:00:00Z",
+    "feed_title": "肘子的 Swift 记事本",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T20:52:48.776805+00:00",
+    "content_length": 534
+  },
+  {
+    "guid": "e5d06df02fc8c3ae",
+    "title": "Memos #2026-09-01",
+    "link": "https://www.taober.blog/memos/memo_20260901131413_wc7aih",
+    "author": "",
+    "content": "<p><strong>21:14</strong></p><p>下班打车，一上车一股子榔子味，问师傅讨了一个😁</p>",
+    "published": "2026-09-02T00:00:00Z",
+    "feed_title": "https://www.taober.blog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T20:52:48.776805+00:00",
+    "content_length": 59
   }
 ]
