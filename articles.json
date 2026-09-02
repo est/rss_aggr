@@ -9989,54 +9989,6 @@
     "content_length": 8
   },
   {
-    "guid": "bbb619d3a31db406",
-    "title": "流浪代码",
-    "link": "https://www.wsh233.cn/post/流浪代码",
-    "author": "WSH",
-    "content": "个人项目代码几乎都托管在GitHub上，它的服务架设在国外，如果不用那么一丢丢魔法，日常推送拉取体验很难评。\n\n有段时间GitHub无法连接，时断时续，已经影响到正常开发，我便找寻国内替代品，Gitee映入眼帘。\n\n用Gitee一段...",
-    "published": "2026-08-19T15:25:16Z",
-    "feed_title": "WSH",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-19T18:42:39.897511+00:00",
-    "content_length": 119
-  },
-  {
-    "guid": "20dad3cf0da8ccab",
-    "title": "顶级 AI 应该怎么用？以及推荐几个出海公众号",
-    "link": "https://www.ccgxk.com/codeother/852.html",
-    "author": "独元殇",
-    "content": "用着顶级AI却不知道做什么? 随便就列出那么多可做的（群里发的）： 1.做浏览器插件 2.做在线小工具站 3.做垂直微SaaS 4.做AI垂直工具API 5.卖模板UI套件 6.写技术电子书 7.做技术测评视频录屏加讲解 9.做开源项目变现 10.做录播课程: 11.做简历优化服务程序 12.做爬虫与数据服务 13.做DevOps即服务 14.做独立小游戏 ... <a href=\"https://www.ccgxk.com/codeother/852.html\">阅读全文</a>",
-    "published": "2026-08-19T16:21:40Z",
-    "feed_title": "独元殇",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-19T18:42:39.897511+00:00",
-    "content_length": 243
-  },
-  {
-    "guid": "2737c8dccfc98a77",
-    "title": "博客评论数据已全部完成迁移",
-    "link": "https://blog.goodboyboy.top/posts/1318119464.html",
-    "author": "",
-    "content": "<h2 id=\"正文\">正文</h2><p>所有评论数据目前已完成迁移，目前正部署Furtalk博客评论区组件。</p><p>为保证数据一致性，迁移期间评论功能不可用。</p><h2 id=\"小记\">小记</h2><p>几年下来不知不觉博客已经累积了这么多的网友和评论，这次迁移才注意到有这么多网友给我留过言，在今后的日子里，希望和各位继续努力，无限进步！</p><p><img alt=\"评论一览\" src=\"https://pic.goodboyboy.top/imgs/2026/08/19/f44e80fa-eeb2-494d-9444-3bb8fabe940f.webp\" /></p><p><img alt=\"用户一览\" src=\"https://pic.goodboyboy.top/imgs/2026/08/19/869dcb73-e85d-4284-b819-4fea08523cd9.webp\" /></p><p><img alt=\"全部数据\" src=\"https://pic.goodboyboy.top/imgs/2026/08/19/31d7f993-9eb2-4cb0-93dd-01a7fdc2c3a0.webp\" /></p>",
-    "published": "2026-08-19T14:41:04Z",
-    "feed_title": "GoodBoyboy 's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-19T18:42:39.897511+00:00",
-    "content_length": 530
-  },
-  {
-    "guid": "0411a51e5b8da515",
-    "title": "一无所获 - 四个月独立开发的小总结",
-    "link": "https://diff.im/blog/2026/08/%E4%B8%80%E6%97%A0%E6%89%80%E8%8E%B7-%E5%9B%9B%E4%B8%AA%E6%9C%88%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91%E7%9A%84%E5%B0%8F%E6%80%BB%E7%BB%93/",
-    "author": "",
-    "content": "<p>四个月前，我觉得满世界都是 idea，都是可以做的东西，抱着很大的希望。但四个月后，我几乎心灰意冷，也很迷茫：不知道该做什么，也不知道出路在哪里。</p>\n<p>先说一下这个小总结的基调：</p>\n<p>第一，我感觉自己濒临失败。但冷静下来，这就是创业最真实的样子。我认为自己还没有失败，还要继续尝试。</p>\n<p>第二，这篇文章谈不上什么经验教训的总结。因为我的认识还没有那么深刻，只能和大家分享我做了什么，以及我的感受。</p>\n<h1 id=\"一点背景介绍\">一点背景介绍</h1>\n<p>我 2005 年进入互联网行业，2009 年进入移动互联网，从业 20 多年。我曾以早期设计师的身份，<a href=\"https://diff.im/blog/2020/05/%E6%88%91%E5%8A%A0%E5%85%A5%E6%B5%81%E5%88%A9%E8%AF%B4%E7%9A%84%E6%95%85%E4%BA%8B-%E6%9D%A5%E8%87%AA%E6%B5%81%E5%88%A9%E8%AF%B4%E7%AC%AC-7-%E5%8F%B7%E5%91%98%E5%B7%A5/%E5%89%8D%E8%AE%BE%E8%AE%A1%E6%80%BB%E7%9B%91%E7%9A%84%E5%88%86%E4%BA%AB/\">参与过一家公司从零到上市的过程</a>，做了无数项目，也积累了一定的经济基础。</p>\n<p>不夸张地说，过去 20 年，我内心一直蠢蠢欲动，想要做一点自己的东西。无奈性格胆小，条件不成熟的时候不敢动手，等到有了一定的经济基础，依然不敢动手。</p>\n<p>但到了 2025 年年末，我心里那个想要自己做一做的念头又慢慢萌生了。的确，也是 AI 给了我勇气，让我可以去创造一些东西。</p>\n<p>在跳出来做一人公司创业之前，我做了两件事情：</p>\n<p>调研一人公司创业的现状： 这些调研都是通过 AI 做的。AI 基于一定的数据给我提供了一份报告。它告诉我，一般来说，前 4 到 6 个月可能完全没有收入，而在这种情况下能活下来的人大概只有 1%—3%。这份调研给了我一个基本的心理准备。</p>\n<p>做个人财务分析： 以我目前在美国的生活和消费水平来看，我的财务状况大概可以支持我折腾 3 到 5 年。这让我对创业的时间周期有了一个基本预期。</p>\n<p><a href=\"https://diff.im/blog/2026/04/%E5%85%B3%E4%BA%8E%E5%BC%80%E5%A7%8B%E5%81%9A%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91%E7%9A%84%E4%B8%80%E4%BA%9B%E6%83%B3%E6%B3%95/\">3 月底，我辞职，开始探索。</a></p>\n<h1 id=\"四个月四个产品\">四个月，四个产品</h1>\n<p><img alt=\"Bible 2460 产品截图\" src=\"https://raw.githubusercontent.com/diffw/diff-blog-source/main/assets/four-month-indie-dev/bible-2460.png\" /></p>\n<h2 id=\"bible-2460\"><a href=\"https://bible2460.com/\">Bible 2460</a></h2>\n<p>第一个产品是一个圣经时钟 - Bible 2460<a href=\"https://bible2460.com/\">https://bible2460.com/</a> 这是一个练手的产品。我是苹果的死忠粉，一直很想做一个独立的 iOS App。同时，我是基督徒，自己也有阅读《圣经》的需求。所以这个 App 主要是为了满足自己的一个心愿，几乎完全不考虑付费，纯粹是娱乐，做起来也心安理得。</p>\n<p>目前，这个产品大概有 600 个用户，全都是免费用户。每天零零散散有 5 到 10 个下载，也有一些自然流量。这可能是我所有产品里“数据表现最好”的一款。</p>\n<p><img alt=\"VibeCap 产品截图\" src=\"https://raw.githubusercontent.com/diffw/diff-blog-source/main/assets/four-month-indie-dev/vibecap.png\" /></p>\n<h2 id=\"vibecap\"><a href=\"https://vibecap.dev/en/\">VibeCap</a></h2>\n<p>第二款产品是 VibeCap <a href=\"https://vibecap.dev/en/\">https://vibecap.dev/en/</a> ，这是一个服务于 AI 编程的截图应用。</p>\n<p>在 AI Coding 的时候，特别是对于设计师来说，很多时候需要通过截图与 AI 沟通细节和优化调整。</p>",
-    "published": "2026-08-19T16:04:52Z",
-    "feed_title": "https://diff.im",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-19T18:42:39.897511+00:00",
-    "content_length": 2121
-  },
-  {
     "guid": "be6542336dc3040e",
     "title": "Cloudflare R2 图床在微信公众号排版时的踩坑",
     "link": "https://macin.org/2026/08/19/r2-image-wechat/",
@@ -10049,78 +10001,6 @@
     "content_length": 280
   },
   {
-    "guid": "975233594dd740dd",
-    "title": "世界是一个屎山代码",
-    "link": "https://www.seis-jun.xyz/blog/2026-08-19-about-the-world-2.html",
-    "author": "",
-    "content": "<p><img alt=\"\" src=\"https://images.unsplash.com/photo-1681333969500-be8dda10c964?q=80&amp;w=1770&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D\" /></p>\n<p>“世界是一个草台班子。”已经流行过一段时间。</p>\n<p>但我想说，世界是一个屎山代码。相比于“草台班子“至少是个”班子“，”屎山代码“是没有“程序员”的。这正是屎山之所以是屎山的原因，不是有“人”写的代码很烂，是根本没人写。</p>\n<p>上一篇<a href=\"/blog/2026-08-05-about-the-world.html\">《关于世界》</a>我就讲，这个世界是没有造物主的。那没有造物主的后果是什么？那自然就是屎山。世界是自己长出来的，像藤蔓，哪有缝往哪钻，能爬就爬，爬不了的就枯了。</p>\n<p>先解释一下屎山代码这个词，软件工程里管这叫&#8221;大泥球&#8221;，屎山代码不是失败的设计，而是&#8221;没有设计&#8221;。能跑就留下来。</p>\n<p>不光代码是屎山，你的身体也是。</p>\n<p>你应该知道你的视网膜装反了，喉返神经绕了15cm的冤枉路<del>长颈鹿的绕了4m</del>，你长了个支持医院经济的阑尾以及几颗一直顶你的智齿。你的记忆系统动不动就记混，而且你还通常记不住6岁以前的事情。\n对了，看我博客的你肯定长了一对nipples，但可能$50\\%$的几率用不上。更别提遗传因素导致的畸形和疾病等等。</p>\n<p>要是你说我们是上帝设计的，那这个上帝的品味、智商和能力也没有好到哪里去。</p>\n<p>所以答案是没有人把我们设计成这样。每一代都在上一代的基础上打补丁，从来没重写，跟你写出来的一堆屎山代码一样，能跑就行，不能跑的都被你删了。</p>\n<p><del>所以那些相信上帝存在的人，我管不着，你们继续。</del></p>\n<p>我猜你还会反复追问&#8221;那它为什么长这样？&#8221;，但这个问题和“是谁在写代码一样”，也是屎山的一个bug。</p>\n<p>你的大脑出厂就配了一个过度活跃的代理检测器：草丛动了，认为&#8221;有老虎&#8221;的活了下来，认为&#8221;只是风吹&#8221;的被吃了。于是你看到雷就想到雷神，看到日食就想到天狗，看到世界就想到造物主。</p>\n<p>你用它来理解世界，就像用一把弯尺量长度。你永远也量不准。</p>\n<p>好了。世界是屎山，你的身体是屎山，连用来理解屎山的脑子也是屎山。</p>\n<p>那怎么办？</p>\n<p>别轻易重构。能跑就行。但你可以在你那一亩三分地，把代码理顺一点：让<a href=\"/blog/2026-05-31-humanity2.html\">身体有序，脑子有序</a>。</p>\n<p>虽然理着理着可能又变成新的屎山。</p>\n<p>好了，不说了，我去犁我那一小块屎山了。</p>",
-    "published": "2026-08-19T14:57:55Z",
-    "feed_title": "seisamuse",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-19T18:42:39.897511+00:00",
-    "content_length": 1342
-  },
-  {
-    "guid": "2f7a2a82dc8c8f06",
-    "title": "20岁生日",
-    "link": "https://blog.mcenahle.page/2026/08/20/466/",
-    "author": "Mcenahle",
-    "content": "<div class=\"note info modern\"><p><strong>阅读引言</strong><br>19岁正式结束，年龄的第二个数字终于迎来了一次更新。</p></div><p>随着接到英语四六级、日语四级等的出分通知，以及向一位诊所的牙医说一句“医师节快乐！！”，并收获她的“谢谢”后，我最终即将迎来我的20岁。</p><p>我长得那个样子，好多人都问我“初几了？”我只能心里默默捂着脸，然后说“要大三了……”，最后收获他们的“啊？？？”。哈，主要我长得真的很显小。如果以后有机会开线下见面的话，大家就知道我长得是什么样子的啦。</p><p>那么我们学校也总是叫喊着说要搬迁新校区，结果关键时候又不说了。今天似乎说了，但也只是收取学费了，哎，40000多。不过明年升本科就好啦，10000不到。但这不是关键问题，关键问题是：住宿费还是使用原先的4600元，而非我们学校之前发布的《招生章程》“若新生安排至金山新校区学习生活，就读金山新校区，住宿费7600元&#x2F;学年”。其中提及的金山新校区的住宿费为7600元。这就说明了2点之一：确实不搬迁校区；或者搬迁校区，但是住宿费使用原先的4600元。我更希望不搬迁，因为我主要是一个I人嘛，ISFJ-T。哈，就适应了一个地方之后，我会设立自己的一套时间表。如果换地方，我又要重新适应一次，就很烦。更何况还有图书馆等着我呢。</p><p>最近看了下DDLC这个游戏的剧情哈。这个游戏是心理恐怖游戏，如果不能确定自己能不能承受这个，不要玩，不要查wiki。我这人不喜欢剧透，只是有一点启示，算是稍微剧透一点吧：抑郁症，并不是每天以泪洗面的那种，也可能是那种看似很正常，实则……直接想不开的那种。所以，如果发现有人突然聊起自己的心事，得是情况进行安抚了。当然，希望只是发泄一下就完事的那种，但如果对方开始有那种明显的自我伤害意图，一定要寻求专业帮助。</p><p>19岁还是以自己熟悉的，听过数千遍的《城南花已开》进行的结尾。在19岁，我在GitHub发起了1434次贡献，“<i>Contributed to mcenahle&#x2F;hope-vuepress, mcenahle&#x2F;blog, mcenahle&#x2F;i-site and 116 other repositories</i>”，还给我的网站进行了一次长期进行的“静态化”行动。</p><p><img src=\"/img/PixPin_2026-08-19_22-21-04.webp\" alt=\"contributions\"></p><p>Mcenahle v.19版本即日起停止更新，然后迎接我的v.20版本！</p><p style=\"text-align: right; font-size: 0.9em; color: #666;\">  （752字；2026年8月19日夜于上海崇明）</p>",
-    "published": "2026-08-19T14:23:43Z",
-    "feed_title": "梅之夏",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-20T01:38:12.725093+00:00",
-    "content_length": 1225
-  },
-  {
-    "guid": "f01cda0c7cf905c3",
-    "title": "入蜀记 day446 FCF",
-    "link": "https://z.arlmy.me/posts/BBBPandINSW/INSW-ko/INSW_446/",
-    "author": "素生",
-    "content": "<h2 id=\"20260813\" tabindex=\"-1\">20260813</h2><p>六点半，又被太阳晃醒了。</p><p>然后又迷迷糊糊地睡了会儿。</p><p>8:30蝉就已经开始叫了，紫薇花开的时间还蛮长的，其他几种花都已经谢了，只剩下三角梅和紫薇。路边的喇叭花还有一些。</p><p>猫猫都刚起床，一脸朦胧看着我，哈哈哈。</p><p>今年新长的石榴也黑了，可能之前那阵子实在太热了吧。连外墙上的蕨类植物也都死了。</p><p>断断续续又忙了一天，中午蒸了排骨，然后又开会一个多小时，跟lili运动了下，晚上做了炝锅面，用的是意大利面，又吃撑了……</p><p>史研说的，找自己，每天找一次，总能找到呢，好像龚殊在说扫灰。</p><p>每天做一点点就可以，不用很多，没找到也没关系，明天再继续。</p><p>成年以后面对自己，像是在玩捉迷藏一样，有点佛家的意思，是空的，但又没那么空，自己在哪呢，为何小时候不问这种问题，最终形成的这个具“名”之物，是何来历？何以为我？</p><p>hermes折腾一小时，成功了，一顿操作下，竟然把hermes架空了，单纯使用它的agent功能，整体调度还是openclaw，开源和完整架构的产品，天然就很模块化吗？</p><p>还把fcf模型用了一遍，算了算潜在pe，相当于又多了一个观察公司持续经营的视角，如若还是一个傻子也能运营的公司，那便更好了。</p><p>很多时候成熟公司和大公司，不是为了创新和扩大，而是运营维持，不求变，但求稳，对控制稳定的需求大于一切（前提是现金流和收益持续稳定扩张），屎山代码也无妨，只要可用，稳定就可以，而小公司和创业公司，没有稳定现金流，必须创造现金流和赚取收益，无所不用其极也无所谓，重点是定义一种模式。</p><p>巴芒的概念里，好的模式是不多的，试出来并将其保持稳定，是极其难的事情，这本身就是一种持久的优势。</p><hr /><p>CHANGELOG</p><ul><li>20260819 Arlmy 创建、发布</li></ul>",
-    "published": "2026-08-19T11:17:27Z",
-    "feed_title": "素生",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-20T01:38:12.725093+00:00",
-    "content_length": 868
-  },
-  {
-    "guid": "63f85e09f873645f",
-    "title": "入蜀记 day445 幺妹峰",
-    "link": "https://z.arlmy.me/posts/BBBPandINSW/INSW-ko/INSW_445/",
-    "author": "素生",
-    "content": "<h2 id=\"20260812\" tabindex=\"-1\">20260812</h2><p>应该是错过了日照金山，但看着远处的山峦也很激动了。</p><p>那一座明显的雪山，就是幺妹峰。一年多了，第一次见呢！</p><p>网上讨论说是雪山日，但是是夏天，很多雪山似乎都没有雪，只有幺妹峰能看出是有雪的，我就怔怔看了好久，太阳升起，也慢慢也开始有云层，遮掩删了，不过早高峰应该都能看见她。</p><p>哈哈用她来指代雪山也好有趣。</p><p>还看到有人在楼顶做八段锦。</p><p>睡不着了，出门买菜，竟然买到大葱了，这个大葱比平时的蒜苗跟小葱，跟这边的大葱比起来都要大很多，香很多，提在手里就好香哇。</p><p>天再亮些，似乎能隐约看到几座远处的雪山，不知道是不是幻觉。</p><p>朋友送的甜点好好吃，但真的不能吃多，太罪恶了。</p><p>用的密封袋质量很好，尤其封口的地方做了特殊设计，不用去费劲对齐就拉上了，问了原来是叫ziploc，神奇，是山姆有售的密封袋。</p><p>这种供应链管理的能力太强了，还能优中择优，变相就锁定了客户吧，粘度好高，老美真的很擅长做这些……</p><p>朱镕基去世，很久没刷屏的朋友圈。但对于他的记忆真的不多了，总理答记者问，小时候看也是很有趣的感觉。但东北对他的整体评价可能一般，因为他主导了国企改革导致很多人下岗。</p><p>有人加我微信聊昨天发的文章，把他跟模型聊的发给我，我看了一下，发现确实还有一点没说到，收敛之前也要充分外放，接触更多的可能性，这算是难点，浪费和耗散，真的也是一种必然，最终沉淀信息，那是淘汰、浪费，泡沫破裂后的结果，就像那复活节岛，有时是难以再查证的遗迹，现代社会有了数据和信息记录，很多浪费和崩溃才有迹可循了，但绝对无法避免，人性和社会如此，人类的欲望和贪婪如此，早些看清，保护好自己，不要被崩溃席卷，也是每个个体要学习的重点，最好还是不要亲历经济和崩溃为好，那便要保存危机意识了。</p><p>下午和晚上又都在忙，会议一个接一个，有个项目终于要到尾声了。</p><hr /><p>CHANGELOG</p><ul><li>20260819 Arlmy 创建、发布</li></ul>",
-    "published": "2026-08-19T11:16:27Z",
-    "feed_title": "素生",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-20T01:38:12.725093+00:00",
-    "content_length": 932
-  },
-  {
-    "guid": "7eeabbaf7214fe11",
-    "title": "入蜀记 day444 没有工位",
-    "link": "https://z.arlmy.me/posts/BBBPandINSW/INSW-ko/INSW_444/",
-    "author": "素生",
-    "content": "<h2 id=\"20260811\" tabindex=\"-1\">20260811</h2><p>被呆爷呼噜醒。</p><p>lili下床，我趴到她的位置为她暖凉席，哈哈哈，喜提被掐，真有病啊。</p><p>化了馕，等下早上吃。</p><p>摸着呆爷，呆爷继续呼噜着，忽然感觉未来我俩也很难会再为一只猫花费这么多精力和关注了。</p><p>闲散放松的时候才可能会有诗意。</p><p>在xhs给史妍留言：姐，讲的真好，我看得心里一紧一松的，像是一个时代的微微回响，经历过的人会懂得，珍惜每一次告别。</p><p>她晚些回复我：谢谢宝贝。时光真的不回头，每一个阶段的自己和陪伴我们的朋友都是独一无二的。珍惜 祝福 小心珍藏。</p><p>她竟然没有打非主流字体哈哈。</p><p>没有诗和远方，你的远方就是别人的工位2333 这句也挺戳的。</p><p>是啊，工位不好，自由散漫，跟老人聊跟闲人聊才没有工位，似乎热爱和使命才能去掉工位的存在，因为要让自己不再觉得被困着吧。</p><p>我喜欢闲散地活着，任何压力源都请远离我。</p><p>上午都在开会，中午跟同事一起吃饭，旁边的桌在拍视频，几个人轮番上阵，看起来不像是吃播博主，更像是给店里拍宣传片的。店确实刚开业不久，主打潮汕蒸菜和火锅，肉的质量不错，五指毛桃锅底还是没吃出来到底啥是五指毛桃的风味，喜欢姜蓉的味道。</p><p>下午要再去别处，下楼才发现下雨了，竟然忘了带伞，于是就在路边等雨停，好多人跟我一样就在这里耐心地等着，好松弛哈哈。</p><p>不过下了雨也一点也不凉快，蒸腾的水汽像在蒸桑拿。</p><p>基本停了之后就骑了辆车，差点跟电单车撞了，脚蹬擦到脚踝。</p><p>雨没全停，十几分钟的路程，身上还是都淋湿了，一个小时之后才干。</p><p>继续忙一下午回家。刚到家就又下雨了，晚上出门走走，把周五机票买好了。</p><hr /><p>CHANGELOG</p><ul><li>20260819 Arlmy 创建、发布</li></ul>",
-    "published": "2026-08-19T11:15:27Z",
-    "feed_title": "素生",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-20T01:38:12.725093+00:00",
-    "content_length": 856
-  },
-  {
-    "guid": "1447ca158a9bb7ef",
-    "title": "入蜀记 day443 打呼噜",
-    "link": "https://z.arlmy.me/posts/BBBPandINSW/INSW-ko/INSW_443/",
-    "author": "素生",
-    "content": "<h2 id=\"20260810\" tabindex=\"-1\">20260810</h2><p>睡得蛮好的，最近都尽量不在入睡时用对身体有害的姿势，不过睡着之后没法控制。</p><p>最近几天对用核心发力又有些新感受，把注意力集中在后腰和腹部保持收紧上，好像呼吸又会有不一样的感觉，甚至可以更加深入。</p><p>人类这身皮囊确实并不完美，只是将将够用的感觉，会有点心疼它。</p><p>呆爷来趴我身上，原来是看到了手机反光的光点。</p><p>吃饭看会儿脱口秀，然后就开始忙了，十二点多说三点要见人，后来又改到两点，lili买了菜，准备做鸡汤面，吃不上了。</p><p>坐地铁，给一对母子让座，妈妈小声说，让妈妈也坐一下，妈妈伤口有点疼，是陪妈妈来医院啊，但孩子一直在说话，并不在意妈妈的疼痛和难受，妈妈的感叹我也听到，说要每天来换药，要来一个月啊，好辛苦。</p><p>下午一直开会，对工业特气和商业航天多了一点理解。</p><p>群里热烈讨论着富二代找对象，和国资合作难的话题。</p><p>到地铁站实在有点饿了，点了碗馄饨吃，旁边在拍探店视频，我都吃完了，他们也没吃上两口，一直在讨论怎么摆更好看，想起我上周对表达的讨论。</p><p>好像很久没有看书了。</p><p>看脱友，史妍和小齐还是太有意思了，史妍讲打呼噜，把我笑抽抽了，以及又开始有点想念家乡哈哈。</p><p>睡前工作一个多小时，顺便整理了一篇理财笔记，脑子里的东西还是得经常往外舀舀。</p><p>功课是研究一会儿基本面，这两天在研究FCF Field，评估现金流的可持续性。</p><p>投资，表面的道理总是简单的，但实际决策时，全部都是细节。</p><hr /><p>CHANGELOG</p><ul><li>20260819 Arlmy 创建、发布</li></ul>",
-    "published": "2026-08-19T11:14:27Z",
-    "feed_title": "素生",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-20T01:38:12.725093+00:00",
-    "content_length": 774
-  },
-  {
     "guid": "0ec341eb2d9fde10",
     "title": "AI Agent 之下，中台会消失吗",
     "link": "https://www.chenshaowen.com/blog/will-middle-platform-disappear-under-ai-agent.html",
@@ -10131,30 +10011,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-20T01:38:12.725093+00:00",
     "content_length": 165
-  },
-  {
-    "guid": "05e8992e2d375071",
-    "title": "为什么我说绝大部分人都不需要AI知识库",
-    "link": "https://zxs.io/article/2212",
-    "author": "xindoo",
-    "content": "<p>给上百人培训过 AI 知识库、又把自己的全部内容迁进 Obsidian 之后，我发现：AI 知识库对我非常有用，却不一定适合大多数人。 问题不在于一个人是否勤奋，也不完全取决于岗位，而在于他的工作是否存在大量分散、需要长期复用、遗漏代价又高...</p>\n<p><a href=\"https://zxs.io/article/2212\">为什么我说绝大部分人都不需要AI知识库</a>最先出现在<a href=\"https://zxs.io\">XINDOO</a>。</p>",
-    "published": "2026-08-19T15:40:46Z",
-    "feed_title": "XINDOO的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-20T01:38:12.725093+00:00",
-    "content_length": 240
-  },
-  {
-    "guid": "5938a54bbcac2318",
-    "title": "Traceroute the World",
-    "link": "https://www.kawabangga.com/posts/7276",
-    "author": "laixintao",
-    "content": "<p class=\"wp-block-paragraph\">ICMP 一直是我最喜欢的协议，在没有机器/设备的登录权限的时候，ICMP (ping) 可以让我在 debug 的时候获得很多关键的信息：网络通不通，延迟多少，有没有环路，经过了哪些设备，等等。其中比较关键的机制，一个是 ping 工具，即 echo/reply 机制；另一个是在 TTL 耗尽的时候发回来 ICMP 错误信息<sup class=\"fn\"><a href=\"#19138dcb-21d0-4133-ad22-db3e981ea722\" id=\"19138dcb-21d0-4133-ad22-db3e981ea722-link\">1</a></sup>，这是 traceroute 工具实现的基础原理。</p>\n\n\n\n<p class=\"wp-block-paragraph\">在网上经常有人贴出来一些奇奇怪怪的 traceroute 结果<sup class=\"fn\"><a href=\"#2134c4c9-df34-4771-8d35-583c568f17ed\" id=\"2134c4c9-df34-4771-8d35-583c568f17ed-link\">2</a></sup>，有人找到很长的 traceroute 会很兴奋。所以…… 我想我们能不能用系统的方法<strong>找到 traceroute 比较长的 IP 呢</strong>？</p>\n\n\n\n<p class=\"wp-block-paragraph\">虽然这个问题没有什么实际的意义，但是本文在探索这个问题的时候会遇到一些常见的技术，还是挺有意思的。</p>\n\n\n\n<p class=\"wp-block-paragraph\">实验 traceroute 的起点，我们设置在新加坡。</p>\n\n\n\n<p class=\"wp-block-paragraph\">新加坡是一个重要的交通枢纽。这是在写这篇文章的时候，新加坡附近起降的飞机（PS，新加坡的樟宜机场是我最喜欢的机场，如果你路过新加坡的话，建议给樟宜机场预留多 2 个小时的时间逛一逛）。</p>\n\n\n<div class=\"wp-block-image\">\n<figure class=\"aligncenter size-large is-resized\"><a href=\"https://www.kawabangga.com/wp-content/uploads/2026/05/singapore-flight.png\"><img alt=\"\" class=\"wp-image-7279\" height=\"659\" src=\"https://www.kawabangga.com/wp-content/uploads/2026/05/singapore-flight-1024x659.png\" style=\"width: 446px; height: auto;\" width=\"1024\" /></a><figcaption class=\"wp-element-caption\">新加坡繁忙的空域，来源：<a href=\"https://planefinder.net/\">https://planefinder.net/</a></figcaption></figure>\n</div>\n\n\n<p class=\"wp-block-paragraph\">也是一个重要的海上枢纽。</p>\n\n\n<div class=\"wp-block-image\">\n<figure class=\"aligncenter size-large is-resized\"><a href=\"https://www.kawabangga.com/wp-content/uploads/2026/05/vessel-singapore.png\"><img alt=\"\" class=\"wp-image-7280\" height=\"614\" src=\"https://www.kawabangga.com/wp-content/uploads/2026/05/vessel-singapore-1024x614.png\" style=\"width: 382px; height: auto;\" width=\"1024\" /></a><figcaption class=\"wp-element-caption\">新加坡附近的船只。来源 <a href=\"https://www.vesselfinder.com/\">https://www.vesselfinder.com/</a></figcaption></figure>\n</div>\n\n\n<p class=\"wp-block-paragraph\">在网络方面，新加坡也有丰富的海底光缆。</p>\n\n\n<div class=\"wp-block-image\">\n<figure class=\"aligncenter size-large is-resized\"><a href=\"https://www.kawabangga.com/wp-content/uploads/2026/05/submarine-cable.png\"><img alt=\"\" class=\"wp-image-7283\" height=\"730\" src=\"https://www.kawabangga.com/wp-content/uploads/2026/05/submarine-cable-1024x730.png\" style=\"width: 405px; height: auto;\" width=\"1024\" /></a><figcaption class=\"wp-element-caption\">来源：<a href=\"https://www.submarinecablemap.com/\">https://www.submarinecablemap.com/</a></figcaption></figure>\n</div>\n\n\n<p class=\"wp-block-paragraph\">所以，预期最长的 hop 不会太高，现在世界的互联网越来越扁平了，一般一个互联网 IP 可以在 10-20 个 hop 触达。我用了一台 DigitalOcean 的机器来做这个实验，用它来 traceroute 1.1.1.1 只需要 8 跳，延迟在 1ms 左右。</p>\n\n\n\n<figure class=\"wp-block-image size-large\"><a href=\"https://www.kawabangga.com/wp-content/uploads/2026/05/traceroute-1.1.1.1.png\"><img alt=\"\" class=\"wp-image-7284\" height=\"290\" src=\"https://www.kawabangga.com/wp-content/uploads/2026/05/traceroute-1.1.1.1-1024x290.png\" width=\"1024\" /></a><figcaption class=\"wp-element-caption\">mtr 1.1.1.1 只有 8 跳</figcaption></figure>\n\n\n\n<p class=\"wp-block-paragraph\">回到本文的问题：找到一个 traceroute 最长的 IP，直观的方法就是 traceroute 每一个互联网的 IP。（本文只讨论 IPv4）</p>\n\n\n\n<p class=\"wp-block-paragraph\">traceroute 对每一跳发 3 个包，超时时间 5s，最长 hop 尝试 30 跳。假设平均 15 跳完成，15 跳 × 3 探针 × ~100ms RTT = 5s，如果 IP ping 不通，那么 traceroute 可能要花 2min 以上。即使按照 5s 来算，我们 traceroute 整个互联网也需要：4,294,967,296 × 5 秒 = 21,474,836,480 秒 ≈ 680 年。如果开 1000 个并发，也需要 680 年 ÷ 1000 = 0.68 年 ≈ 248 天，大约8个月的时间。</p>\n\n\n\n<p class=\"wp-block-paragraph\">怎样加快呢？</p>\n\n\n\n<p class=\"wp-block-paragraph\">先来看一下现在的时间花在哪里了。traceroute 的逻辑是：对于目标 IP，发送 TTL=1 的包，等待回复，然后再重复 2 次；接下来换 TTL=2 的包，发送，等待回复，重复 3 次……</p>\n\n\n\n<p class=\"wp-block-paragraph\">这样有两个问题：</p>\n\n\n\n<ol class=\"wp-block-list\">\n<li>时间都在等待回复上了，效率太低；</li>\n\n\n\n<li>一个进程只能 trace 1 个目标 IP，如果开并发的话，会消耗很多 CPU 在 context switch 上，实际发出去的包非常少，CPU 使用率却很高；</li>\n</ol>\n\n\n\n<p class=\"wp-block-paragraph\">对于本文的这个项目，我们是想找出来 traceroute 最长的一个 IP，而并不关心具体的路径。</p>\n\n\n\n<p class=\"wp-block-paragraph\">要求高性能，我们换一个方式：不再使用发送——等待，我们设计两个程序，一个给所有的 IP 一起发送包，另一个监听收到的回应，如果是 ICMP 的 reply 包，就记录此 IP 可以 ping 通，如果收到其他的 ICMP 类型的包，直接丢弃即可。这样就完全没有等待时间了，而且之后两个程序，上下文切换的问题也解决了。</p>\n\n\n\n<p class=\"wp-block-paragraph\">但是这就有了一个新的问题：我们怎么知道收到的包对应的 TTL 是多少呢？仅通过收到的 ICMP Time Exceeded 包是无法知道 TTL 消耗了多少的，怎么找到最长的 TTL 呢？</p>\n\n\n\n<p class=\"wp-block-paragraph\">为了区分出来 TTL，我们分多轮进行扫描，先对所有的 IP 发送 TTL=1 的包，接收程序如果收到了 ICMP reply 的回应，说明这些 IP 在 TTL=1 的时候就能 ping 通，由于我们要找的是 TTL 越长越好，所以这些 IP可以直接淘汰了。接下来我们把 TTL=1 不能 ping 通的包，用 TTL=2 再发送一轮，如果能收到 ICMP reply，那么也可以淘汰了…… 假设我们在 TTL=30 的时候有一些 IP 能 ping 通，但是在 TTL=31 以及之后的时候没有任何 IP 可以 ping 通，那就说明这些 TTL=30 的 IP 就是胜者。</p>\n\n\n\n<p class=\"wp-block-paragraph\">这样需要多久呢？</p>\n\n\n\n<p class=\"wp-block-paragraph\">DigitalOcean 页面解释：All other Droplets have a maximum network throughput limit of 2 Gbps<sup class=\"fn\"><a href=\"#219e76f8-9eb6-4bf1-917e-33b5e69b00ee\" id=\"219e76f8-9eb6-4bf1-917e-33b5e69b00ee-link\">3</a></sup>. 每一个 ICMP 包的大小是：Ethernet 14 + IP 20 + ICMP 8 + payload 32 = <strong>74 bytes</strong>，所以，理论上我们可以跑到：</p>\n\n\n\n<p class=\"wp-block-paragraph\">2 Gbps ÷ (74 bytes × 8 bits) = 2,000,000,000 ÷ 592 ≈ 3,378,378 pps ≈ <strong>3.4M pps</strong></p>\n\n\n\n<p class=\"wp-block-paragraph\">Ping 一次整个互联网只需要：</p>\n\n\n\n<p class=\"wp-block-paragraph\">4,294,967,296 （2^32，所有的 IPv4 数量） ÷ 3,400,000 ≈ 1263 秒 ≈ <strong>21 分钟</strong></p>\n\n\n\n<p class=\"wp-block-paragraph\">但是为了避免 overload 接受端（大量网段在同一个区域），以及中间设备可能存在的 conntrack，我们把速度限制在 100K pps，这样，只用了全速的 2.7%，ping 一次需要的时间是：</p>\n\n\n\n<p class=\"wp-block-paragraph\">4,294,967,296 ÷ 100,000 ≈ 42,950 秒 ≈ <strong>11.9 小时</strong></p>\n\n\n\n<p class=\"wp-block-paragraph\">对于我们的场景来说，也足够了。</p>\n\n\n\n<h2 class=\"wp-block-heading\">第一个法宝：XDP</h2>\n\n\n\n<p class=\"wp-block-paragraph\">使用我们自己的方式来发送 ping 包并且能跳过不需要的 conntrack 功能，就需要使用 kernel bypass 技术：</p>\n\n\n\n<ul class=\"wp-block-list\">\n<li>egress 使用 AF_XDP 直接发送；</li>\n\n\n\n<li>ingress 使用 XDP，attach BPF 程序到 eth0 网卡上，直接在网络收包的最前方进行处理；</li>\n</ul>\n\n\n\n<p class=\"wp-block-paragraph\">在收包程序上，直接看这个 IP 是不是一个合法的 ICMP reply，如果是，就记录 ping 通，如果不是就放通或丢弃。</p>\n\n\n\n<p class=\"wp-block-paragraph\">但是 XDP 是运行在 kernel 的程序，如何把 ICMP reply 里面的 IP 信息记录到文件中呢？</p>\n\n\n\n<h2 class=\"wp-block-heading\">第二个法宝：ring buffer</h2>\n\n\n\n<p class=\"wp-block-paragraph\">Ring buffer<sup class=\"fn\"><a href=\"#96319d74-ec97-4cb3-ab50-f1feb508c63e\" id=\"96319d74-ec97-4cb3-ab50-f1feb508c63e-link\">4</a></sup> 在网络领域是一个非常常用的数据结构，它本质上是一个 buffer，生产方可以往里面写，消费方从里面读，是两个指针。它天然适合网络的原因是，buffer 的 head 和 tail 是相接的，自然而然就可以实现「如果生产方生产的速度太快，丢弃（覆盖）最早到达并且还没有处理的包」。（对于 BPF ring buffer，如果用户态消费得不够快、buffer 没有剩余空间，新的记录会写入失败。）</p>\n\n\n\n<p class=\"wp-block-paragraph\">使用 BPF ring buffer （BPF_MAP_TYPE_RINGBUF），作为 kernel space 和 user space 的桥梁——kernel 往这个 ring buffer 里面不断写入可以 ping 通的 IP，用户态读出来这个 IP 记录到文件中。</p>\n\n\n\n<p class=\"wp-block-paragraph\">接下来我们看用户态的程序。怎么存储这些 IP 呢？</p>\n\n\n\n<p class=\"wp-block-paragraph\">我们可以使用一个 txt 文件不断 append IP，但是这样查找起来的话就是 O(n) 了。（不过我们只需要最后的几个赢家，大部分情况不需要查找，所以……还好啦）。另一个方案是使用一个数据库，比如 sqlite，查找快，不过大量写入的时候就有瓶颈。</p>\n\n\n\n<p class=\"wp-block-paragraph\">看起来用最简单的文本好一些。</p>\n\n\n\n<p class=\"wp-block-paragraph\">如果按照一个 IP 一行的格式，<code>xxx.xxx.xxx.xxx\\n</code>，一共是 16 bytes，16 bytes * 2^32 就是 64GiB （最坏的情况）。</p>\n\n\n\n<p class=\"wp-block-paragraph\">ping 一次就需要 64GiB！这也太多了，作为一个 hobby project，我们的目标是使用一个 $5 的 DigitalOcean VPS 来完成这个任务，磁盘只有 25GiB，远远不够。</p>\n\n\n\n<p class=\"wp-block-paragraph\">有哪些字符可以简化呢？乍一看，首先是每一个 IP 的一个点，以及，IP 的每一个段实际有效数据是 0-255，但是可以表示的容量是 0-999，所以有很大一部分空间浪费了。</p>\n\n\n\n<p class=\"wp-block-paragraph\">诶等等，IP 不就是 4 个 bytes 吗？这样的话我们可以把 IP 转化成一个 32位的 int：</p>\n\n\n\n<div class=\"wp-block-urvanov-syntax-highlighter-code-block\"><pre class=\"urvanov-syntax-highlighter-plain-tag\">&gt;&gt;&gt; import ipaddress; int(ipaddress.IPv4Address('192.168.0.1'))\n3232235521</pre></div>\n\n\n\n<p class=\"wp-block-paragraph\">这样的话每 4 bytes 是一个 IP 总共是 16GiB，缩小了 4 倍！而且，4 bytes 里面每一个组合都是一个合法的 IP ，完全没有空间的浪费。</p>\n\n\n\n<p class=\"wp-block-paragraph\">等等，「每一个组合都是一个合法的 IP」——那是不是就意味着，我们从 0 数到 2^32，每一个位置都有一个 IP？这样的话，可以让每一个位置的 bit 位，如果是 1，表示这个 IP 能够 ping 通，如果是 0，表示 ping 不通（默认，文件初始化为 0）。而这个 bit 所在的 index（比如，是文件的第 3232235521 比特位，就表示 <code>192.168.0.1</code> 这个 IP），就表示 IP。</p>\n\n\n\n<h2 class=\"wp-block-heading\">第三个法宝：bitmap</h2>\n\n\n\n<p class=\"wp-block-paragraph\">恭喜我们自己！我们刚刚发明了 bitmap！</p>\n\n\n\n<p class=\"wp-block-paragraph\">但是每次 seek 过去，把要写入的 bit 组合成一个 byte，调用 syscall write，这也太麻烦了！</p>\n\n\n\n<h2 class=\"wp-block-heading\">第四个法宝：mmap</h2>\n\n\n\n<p class=\"wp-block-paragraph\">mmap 可以帮我们把文件映射到内存地址空间，我们只要操作内存就可以了，操作系统会在后台帮我们同步——定期把内存的修改写入到文件中。这可太方便了！</p>\n\n\n\n<p class=\"wp-block-paragraph\">这样，我们 ping 一轮，就有一个 512 MiB（Exactly 512 MiB!） 的文件，里面存储了这一轮 ping 通的 IP。然后我们拿 bit 是 0 的 index 作为 IP，做下一轮的 ping，能通的 IP 会越来越少，直到得到一个冠军。</p>\n\n\n\n<p class=\"wp-block-paragraph\">其实互联网大部分 IP 是 ping 不通的，尤其是我们刚开始使用比较小的 TTL。所以我们的文件的大部分内容都是 0，只有一小部分是 1，而且 1 的部分通常是连续的。因为 IP 是按连续的段分配给不通的组织，一般来说，一个段要么都可以通，要么都不通。</p>\n\n\n\n<p class=\"wp-block-paragraph\">那么我们可以省略中间的 0 的部分吗？这样的话可以节省一大部分磁盘。</p>\n\n\n\n<h2 class=\"wp-block-heading\">第五个法宝：Sparse file</h2>\n\n\n\n<p class=\"wp-block-paragraph\">答案是可以！这叫做 Sparse file，或者叫 file hole。比如我可以创建一个 10PB 的超大文件：</p>\n\n\n\n<div class=\"wp-block-urvanov-syntax-highlighter-code-block\"><pre class=\"urvanov-syntax-highlighter-plain-tag\">$ truncate -s 10240T super.big.file\n$ ls -hl super.big.file\n-rw-r--r-- 1 xintao.lai staff 10P Aug 19 18:17 super.big.file</pre></div>\n\n\n\n<p class=\"wp-block-paragraph\">然后实际占用的空间，使用 du 查看，是 0：</p>\n\n\n\n<div class=\"wp-block-urvanov-syntax-highlighter-code-block\"><pre class=\"urvanov-syntax-highlighter-plain-tag\">$ du -sh super.big.file\n0\tsuper.big.file</pre></div>\n\n\n\n<p class=\"wp-block-paragraph\">使用非常简单，seek 到 EOF 以后的位置，随后再 write，中间没有写过的区域形成 hole （注意，不是 write 0）。</p>\n\n\n\n<p class=\"wp-block-paragraph\">我们可以先用 ftruncate 调用，创建一个 sparse file，然后用 mmap 只修改需要写为 1 的部分，这样，其实只有 1 占用空间了。</p>\n\n\n\n<h2 class=\"wp-block-heading\">将将将！</h2>\n\n\n\n<p class=\"wp-block-paragraph\">实际运行还有很多问题，比如 IP 不稳定，有时候回复 ping 有时候不回复有时候回复；有些 IP 使用另一个 IP 回复 ping；有些 IP 不减 TTL 导致产生无限环路，等等。</p>\n\n\n\n<p class=\"wp-block-paragraph\">最后我找到 34 跳的就放弃了：</p>\n\n\n\n<figure class=\"wp-block-image size-large\"><a href=\"https://www.kawabangga.com/wp-content/uploads/2026/08/34hops.png\"><img alt=\"\" class=\"wp-image-7371\" height=\"937\" src=\"https://www.kawabangga.com/wp-content/uploads/2026/08/34hops-1024x937.png\" width=\"1024\" /></a><figcaption class=\"wp-element-caption\">长达 34 跳的 ICMP</figcaption></figure>\n\n\n\n<p class=\"wp-block-paragraph\">代码放在这里了：<a href=\"https://github.com/laixintao/traceroute-the-world\">https://github.com/laixintao/traceroute-the-world</a> 有兴趣的读者可以自己跑跑看。</p>\n\n\n\n<p class=\"wp-block-paragraph\">代码是 AI 写的，但是这篇博客是我自己纯手写的。这年头能读的博客不多了，但是可以放心的是，这个博客不会有大批量 AI 生成的文字。<br /></p>\n\n\n<ol class=\"wp-block-footnotes\"><li id=\"19138dcb-21d0-4133-ad22-db3e981ea722\">参考 <a href=\"https://www.kawabangga.com/posts/4275\">使用 mtr 检查网络问题，以及注意事项</a> <a href=\"#19138dcb-21d0-4133-ad22-db3e981ea722-link\"><img alt=\"↩\" class=\"wp-smiley\" src=\"https://s.w.org/images/core/emoji/17.0.2/72x72/21a9.png\" style=\"height: 1em;\" />︎</a></li><li id=\"2134c4c9-df34-4771-8d35-583c568f17ed\">比如这里 <a href=\"https://www.reddit.com/r/ZiplyFiber/comments/15vvs4c/holy_traceroute_batman_this_has_to_be_a_new_record/\">https://www.reddit.com/r/ZiplyFiber/comments/15vvs4c/holy_traceroute_batman_this_has_to_be_a_new_record/</a>， 以及这里 <a href=\"https://www.reddit.com/r/sysadmin/comments/2gxz4e/is_it_possible_to_find_the_worlds_longest_routes/\">https://www.reddit.com/r/sysadmin/comments/2gxz4e/is_it_possible_to_find_the_worlds_longest_routes/</a> <a href=\"#2134c4c9-df34-4771-8d35-583c568f17ed-link\"><img alt=\"↩\" class=\"wp-smiley\" src=\"https://s.w.org/images/core/emoji/17.0.2/72x72/21a9.png\" style=\"height: 1em;\" />︎</a></li><li id=\"219e76f8-9eb6-4bf1-917e-33b5e69b00ee\"><a href=\"https://docs.digitalocean.com/products/droplets/details/limits/\">https://docs.digitalocean.com/products/droplets/details/limits/</a> <a href=\"#219e76f8-9eb6-4bf1-917e-33b5e69b00ee-link\"><img alt=\"↩\" class=\"wp-smiley\" src=\"https://s.w.org/images/core/emoji/17.0.2/72x72/21a9.png\" style=\"height: 1em;\" />︎</a></li><li id=\"96319d74-ec97-4cb3-ab50-f1feb508c63e\"><a href=\"https://en.wikipedia.org/wiki/Circular_buffer\">https://en.wikipedia.org/wiki/Circular_buffer</a> <a href=\"#96319d74-ec97-4cb3-ab50-f1feb508c63e-link\"><img alt=\"↩\" class=\"wp-smiley\" src=\"https://s.w.org/images/core/emoji/17.0.2/72x72/21a9.png\" style=\"height: 1em;\" />︎</a></li></ol>",
-    "published": "2026-08-19T14:27:00Z",
-    "feed_title": "卡瓦邦噶！",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-20T01:38:12.725093+00:00",
-    "content_length": 12190
   },
   {
     "guid": "c26a9f61118c72ea",
@@ -10229,30 +10085,6 @@
     "content_length": 65
   },
   {
-    "guid": "65797369120deedc",
-    "title": "Were Japanese Surnames Really Made Up on the Spot",
-    "link": "https://victor42.eth.limo/post-en/japanese-surnames-origin/",
-    "author": "hi@victor42.work (Victor42)",
-    "content": "<img alt=\"Featured image of post Were Japanese Surnames Really Made Up on the Spot\" src=\"https://cdn.victor42.work/posts/2026-08/29b551b07d032a56052d104dc3e12cb7.webp\" /><p>A curious inquiry into Japanese surnames and <em>myoji</em>.</p>\n<p>While listening to the business news, hearing several Japanese names reminded me of a college friend who studied Japanese and worked at a Japanese firm. My thoughts drifted to the well-known legend about how Japanese surnames originated:</p>\n<p>Emperor Meiji ordered every citizen to adopt a surname. People supposedly looked at their immediate surroundings and improvised names with prominent geographic features on the spot—Tanaka (in the middle of rice fields), Yamamoto (at the foot of the mountain), Matsushita (under the pine tree).</p>\n<p><img alt=\"A scene from Katsushika Hokusai’s ukiyo-e print Ejiri in Suruga Province showing a gust of wind sweeping across a country road\" src=\"https://cdn.victor42.work/posts/2026-08/d3e55771e2f5c6a37a151a363bb942e3.webp\" /></p>\n<p>On second thought, the story seemed far too neat and casual to be true. Was it like the climax of a popcorn movie where a beam of light descends and everyone ascends at once? It sounded suspiciously like internet clickbait.</p>\n<p>Looking into it deeper, the general narrative is not entirely wrong, but it is heavily oversimplified and dramatized.</p>\n<p>Early on, only Japanese aristocrats were allowed their own clan names, or <em>uji</em> (氏)—such as Minamoto (源), Taira (平), Fujiwara (藤原), and Tachibana (橘). As these noble houses flourished and their estates expanded, distinguishing branches of the same family across different fiefs became difficult. Geographic identifiers tied to estates were introduced, giving rise to <em>myoji</em> (苗字).</p>\n<p>For example, the Fujiwara clan once dominated the imperial court. Eventually, so many people shared the <em>uji</em> that it lost its distinguishing power. The clan naturally branched into an intricate <em>myoji</em> system. Branches remaining in Kyoto took names from city streets and locations, such as Konoe, Kujo, Ichijo, Nijo, and Takatsukasa. Those in provincial estates evolved prefix-based naming conventions combining geographic or ancestral roots with &ldquo;-to&rdquo; (藤), yielding Ito, Kato, Kondo, Endo, Ando, Bito, Muto, Sudo, and Eto. Others combined official ranks or posts with the character, such as Sato, Saito, Kudo, Naito, and Shindo. Still others adopted purely geographic names, such as Date and Uesugi.</p>\n<p>Back then, a prominent nobleman might have been formally addressed like this:</p>\n<blockquote>\n<p>Date Fujiwara no Ason Tojiro Masamune</p>\n</blockquote>\n<ul>\n<li>Date (伊达): <em>Myoji</em>, used in daily life to distinguish branches within the clan, but omitted in formal official documents.</li>\n<li>Fujiwara (藤原): Formal clan lineage (<em>uji</em>), the standard for official state records.</li>\n<li>Ason (朝臣): The hereditary title or rank (<em>kabane</em> / 姓). Unlike the Chinese concept of surname, this denoted court rank bestowed by the emperor.</li>\n<li>Tojiro (藤次郎): A courtesy alias or informal appellation used to avoid directly speaking the given name.</li>\n<li>Masamune (政宗): The formal given name (<em>na</em> / 名).</li>\n</ul>\n<p>In official imperial court records, this person would typically appear as &ldquo;Fujiwara no Ason Masamune.&rdquo; The division between formal titles and everyday identifiers was crystal clear.</p>\n<p>When <em>myoji</em> spread to commoners, it became a widespread informal tool to distinguish individuals with the same given name. Pairing geography with a personal name is a natural convergent evolution across human civilizations—the path of least linguistic resistance. Leonardo da Vinci, after all, simply means Leonardo from the town of Vinci.</p>\n<p>The distinction between <em>uji</em> and <em>myoji</em> is crucial: the former represented bloodline, while the latter signified geography.</p>\n<p>Commoners in Japan were never permitted an <em>uji</em>, and their <em>myoji</em> were not officially recognized. Even though <em>myoji</em> were widely used in everyday life, they never appeared in formal dealings with authorities.</p>\n<p><img alt=\"A display rack of personal name stamps with common Japanese surnames\" src=\"https://cdn.victor42.work/posts/2026-08/29b551b07d032a56052d104dc3e12cb7.webp\" /></p>\n<p>In 1870, the Meiji government issued the <em>Commoner Myoji Permission Edict</em> (平民苗字容许令), legally permitting commoners to adopt <em>myoji</em>. Few responded, fearing it was a prelude to new taxes. This historical detail alone refutes the oversimplified legend: commoners may have been illiterate, but they were far from foolish. In 1875, the <em>Commoner Myoji Requirement Edict</em> (平民苗字必称令) made adopting surnames mandatory, compelling everyone to register. The most natural choice for commoners was simply to register the <em>myoji</em> they had already used for generations—there was rarely any need to invent names on the spot.</p>\n<p>To be sure, a small minority of commoners who lacked established <em>myoji</em> sought help from local monks or village elders. Some chose prestigious clan names for good fortune, which is why sharing a famous noble surname today does not guarantee direct blood descent.</p>\n<p>While Chinese surnames primarily signify shared lineage and bloodline, Japanese surnames bear little inherent relation to biological descent. In Japanese culture, a surname functions less like a genetic marker and more like a corporate brand. When an ancient Japanese family lacked a male heir, they routinely adopted an adult son-in-law (<em>muko-yoshi</em>), who assumed their surname and inherited the family enterprise—a practice considered taboo in traditional China.</p>\n<p>Even modern Japan maintains a culture of married couples sharing a single surname, treating the surname as a brand for the household as a functioning community. Yet this was not an unbroken ancient tradition: following the 1875 edict, the government ruled in 1876 that wives must keep their maiden surnames. In 1898, under the influence of Western civil code models, the law reversed to enforce a single shared surname. This historical trajectory underscores that in Japanese culture, surnames and biological lineage have long been decoupled, enabling structural shifts with minimal cultural resistance.</p>",
-    "published": "2026-08-19T15:18:00Z",
-    "feed_title": "http://victor42.eth.limo/",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-20T12:59:21.232963+00:00",
-    "content_length": 6383
-  },
-  {
-    "guid": "bf9c90bdb9817ad8",
-    "title": "日本姓氏里的田中、松下真的是就地瞎编起的吗？",
-    "link": "https://victor42.eth.limo/post/japanese-surnames-origin/",
-    "author": "hi@victor42.work (Victor42)",
-    "content": "<img alt=\"Featured image of post 日本姓氏里的田中、松下真的是就地瞎编起的吗？\" src=\"https://cdn.victor42.work/posts/2026-08/29b551b07d032a56052d104dc3e12cb7.webp\" /><p>一份关于日本的姓氏与苗字的好奇研究简报。</p>\n<p>听商业新闻，里面提到一些日文名字，又想起我一位学过日语且在日企工作过的大学好友，思绪飘到了那个关于日本姓氏来源的著名传说：</p>\n<p>日本明治天皇下令所有人必须有自己的姓，于是大家根据周围环境，就地起了田中、山本（山脚下）、松下等带有显著地理特征的词，作为自己的姓。</p>\n<p><img alt=\"葛饰北斋浮世绘作品《富岳三十六景 骏州江尻》中大风吹过田间小路的场景\" src=\"https://cdn.victor42.work/posts/2026-08/d3e55771e2f5c6a37a151a363bb942e3.webp\" /></p>\n<p>转念一想，这过程也太随意太整齐了，怎么看都可疑。天上一道光然后所有人就地飞升的那种爆米花电影终章情节吗？八成又是什么流量号谣传吧？</p>\n<p>研究一番，这个过程大体正确，但这种说法过度简化和戏剧化了。</p>\n<p>早期，日本只有贵族允许有自己的氏：源、平、藤原、橘等。但贵族人丁兴旺，封地逐渐扩大，为区分同一家族不同封地的人物，引入了封地的地理因素，这个叫做苗字。</p>\n<p>比如藤原氏曾一度权倾朝野，人实在多到难以区分，这个氏失去了辨识度。家族开始自然分化出丰富的苗字系统，在京都的，就根据京都的街道地理位置分化出近卫、九条、一条、二条、鹰司等。各封地的则演化出伊藤、加藤、近藤、远藤、安藤、尾藤、武藤、须藤、江藤等前缀命名体系。也有以官职作为前缀的佐藤、斋藤、工藤、内藤、进藤。也有完全采用地理元素的苗字，如伊达、上杉等。</p>\n<p>当时，一个日本名门望族的完整称呼可能是这样的：</p>\n<blockquote>\n<p>伊达·藤原·朝臣·藤次郎·政宗</p>\n</blockquote>\n<ul>\n<li>伊达：苗字，区分族内同名，日常称呼用，正式公文仍然不会用</li>\n<li>藤原：正式的家族姓氏，正式公文的标准</li>\n<li>朝臣：日语里也有姓的概念，但与中文不同，是指被赏赐的身份爵位，这一节就是姓</li>\n<li>藤次郎：大家出于礼貌避免直呼名讳而使用的外号</li>\n<li>政宗：正式的名</li>\n</ul>\n<p>这个人在朝廷内的正式文书上，称呼往往会以“藤原朝臣政宗”出现。所以很明显能看出其中哪些部分是正式称谓，哪些仅用于非正式场合。</p>\n<p>苗字传到民间，成为了民间广泛用于区分同名人的通行方法。这种地理+人名的区分方法，是各文明天然的趋同演化，是语言发展阻力最小的路径。比如莱昂纳多·达·芬奇的名字，意思其实是芬奇镇的莱昂纳多。</p>\n<p>但注意氏和苗字的区别，前者代表血缘，后者代表地理。</p>\n<p>日本的百姓曾经不允许拥有氏，而苗字也没有被官方承认。虽然民间已经在广泛使用，但与官方打交道时，正式文书上没有人使用苗字。</p>\n<p><img alt=\"陈列架上刻有日本常见姓氏的个人印章\" src=\"https://cdn.victor42.work/posts/2026-08/29b551b07d032a56052d104dc3e12cb7.webp\" /></p>\n<p>1870年《平民苗字容许令》，允许平民合法拥有苗字。但大家担心被额外征税，响应者寥寥。你看这个细节，就足以推翻那些过于简化的传说，平民可以没文化，但并不傻。1875年《平民苗字必称令》，把这一制度强制化了，大家这才被迫有了姓氏。平民最天然的选择，就是把既成事实的苗字直接登记上去，并没有“临时创造”的过程。</p>\n<p>当然，也有少数完全没有苗字的平民，会有僧侣或村长等德高者帮忙起苗字。有人为图吉利，直接使用了历史上的名门望族的姓氏。所以名门姓氏并不100%代表血缘传承。</p>\n<p>中国的姓更多代表家族血缘，日本的姓氏大部分与血缘关系很小。姓氏在日本文化中的作用，不代表血缘，更像是代表品牌。日本古代家族如果无男性继承人，可以毫不犹豫招募婿养子，让其改姓并继承家族，而这种操作在古代中国是大忌。</p>\n<p>甚至日本今天也实行妇随夫姓的文化，姓氏是当下这个实质共同体的品牌代表。不过这种制度并不是一直沿用至今，1875年《平民苗字必称令》后，1876年官方裁定“夫妇别姓”，那时妻子并不随夫家改姓。1898年又彻底翻转，以法律形式确立“夫妇同姓”。尽管这是大量受西方民法体系影响的结果，但至少表明日本的文化底色里，姓氏与血缘是解耦的，推行该制度的阻力并不大。</p>",
-    "published": "2026-08-19T15:18:00Z",
-    "feed_title": "http://victor42.eth.limo/",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-20T12:59:21.232963+00:00",
-    "content_length": 2022
-  },
-  {
     "guid": "0d08e78a9defa5d0",
     "title": "高中暗恋记",
     "link": "https://blog.mcenahle.page/2026/08/20/467/",
@@ -10299,18 +10131,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-20T18:48:43.743483+00:00",
     "content_length": 742
-  },
-  {
-    "guid": "9c8e5ca722380c35",
-    "title": "你就瞎活",
-    "link": "https://z.arlmy.me/posts/Essays/2026/LiveLikeWind_20260819/",
-    "author": "素生",
-    "content": "<p>月初整理日记时，读到2月的一篇，一直没来得及反刍。</p><p>最近流行一种说法：青春和对青春的感受，不可兼得。其实不只是青春，所有的词语都是如此。尤其那些居于顶端的词：善，爱，美，真。都像参禅那样，需要一次彻悟。</p><p>彻悟的方式也不同，但多数时候，似乎都是自己本来就有，但后来失去了，失而复得时，若有所思而获得的。</p><p>现在却变了，很多词语我们已不再讨论，城市生活中充满了失联和遗忘，像电影《youth》里那样，若被抛在一片自然中，将不知道如何重新开始。可笑啊，自然才是我们的来处，却轻易就被放弃了（结局就是鹿之民那样）。</p><p>我相信来自山野的人类本是富足的，一生本来就很简单，偶尔很劳顿，但绝没有负赘，可以慢慢像参悟青春一样，若有所悟。但若是生命之初便被灌输了太多答案，外来观念，因此产生心理依赖，不再独立，那么他是否还富足，就要打个问号。</p><p>农耕一定是好的吗？我不知道。但我确定，人们需要偶尔游牧起来，从已知中离开，在一无所知中重新开始。</p><p>只有自己才能知道自己需要什么，不要问，直接去做，卡住了便求助，快乐了就享受，不驻足，不围观，不等待，不消耗，只是做，没有最优解，没有前进或后退，让技能自由地长在身上。</p><p>史妍有期播客标题：“你就瞎活。”</p><p>东北业余生活指南第一期主题：“造——可劲儿造，慢慢活。”</p><p>我的经历让我明白，要保持“我”的内在完整和稳定，自我若溃散，想再重造，是几乎不可能做到的事，独一而不二，是幸福的状态。佛陀悟到的简单道理，传播起来要依赖巨大的系统，像是一套拼回自我的办法全集。</p><p>总要受了苦，才要脱苦。若本就未曾苦，未曾破溃过，便也无需反刍，无需追忆青春，无需再养一遍自己。不苦不执，苦才执，苦的庞氏骗局。</p><p>而生命本来，只是像草履虫那样，随着水流兀自摇摆波动，外界的周期可大可小，不随自身而变。</p><hr /><p>CHANGELOG</p><ul><li>20260815 Arlmy 创建</li><li>20260819 Arlmy 完稿、发布</li></ul>",
-    "published": "2026-08-19T16:24:03Z",
-    "feed_title": "素生",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-20T18:48:43.743483+00:00",
-    "content_length": 903
   },
   {
     "guid": "27bd38964573a927",
@@ -10719,18 +10539,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-21T18:45:10.438728+00:00",
     "content_length": 1447
-  },
-  {
-    "guid": "c3fdc18054e43a2d",
-    "title": "BTC闪电网络使用指南",
-    "link": "https://localfreedom.pages.dev/p/btc%E9%97%AA%E7%94%B5%E7%BD%91%E7%BB%9C%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/",
-    "author": "",
-    "content": "<img alt=\"Featured image of post BTC闪电网络使用指南\" src=\"https://localfreedom.pages.dev/img/bitcoin-lightning-network.png\" /><p>越多人越方便的使用加密货币，这种自由经济手段才能更好的营造自由市场空间，也有助于扩充局域自由空间。\n本文介绍一种日常商务中便捷使用加密货币的方法。</p>\n<h2 id=\"简介\">简介\n</h2><p>闪电网路(LightningNetwork)是位于比特币之上的“第2层”支付协定，旨在实现参与节点之间的快速交易。</p>\n<p>原理大致是参与者将一些BTC转移到闪电网络的通道中，在闪电网络内部通过临时记账和共同签名的方式快速交易，等达到一定规模或有节点要退出，再将结果广播到BTC区块链。\n可以理解为在BTC网络中建立一个稍微中心化的节点来记账小额临时交易以求快速，闪电网络的优势在于其通道设计也是相对分散式的，并不是一个小额资金暂存央行。</p>\n<p>闪电网络基于BTC设计，也可以用于其他加密货币，已达到小额多次快速支付，并减少手续费。</p>\n<h2 id=\"开通\">开通\n</h2><p>这里以BTC最佳钱包 <a class=\"link\" href=\"https://electrum.org/\" rel=\"noopener\" target=\"_blank\">Electrum</a> 为例。\n钱包软件版本应尽可能新，老旧版本可能无法兼容新的网络交易要求。</p>\n<ul>\n<li>使用闪电网络需要先同步闪电网络节点状态，只要网络正常很快即可自动完成。</li>\n<li>开启通道\n<ul>\n<li>Channels -&gt; NewChannel</li>\n<li>通道对手方预设(Electrum trampoline)即可，钱包会自动从其中选择一个节点。</li>\n<li>总额介面会提示最小投入资金要求，通常是1-5mBTC, Amount建议比最低要求多 1mBTC，然后点 OK 确认即可。</li>\n<li>设置手续费确认区块越少越贵，预设的5区块确认ETA方式即可。</li>\n<li>可能发生各种错误，金额太小被拒绝，排队过多，超时等，如果失败再重复上述流程即可。</li>\n</ul>\n</li>\n<li>备份通道种子\n<ul>\n<li>开通成功开始等待区块确认时，会弹出一个二维码，提示通道相关资金和数据无法通过钱包私钥还原，提示单独备份。</li>\n<li>毕竟闪电通道是单独的网络，不能用主钱包的私钥恢复其中数据资金，可以下载二维码或者直接复制二维码的信息。</li>\n<li>当然存储是和钱包文件集成在一起的，迁移软件或重装系统别弄丢钱包文件即可。</li>\n</ul>\n</li>\n<li>等待确认\n<ul>\n<li>每区块确认需要十几分钟，预设5区块大约需要1小时。</li>\n<li>确认由矿工进行，只要开启成功，即请求已提交到区块，就可以关闭钱包等待矿工挖矿确认。</li>\n<li>通常交易都会被确认，万一失败就再重复之前的操作吧。</li>\n</ul>\n</li>\n</ul>\n<h2 id=\"使用\">使用\n</h2><ul>\n<li>付款\n<ul>\n<li>一些商家支持闪电网络付款，会提供一个类似邮箱的地址。</li>\n<li>在4.5及以上版本的 Electrum 中Send介面粘贴地址即可付款。</li>\n</ul>\n</li>\n<li>关闭通道\n<ul>\n<li>闪电网络通道的任何一方可以强行关闭通道，关闭会损失一些BTC。</li>\n<li>如果被对方关闭的通道，下次连上闪电网络才会更新状态。</li>\n</ul>\n</li>\n<li>通道状态不正常\n<ul>\n<li>闪电网络的 Channels 和 BTC 本身并不连接到相同的节点</li>\n<li>如果 Channels 一直显示 <code>Disconnected</code> 而BTC钱包其他部分正常可能是所链接的闪电网络节点异常，有些ISP可能单独限制闪电网络的链接。</li>\n</ul>\n</li>\n</ul>",
-    "published": "2026-08-19T14:16:03Z",
-    "feed_title": "局域自由",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-21T18:45:10.438728+00:00",
-    "content_length": 1753
   },
   {
     "guid": "7a66f365080d3be4",
@@ -12243,18 +12051,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-24T07:09:36.191502+00:00",
     "content_length": 65
-  },
-  {
-    "guid": "7edf2bff7582c4f8",
-    "title": "从使用 AI 到委托 AI：我的一些思考",
-    "link": "https://fatbobman.com/zh/posts/from-using-ai-to-delegating-work-to-ai/",
-    "author": "Fatbobman",
-    "content": "<p>从问答、代码生成，到让 Agent 接手更完整的工作，不知不觉间，我已经使用 AI 好几年了。这些年里，变化的不只是模型能力，人与 AI 的协作方式也一直在变。我也在一边使用，一边调整自己的方法。我关心的已经不只是“AI 能不能完成这项工作”，而是另外几个问题：执行范围是否稳定，结果能否被信任，投入是否可以预期，以及什么时候需要人介入。</p>\n                   <div style=\"margin-top: 20px;\">\n                   <p><a href=\"https://fatbobman.com/rss.xml\"><b>Subscribe English RSS</b></a></p>\n                   </div>\n                   <div style=\"margin-top: 20px;\">\n                   <p><a href=\"https://fatbobman.com/zh/posts/from-using-ai-to-delegating-work-to-ai/\"><b>阅读全文</b></a></p>\n                   </div>",
-    "published": "2026-08-19T14:00:00Z",
-    "feed_title": "肘子的 Swift 记事本",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-24T13:00:33.507650+00:00",
-    "content_length": 552
   },
   {
     "guid": "f9e379817578bc50",
@@ -16995,5 +16791,161 @@
     "feed_category": "Blogs",
     "cached_at": "2026-09-02T11:01:39.162817+00:00",
     "content_length": 1234
+  },
+  {
+    "guid": "fa1ef04a32982e31",
+    "title": "爆款的本质，是精准的用户潜意识",
+    "link": "https://dyy.nianmo.top/archives/xhs-yonghu-qianyishi",
+    "author": "nianmo",
+    "content": "<img alt=\"\" height=\"1\" src=\"https://dyy.nianmo.top/plugins/feed/assets/telemetry.gif?title=%E7%88%86%E6%AC%BE%E7%9A%84%E6%9C%AC%E8%B4%A8%EF%BC%8C%E6%98%AF%E7%B2%BE%E5%87%86%E7%9A%84%E7%94%A8%E6%88%B7%E6%BD%9C%E6%84%8F%E8%AF%86&amp;url=/archives/xhs-yonghu-qianyishi\" width=\"1\" />起号没流量不是排版和文笔的问题，是没找到用户心里那些他自己都说不清的东西。三个办法把它挖出来：翻高赞评论、回想你自己被打动的时候、身份加痛点两栏交叉。",
+    "published": "2026-09-02T05:12:41Z",
+    "feed_title": "捻墨运营笔记",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T16:23:01.872100+00:00",
+    "content_length": 354
+  },
+  {
+    "guid": "94d7b0372753dac2",
+    "title": "鸢尾花书系列与矩阵两个视角",
+    "link": "https://datashare-duo.github.io/datashare-blog/posts/%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86/20260902-%E9%B8%A2%E5%B0%BE%E8%8A%B1%E4%B9%A6%E7%B3%BB%E5%88%97%E4%B8%8E%E7%9F%A9%E9%98%B5%E4%B8%A4%E4%B8%AA%E8%A7%86%E8%A7%92/",
+    "author": "",
+    "content": "<h1>为什么推荐“鸢尾花书”系列</h1>\n<p>把数学书读完之后，最容易留下的错觉是：概念都见过，却不知道它们为什么要按这个顺序出现。读完《鸢尾花书：从加减乘除到机器学习》系列的《数学要素》后，我的感受恰好相反：这套书不急着把公式堆满，而是不断追问“这个概念解决了什么问题”，再把答案接回数据科学和机器学习，同时通过把公式可视化，让读者更直观感受空间中数据是怎么变化</p>\n<p>本文不是书目罗列，而是一次读后总结：这套书怎样组织知识、代码仓库怎样配合阅读，以及我认为最值得反复琢磨的主题——矩阵乘法的两个视角</p>\n<h1>其中一本书介绍</h1>\n<p>《数学要素》覆盖 25 个章节，主线可以概括为五段：</p>\n<ol>\n<li><strong>数与运算（Ch01–Ch04）</strong></li>\n</ol>\n<p>从“万物皆数”、乘除、几何、代数开始，把抽象符号和可计算对象对应起来。第二章的副标题是“从九九乘法到矩阵乘法”，已经埋下了后面线性代数的伏笔</p>\n<ol>\n<li><strong>空间与函数（Ch05–Ch14）</strong></li>\n</ol>\n<p>笛卡尔坐标系、三维坐标系、距离、圆锥曲线及其深入内容，随后进入函数、代数函数、超越函数、二元函数和数列。这里反复使用图像、等高线和参数变化，让“函数”不再只是输入输出的黑盒</p>\n<ol>\n<li><strong>变化与累计（Ch15–Ch18）</strong></li>\n</ol>\n<p>导数、偏导数、微分、积分分别回答变化率、局部变化、多元线性近似和面积/体积累计等问题。读者会看到，微积分并非凭空出现，而是坐标、函数和数列自然推进的结果</p>\n<ol>\n<li><strong>不确定性与决策（Ch19–Ch21）</strong></li>\n</ol>\n<p>优化入门、概率入门、统计入门，把“寻找最优”“描述随机性”“从样本认识总体”连接起来，并以鸢尾花数据为统计练习对象</p>\n<ol>\n<li><strong>向量与模型（Ch22–Ch25）</strong></li>\n</ol>\n<p>向量遇见坐标系，随后用三章“鸡兔同笼”完成一次综合演练：线性方程组 → 最小二乘/线性回归 → 转移矩阵、特征值与马尔可夫过程。</p>\n<p>这种编排的价值在于，机器学习所需的数学不再是四处散落的先修知识，而是一条可追踪的因果链：<strong>数据被表示为向量，关系被写成函数，误差被定义为目标，参数通过优化得到，不确定性用概率统计表达</strong></p>\n<h1>“鸡兔同笼”是该书的高潮</h1>\n<p>传统鸡兔同笼只有两个未知数和两个方程，容易被当成小学应用题，书中却把它逐级升级：</p>\n<ul>\n<li><strong>Ch23：线性代数</strong></li>\n</ul>\n<p>把“头和脚”的方程写成 $A\\mathbf{x}=\\mathbf{b}$，再从列向量、线性组合和超定方程组理解矩阵，矩阵不只是方程的简写，也是把“鸡的特征”和“兔的特征”并排放入同一个线性空间的容器</p>\n<ul>\n<li><strong>Ch24：线性回归</strong></li>\n</ul>\n<p>当观测数多于未知参数时，方程通常无精确解，问题转为让残差平方和最小。书中同时给出代数、几何、优化和统计四种解释，并得到正规方程 $\\hat{\\beta}=(X^TX)^{-1}X^Ty$（可逆时）。同一个结果在不同视角下互相校验，这正是数据科学的工作方式</p>\n<ul>\n<li><strong>Ch25：概率遇见线性代数</strong></li>\n</ul>\n<p>鸡和兔每晚按概率互变，状态向量经过转移矩阵反复作用：$\\pi_{k+1}=T\\pi_k$ 多次迭代后趋于稳定分布，特征值为 1 的特征向量给出了这个长期状态</p>\n<p>故事的作用不是“降低难度”这么简单，而是让一个对象在不同章节不断变形：方程的未知量变成向量，方程组的系数变成矩阵，误差变成优化目标，状态比例又变成概率向量。读者因此能看到知识之间的接口</p>\n<h1>矩阵乘法的两个视角</h1>\n<p>设转移矩阵和状态向量为</p>\n<p>$$\nT = \\begin{bmatrix}\nt_{11} &amp; t_{12} \\cr\nt_{21} &amp; t_{22}\n\\end{bmatrix} ,\n\\qquad\n\\pi_k=\n\\begin{bmatrix}\np_k(\\text{鸡}) \\cr\np_k(\\text{兔})\n\\end{bmatrix}  ,\n\\qquad\n\\pi_{k+1}=T\\pi_k\n$$</p>\n<h2>第一视角：按“结果”看每一行是一个新状态</h2>\n<p>普通矩阵乘法按行与列做点积：</p>\n<p>$$\np_{k+1}(\\text{鸡})=t_{11} p_k(\\text{鸡})+t_{12} p_k(\\text{兔})\n$$</p>\n<p>$$\np_{k+1}(\\text{兔})=t_{21} p_k(\\text{鸡})+t_{22} p_k(\\text{兔})\n$$</p>\n<p>这是一种<strong>聚合视角</strong>：先问“下一晚鸡的比例是多少”，再把来自鸡、兔两种来源的贡献相加，在线性回归中，预测值 $\\hat y=X\\beta$ 也可这样理解：每一行对应一个样本，特征与参数做加权求和，生成该样本的预测</p>\n<h2>第二视角：按“来源”看每一列是一种状态的去向</h2>\n<p>把 $T$ 按列拆开：</p>\n<p>$$\nT=[\\mathbf t_1\\ \\mathbf t_2],\\qquad\nT\\pi_k=p_k(\\text{鸡})\\mathbf t_1+p_k(\\text{兔})\\mathbf t_2\n$$</p>\n<p>这是一种<strong>线性组合视角</strong>：鸡当前所占比例，乘上“鸡会变成什么”的列向量；兔当前所占比例，乘上“兔会变成什么”的列向量；两者相加得到下一状态，矩阵因此可以看成一组基于来源的“变换模板”，输入向量的系数决定各模板的混合比例</p>\n<p>两种视角完全等价，却适合回答不同问题：第一视角适合逐个计算输出分量、检查每个结果；第二视角适合理解矩阵作为线性变换如何组合列向量，也更容易连接到基、子空间和特征向量</p>\n<p>书中用同一个鸡兔互变例子把这两个视角并列展示，是非常值得迁移到其他问题的学习方法</p>\n<h1>从两个视角继续走向机器学习</h1>\n<p>这两个视角并不只属于线性代数课本：</p>\n<ul>\n<li><strong>神经网络</strong></li>\n</ul>\n<p>$W\\mathbf x$ 的第一视角是逐个神经元汇总输入；第二视角是把输入的每个分量映射成一个方向，再按分量大小线性组合</p>\n<ul>\n<li><strong>推荐与图模型</strong></li>\n</ul>\n<p>转移矩阵的列描述“从一个节点出发会去哪里”，反复相乘就是随机游走；稳定分布与 PageRank、马尔可夫链直接相连</p>\n<ul>\n<li><strong>降维与表示学习</strong></li>\n</ul>\n<p>特征向量是变换后方向不变的向量，特征值表示沿该方向的伸缩倍数；PCA 正是利用协方差矩阵的特征结构寻找主要变化方向</p>\n<ul>\n<li><strong>最小二乘</strong></li>\n</ul>\n<p>$X\\beta$ 是列向量的线性组合，而正规方程把“投影到列空间”写成了可计算的矩阵形式</p>\n<p>如果只记住一个学习习惯，建议是：<strong>每遇到一个矩阵乘法，先按行展开一次，再按列展开一次，并分别问“输出由谁汇总”和“输入被映射到哪里”?</strong> 这一步往往比背诵乘法口诀更能帮助我们建立模型直觉</p>\n<h1>系列书开源仓库</h1>\n<p>开源仓库github地址：https://github.com/Visualize-ML</p>\n<p>本篇文章介绍的是仓库中 <code>Book3_Elements-of-Mathematics</code> ，其中目录与 PDF 同级提供 Python 代码、Jupyter Notebook 和 Streamlit 小应用：例如 Ch23–Ch25 各自有配套代码，可以修改鸡兔比例、矩阵元素和迭代次数，立即观察解、投影、误差曲面或稳定分布如何变化</p>\n<p>README 还保留了《数学要素》《统计至简》《矩阵力量》的资料入口，若从 GitHub 镜像阅读，建议以作者主页的最新链接为准，并优先从仓库目录进入对应章节代码，避免只下载单个 PDF 而错过可交互部分</p>\n<h1>适合怎样的读者，怎样读更有效</h1>\n<p>这套书适合三类人：想补齐机器学习数学基础的 Python 学习者；需要把高中数学重新接到数据分析的人；以及已经会调用库、但希望理解模型内部机制的工程师，它不是一本严格的数学分析或线性代数教材，证明深度和理论覆盖有意保持在“能建立直觉、能动手验证”的范围内</p>\n<p>推荐的阅读方式是“章节 PDF + 同编号 Notebook + 一个可改变参数的实验”，每章先看图和问题，再读公式，最后运行代码，遇到矩阵时坚持使用两个视角复述一遍，这样读完之后，留下的不会只是 25 个章节名，而是一张从数、空间、变化、随机性到模型的知识地图</p>\n<blockquote>\n<p><strong>一句话评价：</strong></p>\n<p>这套书最珍贵的地方，不是把数学讲得“更简单”，而是把数学概念重新放回问题、图像和代码中，矩阵的两个视角，则把这种“同一对象、多重解释”的方法展示得最完整</p>\n</blockquote>\n<h1>历史相关文章</h1>\n<ul>\n<li><a href=\"../../%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86/20260706-%E5%9B%9E%E9%A1%BE%E5%8D%8F%E6%96%B9%E5%B7%AE%E5%90%AB%E4%B9%89%EF%BC%8C%E5%88%A9%E7%94%A8Python%E8%BF%9B%E8%A1%8C%E8%AE%A1%E7%AE%97/\">回顾协方差含义，利用Python进行计算</a></li>\n<li><a href=\"../../%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86/%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98%E4%B8%ADSigmoid-%E4%B8%8E-Softmax-%E5%8C%BA%E5%88%AB/\">分类问题中 Sigmoid与Softmax 区别</a></li>\n</ul>\n<hr />\n<p><strong>以上是自己实践中遇到的一些问题，分享出来供大家参考学习，欢迎关注微信公众号DataShare，不定期分享干货</strong></p>",
+    "published": "2026-09-02T00:00:00Z",
+    "feed_title": "DataShare 数据人阿多",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T16:23:01.872100+00:00",
+    "content_length": 4638
+  },
+  {
+    "guid": "00aff6cd09b69d90",
+    "title": "从Token治理到Agentic OS：企业AI-Native转型的四级演进与落地实践",
+    "link": "https://www.rowkey.cn/blog/2026/09/02/ai-native-evolution-agentic-os/",
+    "author": "",
+    "content": "<p>AI 编码工具（如 Cursor、GitHub Copilot、Codex）已在研发团队中广泛普及，但编码仅占整个软件研发生命周期的 30% 左右。如果仅仅提升编码速度，不仅无法实现研发效能的质变，反而会造成“更快的瓶颈”：需求模糊导致返工更快、未验证决策堆积更快、局部正确而全局错误。</p>\n\n<p>真正的 AI-Native 转型，核心在于从“人用 AI 提效（AI-Assistant）”走向“Human Directs, AI Delivers（人定方向，AI 交付）”，最终演进为以系统形态运行的 <strong>Agentic OS</strong>。本文结合近期团队在 AI 自动化流水线、Token 治理与知识库建设中的实战思考，梳理企业 AI-Native 转型的四级递进路径与落地关键。</p>\n\n<!-- more -->\n\n\n<h2>一、 第一阶段：基建与契约 —— Token 治理与 Spec-Driven 交付</h2>\n\n<p>在转型的初期，大多数团队容易陷入“工具散乱、效果难衡量、成本不可控”的泥潭。要实现“人把控、AI 实现”的协同模式，首先必须打牢两块基石：<strong>Token 治理</strong>与 <strong>Spec-Driven 交付</strong>。</p>\n\n<h3>1.1 Token 治理：AI 化的基础设施</h3>\n\n<p>没有 Token 治理，就无法谈及规模化的 AI 落地。Token 治理不仅是成本控制手段，更是推进全员 AI 使用率与评估交付质量的指标中枢。</p>\n\n<p>Token 治理的核心包含三个维度：</p>\n\n<ul>\n<li><p><strong>使用率与渗透率</strong>：监控各团队/岗位的 Token 消耗与活跃度，识别阻碍 AI 普及的断点。</p></li>\n<li><p><strong>交付质量与 ROI</strong>：将 Token 消耗与产出物（如代码提交、PR、文档、测试用例）关联，评估单位 Token 创造的业务价值。</p></li>\n<li><p><strong>成本与限额管控</strong>：建立基于角色与任务的配额机制，防止无意义的 Prompt 试错与无限循环导致的 Token 浪费。</p></li>\n</ul>\n\n\n<h3>1.2 Spec-Driven 交付：人与 AI 的“数字合同”</h3>\n\n<p>在传统的研发流程中，需求往往通过口头沟通或模糊的文档传递。当执行主体由人类工程师转变为 AI 时，这种模糊性会导致严重的方向漂移。</p>\n\n<p>Spec（规格说明书）是人与 AI 协作的“数字合同”，也是全链路的唯一锚点：</p>\n\n<ul>\n<li><p><strong>SDD（Spec-Driven Development）</strong>：在上游通过结构化 Spec 锁定意图。上游所有决策（产品、设计、架构）都服务于写好 Spec。</p></li>\n<li><p><strong>TDD（Test-Driven Development）</strong>：在下游作为验收机制。先根据 Spec 生成测试用例（Red），再生成代码实现（Green），最后进行验证（Verify）。</p></li>\n</ul>\n\n\n<p>在 Spec-Driven 模式下，人类工程师的职责发生了根本性转变：<strong>从“直接编写和操作代码”转向“定义做什么和不做什么”</strong>。</p>\n\n<hr />\n\n<h2>二、 第二阶段：上下文与判断力 —— Agent Readable 与 DDD 知识治理</h2>\n\n<p>有了 Spec 之后，虽然消除了意图漂移，但 Agent 在执行时常常遇到“导航盲区”：不了解代码库历史、不懂业务逻辑、看不懂数据库字段含义。这就是“导航不解决判断”的天花板。第二阶段的核心任务是实现 <strong>Agent Readable</strong> 与 <strong>DDD 知识治理</strong>。</p>\n\n<h3>2.1 Agent Readable：让代码与数据对 AI 可读</h3>\n\n<p>要让 Agent 自主做出正确判断，必须将代码和企业数据改造为“AI 易读（Agent Readable）”的格式：</p>\n\n<h4>1) Code 的 Agent Readable：AI-Ready Repo</h4>\n\n<p>代码仓库必须显式提供上下文，让 AI 理解“项目为什么存在、怎么运行、踩过什么坑、当前处于什么状态”。建议在仓库中标准化以下四类文件：</p>\n\n<ul>\n<li><p><code>PRODUCT.md</code>：记录产品目标、业务优先级与成功标准。</p></li>\n<li><p><code>TECH.md</code>：记录技术架构、硬性约束（Blocking Constraints）与关键路径。</p></li>\n<li><p><code>IMPROVEMENT.md</code>：记录历史教训、避坑指南与踩坑反馈。</p></li>\n<li><p><code>PROJECT.md</code>：记录当前迭代状态、关键决策与阻塞项。</p></li>\n</ul>\n\n\n<h4>2) Data 的 Agent Readable：Agent for Data</h4>\n\n<p>直接将自然语言交给大模型生成 SQL（裸 NL2SQL）的准确率通常仅为 60%-70%，在生产环境中几乎不可用。其根本原因在于缺少“数据含义与访问权限”的语义合约。必须建立三层数据准确度模型：</p>\n\n<ul>\n<li><p><strong>Level 1: Certified Patterns（100% 准确）</strong>：预置经过验证的 SQL 模板，Agent 仅做参数替换与模板选择。适用于核心报表、合规推送。</p></li>\n<li><p><strong>Level 2: Guided NL2SQL（~95% 准确）</strong>：NL2SQL + Catalog 语义约束（白名单 + 强制过滤 + JOIN 映射规则）。适用于临时分析与自助探索。</p></li>\n<li><p><strong>Level 3: Unconstrained NL2SQL（60%-70% 准确）</strong>：无约束自由生成，仅建议作为探索参考。</p></li>\n</ul>\n\n\n<h3>2.2 DDD 知识治理：让领域知识“自己活着”</h3>\n\n<p>这里的 <strong>DDD 指的是 Domain-Driven Documentation（领域驱动文档）</strong>，而非传统的 Domain-Driven Design。</p>\n\n<p>传统知识库的最大问题是“维护税大于查询价值”——知识不断堆积，最终沦为噪声库。AI 时代的知识治理，核心竞争力不是“记住”，而是<strong>“遗忘”</strong>：</p>\n\n<ul>\n<li><p><strong>达尔文衰减模式</strong>：知识被引用则强化（<code>ref_count + 1</code>）；90 天无引用进入休眠（Dormant）；180 天无引用自动归档死亡（Archived）。由衰减引擎每日自动执行，保持知识库的高精炼度。</p></li>\n<li><p><strong>三条治理原则</strong>：</p>\n\n<ul>\n<li><p><strong>自动生成</strong>：引擎从代码、数据与执行日志中自动提取，人类仅做审核补充。</p></li>\n<li><p><strong>自动衰减</strong>：依靠系统机制剔除过时知识，无需定期人工 Review。</p></li>\n<li><p><strong>自动复利</strong>：使用越多，知识网图越丰富，推荐越精准，形成知识飞轮。</p></li>\n</ul>\n</li>\n</ul>\n\n\n<hr />\n\n<h2>三、 第三阶段：全流程自动化 —— Autonomous Pipeline 与双门检查</h2>\n\n<p>当代码与数据实现 Agent Readable、且领域知识具备自我演进能力后，研发流程便可迈入全自动化阶段：<strong>Autonomous Pipeline（自主流水线）</strong>。</p>\n\n<h3>3.1 10 阶段闭环流水线</h3>\n\n<p>Autonomous Pipeline 将编码视为黑盒（Coding as Black Box），实现“一句话需求 → PR-Ready”的闭环。其典型执行链路包含 10 个阶段：</p>\n\n<figure class=\"code\"><div class=\"highlight\"><table><tr><td class=\"gutter\"><pre class=\"line-numbers\"><span class=\"line-number\">1</span>\n</pre></td><td class=\"code\"><pre><code class=\"\"><span class=\"line\">EVALUATE → THINK → PLAN → PRE-CHECK → BUILD → REVIEW → TEST → ADVERSARIAL → DELIVER → REFLECT</span></code></pre></td></tr></table></div></figure>\n\n\n<h3>3.2 双门架构（Double-Gate Architecture）</h3>\n\n<p>为确保全自动流水线不输出垃圾代码，系统引入了两个独立的 Sub-Agent 质量门：</p>\n\n<ul>\n<li><p><strong>Gate 1：做正确的事（编码前）</strong></p>\n\n<ul>\n<li>由“怀疑者”角色（独立上下文 Sub-Agent）在 <code>BUILD</code> 之前挑战方案。</li>\n<li>检查方向对齐、约束违规及已知失败模式（<code>IMPROVEMENT.md</code>），在代码未写前拦截方向错误。</li>\n</ul>\n</li>\n<li><p><strong>Gate 2：正确地做事（编码后）</strong></p>\n\n<ul>\n<li>由“攻击者”角色（独立上下文 Sub-Agent）直接攻击 ChangeSet（只看 git diff，忽略 Builder 的主观意图）。</li>\n<li>针对正确性、安全性、集成度进行 30+ 项 Review Pattern 检查，发现隐蔽 Bug。</li>\n</ul>\n</li>\n</ul>\n\n\n<h3>3.3 经济学视角：为什么 Gate 是“净负成本”？</h3>\n\n<p>有人担忧增加 Gate 1 和 Gate 2 会显著增加 Token 开销。但实践数据表明：</p>\n\n<ul>\n<li><p><strong>无 Gate 模式</strong>：盲目生成代码（Vibe Coding），后期产生 2-3 次大型返工，单次 PR 综合消耗 460K~690K Tokens。</p></li>\n<li><p><strong>双门 Gate 模式</strong>：编码前拦截错误、编码后精准收敛，1 次通过，单次 Run 消耗约为 255K Tokens。</p></li>\n</ul>\n\n\n<p><strong>结论</strong>：Gate 不是增加了成本，而是消除了“返工乘数”。Gate 在经济学上是<strong>净负成本项</strong>。</p>\n\n<hr />\n\n<h2>四、 第四阶段：终局形态 —— Agentic OS</h2>\n\n<p>AI-Native 转型的终局，是构建一套以系统形态自主运行的 <strong>Agentic OS</strong>。</p>\n\n<h3>4.1 Agentic OS 的三层解耦架构</h3>\n\n<p>Agentic OS 实现了“一层知识，多个执行引擎”的解耦架构：</p>\n\n<ul>\n<li><p><strong>底盘（Harness / Runtime）</strong>：提供执行能力（Capability），包括运行环境、Tool/MCP 接入、调度器、Hook 与渠道适配器。底盘决定 Agent“能做什么”，但不决定“该做什么”。</p></li>\n<li><p><strong>大脑（DDD Knowledge Layer）</strong>：提供判断力（Judgment），包含 4-Docs 领域知识、代码图谱、数据 Catalog 与演化反馈。</p></li>\n<li><p><strong>手脚（AgentHub / Delivery Engines）</strong>：提供交付形态，面向不同业务场景导出 Agent 服务（如 CLI、IM 机器人、Web 交互终端）。</p></li>\n</ul>\n\n\n<h3>4.2 角色分工与系统级复利</h3>\n\n<p>在 Agentic OS 架构下，团队成员的分工实现了重塑：</p>\n\n<ul>\n<li><p><strong>AI 职能人员</strong>：专注于编写 Skill、MCP 接口以及沉淀领域知识，为系统补充“大脑”与“手脚”。</p></li>\n<li><p><strong>AgentHub</strong>：调度各种专有 Skill 与 Agent，基于 Runtime 机制为企业内外提供全自动化的 Agent 服务。</p></li>\n</ul>\n\n\n<p>系统每运行一次，<code>REFLECT</code> 机制都会将错误教训与新经验写回知识层，使下一次执行更精准，真正实现<strong>“越用越聪明”的系统级复利</strong>。</p>\n\n<hr />\n\n<h2>五、 总结：避开“跳层”的陷阱</h2>\n\n<p>在推进 AI-Native 转型的过程中，切忌盲目跨越阶段：</p>\n\n<ul>\n<li><p><strong>直接跨到 Autonomous Pipeline 而缺失 DDD</strong>：Agent 虽有强执行力，但处于“盲干”状态。</p></li>\n<li><p><strong>有 DDD 但缺乏 Spec 纪律</strong>：知识丰富，但缺乏约束，导致“意图漂移”。</p></li>\n<li><p><strong>有自主执行但缺乏反馈飞轮</strong>：第 300 天的交付质量依然和第 1 天一样。</p></li>\n</ul>\n\n\n<p>从 <strong>Token 治理</strong> 到 <strong>Spec-Driven</strong>，再到 <strong>Agent Readable</strong>、<strong>Autonomous Pipeline</strong>，最终抵达 <strong>Agentic OS</strong>，这是一条清晰而严谨的工程演进之路。只有一步一个脚印搭建好知识与控制面，才能真正释放 AI 在企业级生产中的终极价值。</p>",
+    "published": "2026-09-02T04:30:00Z",
+    "feed_title": "后端技术杂谈",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T16:23:01.872100+00:00",
+    "content_length": 6399
+  },
+  {
+    "guid": "9ddb6806065d97b9",
+    "title": "聊聊 Java 的类加载机制一",
+    "link": "https://nicksxs.me/2026/09/02/%E8%81%8A%E8%81%8A-Java-%E7%9A%84%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/",
+    "author": "",
+    "content": "一说到这个主题，想到的应该是双亲委派模型，不过讲的包括但不限于这个，主要内容是参考深入理解 Java 虚拟机书中的介绍， 一个类型的生命周期包含了七个阶段，加载，验证，准备，解析，初始化，使用，卸载。",
+    "published": "2026-09-02T15:03:12Z",
+    "feed_title": "Nicksxs's Blog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T16:23:01.872100+00:00",
+    "content_length": 100
+  },
+  {
+    "guid": "27c8c31f35d8f73a",
+    "title": "可感",
+    "link": "https://z.arlmy.me/posts/Poems/2026/20260831_KeGan/",
+    "author": "素生",
+    "content": "<h2 id=\"二稿\" tabindex=\"-1\">二稿</h2><p>与旧友相见<br />与别离许久的自己相见<br />他带来了怎样的我<br />他就是我</p><p>与新友相识<br />想让他带走怎样的我<br />创造？还是重复？<br />他将成为我</p><p>我非我<br />他非他<br />外面的我好大<br />里面的我好小</p><p>偶尔重逢、偶然相识<br />有时陌生、有时亲密<br />绝不希望他与我一样<br />但也不必辨识</p><p>若想独一无二<br />便要勇于渺小、便携<br />不曾在哪里<br />却处处可感</p><p>2026年9月2日</p><h2 id=\"一稿\" tabindex=\"-1\">一稿</h2><p>与旧友相见<br />与离别许久的自己相见<br />他带来了怎样的我<br />他就是我</p><p>与新友相识<br />想让他带走怎样的我<br />创造？还是重复？<br />他将生成我</p><p>我非我<br />他非他<br />外面的我好大<br />里面的我好小</p><p>偶尔重逢、偶然相识<br />有时陌生、有时亲密<br />绝不希望他与我一样<br />但也不用努力辨识</p><p>想独一无二<br />便要勇于渺小、便携<br />不曾在哪里<br />却处处可感</p><p>2026年8月31日</p><hr /><p>CHANGELOG</p><ul><li>20260831 Arlmy 一稿</li><li>20260902 Arlmy 一稿</li></ul>",
+    "published": "2026-09-02T08:50:27Z",
+    "feed_title": "素生",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T16:23:01.872100+00:00",
+    "content_length": 693
+  },
+  {
+    "guid": "fa44c22c8b8f2a95",
+    "title": "旧书店",
+    "link": "https://z.arlmy.me/posts/Poems/2026/20260813_JiuShuDian/",
+    "author": "素生",
+    "content": "<h2 id=\"一稿\" tabindex=\"-1\">一稿</h2><p>六十年前的地图<br />似乎没有疆域<br />没有磁带和CD的赠书<br />原版的罗尔德达尔<br />禁毁小说文库</p><p>楼顶的水滴响<br />植物在疯长</p><p>历史没有在过去<br />只是不再被理解</p><p>有人还记得<br />每次复述 却都像在告别<br />便也不再言说了</p><p>2026年8月13日</p><hr /><p>CHANGELOG</p><ul><li>20260813 Arlmy 一稿</li></ul>",
+    "published": "2026-09-02T08:44:27Z",
+    "feed_title": "素生",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T16:23:01.872100+00:00",
+    "content_length": 268
+  },
+  {
+    "guid": "8d2f79cd3c0e0baf",
+    "title": "从零实现 GeekAgent —— Day15 MCP 工具接入",
+    "link": "https://geektutu.com/post/geekagent-day15.html",
+    "author": "",
+    "content": "7天从零实现Agent教程，用 TypeScript 动手写一个最简单的 Agent/Harness。Day 15 接入 MCP：配置文件里声明 server，启动时在 stdio 上跑 JSON-RPC，外部进程提供的工具直接进入模型的工具清单。",
+    "published": "2026-09-02T10:00:00Z",
+    "feed_title": "极客兔兔",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T16:23:01.872100+00:00",
+    "content_length": 124
+  },
+  {
+    "guid": "985893350ef0c734",
+    "title": "Deploying LiteLLM on Kubernetes",
+    "link": "https://www.bboy.app/2026/09/02/deploying-litellm-on-kubernetes/",
+    "author": "",
+    "content": "<p><img alt=\"\" src=\"https://www.bboy.app/oss/20260902-2.webp\" /></p>\n<h3 id=\"introduction\">Introduction</h3>\n<p>I have access to LLM APIs from several different providers. I use Hermes for all kinds of tasks, and I do not want to edit the Hermes configuration every time I switch models. So I set up LiteLLM and put the models from those different providers behind one OpenAI-compatible API. Hermes only needs to be configured once. After that, when I want to switch the underlying model, I just change the model mapping in the LiteLLM admin UI.</p>\n<p>I first got everything working locally and confirmed that the models could actually be called. Then I moved it to Kubernetes and connected PostgreSQL, Redis, Traefik, and ArgoCD. This post documents the full setup and a few problems I ran into along the way.</p>",
+    "published": "2026-09-02T17:15:00Z",
+    "feed_title": "bboysoul的博客",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T16:23:01.872100+00:00",
+    "content_length": 815
+  },
+  {
+    "guid": "3aa78d381ebadbd7",
+    "title": "在Kubernetes中部署LiteLLM",
+    "link": "https://www.bboy.app/2026/09/02/%E5%9C%A8kubernetes%E4%B8%AD%E9%83%A8%E7%BD%B2litellm/",
+    "author": "",
+    "content": "<p><img alt=\"\" src=\"https://www.bboy.app/oss/20260902-2.webp\" /></p>\n<h3 id=\"简介\">简介</h3>\n<p>我手里有多个渠道的大模型接口。平时用 Hermes 跑各种任务，换模型的时候不想每次去改 Hermes 的配置。所以搭了个 LiteLLM，把不同渠道的模型收进同一个 OpenAI 兼容接口。Hermes 只需要配置一次，之后想切换底层模型，在 LiteLLM 的管理页面把模型映射改一下就行。</p>\n<p>先在本机跑通，确认模型真能调用，再搬到 Kubernetes。最终接了 PostgreSQL、Redis、Traefik 和 ArgoCD。这篇记录一下完整配置，还有中间碰到的几个坑。</p>",
+    "published": "2026-09-02T17:15:00Z",
+    "feed_title": "bboysoul的博客",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T16:23:01.872100+00:00",
+    "content_length": 343
+  },
+  {
+    "guid": "2d815ad4ae1bc402",
+    "title": "20260902的胡言乱语",
+    "link": "https://www.bboy.app/2026/09/02/20260902%E7%9A%84%E8%83%A1%E8%A8%80%E4%B9%B1%E8%AF%AD/",
+    "author": "",
+    "content": "<p><img alt=\"\" src=\"https://www.bboy.app/oss/20260902-1.webp\" /></p>\n<h3 id=\"简介\">简介</h3>\n<p>欢迎关注我的频道，不时发送垃圾消息</p>\n<p><a href=\"https://t.me/bboyapp\">https://t.me/bboyapp</a></p>\n<p>或者关注我的 twitter</p>\n<p><a href=\"https://twitter.com/bboysoulcn\">https://twitter.com/bboysoulcn</a></p>",
+    "published": "2026-09-02T15:30:55Z",
+    "feed_title": "bboysoul的博客",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T16:23:01.872100+00:00",
+    "content_length": 281
+  },
+  {
+    "guid": "61ac641b71f56fab",
+    "title": "Random Thoughts - 20260902",
+    "link": "https://www.bboy.app/2026/09/02/random-thoughts-20260902/",
+    "author": "",
+    "content": "<p><img alt=\"\" src=\"https://www.bboy.app/oss/20260902-1.webp\" /></p>\n<h3 id=\"introduction\">Introduction</h3>\n<p>Welcome to follow my channel, where I occasionally share random messages</p>\n<p><a href=\"https://t.me/bboyapp\">https://t.me/bboyapp</a></p>\n<p>Or follow me on Twitter</p>\n<p><a href=\"https://twitter.com/bboysoulcn\">https://twitter.com/bboysoulcn</a></p>",
+    "published": "2026-09-02T15:30:55Z",
+    "feed_title": "bboysoul的博客",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T16:23:01.872100+00:00",
+    "content_length": 365
+  },
+  {
+    "guid": "14e1302b6b7e159b",
+    "title": "游戏折腾记录：在 Mac 和 Linux 玩米游",
+    "link": "https://bili33.top/posts/play-hoyo-games-on-mac-and-linux/",
+    "author": "",
+    "content": "MacOS 部分 用 MacOS 玩游戏，认真的吗？ 众所周知，我一直是一个重度米游玩家，虽然说中间退过几次坑，也因为各种大大小小的事情导致断连，但是终究还是回到了米游 等我换到了 Mac 以后，在出门的时候我就在想，万...",
+    "published": "2026-09-01T18:44:10Z",
+    "feed_title": "GamerNoTitle",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T16:23:01.872100+00:00",
+    "content_length": 113
+  },
+  {
+    "guid": "7907015ee9ea076f",
+    "title": "游广州惠吉西、东山口历史文化街区",
+    "link": "https://www.jfsay.com/archives/4050.html",
+    "author": "Jasmine",
+    "content": "<p class=\"wp-block-paragraph\">这次出游，继续寻找之前未去过的广州街巷景点，因为时间关系等因素，也筛选舍弃了不少地方，包括西关老街、荔枝湾公园、荔湾湖、泮塘五约、广州文化馆新馆等。花城广场、海心沙亚运公园、猎德大桥原本在计划清单里，最后远远看到，便没有再专程前往。</p>\n\n\n\n<h2 class=\"wp-block-heading\">惠吉东、惠吉西民国洋楼街区</h2>\n\n\n\n<p class=\"wp-block-paragraph\">这里是越秀老城区保存完好的民国洋房群落，街区不长，短短几十米就能走完。街道两侧整齐排列着西式小洋楼，复古韵味浓厚，自带满满的年代质感。如今大部分洋楼改造成文创小店与特色商铺，仍有少数本地老人在此居住，新旧生活气息交融。</p>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-4.webp\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">从建筑格局不难看出，民国时期这里是富庶人家的居所。但近距离观察也能发现老建筑的局限：屋内采光偏弱、楼梯狭窄拥挤，居住舒适度与便利性远不及现代住宅。</p>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-2.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-3.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-5.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-6.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-7.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-8.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-9.webp\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">漫步在安静的街巷间，浓郁的民国氛围感扑面而来，很容易联想到张爱玲《倾城之恋》《第一炉香》里描绘的旧式洋房与旧时代风情。</p>\n\n\n\n<p class=\"wp-block-paragraph\">在螺蛳粉和酸辣粉之间，选择去了遇见小面，没想到还需要排队等位。前段时间的舆论争议已经被时间冲淡了。点的重庆辣口味，实际辣味不重，酸和麻的口感更突出，口味平平，分量也偏少。</p>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-13.webp\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">之前刷短视频刷到满记甜品自助，很感兴趣，但是很多人吐槽甜度太高容易腻，根本吃不了几碗，就不敢轻易尝试，正好附近在五月花广场有门店，于是先团购了白雪黑糯米甜甜和芒果班戟两份尝一尝，门店原价合计26+17=43元，团购实付相当于三折。对照58元/位的工作日自助价格，大概要吃六七份甜品才能回本。实际吃下来口感清甜柔和，没有网传的齁甜腻口。果然吃甜品会让人心情愉悦，瞬间感觉幸福感满满。旁边一桌情侣里的男生吃甜品速度很快，吸溜吸溜像喝粥一样，一分钟左右就吃完一碗。</p>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-14.webp\" /></figure>\n\n\n\n<h2 class=\"wp-block-heading\">东山口历史文化街区</h2>\n\n\n\n<p class=\"wp-block-paragraph\">游览东山口时一直淅淅沥沥下着雨，撑着伞沿街闲逛，广州的夏夜闷热潮湿，没有一丝凉意，雨水混着汗水打湿了头发和衣裤。通过体感对比感受到，这里湿热的气候的确并不适合精致打扮、化妆出行，背心、短裤与人字拖才是最适配的装束。出门时蓬松整齐的刘海，没过多久就被湿气和汗水黏成一绺一绺，逛到最后直接露出整个大脑门。</p>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-32.webp\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">沿着署山路慢行，街区两边的氛围截然不同。右转进入庙前西街，街道遍布潮流服饰、特色饮品和文创小店，是年轻人聚集的热闹商圈，全程没有进店。</p>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-1.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-15.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-16.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-17.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-18.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-19.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-20.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-21.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-22.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-23.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-24.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-25.webp\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">左转走进庙前直街，可以一路抵达基督教东山堂、逸园以及中共三大会址纪念馆，已经全部闭馆，无法进入内部参观。</p>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-26.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-27.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-28.webp\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">夜间光线不足，东山口的建筑细节难以清晰呈现，不太适合拍照，只能静静感受夜色里街区独有的静谧氛围。</p>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-29.webp\" /></figure>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-30.webp\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">逛完惠吉西、东山口两处民国洋楼街区，我想起此前游览过两次的沙面岛，二者风格迥然不同。沙面的西式建筑体量更大、造型恢弘精致，气派程度远超越秀区的这两处民居洋楼。查询相关背景后得知，沙面旧时属于通商租界，建筑大多由外国洋行、使馆、外资机构修建，属于公共商用与外交建筑，规格高、造价昂贵，整体华丽大气；而惠吉西、东山口的洋楼，多是民国本地华侨、富商、乡绅自建的私家住宅，偏向生活化民居，风格温柔复古，生活气息浓厚。</p>\n\n\n\n<p class=\"wp-block-paragraph\">最后在东山口的兰芳园榴莲糖水店里吃了一碗芋圆椰汁西米露（冰），走累了坐下来歇一歇，凉爽解暑。</p>\n\n\n\n<figure class=\"wp-block-image\"><img alt=\"\" src=\"https://media.jfsay.com/2026/08/Old-Street-31.webp\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">此次还查询了一些夜市，比如花都田美夜市、芳村夜市、龙洞步行街、石井庆丰服装城等，由于没有太强烈的逛吃购物的需求，最后都放弃了。</p>",
+    "published": "2026-09-02T02:47:00Z",
+    "feed_title": "静风说",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-02T16:23:01.872100+00:00",
+    "content_length": 5215
   }
 ]
