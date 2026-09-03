@@ -8496,3 +8496,15 @@ title = "ChangYo's Blog"
 url = "https://changyo.pages.dev/index.xml"
 site = "https://changyo.pages.dev"
 priority = 10
+
+[[category.feed]]
+title = "XBSTACK"
+url = "https://www.xbstack.com/rss.xml"
+site = "https://www.xbstack.com/"
+priority = 10
+
+[[category.feed]]
+title = "Sanmussh Blog"
+url = "https://blog.movcloud.xyz/rss.xml"
+site = "https://blog.movcloud.xyz"
+priority = 10
