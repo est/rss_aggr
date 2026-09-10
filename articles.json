@@ -10169,18 +10169,6 @@
     "content_length": 243
   },
   {
-    "guid": "34f9630722df69e7",
-    "title": "Web 出海之 8 个帮你找到赚钱机会的神器！",
-    "link": "https://www.ccgxk.com/codeother/861.html",
-    "author": "独元殇",
-    "content": "去年不会编程的普通人 vibe 还不太行，今年应该是可以了。 其实经过一年的 8 大 AI 公司的军备竞赛，以及无数程序员自掏腰包用 AI 给这些公司搞训练源数据，现在的 AI ，真的把绝大部分的编程套路给吃干了。 其实一句话写网页游戏就可以看出来。前年 AI 一句话生成的都是极其简单的网页，而且基本上前 3 次都会在控制台爆些错。所以当时 AI 编程主要是... <a href=\"https://www.ccgxk.com/codeother/861.html\">阅读全文</a>",
-    "published": "2026-08-27T18:13:47Z",
-    "feed_title": "独元殇",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-28T22:04:39.884694+00:00",
-    "content_length": 243
-  },
-  {
     "guid": "a9549b121930aec5",
     "title": "【MLIR】跟着Toy语言学习MLIR【4】部分降级到低层方言",
     "link": "https://forcheetah.github.io/2026/08/28/mlir04/",
@@ -10275,18 +10263,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-28T22:04:39.884694+00:00",
     "content_length": 137
-  },
-  {
-    "guid": "16485564c6eb6cd1",
-    "title": "配电箱相关距离尺寸 操作空间",
-    "link": "https://www.rizuo.com/%e9%85%8d%e7%94%b5%e7%ae%b1%e7%9b%b8%e5%85%b3%e8%b7%9d%e7%a6%bb%e5%b0%ba%e5%af%b8-%e6%93%8d%e4%bd%9c%e7%a9%ba%e9%97%b4/",
-    "author": "湾区电工",
-    "content": "<figure class=\"wp-block-image size-full\"><img alt=\"图片[1]_日作设计\" class=\"wp-image-1814\" height=\"714\" src=\"https://www.rizuo.com/wp-content/uploads/2026/08/20260827093536171-image.png?v=1787848554\" width=\"696\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\">问号为6.5ft或6.7ft</p>\n\n\n\n<p class=\"wp-block-paragraph\"></p>\n\n\n\n<p class=\"wp-block-paragraph\">如果你的<strong>标称电压在151到600</strong>之间，由于带电线分布在工作区两侧，最小距离3ft变成4ft</p>",
-    "published": "2026-08-27T16:36:59Z",
-    "feed_title": "https://www.rizuo.com",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-28T22:04:39.884694+00:00",
-    "content_length": 407
   },
   {
     "guid": "29ddcf4c8d4abdfd",
@@ -16863,5 +16839,29 @@
     "feed_category": "Blogs",
     "cached_at": "2026-09-10T16:12:04.232914+00:00",
     "content_length": 20932
+  },
+  {
+    "guid": "7dc4529f2a3f3862",
+    "title": "对于大模型的评价应该少点偏见和情绪输出",
+    "link": "https://1loli.link/archives/158/",
+    "author": "MoeCaa",
+    "content": "<p>从去年3月到现在我一直在用AI开发，各个模型多少都用过点，但是无论什么平台对模型的好用/不好用的评价有明显一边倒的情况（不局限于l站，b站和x也都是这样）</p><p>有些人不管用没用过某个模型都要跟风评价一下，并且还要去反驳那些用过的人的真实体验分享</p><p>举几个例子 大致按时间排序下，顺序不一定准:</p><ul><li>gpt5不好用 不如sonnet4.5</li><li>Gemini2.5Pro这么猛 3Pro肯定更猛</li><li>gpt5.2不行吧，弄完一堆报错 opus4.5强多了</li><li>感觉opus4.6比gpt5.3 5.4强多了</li><li>deepseek性价比很高的，价格比国外模型低多了[PS:是我同学，而且是v4没打折的时候说的  当时gpt各种羊毛/号池]</li><li>MiniMax/Qwen刷分</li><li>gpt5.4黑话多</li><li>gpt的ui不行</li><li>Gemini就剩前端和快了</li><li>xxx拉完了(糖果题)</li><li>xxx神了 吊打xxx(网页小游戏oneshot)</li><li>V4Pro灰度 超越fable</li></ul><p>有些“拉完了” “震惊瘫坐”的模型都不是说多差或者多完美 包括现在很多人说xxx模型刷分 xxx模型跑分王，都纯属没有依据的情绪表达，单纯觉得分高+oneshot效果看着一般那就肯定是刷分的 还有一些人迷信测试题榜单（竞技场 SWE AA DeepSWE），导致看到所谓“权威测试”出现离谱结果的时候完全无法接受 （比如x上面一堆人在astra的AA分数和5.6sol一样的时候说AA是“诈骗榜单”，又说DeepSWE几个分高的模型都是Benchmaxxing）</p><h2>个人体会</h2><h3>GPT5</h3><p>去年我参加Geekgame2025（CTF比赛），我是纯兴趣没比赛经验，其中大部分题目都是靠ai辅助分析<br />其中有道题实在做不出来，给能用到的模型全试了一遍（Sonnet 4/4.5 Opus4.1 Gemini2.5 pro deepseek r1 gpt5 gpt4o gpt4.1 o4-mini）试到最后只有gpt5给了正确思路并且自行验证没问题算出答案了,opus4.1和sonnet都告诉我问题不可能解决<br />虽然gpt5的代码不行，但是分析问题的时候推理很细致考虑很全面，有的人就只看跑分，一直和我说claude好用 gpt不行，用就是浪费额度（后面又猛吹opus4.6 ，5.4出来之后又改吹gpt了）</p><h3>GPT5.2</h3><p>还有一个印象比较深的就是gpt5.2，虽然对话一般但是前端相比同期模型超前的强<br />虽然5.4 5.5很多人都说前端不行 但是5.2我用来复刻网站，把他反代出来接到claude code里面，结果同样的任务效果比claude自己的4.5系列要好很多（4.5系列一次提示词还做不到样式完整能访问功能能用 4.6进步倒是巨大） 相比当时国模最强（也许是吧）的glm4.7强更多了</p><p>具体任务大致就是：</p><blockquote>参考站点A（链接）的风格，为项目XXX（工作目录）重新设计一个用户前端，将前端与测试环境中真实api对接后使用Playwright测试所有功能，确保所有功能可用</blockquote><p>结果还真没啥问题（没有后续模型的提示词写在页面的问题并且很完善），第一次就可以正常使用大部分功能（登录 注册 商品展示 购买 服务状态监控 工单），只是缺了几个小页面 ，一共花了差不多三天时间让它补全页面 补全多语言 调整样式之后就全都做完了，这玩意从去年一直用到现在，中间就改过几次接口样式还是很好看</p><p>另外5.2我印象比较深刻的原因就是有个用claude的说openai刷分然后swe还是terminalbench2超过了opus4.5<br /><img alt=\"image|690x269\" src=\"\" title=\"image|690x269\" /><br /><img alt=\"image|690x273\" src=\"\" title=\"image|690x273\" /></p><h3>Gemini 3.x flash/Muse Spark 1.x</h3><p>然后就不得不提一下gemini和musespark，说Gemini flash和musespark刷分的人有多少是没带偏见的？ 如果只靠“面向测试训练”这么简单就能在这么多“权威”榜单排前几甚至拿第一我觉得不会其他所有厂商都那么傻不会学  huggingface上有很多微调模型喂了大量的测试集和高级模型的蒸馏数据，也没见有多少测评分数能超过原版成绩的（诚然拿测试题直接训练确实可以提高一部分测试成绩但是其余的测试比如长上下文捞针还有知识类任务又更差了）</p><p>3.8flash虽然有token量爆炸/乱改项目/前端退步这些问题，但是确实和跑分结果一样找问题的能力提高了，在修复指定功能的时候可以一次修好了，这些都是3.7或者是某些体感“更强”的模型做不到的（比如glm5.3flash） <br />musespark虽然前端不行 复杂任务不会干，但是在zcode里面测试给一个从外部网站api导入几千条数据到项目并正确归类的任务都能够按要求全部正确完成，不像gemini出幻觉给我一堆假模型，glm5.3让它导三层内关联的数据但是只导入了几十个，这些都是实打实的模型能力<br />如果你认为某个模型“刷分”或者Benchmaxxing那最起码得自己深度试一下而不是看到分数就在那说模型“刷分”吧 如果分数虚高就是刷分，那刚出的dsv4.1flash超过自己pro算不算刷分 glm5.3flash部分测试超过5.3算不算刷分？</p><p>另外对于测试，如果测试不能反映模型真实水平并且多次出现问题那只能说明测试本身就需要优化调整，而不是去说模型厂商刷分，又或者说榜单是收钱了/假数据<br />像是terminalbench arcagi就一直在更新自己的测试题，一年都出了好几个版本，还有一些用户评价的elo榜单比如voxelbench（测试模型生成的mc建模能力）或者竞技场也都可以参考一下（但是竞技场也不是没有改对比权重从而提高胜率的先例 比如之前某些模型刚上线分数很高甚至第一过一段时间掉下去之类的）</p><h2>编码能力测试的一些反例</h2><p>视觉能力测试虽然比较少，但是可以看出来gemini和gpt的视觉推理甚至不推理的能力都超过目前很多跑分前沿的国模<br />比如之前有佬友发的<br /><a href=\"https://linux.do/t/topic/2877646\">https://linux.do/t/topic/2877646</a><br />Gemini和gpt甚至不开思考或者instant模式都能秒答对，但是这么多排行榜在顶前面的国模只有<br /><img alt=\"image|185x147\" src=\"\" title=\"image|185x147\" /><br />能答对，都觉得智商低的豆包2.1turbo和pro也答对了，被认为“刷分”的qwen3.8max musespark1.3和Gemini3.8flash也都能答对 这是不是又和一些人的直觉感受不一样呢</p><h2>小结</h2><p>希望能看到这里的佬友讨论模型能力的时候都能实事求是，自己体验之后客观评价，不要迷信各种“榜单”，也不要跟着大部队跟风对模型情绪输出<br />至于模型降智/厂商封号那些是厂商运营或者态度问题，不能代表模型本身能力，可能对于订阅来说有参考性，但是对于希望真的在项目中运用模型的人是完全没有帮助的</p>",
+    "published": "2026-09-10T16:41:44Z",
+    "feed_title": "MoeBlog",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-10T20:41:49.406640+00:00",
+    "content_length": 3284
+  },
+  {
+    "guid": "c56f10f17b933a50",
+    "title": "微信小程序开发日常：记账工具",
+    "link": "https://vjo.cc/2017",
+    "author": "刘郎",
+    "content": "<p>我一直有一个很多年的习惯，就是不管走到哪里、不管什么时候，都喜欢随手记账、记事情。我自己心里很清楚我的记性不算好，生活里大大小小的事，只要不马上记下来，过一阵子基本就忘了。尤其是跟钱有关的开销、往来，我从来不敢马虎。</p><p>除了自己平时的日常花费，最关键、最不能乱的就是人情往来。家里、亲戚、朋友之间的各种红白喜事、随礼走动，一旦记错、记混或者漏掉，后续真的特别麻烦，还容易产生尴尬和误会。</p><p>最开始，我一直用纸质本子、礼簿来记录。那时候事情少，手写记账特别直观，也让人踏实。只要本子收好，以后有事翻一翻，谁随了礼、随了多少、因为什么事，我给谁随过多少、是什么情况，全都清清楚楚，照着记录来对接就不会出错。</p><p>但随着时间推移，身边的人情事越来越多，纸质账本的弊端就慢慢出来了。每次需要查某个人、某件事的记录，都要一页一页慢慢翻，找半天。找到之后，还要自己手动一笔一笔核对、算账，整个过程又慢又麻烦，很不方便。</p><p>为了省事，我最开始也和大家一样，直接用网上现成的记账APP、礼簿小程序。我试过不少口碑好、界面看着舒服的工具，刚开始用确实挺满意，功能齐全、操作简单，完全够用。</p><p>真正让我不想再用第三方软件，是今年四月底发生的一件事。当时我自己的部分网站和服务器遭到了恶意攻击。那次之后我彻底想明白了一件事：数据放在别人那里，永远都不算安全。 不管平台做得再好，数据存在别人的服务器上，就相当于不受自己控制，风险很大。只有数据完全掌握在自己手里，才是最靠谱、最安心的。</p><p>除此之外，这些第三方记账软件还有很多让人不舒服的地方。很多看似免费的工具，想要长期用好功能，就要开会员，一年几十、几百不等。而且很多软件刚开始很干净、没有广告，后期作者为了赚钱，版本一更新就塞满各种广告、弹窗，使用体验直接变差，特别鸡肋。</p><p>综合种种顾虑，我最终放弃了所有第三方记账工具。打算自己开发一款专属的个人记账工具，仅供个人使用。完全按照我自己的记账和人情往来习惯量身打造，所有数据自己掌控，没有广告、不用开会员，界面干净、功能纯粹，彻底解决我这么多年记账、记人情遇到的各种麻烦。</p><h2>我的需求</h2><p>1.个人习惯需要长期记录日常开销，避免遗忘收支。</p><p>2.精准记录人情往来，防止记错、漏记造成尴尬麻烦。</p><p>3.摒弃传统纸质账本，告别翻找、手动核算的繁琐操作。</p><p>4.不使用第三方平台，所有数据自主掌控，保证数据安全。</p><p>5.杜绝软件广告、强制升级会员等影响使用体验的问题。</p><p>6.功能贴合个人真实使用习惯，不需要多余冗余功能。</p><p>7.全程免费自用，干净简洁，只为解决自己的记账需求。</p><h2>具体操作</h2><p>想好自己要实现的需求之后，先注册好个人微信小程序账号，做完备案，把云开发环境搭建起来(当然，看个人需求，也可以使用自己服务器的数据库来搭)。接着梳理记账和人情往来需要保存哪些信息，设计好数据库和页面大概样子，然后动手写前端页面，用来录入和查看各类记录，再写好云函数处理数据的保存、读取和简单统计。写完就在开发者工具里反复调试改bug，基础版本做好后，把自己加入体验成员，自己实际上手试用，再根据自己使用的感受调整优化细节……</p><blockquote>“ 具体操作 ”过程此处省略N字。本着报喜不报忧的原则，开发的过程也许只有开发者自己明白其中的心酸吧。</blockquote><h2>数据处理</h2><p>明文登录密码由用户自行保管，服务器不保存原始密码，只存密码校验串用来登录验证信息。本工具上所有创建的账本信息都是经过加密后才存在云端的（仅用户昵称不加密）。解密的密钥在登录时通过由用户自行保管的明文密码临时生成，不保存到设备缓存，也不上传给服务器后端，后端看不到账本真实内容。</p><h2>最终成果</h2><p>1.礼簿（收礼）</p><p><img src=\"https://mmbiz.qpic.cn/sz_mmbiz_jpg/M2UTz5flBbTKU9n8u26yptgJnX8DEahMyu6FTBYJ3SJVia0P2hqbdGQyLkc4Nm1icf6bcCggOQyrDicj8BGCAdE2rIOKrOG6G8fHFjzDiaoz2Vo/640?wx_fmt=jpeg&amp;watermark=1&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1#imgIndex=0\" /><br /><img src=\"https://mmbiz.qpic.cn/sz_mmbiz_jpg/M2UTz5flBbSf7H96avfoeCaX4ILeIJ6c2GjQJLBSrDHJ9CQkHWp5pztXHz6xws0zCDicOBbc4WtIXFzrSgJUKW4LGnibQwn1ictTVtyn17tYaI/640?wx_fmt=jpeg&amp;watermark=1&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1#imgIndex=1\" /></p><p>可新建多场酒席礼簿，自动记录阳历、农历日期；实时统计礼簿总收入、笔数，区分现金、微信收入；支持手动录入、酒席批量录入，录入时姓名联想、同名重复筛查，每笔记录可完整修改。</p><p>2.送礼</p><p><img src=\"https://mmbiz.qpic.cn/mmbiz_jpg/M2UTz5flBbSHViaXHwjcg9ScnFhcsdbs33ETY6NUkUZ3nXx3oaXfYMiahO14TmTEmrKMKaHyt6kibxExTmpul2p0vCpjQDNeAMt3riampxpFdH8/640?wx_fmt=jpeg&amp;watermark=1&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1#imgIndex=2\" /><br /><img src=\"https://mmbiz.qpic.cn/sz_mmbiz_jpg/M2UTz5flBbSNw1s17icLd5VwQf36ErBjjuoOnseNLIO5QQXJCU0fcOib8aZFLoOaWHx7lR3fKGgftHE1cgapiaOITYQsH7icnKdzs8FBVPOibcibA/640?wx_fmt=jpeg&amp;watermark=1&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1#imgIndex=3\" /></p><p>新增送礼记录，支持按年份筛选记录，可按今日/本周/本月/全年做分类统计，快速搜索送礼条目。</p><p>3.人员往来查询</p><p><img src=\"https://mmbiz.qpic.cn/sz_mmbiz_jpg/M2UTz5flBbRoXGCDiaHnoXpJJswq1dnuVClJbwvQcDXls0bzPegssaYw8JD6xPy8pUDWCzqwW12xGibGror2aUlzfPtnk0ibql12PAqz0ekicZQ/640?wx_fmt=jpeg&amp;watermark=1&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1#imgIndex=4\" /></p><p>点开人名可查看和此人全部收、送礼往来，自动计算双方人情结余，支持剔除无关记录，理清人情平衡情况。</p><p>4.全局检索</p><p><img src=\"https://mmbiz.qpic.cn/sz_mmbiz_jpg/M2UTz5flBbTDRhun084Uo6jv9ic7dactL8VaHLAmSLicdmBREfTZfgiaAGLJOlIC8ic2uQoYjGoZ5ywC9a1zoRm0BiaDefstZ6JFKFjFUpspzbqc/640?wx_fmt=jpeg&amp;watermark=1&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1#imgIndex=5\" /></p><p>全局搜索全部礼簿、收送礼记录，关键词高亮，点击直接跳转对应记录位置。</p><p>5.数据统计可视化</p><p><img src=\"https://mmbiz.qpic.cn/sz_mmbiz_jpg/M2UTz5flBbQdxq9SxDkVFNf5pNK0fWcbIqGWXzOsbhgp58kzlGP8lSWtl4hXuxUsmkdpv3SG1ySoibJtSCzEOBWIwGicHNDJ4E6pD79bWRW2Q/640?wx_fmt=jpeg&amp;watermark=1&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1#imgIndex=6\" /></p><p>单场礼簿独立统计、全部账目总统计，提供条形图、扇形图展示数据。</p><p>6.账号与安全能力</p><p><img src=\"https://mmbiz.qpic.cn/mmbiz_jpg/M2UTz5flBbTBosgGibM1hwODY95ClpRjox4jiaApY5IicYIiarEEHIuBXibR0GMicYH0c26fUYsvbk2poU8cXTVyb1riaUvE8psuCGK6e0KwicK8dls/640?wx_fmt=jpeg&amp;watermark=1&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1#imgIndex=7\" /><br /><img src=\"https://mmbiz.qpic.cn/mmbiz_jpg/M2UTz5flBbQebY5dOdKyOWcQ3HKqBS4V4AsXXmRKibojKGg5VR8OHXS1uMLkYVDkZZiam3qDNOz3P2kezpJoEk9uIEkP7xl6HmeIReuqrzmXM/640?wx_fmt=jpeg&amp;watermark=1&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1#imgIndex=8\" /></p><p>微信绑定账号，设置登录密码；数据云端实时同步，换设备登录数据不丢失；内置应用密码锁，防偷窥；退出登录清空本地缓存。</p><h2>自我总结</h2><p>这次从零开发自用记账小程序，初衷很简单：解决纸质账本查找麻烦、第三方工具数据不可控、广告会员干扰的痛点。整个项目没有追求复杂花哨的功能，一切围绕我日常记账、管理人情往来的真实需求设计，算是一次落地的实践。</p><p>从需求梳理、数据库设计，到页面开发、云函数调试、加密方案实现，过程里踩了不少坑。尤其是账本数据加密这块，需要兼顾数据云端存储安全和解密效率，保证后端无法读取真实账目，真正做到数据由自己掌控。在功能迭代阶段，我以使用者的视角反复测试，新增人员往来结余计算、全局检索、图表统计等能力，把之前手写账本需要手动完成的统计、对账工作交给程序自动处理，查找账目、核对人情收支效率提升很多。</p><p>对比纸质账本，这套工具可以快速检索、自动核算，不用担心本子丢失、翻阅麻烦；对比第三方记账软件，没有广告弹窗，不存在强制开会员的问题，所有功能都是按需搭建，没有多余冗余模块。礼簿记录、送礼台账、人情往来对账这些核心能力，刚好匹配我记录红白喜事随礼的使用场景，能有效避免人情记错、漏记带来的尴尬。</p><p>当然项目也存在局限，定位始终是个人自用工具，没有做面向多人使用的复杂权限、多端协作等功能，不需要考虑大量外部用户的兼容性问题。后续如果有需要，还可以继续小幅优化细节，比如完善前端界面数据导出备份功能、优化图表展示细节。</p><p>总的来说，这次开发最大的收获不只是得到一个顺手的记账工具，更是实现了数据自主可控。把自己长期以来记账的习惯，转化成一套属于自己的小型系统，不用再依赖外部平台，既满足了记录收支、管理人情往来的刚需，也算是一次很有价值的动手实践。</p><h2>在线体验</h2><p><img src=\"https://mmbiz.qpic.cn/sz_mmbiz_jpg/M2UTz5flBbTBkfXhOricwJibFnk0ia96y9fHuZCGbOhmpVWjVaHV46VRaUU7KfeiaS5TTicDXeKbyFBkqF4CG23KxZLjXF4RmGcm9zIYwugcDiayc/640?wx_fmt=jpeg&amp;watermark=1&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1#imgIndex=9\" /></p><p>这款小程序最初只是为我个人打造的记账礼簿工具，自测完成后，我先是分享给了身边的亲友们试用，大家的反馈体验都还不错的。现在临时开放一段时间，欢迎各位博友扫码体验试用，使用中如果遇到问题，或是有功能优化的想法，欢迎提出宝贵意见。</p><blockquote>题外话：有实际使用需求的友友，如果需要这套小程序源码，我可以无偿分享。</blockquote><h2>近况</h2><p>最近的日子过得平淡又规律，每天都是两点一线的简单节奏：上班、下班、吃饭、睡觉，日复一日，没有什么特别的波澜，安稳又踏实。</p><p>因为媳妇爷爷的生日快到了，所以昨天特意调休了一天，专程赶回去给老人祝寿。白天趁着天气晴朗，我和老丈人、二叔、大爸、二爸她们一起下地去收包谷。天上的太阳格外毒辣，整个人穿梭在闷热的包谷林里，又闷又热，包谷叶划过脸颊，体验感可以说十分“酸爽”。一整天下来，不停地打包谷、背包谷、撕包谷壳，手脚一直没停过。</p><p>一直忙到天色完全变黑，我们匆匆吃完晚饭，给爷爷过完生日，才启程返程。到家的时候已经是夜里十一点左右，整整一天的农活，累得浑身精疲力尽。简单冲了个热水澡，倒头就睡，好好缓解了一身的疲惫。</p><p>日常平淡之余，我最近迷上了研究各类实用小工具，闲来无事就折腾代码、写一些自用的小程序。没有盲目跟风的开发，只为了做自己真正用得上、够实用的功能，这次分享的记账礼簿小程序，就是折腾出来的成果之一了罢，纯粹是为了方便自己日常使用。</p><p>生活里也顺带发生了一件特别搞笑的尴尬小事。我们公司办公室的电脑一直是我专用，我习惯性设置了屏幕权限。昨天我休息不在岗，替班的同事打开电脑，屏幕一直是黑屏状态，他误以为电脑坏了，一整天都没能使用我这台电脑。最后连我们老大都专门打电话问我，是不是电脑出了什么故障，让我回来以后抽空拿去检修，当时真的把我笑坏了。</p><p>也是昨晚从爷爷家返程时，我顺路回了公司，把这台电脑带回家。隔天开机一切正常，所谓的“电脑故障”，不过是我设置权限闹出的乌龙罢了。</p><p>如今一切回归正轨，又开启了熟悉的工作日常。按时上班、好好吃饭、偶尔摸鱼放松，闲暇时间继续折腾自己喜欢的小东西。普普通通的日子虽然平平无奇，但充实又自在，也许，这就是最好的生活状态了吧。</p>",
+    "published": "2026-09-10T03:23:00Z",
+    "feed_title": "刘郎阁",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-10T20:41:49.406640+00:00",
+    "content_length": 6229
   }
 ]
