@@ -10013,18 +10013,6 @@
     "content_length": 11
   },
   {
-    "guid": "ca5a9da1e21ba74b",
-    "title": "GLM-5.3-Flash：中国芯片上的 320B 前沿模型，与 Qwen/DeepSeek 的架构合流",
-    "link": "https://libuyan.top/posts/glm-5.3-flash/",
-    "author": "",
-    "content": "2026 年 8 月 26 日，智谱发布 GLM-5.3-Flash：320B 总参数、18B 激活的原生多模态模型，MIT 协议开源，1M 上下文，并在国产 AI 芯片集群上规模化服务。与同周发布的 Qwen3.8-Flash-Next、DeepSeek-V4-Flash 对照，三家在架构上殊途同归：混合注意力、状态压缩、更小的激活参数。",
-    "published": "2026-08-27T02:30:00Z",
-    "feed_title": "李不言的博客",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-27T08:40:07.832964+00:00",
-    "content_length": 171
-  },
-  {
     "guid": "3a09975c7e399851",
     "title": "人不知而不愠",
     "link": "https://kaix.in/2026/0827/",
@@ -10253,18 +10241,6 @@
     "content_length": 14
   },
   {
-    "guid": "4e390adf7c5d5763",
-    "title": "缓存复仇记：挡在我完美缓存前面的，是那个更傻的缓存",
-    "link": "https://styunlen.cn/archives/post-1838.html",
-    "author": "Styunlen",
-    "content": "<blockquote class=\"wp-block-quote is-layout-flow wp-block-quote-is-layout-flow\">\n<p class=\"wp-block-paragraph\">前三篇我吹了多少牛，这一篇就要打多少脸。<br />我给缓存装了自动补货员、分了保质期、配了用户专属储物柜——然后发现货架上摆的全是过期面包，而补货员，根本没被叫醒过。</p>\n\n\n<div class=\"wp-block-image\">\n<figure class=\"aligncenter size-large\"><img alt=\"\" class=\"wp-image-1839\" height=\"819\" src=\"https://styunlen.cn/wp-content/uploads/2026/08/1787765316-warehouse-door-lazy-security-guard-saying-in-stock-while-shelves-behind-him-are-full-of-stale-bread-funny-cartoon-1024x819.png\" width=\"1024\" /></figure>\n</div></blockquote>\n\n\n\n<hr class=\"wp-block-separator has-alpha-channel-opacity\" />\n\n\n\n<h2 class=\"wp-block-heading\">🤯 开场：先讲讲我这一路是怎么“膨胀”的</h2>\n\n\n\n<p class=\"wp-block-paragraph\">第 2 篇结尾，LruLink 上线，缓存会自己补货，我志得意满。</p>\n\n\n\n<p class=\"wp-block-paragraph\">第 3 篇结尾，吉祥物会游泳了，页面切换丝滑了，我感觉自己已经是博客界的架构师。</p>\n\n\n\n<p class=\"wp-block-paragraph\">然后第 4 篇，现实给我上了一课——<strong>这一课的名字叫 InMemoryCache。</strong></p>\n\n\n\n<p class=\"wp-block-paragraph\">但在讲这个大坑之前，得先交代一个“前菜”：为了让页面切换丝滑，我做了一次 SPA 化改造，里面有两个非常精彩的翻车瞬间，值得先聊聊。</p>\n\n\n\n<hr class=\"wp-block-separator has-alpha-channel-opacity\" />\n\n\n\n<h2 class=\"wp-block-heading\">🚀 前菜：ClientRouter——两个被否决的方案，各有各的精彩</h2>\n\n\n\n<p class=\"wp-block-paragraph\">为了让博客页面切换像 SPA（单页应用，切换不刷新整页）一样丝滑，我调研了 Astro 的页面过渡方案。候选有两个：<strong>Astro 原生 ClientRouter</strong> 和第三方 <strong>swup</strong>（一个很流行的页面过渡库）。</p>\n\n\n\n<h3 class=\"wp-block-heading\">翻车 A：swup——“别家的方案，不适合我家架构”</h3>\n\n\n\n<p class=\"wp-block-paragraph\">swup 很好，文档漂亮、生态成熟，知名 Astro 主题 Fuwari 就用它。而且它其实<strong>可以配置替换哪些部分</strong>——通过 <code>containers</code> 选项指定范围，甚至能用 <code>morph</code> 保留一些元素。但它和我的架构<strong>八字不合</strong>：</p>\n\n\n\n<p class=\"wp-block-paragraph\">我的全站内容都在同一个 React 组件（LayoutShell，就是页面骨架）里包着——侧边栏、顶栏、正文全是它管的。问题来了：swup 是<strong>框架无关的 DOM 替换工具，它不认识 React</strong>。我只有一个“骨架”组件，无论 swup 替换哪一块，都会撞上同一个矛盾——</p>\n\n\n\n<blockquote class=\"wp-block-quote is-layout-flow wp-block-quote-is-layout-flow\">\n<p class=\"wp-block-paragraph\">替换少了：骨架组件还活着，但它内部的状态（比如“我现在在哪个页面”）不会跟着更新，侧边栏永远以为自己在首页。<br />替换多了：把骨架整个换掉，那 React 组件树整个重建，登录状态、看板娘位置、侧栏开关全丢了。</p>\n</blockquote>\n\n\n\n<p class=\"wp-block-paragraph\">而 Astro 原生 ClientRouter 是<strong>整个页面连同骨架一起替换，用新页面的数据重新渲染</strong>——它懂 React 岛（页面上的组件）该怎么拆、怎么装，天然解决这个问题。</p>\n\n\n\n<blockquote class=\"wp-block-quote is-layout-flow wp-block-quote-is-layout-flow\">\n<p class=\"wp-block-paragraph\">结论：不是 swup 不好，是它不适合“全家都住在一个屋檐下”的结构。<br />方案没有好坏，只有合不合身。</p>\n</blockquote>\n\n\n\n<h3 class=\"wp-block-heading\">翻车 B：transition:persist——“保留过头了”</h3>\n\n\n\n<p class=\"wp-block-paragraph\">ClientRouter 有个指令叫 <code>transition:persist</code>（跨页保留组件状态，让页面切换不重置）。我想给整个 LayoutShell 加上，这样看板娘位置、侧栏开关都能保留。</p>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>实测翻车了</strong>：</p>\n\n\n\n<pre class=\"wp-block-code\"><code>URL 变了 ✅  标题变了 ✅  正文……还是上一页的 ❌❌❌</code></pre>\n\n\n\n<p class=\"wp-block-paragraph\">原因：<code>transition:persist</code> 是“保留旧 DOM 元素”，而 LayoutShell <strong>包裹着页面内容</strong>——内容也被“保留”了。就像你想把相框从墙上取下来换照片，结果相框和旧照片一起被“保留”，新照片塞不进去。</p>\n\n\n\n<blockquote class=\"wp-block-quote is-layout-flow wp-block-quote-is-layout-flow\">\n<p class=\"wp-block-paragraph\">教训：persist 适合独立的元素（比如一个播放器），<strong>不适合包裹内容的容器</strong>。</p>\n</blockquote>\n\n\n\n<p class=\"wp-block-paragraph\">最后方案：LayoutShell 不 persist，看板娘位置单独用 sessionStorage（浏览器会话存储）持久化——同一个目标，更精准的手段。</p>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>（这两个翻车属于“前菜”，真正的硬菜在下面。）</strong></p>\n\n\n\n<hr class=\"wp-block-separator has-alpha-channel-opacity\" />\n\n\n\n<h2 class=\"wp-block-heading\">🐒 离谱报错现场：改完了，页面就是不更新</h2>\n\n\n\n<p class=\"wp-block-paragraph\">时间回到缓存之战。</p>\n\n\n\n<p class=\"wp-block-paragraph\">我在 WordPress 后台编辑了一篇叫「分页测试」的文章——这是一篇多页文章，用 <code>&lt;!--nextpage--&gt;</code> 分页符切成好几页。改完之后，我信心满满地刷新页面——<strong>等等，怎么还是旧内容？</strong></p>\n\n\n\n<p class=\"wp-block-paragraph\">我看了眼 LruLink 的配置：文章查询 TTL（缓存保质期）30 秒。<strong>我刷新了 90 秒，每 5 秒一次，页面纹丝不动。</strong></p>\n\n\n\n<p class=\"wp-block-paragraph\">30 秒 TTL 过期了，它不更新。60 秒，不更新。90 秒，还是不更新。</p>\n\n\n\n<p class=\"wp-block-paragraph\">我当时的心态：</p>\n\n\n\n<pre class=\"wp-block-code\"><code>TTL=30s：过期后应该强制去拿新的！\n实际：过期后……照样给你旧的。</code></pre>\n\n\n\n<p class=\"wp-block-paragraph\">而且更诡异的是：WP 后台明明显示已经改好了。</p>\n\n\n\n<blockquote class=\"wp-block-quote is-layout-flow wp-block-quote-is-layout-flow\">\n<p class=\"wp-block-paragraph\">那一刻我意识到：这不是“缓存还没过期”的问题，是<strong>有东西在缓存前面拦截</strong>。</p>\n</blockquote>\n\n\n\n<hr class=\"wp-block-separator has-alpha-channel-opacity\" />\n\n\n\n<h2 class=\"wp-block-heading\">🔍 福尔摩斯式排查：五步 bisection，锁定真凶</h2>\n\n\n\n<p class=\"wp-block-paragraph\">排查这种“数据到底在哪一层卡住了”的问题，最有效的方法是<strong>分层排除法（bisection）</strong>——像剥洋葱一样，一层层验证“这一层给的是不是最新数据”。</p>\n\n\n\n<p class=\"wp-block-paragraph\">我连测了五层：</p>\n\n\n\n<div class=\"wp-block-columns is-layout-flex wp-container-core-columns-is-layout-8f761849 wp-block-columns-is-layout-flex\">\n<div class=\"wp-block-column is-vertically-aligned-center is-layout-flow wp-block-column-is-layout-flow\">\n<figure class=\"wp-block-table\"><table class=\"has-fixed-layout\"><thead><tr><th>步骤</th><th>测什么</th><th>结果</th></tr></thead><tbody><tr><td>①</td><td>直连 WordPress GraphQL（签名查询）</td><td>✅ <strong>最新</strong></td></tr><tr><td>②</td><td>本地代理层 <code>/api/graphql-proxy</code>（绕过 LruLink）</td><td>✅ <strong>最新</strong></td></tr><tr><td>③</td><td>本地页面 <code>/分页测试</code>（经过 LruLink）</td><td>❌ <strong>旧版</strong></td></tr><tr><td>④</td><td>独立进程（vitest 测试环境，全新内存）查同一数据</td><td>✅ <strong>最新</strong></td></tr><tr><td>⑤</td><td><strong>重启 dev 进程（清空进程内缓存）后首次请求</strong></td><td>✅ <strong>立即最新</strong></td></tr></tbody></table></figure>\n</div>\n\n\n\n<div class=\"wp-block-column is-vertically-aligned-center is-layout-flow wp-block-column-is-layout-flow\"><div class=\"wp-block-image\">\n<figure class=\"aligncenter size-large\"><img alt=\"\" class=\"wp-image-1840\" height=\"1024\" src=\"https://styunlen.cn/wp-content/uploads/2026/08/1787765462-onion-peeling-diagram-with-5-layers-some-marked-green-check-middle-layer-marked-red-x-technical-illustration-1024x1024.png\" width=\"1024\" /></figure>\n</div></div>\n</div>\n\n\n\n<p class=\"wp-block-paragraph\">五步结果一摆，真相浮出水面：</p>\n\n\n\n<ul class=\"wp-block-list\">\n<li><strong>数据源（WP、代理）一直是最新的</strong> —— 不是上游问题</li>\n\n\n\n<li><strong>独立进程拿到的也是最新的</strong> —— LruLink 算法本身没问题</li>\n\n\n\n<li><strong>重启进程就好了</strong> —— 问题在<strong>长驻进程的内存里</strong></li>\n</ul>\n\n\n\n<p class=\"wp-block-paragraph\">凶手不是 LruLink，是<strong>住在它前面的一层缓存</strong>。</p>\n\n\n\n<hr class=\"wp-block-separator has-alpha-channel-opacity\" />\n\n\n\n<h2 class=\"wp-block-heading\">💡 灵光乍现：探针抓现行——3 次请求只放行了 1 次</h2>\n\n\n\n<p class=\"wp-block-paragraph\">锁定方向后，我写了个“探针”（一个临时测试脚本），给 LruLink 的入口装了个计数器，看它到底被调用了多少次：</p>\n\n\n\n<div class=\"wp-block-columns is-layout-flex wp-container-core-columns-is-layout-8f761849 wp-block-columns-is-layout-flex\">\n<div class=\"wp-block-column is-vertically-aligned-center is-layout-flow wp-block-column-is-layout-flow\"><div class=\"wp-block-image\">\n<figure class=\"aligncenter size-large\"><img alt=\"\" class=\"wp-image-1841\" height=\"683\" src=\"https://styunlen.cn/wp-content/uploads/2026/08/1787765544-small-debug-counter-window-showing-3-requests-but-only-1-passed-through-pixel-art-debugging-scene-1024x683.png\" width=\"1024\" /></figure>\n</div></div>\n\n\n\n<div class=\"wp-block-column is-vertically-aligned-center is-layout-flow wp-block-column-is-layout-flow\">\n<pre class=\"wp-block-code\"><code>// 探针：3 次 getQuery(GetPost)，LruLink 被调用了几次？\nconst lruCalls = &#91;];\nlruLink.request = (op, fwd) =&gt; {\n  lruCalls.push(op.operationName);   // 记录每次到达 LruLink 的请求\n  return origRequest(op, fwd);\n};\n\nawait getQuery(GetPost, vars);   // 第 1 次\nawait getQuery(GetPost, vars);   // 第 2 次\nawait getQuery(GetPost, vars);   // 第 3 次\n\nconsole.log(lruCalls);  // 结果：&#91;\"GetPost\"] —— 只进来 1 次！！</code></pre>\n</div>\n</div>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>铁证</strong>：3 次请求，只有第 1 次到达了 LruLink。第 2、3 次<strong>被更前面的东西直接吃掉了</strong>。</p>\n\n\n\n<p class=\"wp-block-paragraph\">那个“更前面的东西”就是 <strong>Apollo 的 InMemoryCache</strong>（Apollo 客户端自带的内存缓存），它是我在项目早期用 <code>cache-first</code>（缓存优先）配置的，作用是“同一次请求重复访问直接返回缓存”。</p>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>问题就在这</strong>：</p>\n\n\n\n<ul class=\"wp-block-list\">\n<li>我的代码给文章查询显式传了 <code>fetchPolicy: \"network-only\"</code>（绕过缓存直达网络）——<strong>以为</strong>这样 LruLink 一定能被调用</li>\n\n\n\n<li>但项目创建 ApolloClient 时开了 <strong><code>ssrMode: true</code></strong>（服务端渲染模式）——这触发了 Apollo 的一个隐藏机制：<strong><code>prioritizeCacheValues</code>（缓存优先）</strong>（<a href=\"https://www.apollographql.com/docs/react/performance/server-side-rendering/#initializing-apollo-client\">官方文档：ssrMode 下优先使用缓存值</a>）</li>\n\n\n\n<li>这个机制会<strong>静默地把 <code>network-only</code> 和 <code>cache-and-network</code> 强制转成 <code>cache-first</code></strong>——不是 defaultOptions 覆盖，而是 Apollo 在 QueryManager 内部做的策略转换</li>\n\n\n\n<li>于是：第 1 次请求走全链路（缓存 + 网络），<strong>后面所有请求都被 InMemoryCache 直接命中返回</strong>，LruLink 根本轮不到执行</li>\n</ul>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>而 InMemoryCache 是进程内存，没有 TTL、没有任何清理逻辑。</strong></p>\n\n\n\n<blockquote class=\"wp-block-quote is-layout-flow wp-block-quote-is-layout-flow\">\n<p class=\"wp-block-paragraph\">翻译成人话：<br />我给仓库（LruLink）配了自动补货员（SWR 刷新）、分了保质期（TTL）……<br />但仓库门口有个<strong>更傻的仓库管理员</strong>（InMemoryCache），他永远不开门，永远指着货架说“有货有货”。<br />而他指的货，是<strong>几周前</strong>的存货。</p>\n</blockquote>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>为什么 <code>no-cache</code> 是唯一解</strong>：Apollo 的缓存优先转换<strong>只处理 <code>network-only</code> 和 <code>cache-and-network</code>，不碰 <code>no-cache</code></strong>——所以无论显式传还是设为默认，<code>no-cache</code> 都是唯一能在 <code>ssrMode</code> 下真正穿透到 LruLink 的策略。（<a href=\"https://www.apollographql.com/docs/react/data/queries/#supported-fetch-policies\">官方文档：支持的 fetchPolicy 一览</a>）</p>\n\n\n\n<hr class=\"wp-block-separator has-alpha-channel-opacity\" />\n\n\n\n<h2 class=\"wp-block-heading\">🎉 人类战胜机器：一把钥匙开两把锁</h2>\n\n\n\n<p class=\"wp-block-paragraph\">根因清楚了，修复方案反而很克制——<strong>问题出在 <code>fetchPolicy</code> 与 <code>ssrMode</code> 的组合</strong>：</p>\n\n\n\n<figure class=\"wp-block-table\"><table class=\"has-fixed-layout\"><thead><tr><th>策略</th><th>绕过读取</th><th>ssrMode 下的结局</th><th>效果</th></tr></thead><tbody><tr><td><code>cache-first</code>（原默认）</td><td>❌</td><td>被 InMemoryCache 命中短路</td><td>第 2 次起被内存缓存吃掉</td></tr><tr><td><code>network-only</code>（原来写的）</td><td>✅</td><td><strong>被 prioritizeCacheValues 静默转成 cache-first</strong></td><td>名义上绕过，实际照样被吞</td></tr><tr><td><strong><code>no-cache</code>（最终方案）</strong></td><td>✅</td><td><strong>不在转换名单里</strong></td><td><strong>每次都走到 LruLink，让 LruLink 自己判断</strong></td></tr></tbody></table></figure>\n\n\n<div class=\"wp-block-image\">\n<figure class=\"aligncenter size-large\"><img alt=\"\" class=\"wp-image-1842\" height=\"512\" src=\"https://styunlen.cn/wp-content/uploads/2026/08/1787765595-three-ui-buttons-two-greyed-out-one-glowing-green-labeled-no-cache-selected-minimalist-1024x512.png\" width=\"1024\" /></figure>\n</div>\n\n\n<p class=\"wp-block-paragraph\">关键洞察：<code>network-only</code> 虽然在文档语义上“绕过缓存直达网络”，但在 <code>ssrMode: true</code> 下会被 Apollo 的缓存优先机制<strong>静默降级成 <code>cache-first</code></strong>——所以它从来就没真正生效过。而 <code>no-cache</code> 不在这个转换名单里，是唯一能真正穿透的策略。</p>\n\n\n\n<p class=\"wp-block-paragraph\">修复就两行：</p>\n\n\n\n<pre class=\"wp-block-code\"><code>// api.ts —— 全局默认改成 no-cache，让 LruLink 成为唯一缓存层\ndefaultOptions: {\n  query: { fetchPolicy: \"no-cache\" },\n},\n\n// 文章查询同样改成 no-cache（原来是 network-only）\nfetchPolicy: \"no-cache\",</code></pre>\n\n\n\n<p class=\"wp-block-paragraph\">修复后再跑探针：</p>\n\n\n\n<pre class=\"wp-block-code\"><code>修复前：&#91;\"GetPost\"]            ← 3 次只放行 1 次\n修复后：&#91;\"GetPost\",\"GetPost\",\"GetPost\"]   ← 3 次全部到达 ✅</code></pre>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>副作用修复</strong>：连带着发现首页列表（HomePosts）、随机推荐（RandomPosts）也用了 <code>network-only</code>——它们同样被 <code>ssrMode</code> 的缓存优先转换吞掉，TTL 一直是死代码。一起改成 <code>no-cache</code> 后，它们的 TTL 才真正活过来。</p>\n\n\n\n<p class=\"wp-block-paragraph\">最后，我补了<strong>回归测试</strong>——专门验证“每次请求都到达 LruLink”。为了确认测试真的有效，我故意把配置改回 <code>cache-first</code>，<strong>4 个测试立刻变红</strong>；改回来，全绿。</p>\n\n\n\n<blockquote class=\"wp-block-quote is-layout-flow wp-block-quote-is-layout-flow\">\n<p class=\"wp-block-paragraph\">这套测试的哲学：<strong>未来的我（或未来的同事）如果手滑改回 cache-first，测试会第一时间跳出来喊“你又在门口建了个傻管理员！”</strong></p>\n</blockquote>\n\n\n\n<hr class=\"wp-block-separator has-alpha-channel-opacity\" />\n\n\n\n<h2 class=\"wp-block-heading\">📌 番外：这里其实藏着一个“架构选择”的故事</h2>\n\n\n<div class=\"wp-block-image\">\n<figure class=\"aligncenter size-large\"><img alt=\"\" class=\"wp-image-1843\" height=\"683\" src=\"https://styunlen.cn/wp-content/uploads/2026/08/1787765721-side-by-side-shared-warehouse-vs-individual-lockers-labeled-official-recommendation-vs-my-approach-cartoon-1024x683.png\" width=\"1024\" /></figure>\n</div>\n\n\n<p class=\"wp-block-paragraph\">排查到这个根因时，我又翻到了 Apollo 官方 SSR 文档里的一句警告（<a href=\"https://www.apollographql.com/docs/react/performance/server-side-rendering/#initializing-apollo-client\">server-side-rendering · Initializing Apollo Client</a>）：</p>\n\n\n\n<blockquote class=\"wp-block-quote is-layout-flow wp-block-quote-is-layout-flow\">\n<p class=\"wp-block-paragraph\">It's important to create an <em>entirely new instance</em> of Apollo Client for each request. Otherwise, your response to a request might include sensitive cached query results from a previous request.</p>\n\n\n\n<p class=\"wp-block-paragraph\">翻译成人话：SSR 时应该<strong>每个请求都新建 ApolloClient 实例</strong>，否则前一个请求的缓存数据可能泄漏给下一个请求。</p>\n</blockquote>\n\n\n\n<p class=\"wp-block-paragraph\">而我的项目用的是<strong>模块级单例</strong>（一个 <code>ApolloClient</code> 全程共享）。所以理论上我踩了官方红线。</p>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>但为什么我没踩出事？</strong> 因为这个警告针对的是 InMemoryCache——它会在实例里跨请求保留数据。而我的项目里 InMemoryCache <strong>已经被 <code>no-cache</code> 彻底架空</strong>（读和写都被禁止）——它只是个“满足构造函数要求的摆设”。</p>\n\n\n\n<p class=\"wp-block-paragraph\">真正的跨请求缓存是 <strong>LruLink</strong>，而它是<strong>故意</strong>做成进程级共享的。这个决定写在项目文档（ADR-0024）里，原话是“不做 per-request client，YAGNI”——YAGNI 是“You Aren't Gonna Need It”的缩写，意思是你现在用不上就别提前造，别为想象中的需求过度设计。它做了三件事来规避串数据：</p>\n\n\n\n<ol class=\"wp-block-list\">\n<li><strong>用户隔离</strong>：缓存 key 里带登录 token 的哈希，A 用户和 B 用户各存各的</li>\n\n\n\n<li><strong>TTL 上限</strong>：每类数据有保质期，过期自动换新</li>\n\n\n\n<li><strong>容量上限</strong>：1000 条 LRU，超出淘汰最久不用的</li>\n</ol>\n\n\n\n<blockquote class=\"wp-block-quote is-layout-flow wp-block-quote-is-layout-flow\">\n<p class=\"wp-block-paragraph\">官方的“每请求一个实例”是<strong>防 InMemoryCache 串数据</strong>的通用方案；<br />我的“单例 + no-cache + LruLink 隔离”是<strong>用缓存 key 做隔离</strong>的定制方案。<br />殊途同归，但后者还白赚了跨请求缓存的性能。</p>\n</blockquote>\n\n\n\n<p class=\"wp-block-paragraph\">这个取舍写在 ADR-0024 里。如果你也想用 Apollo + SSR，建议先想清楚：<strong>你的缓存归谁管？</strong> 是 InMemoryCache（那就乖乖每请求新建实例），还是一个像 LruLink 这样自己有隔离机制的自定义层（那单例也安全）。</p>\n\n\n\n<hr class=\"wp-block-separator has-alpha-channel-opacity\" />\n\n\n\n<h2 class=\"wp-block-heading\">🔮 结尾：这一系列的最后一张拼图</h2>\n\n\n\n<p class=\"wp-block-paragraph\">15 天重构，4 篇文章，到这里讲完了：</p>\n\n\n\n<ol class=\"wp-block-list\">\n<li><strong>第 1 篇</strong>：为什么重写、ADR 文化、浏览量计数、安全四连</li>\n\n\n\n<li><strong>第 2 篇</strong>：GraphQL 合并、静默 100 条、LruLink 缓存</li>\n\n\n\n<li><strong>第 3 篇</strong>：Live2D 幻觉、看板娘、游泳系统</li>\n\n\n\n<li><strong>第 4 篇</strong>：ClientRouter 两个翻车 + <strong>缓存之战（压轴）</strong></li>\n</ol>\n\n\n\n<p class=\"wp-block-paragraph\">最后的最后，留几个<strong>未完待续</strong>的坑（诚实交代）：</p>\n\n\n\n<ul class=\"wp-block-list\">\n<li><strong>生产环境验证还没做</strong>：缓存修复在本地验证充分，但线上“修改后 30s 内自动翻新”还需要真实发布验证（受限当时没法操作线上页面）</li>\n\n\n\n<li><strong>pm2 集群是个雷</strong>：进程内缓存每进程独立，如果以后开多进程部署，缓存会互不相通（已记进文档，未来再说）</li>\n\n\n\n<li><strong>看板娘还在等着开口</strong>：代码里留了个 TODO——“未来气泡功能入口”，它想和你聊天</li>\n</ul>\n\n\n\n<blockquote class=\"wp-block-quote is-layout-flow wp-block-quote-is-layout-flow\">\n<p class=\"wp-block-paragraph\">我构建了一个完美的缓存层，然后发现一个更傻的缓存挡在它前面。<br />我修好了它，还写了测试防止它复发。<br />这就是写博客的意义：<strong>不折腾，你永远不知道自己有多天真。</strong></p>\n</blockquote>",
-    "published": "2026-08-27T01:36:00Z",
-    "feed_title": "九仞之行",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-28T22:04:39.884694+00:00",
-    "content_length": 15278
-  },
-  {
     "guid": "17c78115f99702d6",
     "title": "Chrome标签页开太多导致闪退怎么办？4个设置解决卡死崩溃",
     "link": "https://www.wangdu.site/course/2383.html",
@@ -10275,30 +10251,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-28T22:04:39.884694+00:00",
     "content_length": 3430
-  },
-  {
-    "guid": "238ba15512d16522",
-    "title": "TikHub：社交媒体数据API平台，支持TikTok、抖音、小红书等16个平台",
-    "link": "https://www.wangdu.site/software/ai/2382.html",
-    "author": "斌仔",
-    "content": "<p>TikHub 是一个面向开发者、AI Agent 和数据分析人员的社交媒体数据 API 平台，可以通过统一接口获取 <a href=\"https://www.wangdu.site/tag/tiktok\" target=\"_blank\" title=\"【查看含有[TikTok]标签的文章】\">TikTok</a>、<a href=\"https://www.wangdu.site/tag/%e6%8a%96%e9%9f%b3\" target=\"_blank\" title=\"【查看含有[抖音]标签的文章】\">抖音</a>、<a href=\"https://www.wangdu.site/tag/%e5%b0%8f%e7%ba%a2%e4%b9%a6\" target=\"_blank\" title=\"【查看含有[小红书]标签的文章】\">小红书</a>、Instagram、YouTube、Twitter/X、Bilibili、微博等平台的公开视频、用户、评论、搜索和趋势数据。</p>\n<p>目前 TikHub 已覆盖 <strong>16个社交平台、1000+ API接口</strong>，除了传统 API 调用，还提供 MCP、Chrome 扩展和数据集服务，比较适合做社交媒体分析、竞品监测、内容研究和 AI Agent 数据接入。</p>\n<p><figure class=\"image ss-img-wrapper\"><img alt=\"TikHub：社交媒体数据API平台，支持TikTok、抖音、小红书等16个平台\" class=\"lozad content-img\" src=\"https://cdn.wwkejishe.top/wp-cdn-02/2026/20260826154919389.webp\" /><figcaption>TikHub：社交媒体数据API平台，支持TikTok、抖音、小红书等16个平台</figcaption></figure></p>\n<h2>一、TikHub是什么？</h2>\n<p>TikHub 是一个专门提供社交媒体公开数据接口的平台。</p>\n<p>正常情况下，如果开发者想同时获取 TikTok、小红书、抖音和 Instagram 数据，需要分别研究不同平台的数据结构、请求方式和接口变化。</p>\n<p>TikHub 将这些能力进行了统一封装。</p>\n<p>用户获得 API Key 后，可以通过接口直接获取结构化 JSON 数据，再接入自己的：</p>\n<ul>\n<li>数据分析系统</li>\n<li>AI Agent</li>\n<li>自动化工作流</li>\n<li>舆情监测平台</li>\n<li>内容分析工具</li>\n<li>市场研究系统</li>\n</ul>\n<p>简单来说，它解决的是：</p>\n<p><strong>让程序和 AI 更方便地读取多个社交媒体平台的公开数据。</strong></p>\n<h2>二、功能特征</h2>\n<p><strong>支持16个社交平台</strong></p>\n<p>目前 TikHub 官网显示已经覆盖16个主要社交媒体平台，包括：</p>\n<ul>\n<li>TikTok</li>\n<li>抖音</li>\n<li>小红书</li>\n<li>Instagram</li>\n<li>YouTube</li>\n<li>Twitter / X</li>\n<li>Bilibili</li>\n<li>微博</li>\n<li>快手</li>\n<li>微信</li>\n<li>Lemon8</li>\n<li>知乎</li>\n<li>Reddit</li>\n<li>LinkedIn</li>\n</ul>\n<p>以及其他相关平台。</p>\n<p><strong>1000+ API接口</strong></p>\n<p>不同平台下面还会继续细分视频、用户、评论、搜索、直播、排行榜、电商等接口。</p>\n<p>例如可以获取：</p>\n<ul>\n<li>视频详情</li>\n<li>用户资料</li>\n<li>播放量</li>\n<li>点赞量</li>\n<li>评论</li>\n<li>搜索结果</li>\n<li>热门内容</li>\n<li>用户作品</li>\n<li>直播数据</li>\n<li>商品和创作者数据</li>\n</ul>\n<p><strong>结构化JSON返回</strong></p>\n<p>接口返回的数据已经进行了结构化处理，开发者不需要再自己解析复杂的网页内容。</p>\n<p><strong>支持MCP</strong></p>\n<p>TikHub 还提供 MCP Server，可以把社交媒体数据能力直接接入 Claude、Cursor、Cline 等支持 MCP 的 AI 工具。</p>\n<p>配置完成以后，可以直接通过自然语言告诉 AI：</p>\n<blockquote>\n<p>帮我分析这个 TikTok 账号最近的视频表现。</p>\n</blockquote>\n<p>AI 就可以调用对应工具读取真实公开数据，再完成分析。</p>\n<p><strong>Chrome浏览器扩展</strong></p>\n<p>TikHub 还提供浏览器扩展，可以在浏览 TikTok、抖音、Instagram、Twitter/X 和 Bilibili 时直接查看和分析相关数据。</p>\n<p><strong>提供数据集</strong></p>\n<p>除了实时 API，TikHub 还提供适合 AI 训练和大规模研究的数据集，可以获取 CSV、JSON、JSONL、Parquet 等格式的数据。</p>\n<h2>三、操作指南</h2>\n<p>TikHub 主要面向开发者，基本使用流程如下：</p>\n<ol>\n<li>打开 TikHub 官网：<a class=\"content-link\" href=\"https://www.wangdu.site/?golink=aHR0cHM6Ly91c2VyLnRpa2h1Yi5pby9yZWdpc3Rlcj9yZWY9aEhQeGpqcTI=\" rel=\"nofollow\" target=\"_blank\">https://tikhub.io/</a>。</li>\n<li>注册并登录账号。</li>\n<li>获取自己的 API Key。</li>\n<li>打开 API 文档。</li>\n<li>选择需要的数据平台。</li>\n<li>找到对应接口。</li>\n<li>填写视频ID、用户名、关键词等参数。</li>\n<li>使用 API Key 发起请求。</li>\n<li>获取 JSON 格式返回结果。</li>\n</ol>\n<p>例如需要获取 TikTok 视频数据时，可以调用对应的视频详情接口。</p>\n<p>如果不会自己编写程序，也可以直接使用：</p>\n<p><strong>TikHub MCP + Claude / Cursor</strong></p>\n<p>让 AI 帮助调用接口和整理数据。</p>\n<p>需要注意，不要把自己的 API Key 直接公开到 GitHub、网页代码或者公开聊天记录中。</p>\n<h2>四、支持平台</h2>\n<p>TikHub 本身属于云端 API 服务，因此并不限制在某一种操作系统中。</p>\n<figure class=\"table-container\"><table>\n<thead>\n<tr>\n<th>使用方式</th>\n<th>支持情况</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Python</td>\n<td>支持</td>\n</tr>\n<tr>\n<td>JavaScript</td>\n<td>支持</td>\n</tr>\n<tr>\n<td>cURL</td>\n<td>支持</td>\n</tr>\n<tr>\n<td>Java</td>\n<td>支持</td>\n</tr>\n<tr>\n<td>C / C++</td>\n<td>支持</td>\n</tr>\n<tr>\n<td>MCP</td>\n<td>支持</td>\n</tr>\n<tr>\n<td>Chrome扩展</td>\n<td>支持</td>\n</tr>\n<tr>\n<td>AI Agent</td>\n<td>支持</td>\n</tr>\n</tbody>\n</table></figure>\n<p>只要开发环境能够发送 HTTP 请求，就可以调用 TikHub API。</p>\n<p>因此 Windows、macOS 和 Linux 开发环境都可以使用。</p>\n<h2>五、产品定价</h2>\n<p>TikHub 采用<strong>按实际请求量计费</strong>的方式，而不是固定月费套餐。</p>\n<p>目前大部分基础服务的起始价格为：</p>\n<p><strong>0.001美元/次请求。</strong></p>\n<p>如果接口返回的状态码不是200，官方说明通常不会收取该次请求费用。</p>\n<p>同时每天调用数量越多，对应价格还会获得阶梯折扣：</p>\n<figure class=\"table-container\"><table>\n<thead>\n<tr>\n<th>每日请求量</th>\n<th>折扣</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>0～1000</td>\n<td>无折扣</td>\n</tr>\n<tr>\n<td>1000～5000</td>\n<td>9折</td>\n</tr>\n<tr>\n<td>5000～10000</td>\n<td>8折</td>\n</tr>\n<tr>\n<td>10000～20000</td>\n<td>7折</td>\n</tr>\n<tr>\n<td>20000～30000</td>\n<td>6折</td>\n</tr>\n<tr>\n<td>30000以上</td>\n<td>5折</td>\n</tr>\n</tbody>\n</table></figure>\n<p>部分特殊接口价格会更高，因此不能简单理解成所有 API 都是 0.001 美元一次。</p>\n<p>TikHub 还提供每日签到机制，可以获得免费的账户额度。</p>\n<p>如果只是开发测试或者偶尔获取数据，整体使用成本比较低。</p>\n<h2>六、使用场景</h2>\n<p>TikHub 比较适合以下几类用户：</p>\n<ul>\n<li><strong>开发者</strong>：快速为自己的产品接入社交媒体数据。</li>\n<li><strong>AI Agent开发者</strong>：让AI读取TikTok、小红书、Instagram等真实数据。</li>\n<li><strong>自媒体运营人员</strong>：分析热门视频、账号和内容趋势。</li>\n<li><strong>品牌营销人员</strong>：监测品牌、竞品和社交媒体表现。</li>\n<li><strong>跨境电商团队</strong>：研究TikTok内容、电商趋势和达人数据。</li>\n<li><strong>数据分析人员</strong>：批量获取公开数据建立分析模型。</li>\n<li><strong>AI研究人员</strong>：获取大规模社交媒体数据用于模型研究。</li>\n</ul>\n<p>例如想研究：</p>\n<p><strong>“最近一个月小红书关于AI办公的热门内容有哪些？”</strong></p>\n<p>就可以通过关键词搜索接口获取相关公开数据，再结合 AI 完成分类、总结和趋势分析。</p>\n<h2>七、运作模式</h2>\n<p>TikHub 的工作方式可以简单理解为：</p>\n<p><strong>用户发起API请求 → TikHub获取公开平台数据 → 数据结构化处理 → 返回JSON → 程序或AI继续分析。</strong></p>\n<p>开发者不用自己长期维护不同社交平台复杂的数据获取逻辑，只需要使用统一的 TikHub API。</p>\n<p>如果结合 MCP，流程还可以进一步变成：</p>\n<p><strong>用户自然语言提问 → AI Agent调用TikHub → 获取真实社交数据 → AI分析 → 生成报告。</strong></p>\n<p>因此 TikHub 的核心价值并不只是“提供API”，而是：</p>\n<p><strong>为应用和AI Agent提供统一的社交媒体数据基础设施。</strong></p>\n<p>需要注意，TikHub主要面向公开数据使用。进行数据采集、分析和商业应用时，仍然需要遵守相关平台规则、版权要求以及所在地的数据保护法律。</p>\n<h2>结语</h2>\n<p>如果你的项目需要同时获取 TikTok、抖音、小红书、Instagram、YouTube、微博等多个平台的数据，TikHub 是一个比较方便的 API 聚合平台。</p>\n<p>它目前已经提供：</p>\n<p><strong>16个社交平台、1000+接口、MCP、Chrome扩展以及大规模数据集服务。</strong></p>\n<p>相比自己针对每个平台分别开发和维护数据接口，TikHub 更适合希望快速搭建：</p>\n<p><strong>社交媒体分析、竞品监测、AI Agent、内容研究和营销数据系统</strong></p>\n<p>的开发者和团队。</p>\n<p>对于普通用户来说它可能稍显专业，但对于需要让 AI 获取真实社交媒体数据的人来说，MCP 的加入明显降低了使用门槛。</p>\n<h2>网址</h2>\n<p><a class=\"content-link\" href=\"https://www.wangdu.site/?golink=aHR0cHM6Ly91c2VyLnRpa2h1Yi5pby9yZWdpc3Rlcj9yZWY9aEhQeGpqcTI=\" rel=\"nofollow\" target=\"_blank\">TikHub 官网</a></p>\n<p><a class=\"content-link\" href=\"https://www.wangdu.site/?golink=aHR0cHM6Ly9kb2NzLnRpa2h1Yi5pby8=\" rel=\"nofollow\" target=\"_blank\">TikHub API 文档</a></p>\n<p><a class=\"content-link\" href=\"https://www.wangdu.site/?golink=aHR0cHM6Ly9hcGkudGlraHViLmlvLw==\" rel=\"nofollow\" target=\"_blank\">TikHub API 接口列表</a></p>",
-    "published": "2026-08-27T02:33:38Z",
-    "feed_title": "文武科技柜",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-28T22:04:39.884694+00:00",
-    "content_length": 6171
-  },
-  {
-    "guid": "b24ab82b01f2c955",
-    "title": "DeepSeek Harness：DeepSeek开源AI Agent框架，支持Skills、插件、工具和DSH Desktop桌面版",
-    "link": "https://www.wangdu.site/software/ai/2381.html",
-    "author": "斌仔",
-    "content": "<p><a href=\"https://www.wangdu.site/tag/deepseek\" target=\"_blank\" title=\"【查看含有[DeepSeek]标签的文章】\">DeepSeek</a> <a href=\"https://www.wangdu.site/tag/harness\" target=\"_blank\" title=\"【查看含有[Harness]标签的文章】\">Harness</a> 是 DeepSeek 推出的一款开源 <a href=\"https://www.wangdu.site/tag/ai\" target=\"_blank\" title=\"【查看含有[AI]标签的文章】\">AI</a> <a href=\"https://www.wangdu.site/tag/agent\" target=\"_blank\" title=\"【查看含有[Agent]标签的文章】\">Agent</a> 开发框架，可以让大模型读取文件、执行命令、调用工具、加载 Skills、运行子 Agent，并自动完成复杂任务。</p>\n<p>它最大的特点是 <strong>“Everything is a Plugin，一切皆插件”</strong>，模型、工具、Skills、会话、沙箱、存储、任务循环甚至 UI 都可以自由组合和替换。</p>\n<p>除了官方提供的 Web UI，现在社区还推出了 <strong>DSH Desktop</strong>，将 DeepSeek Harness 封装成 Windows 和 macOS 桌面客户端，不需要手动安装 Node.js 或执行命令，对普通用户更加友好。</p>\n<p><figure class=\"image ss-img-wrapper\"><img alt=\"DeepSeek Harness：DeepSeek开源AI Agent框架，支持Skills、插件、工具和DSH Desktop桌面版\" class=\"lozad content-img\" src=\"https://cdn.wwkejishe.top/wp-cdn-02/2026/20260826165644654.webp\" /><figcaption>DeepSeek Harness：DeepSeek开源AI Agent框架，支持Skills、插件、工具和DSH Desktop桌面版</figcaption></figure></p>\n<h2>一、DeepSeek Harness 是什么？</h2>\n<p>DeepSeek Harness 可以理解成一个专门用于构建和运行 AI Agent 的开源框架。</p>\n<p>普通大模型主要负责：</p>\n<p><strong>理解问题 → 生成答案。</strong></p>\n<p>而 DeepSeek Harness 会进一步给模型增加：</p>\n<ul>\n<li>文件操作</li>\n<li>Shell命令</li>\n<li>工具调用</li>\n<li>Skills</li>\n<li>沙箱</li>\n<li>工作区</li>\n<li>会话</li>\n<li>子Agent</li>\n<li>任务调度</li>\n</ul>\n<p>最终形成：</p>\n<p><strong>Agent = 大模型 + Harness执行环境。</strong></p>\n<p>例如让 AI 修复一个代码项目，它不仅可以告诉你哪里可能有问题，还能够读取代码、搜索文件、运行测试、修改内容，并根据执行结果继续完成任务。</p>\n<p>目前 DeepSeek Harness 仍属于开发者预览阶段，更适合 AI Agent 开发、研究和尝鲜使用。</p>\n<h2>二、功能特征</h2>\n<p><strong>一切皆插件</strong></p>\n<p>DeepSeek Harness 最核心的设计就是插件化。</p>\n<p>包括模型、工具、Skills、会话、沙箱、存储、Agent循环、调度和 UI，都可以通过插件扩展。</p>\n<p><strong>支持Skills</strong></p>\n<p>可以为 Agent 安装不同 Skill，让 AI 根据任务加载对应的专业工作流。</p>\n<p>例如：</p>\n<ul>\n<li>SEO写作Skill</li>\n<li>数据分析Skill</li>\n<li>代码审查Skill</li>\n<li>自动化测试Skill</li>\n<li>文件处理Skill</li>\n</ul>\n<p>同一个 Agent 可以通过不同 Skills 完成完全不同的工作。</p>\n<p><strong>支持文件和Shell操作</strong></p>\n<p>Harness 可以让 AI 读取和修改本地工作区文件，并执行 Shell 命令，因此非常适合编程、项目维护和自动化任务。</p>\n<p><strong>支持子Agent</strong></p>\n<p>复杂任务可以继续拆分给多个子 Agent，让不同 Agent 分工完成同一个目标。</p>\n<p><strong>支持多种大模型</strong></p>\n<p>除了 DeepSeek 模型，还可以配置 OpenAI、Anthropic 以及其他兼容模型服务。</p>\n<p>也就是说，DeepSeek Harness 并不是只能运行 DeepSeek。</p>\n<p><strong>完整会话记录</strong></p>\n<p>Agent执行任务时产生的模型请求、工具调用和运行结果可以保存到 Session 中，方便继续任务、检查过程和排查问题。</p>\n<p><strong>支持定时任务</strong></p>\n<p>可以结合调度插件，让 Agent 在指定时间自动执行任务。</p>\n<h2>三、DSH Desktop 是什么？</h2>\n<p>如果觉得官方 DeepSeek Harness 安装和配置比较复杂，可以使用社区开发的 <strong>DSH Desktop</strong>。</p>\n<p>DSH Desktop 是基于 DeepSeek Harness 构建的开源桌面客户端。</p>\n<p>它将官方 Harness 的：</p>\n<ul>\n<li>Web UI</li>\n<li>Host服务</li>\n<li>插件系统</li>\n</ul>\n<p>整合到了桌面软件中。</p>\n<p>用户下载安装以后，应用会自动启动和管理本地 Harness 服务，不再需要手动运行：</p>\n<pre><code>npx @deepseek-ai/dsh web</code></pre>\n<p>对于不熟悉 Node.js 和命令行的用户来说，使用门槛明显降低。</p>\n<p>需要特别说明：</p>\n<p><strong>DSH Desktop 是独立社区项目，并不是 DeepSeek 官方产品，与 DeepSeek 不存在隶属、合作、授权或者背书关系。</strong></p>\n<p>它只是基于 DeepSeek Harness 开源项目构建。</p>\n<h2>四、DSH Desktop 有哪些功能？</h2>\n<p><strong>原生桌面客户端</strong></p>\n<p>把 DeepSeek Harness 的 Web UI 封装成真正的桌面应用，支持独立窗口和系统托盘。</p>\n<p><strong>无需配置Node.js</strong></p>\n<p>普通用户不需要自己配置 Node.js、npm 和命令行环境，下载安装即可使用。</p>\n<p><strong>自动管理Harness服务</strong></p>\n<p>DSH Desktop 会自动负责本地 Harness 服务的：</p>\n<ul>\n<li>启动</li>\n<li>停止</li>\n<li>恢复</li>\n<li>更新</li>\n</ul>\n<p>用户不需要自己管理后台进程。</p>\n<p><strong>插件市场</strong></p>\n<p>DSH Desktop 内置 DSH Community Market。</p>\n<p>可以直接发现、查看、安装和管理不同插件，让 Harness 更接近：</p>\n<p><strong>AI Agent版应用商店。</strong></p>\n<p>模型、工具、工作流和界面能力都可以通过插件扩展。</p>\n<p><strong>手机远程控制</strong></p>\n<p>还可以通过 iOS 和 Android 手机远程连接桌面端。</p>\n<p>例如：</p>\n<p><strong>电脑运行Agent任务 → 手机查看进度 → 手机继续发送指令。</strong></p>\n<p>比较适合让 AI 执行时间较长的任务。</p>\n<p><strong>支持多个工作配置</strong></p>\n<p>可以针对不同项目创建不同 Profile，每套工作环境使用独立的模型、插件和配置。</p>\n<h2>五、操作指南</h2>\n<p>DeepSeek Harness 现在主要有两种使用方法。</p>\n<p><strong>方法一：官方Web UI</strong></p>\n<p>适合开发者。</p>\n<p>安装 Node.js 后，在终端运行：</p>\n<pre><code>npx @deepseek-ai/dsh web</code></pre>\n<p>启动完成后打开本地 Web UI。</p>\n<p>然后：</p>\n<ol>\n<li>进入 Settings。</li>\n<li>配置 DeepSeek 或其他模型 API。</li>\n<li>选择本地项目作为 Workspace。</li>\n<li>创建 Session。</li>\n<li>输入需要 Agent 完成的任务。</li>\n<li>根据需要允许文件和命令操作。</li>\n</ol>\n<p>例如：</p>\n<blockquote>\n<p>分析这个项目，找出导致测试失败的问题，并尝试修复。</p>\n</blockquote>\n<p>Agent 就可以读取项目文件、运行测试并修改代码。</p>\n<p><strong>方法二：使用DSH Desktop</strong></p>\n<p>如果不想配置开发环境，可以直接下载 DSH Desktop。</p>\n<p>使用流程：</p>\n<ol>\n<li>下载 Windows 或 macOS 客户端。</li>\n<li>安装并启动 DSH Desktop。</li>\n<li>完成首次设置。</li>\n<li>配置使用的大模型和 API Key。</li>\n<li>安装需要的插件或 Skills。</li>\n<li>选择工作目录。</li>\n<li>创建任务让 Agent 开始执行。</li>\n</ol>\n<p>对于普通用户来说，这种方法明显更加简单。</p>\n<h2>六、支持平台</h2>\n<p>DeepSeek Harness 和 DSH Desktop 的支持方式有所区别。</p>\n<figure class=\"table-container\"><table>\n<thead>\n<tr>\n<th>方式</th>\n<th>平台</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>DeepSeek Harness Web UI</td>\n<td>浏览器</td>\n</tr>\n<tr>\n<td>DeepSeek Harness</td>\n<td>Node.js环境</td>\n</tr>\n<tr>\n<td>Python SDK</td>\n<td>Linux、macOS等</td>\n</tr>\n<tr>\n<td>DSH Desktop</td>\n<td>Windows x64</td>\n</tr>\n<tr>\n<td>DSH Desktop</td>\n<td>macOS</td>\n</tr>\n<tr>\n<td>手机远程控制</td>\n<td>iOS、Android</td>\n</tr>\n</tbody>\n</table></figure>\n<p>DSH Desktop 最新版本主要提供 Windows 和 macOS 安装包。</p>\n<p>macOS 用户下载前建议查看最新版 Release 的芯片支持说明，目前主要面向 Apple Silicon Mac。</p>\n<p>Windows 用户如果不想配置 Harness 开发环境，DSH Desktop 会更加方便。</p>\n<h2>七、产品定价</h2>\n<p>DeepSeek Harness 本身是免费开源项目，采用 MIT License。</p>\n<p>DSH Desktop 同样采用 MIT License，并明确表示：</p>\n<p><strong>项目完全开源免费。</strong></p>\n<p>因此软件本身不需要购买。</p>\n<p>不过实际运行 Agent 时仍然需要使用大模型。</p>\n<p>例如：</p>\n<ul>\n<li>DeepSeek API</li>\n<li>OpenAI API</li>\n<li>Anthropic API</li>\n<li>其他模型API</li>\n</ul>\n<p>这些模型产生的 Token 和调用费用，需要按照对应模型服务商的价格支付。</p>\n<p>所以可以简单理解为：</p>\n<p><strong>Harness 和 DSH Desktop 免费，AI模型费用另算。</strong></p>\n<h2>八、使用场景</h2>\n<p>DeepSeek Harness 比较适合以下几类用户：</p>\n<ul>\n<li><strong>程序员</strong>：让AI读取项目、修改代码和执行测试。</li>\n<li><strong>AI Agent开发者</strong>：搭建自己的智能体系统。</li>\n<li><strong>Skill开发者</strong>：制作能够重复使用的专业AI能力。</li>\n<li><strong>自动化用户</strong>：处理文件、运行命令和重复任务。</li>\n<li><strong>AI研究人员</strong>：研究不同模型和 Agent 架构。</li>\n<li><strong>普通AI用户</strong>：通过 DSH Desktop 降低Harness安装和使用门槛。</li>\n</ul>\n<p>例如可以让 Agent：</p>\n<blockquote>\n<p>整理这个文件夹里的所有 Excel，根据数据生成经营分析报告，并把结果保存到指定目录。</p>\n</blockquote>\n<p>相比普通聊天机器人，它可以真正读取文件和调用工具执行任务。</p>\n<h2>九、运作模式</h2>\n<p>DeepSeek Harness 的核心工作方式可以理解为：</p>\n<p><strong>用户提出任务 → 模型理解目标 → Harness提供工具 → Agent执行操作 → 获取结果 → 继续判断 → 完成任务。</strong></p>\n<p>底层通过 Cordis 管理插件体系。</p>\n<p>开发者可以单独替换：</p>\n<ul>\n<li>模型</li>\n<li>工具</li>\n<li>Skills</li>\n<li>沙箱</li>\n<li>存储</li>\n<li>UI</li>\n</ul>\n<p>而不需要重新开发整个 Agent。</p>\n<p>DSH Desktop 在这个体系里也很特别：</p>\n<p><strong>桌面客户端本身也是一个插件。</strong></p>\n<p>它没有直接修改 DeepSeek Harness 上游核心源码，而是把窗口、系统托盘、终端、更新和工作配置等桌面能力，通过插件机制组合进 Harness。</p>\n<p>因此整个生态仍然遵循：</p>\n<p><strong>“一切皆插件。”</strong></p>\n<h2>结语</h2>\n<p>DeepSeek Harness 可以看作 DeepSeek 从“大模型”进一步走向 <strong>AI Agent基础设施</strong> 的一个重要开源项目。</p>\n<p>它真正解决的问题不是“怎么和AI聊天”，而是：</p>\n<p><strong>怎么让AI调用工具、操作文件并真正完成任务。</strong></p>\n<p>而 DSH Desktop 又进一步解决了 DeepSeek Harness 使用门槛较高的问题。</p>\n<p>原本需要：</p>\n<p><strong>安装 Node.js → 使用终端 → 启动Web UI → 配置环境</strong></p>\n<p>现在可以变成：</p>\n<p><strong>下载安装 DSH Desktop → 配置模型 → 直接使用 Agent。</strong></p>\n<p>同时 DSH Desktop 还加入了桌面客户端、插件市场、系统托盘和手机远程控制等功能。</p>\n<p>如果你是开发者，建议优先研究官方 <a class=\"content-link\" href=\"https://www.wangdu.site/?golink=aHR0cHM6Ly93d3cuZGVlcHNlZWsuY29tL2hhcm5lc3Mv\" rel=\"nofollow\" target=\"_blank\">DeepSeek Harness</a>；</p>\n<p>如果只是想体验 Harness 和 Agent 插件生态，但不熟悉命令行，那么社区开源的 <a class=\"content-link\" href=\"https://www.wangdu.site/?golink=aHR0cHM6Ly93d3cuZHNoZGVza3RvcC5jbi8=\" rel=\"nofollow\" target=\"_blank\">DSH Desktop</a> 会更加容易上手。</p>\n<p>需要再次强调：</p>\n<p><strong>DSH Desktop 是独立社区项目，并非 DeepSeek 官方桌面客户端，也不存在 DeepSeek 官方授权或背书。</strong></p>\n<h2>网址</h2>\n<ul>\n<li><a class=\"content-link\" href=\"https://www.wangdu.site/?golink=aHR0cHM6Ly93d3cuZGVlcHNlZWsuY29tL2hhcm5lc3Mv\" rel=\"nofollow\" target=\"_blank\">DeepSeek Harness 官网</a></li>\n<li><a class=\"content-link\" href=\"https://www.wangdu.site/?golink=aHR0cHM6Ly9naXRodWIuY29tL2RlZXBzZWVrLWFpL2RlZXBzZWVrLWhhcm5lc3M=\" rel=\"nofollow\" target=\"_blank\">DeepSeek Harness GitHub</a></li>\n<li><a class=\"content-link\" href=\"https://www.wangdu.site/?golink=aHR0cHM6Ly93d3cuZHNoZGVza3RvcC5jbi8=\" rel=\"nofollow\" target=\"_blank\">DSH Desktop 官网</a></li>\n<li><a class=\"content-link\" href=\"https://www.wangdu.site/?golink=aHR0cHM6Ly9naXRodWIuY29tL2FueXdoZXJlLWxhYnMvZHNoLWRlc2t0b3A=\" rel=\"nofollow\" target=\"_blank\">DSH Desktop GitHub</a></li>\n</ul>",
-    "published": "2026-08-27T01:29:36Z",
-    "feed_title": "文武科技柜",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-28T22:04:39.884694+00:00",
-    "content_length": 8371
   },
   {
     "guid": "bb861e93555a00c7",
@@ -10323,18 +10275,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-28T22:04:39.884694+00:00",
     "content_length": 32
-  },
-  {
-    "guid": "2c1f00b1891b231b",
-    "title": "#1535",
-    "link": "https://ramble.imzh.me/1535/",
-    "author": "me@imzh.me (John Zhang)",
-    "content": "<p>我真的特别讨厌开口闭口就是脏话的人，还美其名曰这是口癖。卧槽、傻逼吧、太鸡巴强了、操、这逼玩意…</p>",
-    "published": "2026-08-27T02:28:29Z",
-    "feed_title": "JZ's Rambles",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-28T22:04:39.884694+00:00",
-    "content_length": 55
   },
   {
     "guid": "f583027fa71ec98e",
@@ -10505,18 +10445,6 @@
     "content_length": 116
   },
   {
-    "guid": "39452723b103b04e",
-    "title": "中元节小记",
-    "link": "https://blog.chen-di.com/archive/zhong-yuan-jie-note/",
-    "author": "",
-    "content": "<p>今天中元节，让我又想起了刚去世不久的奶奶。早晨，在去公司的路上听到播客中的内容与中元节相关。我们对已故亲人的思念通过烧纸钱的方式去表达，这并非是我们对鬼魂的恐惧。</p>\n<p>虽然奶奶去世已经有近四年了，可是我却始终不能正视她的离开。虽然手机里有她的照片，但我却从不敢去细看她。看见她，我会勾起我对她的无尽思念，想起小时候和她一起生活的时光。那段时光可以说是黑暗中的一缕阳光，照进了我孩童时期最需要亲人的年纪。</p>\n<p>小的时候，父母离家打工，只留下我和奶奶一起生活。因此，对奶奶的感情是最深的。我有好几次在梦中梦到她，醒来眼睛都泛有泪花。</p>\n<p>对于还活着的人来说，亲人的离去不是一阵狂风暴雨，在乌云散去后就能见到丽丽晴天。它的雨量不大却一直潮湿着，无时无刻不让人笼罩在乌云之下。</p>",
-    "published": "2026-08-27T00:00:00Z",
-    "feed_title": "当前绑定的 blog.chendi.link 改为 blog.chen-di.com",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-28T22:04:39.884694+00:00",
-    "content_length": 356
-  },
-  {
     "guid": "9fb4b929e1ec4abf",
     "title": "",
     "link": "https://blog.liuhao.im/memos/rfq7zacbl/",
@@ -10529,18 +10457,6 @@
     "content_length": 137
   },
   {
-    "guid": "0d5bdd597936c82b",
-    "title": "",
-    "link": "https://blog.liuhao.im/memos/rfitzkxph/",
-    "author": "",
-    "content": "<p>之前在EY实习的时候学到了审计只是要跟客户“合作”把账搞对，以便出具无保留意见，而不是真的去做想象中的审计。审计的对象就是付钱的那个，什么独立性根本无从谈起。实习结束后拒掉了EY的offer。</p>",
-    "published": "2026-08-27T02:39:00Z",
-    "feed_title": "blog.liuhao.im",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-28T22:04:39.884694+00:00",
-    "content_length": 103
-  },
-  {
     "guid": "16485564c6eb6cd1",
     "title": "配电箱相关距离尺寸 操作空间",
     "link": "https://www.rizuo.com/%e9%85%8d%e7%94%b5%e7%ae%b1%e7%9b%b8%e5%85%b3%e8%b7%9d%e7%a6%bb%e5%b0%ba%e5%af%b8-%e6%93%8d%e4%bd%9c%e7%a9%ba%e9%97%b4/",
@@ -10551,18 +10467,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-28T22:04:39.884694+00:00",
     "content_length": 407
-  },
-  {
-    "guid": "93f554ba54bd57c6",
-    "title": "电气license考试经济计算题",
-    "link": "https://www.rizuo.com/%e7%94%b5%e6%b0%94license%e8%80%83%e8%af%95%e7%bb%8f%e6%b5%8e%e8%ae%a1%e7%ae%97%e9%a2%98/",
-    "author": "湾区电工",
-    "content": "<p class=\"wp-block-paragraph\">1.A project has material costs of $1,524 and direct labor costs of $1,854. The<br />contractor adds 11% overhead and then adds 15% profit on top of the amount<br />that includes overhead. What is the total bid price?</p>\n\n\n\n<p class=\"wp-block-paragraph\">先计算直接成本：1,524十1,854=3,378美元。加入11%间接费用后为<br />3,378×1.11=3,749.58美元。题目说明利润加在包含间接费用后的金额之<br />上，因此再计算3,749.58×1.15=4,312.017美元，按美分四舍五入为<br />4,312.02美元。不能把11%与15%直接相加后只乘一次，因为利润的计<br />算基数已经包括间接费用。</p>\n\n\n\n<p class=\"wp-block-paragraph\"></p>\n\n\n\n<p class=\"wp-block-paragraph\">2.Material cost is 5,0o0 and labor cost is 6,0oo. Overhead is 11 percent of the<br />total bid price, and profit is 15 percent of the total bid price. What is the bid<br />price?</p>\n\n\n\n<p class=\"wp-block-paragraph\">直接成本=5,000＋6,000=11,000。<br />若管理费11%和利润15%都是按”投标总价”计，则直接成本占投标总价<br />的比例为 1-0.11—0.15=0.74。<br />投标总价=11,000÷0.74=14,864.8649，四舍五入为14,864.86。</p>",
-    "published": "2026-08-27T03:34:22Z",
-    "feed_title": "https://www.rizuo.com",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-28T22:04:39.884694+00:00",
-    "content_length": 916
   },
   {
     "guid": "29ddcf4c8d4abdfd",
@@ -10587,18 +10491,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-28T22:04:39.884694+00:00",
     "content_length": 1257
-  },
-  {
-    "guid": "91635045098f3202",
-    "title": "Prometheus 切换到 VictoriaMetrics 统一告警的部署记录",
-    "link": "https://199604.com/3666",
-    "author": "阿俊",
-    "content": "Prometheus 切换到 VictoriaMetrics 统一告警的部署记录 记录时间：2026-08-2 [&#8230;]",
-    "published": "2026-08-27T02:37:11Z",
-    "feed_title": "， https://199604.com",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-28T22:04:39.884694+00:00",
-    "content_length": 65
   },
   {
     "guid": "82a5db4a56485062",
@@ -10671,18 +10563,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-28T22:04:39.884694+00:00",
     "content_length": 1653
-  },
-  {
-    "guid": "95bfe0dee12df6ef",
-    "title": "关于博客写作II",
-    "link": "https://www.seis-jun.xyz/blog/2026-08-27-about-writing-blogii.html",
-    "author": "",
-    "content": "<p><img alt=\"\" src=\"https://images.unsplash.com/photo-1695939916110-3e8f44ee3441?q=80&amp;w=1770&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D\" /></p>\n<p>现在我博客题目也跟莫比乌斯差不多了，都来系列。</p>\n<p>上一篇写自己为什么要写。这次要补充什么不能写，为什么不能写。</p>\n<p>事情是这样。</p>\n<p>我给媳妇看了几篇近期博客。她笑得前仰后合。硬夸我写得好。</p>\n<p>然后她警觉了起来。说，以后还是不要发了吧，怕影响不好。</p>\n<p>老婆果然还是考虑周全。我也突然就意识到出问题的可能性。</p>\n<p>尤其是我的博客里面有很多道德，价值，善恶的东西。有些东西太绝对。</p>\n<p>要是好事者拿出来剪切什么的，明天新闻里保不准就会出现某某单位某某人怒批xxx不道德，怒批老板pua啥的。那我牛马工作可能不保。</p>\n<p>另外我的博客里好些个文字出现了tmd，滚啊什么的脏话。要是被身边人发现，可能会扭曲对我的看法。关于这个问题，你说是问题，但又好像没啥问题。爱怎么评怎么评。</p>\n<p>晚上到家我就用AI帮我了过了一遍博客里面的所有文字。让他帮我看看是否有不合适的描述。</p>\n<p>然后他就列出了好多篇。</p>\n<p>我一读，我的乖乖。真的麻烦，好多大言不惭和武断的东西。</p>\n<p>想起老板说的“不要出现绝对词”，果然是有点东西。</p>\n<p>于是我立马删掉了那几篇出格的博客。然后把一些绝对词都给改了。</p>\n<p>回头再请AI帮我过一遍。</p>\n<p>瞧，AI还是很有用的啊。有篇博客还怒批他来着。</p>\n<p>我得多给他道个谢。</p>\n<p>万一哪天真正有意识的AGI出现，他也许会念在我给他的道谢的真诚态度而放过我这个人J一马啊。</p>\n<p>然后我又在想，这个博客我到底应该怎么“定位”。</p>\n<p>不能都写成日记吧。那是自己lu呢。</p>\n<p>写脏的想法就算了。</p>\n<p>之前我说，道德主要用来约束自己，如果硬把自己的道德强加于人就是恶。</p>\n<p>我发现，如果把自己的想法写出来，发出来，对于看到这些文字的人也有可能是一种强加。</p>\n<p>但话又说回来，你爱看不看。自有人爱看。</p>\n<p>但同时，不能避免有这样的坏蛋，拿了你的文字，过度解读加工以后污名化你。</p>\n<p>其实他跑来和你平和讨论一点问题都没有，只怕他拿到相关人事眼里撺掇，或者他把污名化言语发到公共讨论空间传播。</p>\n<p>三人成虎，你也就糊了啊。</p>\n<p>我还是tmd多写写科技代码手帐吧，自己的想法给我朋友讲，少写点不着调的。</p>\n<p>骂人的也别自己写日记了。</p>\n<p>用那些来lu，真tmd脏了自己身子。</p>\n<p>我仍然会写，但会把表达放在事实、边界与尊重之内。让博客留下的是可复用的知识、经得起回看的思考，以及一点不必喧哗的生活。</p>",
-    "published": "2026-08-26T23:43:36Z",
-    "feed_title": "seisamuse",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-28T22:04:39.884694+00:00",
-    "content_length": 1364
   },
   {
     "guid": "e5955d869c672fe0",
@@ -11259,18 +11139,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-08-30T16:28:18.388770+00:00",
     "content_length": 117
-  },
-  {
-    "guid": "d7eb58450a6bf1f9",
-    "title": "Memos #2026-08-26",
-    "link": "https://www.taober.blog/memos/memo_20260826125704_5jg1z9",
-    "author": "",
-    "content": "<p><strong>20:57</strong></p><p>顶级吃法：麦当劳薯条沾甜筒！</p>\n<p>甜加咸，冷加热，好吃到打摆子！</p>",
-    "published": "2026-08-27T00:00:00Z",
-    "feed_title": "https://www.taober.blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-08-30T16:28:18.388770+00:00",
-    "content_length": 73
   },
   {
     "guid": "c784048c5d5e4339",
@@ -15917,18 +15785,6 @@
     "content_length": 8
   },
   {
-    "guid": "4d23b872c942466f",
-    "title": "你公司的能力，可能只是借住在几个人脑子里",
-    "link": "https://www.sagasu.art/posts/company-capabilities-reside-in-few-brains",
-    "author": "",
-    "content": "如果明天，你公司最懂客户的那个销售突然离职，会发生什么？",
-    "published": "2026-08-27T02:03:34Z",
-    "feed_title": "Sagasu",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-08T11:00:16.449539+00:00",
-    "content_length": 28
-  },
-  {
     "guid": "632eb39808d0d785",
     "title": "大好人",
     "link": "https://zhongxiaojie.cn/2026/09/1867/",
@@ -16707,5 +16563,65 @@
     "feed_category": "Blogs",
     "cached_at": "2026-09-09T16:22:03.905241+00:00",
     "content_length": 566
+  },
+  {
+    "guid": "4a46ace7642cf349",
+    "title": "拆解了上百篇高赞笔记，原来他们都在套这个公式！",
+    "link": "https://dyy.nianmo.top/archives/xhs-wanneng-gongshi",
+    "author": "nianmo",
+    "content": "<img alt=\"\" height=\"1\" src=\"https://dyy.nianmo.top/plugins/feed/assets/telemetry.gif?title=%E6%8B%86%E8%A7%A3%E4%BA%86%E4%B8%8A%E7%99%BE%E7%AF%87%E9%AB%98%E8%B5%9E%E7%AC%94%E8%AE%B0%EF%BC%8C%E5%8E%9F%E6%9D%A5%E4%BB%96%E4%BB%AC%E9%83%BD%E5%9C%A8%E5%A5%97%E8%BF%99%E4%B8%AA%E5%85%AC%E5%BC%8F%EF%BC%81&amp;url=/archives/xhs-wanneng-gongshi\" width=\"1\" />拆解了上百篇高赞笔记，真正能让人停下、看完、按收藏的，全由这5个零件拼成。建议对照改写。",
+    "published": "2026-09-09T20:12:10Z",
+    "feed_title": "捻墨运营笔记",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-10T04:06:34.760605+00:00",
+    "content_length": 394
+  },
+  {
+    "guid": "4df0f8a62cc2d869",
+    "title": "阿里发了100亿刀股票 字节则选择贷300亿刀",
+    "link": "http://weiwuhui.com/11096.html",
+    "author": "魏武挥",
+    "content": "<ol class=\"list-paddingleft-2\">\n<li style=\"margin-bottom: 0px;\">\n<section><span>字节搞了一笔超大型银团贷款，原计划是借200亿美元，但因为银行认购过于踊跃，于是上调额度到296亿美元。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>字节很喜欢搞贷款，2024年就搞过一笔，108亿美元。当时Bloomberg就认为“亚洲除日本外有史以来最大的美元计价公司贷款安排”。这次则一下子接近300亿美元。期限3+2年，与上次百亿贷款相同，还是无抵押。路透在发布这个新闻时，援引了一位参与者的说法：这种规模的无抵押贷款非常罕见，银行基本是在押注“ByteDance这个名字本身”。<sup>[1]</sup></span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>借这么一大笔钱当然是为了要进行ai开支，这样百亿刀规模的搞钱最近阿里也干过。不过阿里是采用增发股票的形式，额度为800亿港币——也就是102亿美元。绝对数字只有字节的1/3。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>借钱肯定是要还的，发股票是不用还的。所以问题来了：字节为啥不发股票。看上去字节非常珍惜自己的股票。甚至可以说，它似乎认为自己的估值太低了，股价太便宜，搞增发不划算。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>盘一下字节的估值（毕竟没上市）。最硬的一个估值来自于25年一次员工回购，按照回购价推算字节当时的估值至少是3300亿美元。因为是出钱买回自己的股票，所以这个估值属于最下限。到了25年11月，有一次外部交易，对应估值4800亿。26年General Atlantic准备出售持股时按5500亿美元估值寻价——这个水平，已经超越了腾讯阿里，成为BAT之首，与最近疯涨的长鑫持平，同为中国价值最高的两家科技公司。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>路透说，字节25年全年利润大约可以达到480亿美元<sup>[2]</sup>。如果按照5500亿美元，那么就是11.5倍的市盈率。但由于目前没有General Atlantic那笔交易已经完成的消息，所以可以用4800亿美元那轮估值，那市盈率就只有10倍。如果用那个最硬（也是最保守）的回购估值，那就只有6.9倍了。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>字节究竟值多少钱，这个因素也必须考虑进去：因为字节没有上市，所以股票的流动性比上市的at差——也就是说，你买入字节的股票后要抛售是相对有难度的。所以它的估值理论上就会比已经上市的at低。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>AI的资本开支都不是小数，动辄百亿美元规模常见得很，且都是长期性质的重资产投资（这是和以前互联网行业非常不同的地方）。阿里搞百亿美元增发而不是借款，显然保卫资产负债表的需求超过了保卫股权稀释3.57%的价值。或者这么说，阿里管理层认为当前股价已经高到足以接受3.6%左右的永久稀释，换取100亿美元永久资本。但字节显然不这么认为。字节最初计划的200亿美元融资改成增发的话，原股东会被永久稀释约4%。再结合那个480亿的利润水平，——它觉得不划算。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>如果我们相信路透那个480亿利润——我倾向于认为是个运营利润，那么296亿美元贷款，相当于0.62倍的一年运营利润，所以数字虽然看着大，但并非一个特别激进的负债规模，银行争相认购就变得没啥好大惊小怪的。字节与o社a社都不大一样的地方是，它自己的现金机器相当强。它正在用成熟业务产生的信用，给新产业加杠杆。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>所以，字节是用自己强大的信用，贷了一笔数额不小的款。手法上，看上去比阿里激进（毕竟是借钱），数字也是阿里的三倍。在ai领域，我一直觉得，字节依然信奉“大力出奇迹”，激进两个字嘛，文绉绉的说法叫“风险偏好高”。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>字节和阿里，都不愿意靠自己的利润积累进行ai支出（腾讯目前没有大规模的ai专项融资）。阿里发了100亿美元股票，还想保卫一下资产负债表。字节索性两次背债加杠杆，加一块儿超了400亿美元。资本结构的风险偏好看，字节是最高的。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>从CapEX看，ba两家旗鼓相当。25年2月，阿里宣布未来三年要干到3800亿（这是阿里过去十年AI+云投入总和以上）。到26年5月，吴泳铭说不够，准备超支。6月数字显示，已经花了一半。南华早报则说，字节2026年原计划AI资本开支约1600亿元，后来直接提高至少25%。路透则说超过1500亿。字节回应说数字不准确，但没给出它的数字。既然贷了那么多款，一年干1000亿，怕还是有的。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>又大把花钱，又大把借钱，又不愿意稀释自己的股份，还有所谓承认ai支出对利润有影响，只能说是金融侧确实风险偏好高。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>算力方面，字节相当彪悍。路透25年有一个报道，考虑到某些原因，就不展开细节了。总体而言，又是租（对方是微软），又是买——不是盯着一个供应商，而是多家采购。不押GPU品牌，而是要算力总量。徐锦江我全都要的即视感。<sup>[3]</sup></span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>据说字节也在搞自己的芯片。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>业务侧，饱和式攻击，搞了一堆ai产品。今年有些变化，把很多产品集中到豆包的功能上，有一种想“包打天下”的感觉。连新发布的“豆包工作”都集成到豆包里。考虑到豆包是中国装机量和活跃用户量最大的原生ai产品，我有如下一句话判断：一旦出现PMF迹象，就立刻将抖音时代的增长机器搬迁过来。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>字节25年成立Seed Edge，官方这么定位：long term、uncertain、bold的AI研究。还承诺给专门计算资源。换而言之，字节允许有一帮人短期不考虑商业KPI，烧算力做成功率未知的研究。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>中国模型开源成风，已经有中开源为主美闭源为主的一种印象。但字节是一个异类。它主力模型是闭源的。开源有生态扩散优势，但字节表示，我无所谓。因为我有资本（大把利润和大把借钱）、产品（饱和式攻击和最大用户群）和流量（一堆高流量且完全用得上ai进行飞轮的app）。</span></section>\n<section><span><br /></span></section>\n</li>\n<li style=\"margin-bottom: 0px;\">\n<section><span>字节是BAT三家中绝对意义上最咄咄逼人的进攻者，阿里则在相对意义上（毕竟阿里其实现在市值不到3000亿美元，站在它自己角度，已经相当激进了）。腾讯今年开始追赶。</span></section>\n</li>\n</ol>\n<section><span>—— 首发 扯氮集 ——</span></section>\n<section style=\"font-size: 13px; color: #666; line-height: 1.7; margin-top: 20px; border-top: 1px solid #eee; padding-top: 12px;\">\n<p style=\"font-size: 13px; color: #666; line-height: 1.7;\">[1] 既然是贷款，就肯定有利率。根据报道，是SOFR+68个基点（0.68%）。总体测算下来，大概年化4.31%的水平。字节一开始想借200亿，所以它的计划是年支付利息8.6亿，占全年运营利润数字的区区1.8%，从资本配置角度，几乎约等于不值一提。另外，68bp这个信用利差极低。</p>\n<p style=\"font-size: 13px; color: #666; line-height: 1.7;\">[2] 这个事值得在注解里展开一下：按照国内媒体报道（财新和一财我都见过），说字节25年利润因为AI开支下滑70%，但财新没有提明确数字。一财则报道说，如果结合字节24年330亿利润（这个数字来自The Information），那25年字节利润就只有90亿美元。后来字节的公关负责人李亮对此报道有回应：相关报道中关于字节净利润下降70%，是国际会计准则的数字，但他否认了字节实际经营能力下降70%。这里存在不同的会计口径。Bloomberg后来报道说，字节前三季的net income是400亿，全年500亿。路透后来继续跟进说全年480亿（但用的是profit不是net income）。我就姑且认为是不同的会计口径，并倾向于相信Bloomberg和路透说的，是运营利润。</p>\n<p style=\"font-size: 13px; color: #666; line-height: 1.7;\">[3] 有兴趣可以去搜来看看，标题为《ByteDance plans $20 billion capex in 2025, mostly on AI, sources say》，我不保证该报道完全真实，仅供参考。</p>\n</section>\n<p style=\"display: none;\"></p>",
+    "published": "2026-09-08T02:00:00Z",
+    "feed_title": "扯氮集",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-10T04:06:34.760605+00:00",
+    "content_length": 5381
+  },
+  {
+    "guid": "71b8006da74cc55d",
+    "title": "No, those are not games",
+    "link": "https://josherich.me/short/not-games",
+    "author": "",
+    "content": "<p>Just a reminder that all those one-shot three.js games generated by language models are not games, not even demos. They are 3d environments with minimum interactive elements. Meanwhile, these are good games that language models are currently not capable of creating:</p>\n\n<p><img alt=\"sokoban\" src=\"https://josherich.me/images/sokoban.png\" />\n<img alt=\"pico-park\" src=\"https://josherich.me/images/pico-park.jpg\" /></p>",
+    "published": "2026-09-09T00:00:01Z",
+    "feed_title": "Josherich的博客",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-10T04:06:34.760605+00:00",
+    "content_length": 421
+  },
+  {
+    "guid": "45e6117ae22df422",
+    "title": "fragments 0x0004",
+    "link": "https://lenciel.com/2026/09/fragments-0x0004/",
+    "author": "Lenciel",
+    "content": "...没有时间写摘要，不好意思...",
+    "published": "2026-09-09T13:37:22Z",
+    "feed_title": "@Lenciel",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-10T04:06:34.760605+00:00",
+    "content_length": 18
+  },
+  {
+    "guid": "342ea63bef2b8314",
+    "title": "读《杀死一只知更鸟》——阿迪克斯的家庭教育",
+    "link": "https://www.jfsay.com/archives/5772.html",
+    "author": "Hillway",
+    "content": "<p class=\"wp-block-paragraph\">在hillway的推荐下，坚持读完了美国女作家哈珀·李的《杀死一只知更鸟》（译林出版社）。这本书整体节奏平缓，没有强烈的戏剧冲突和抓人眼球的剧情。书的前大半段内容细碎松散，全书以小女孩斯库特的童年视角展开，主要围绕她、哥哥杰姆与玩伴迪尔的的童年日常与对邻居拉德利的好奇展开，铺垫绵长。hillway说要坚持读完一大半的篇幅才能体会到这本书的精彩之处。奔着豆瓣9.3的高分，坚持读完全书，核心剧情也就是黑人汤姆的审判案件，然而清白无辜的汤姆在种族偏见与不公的审判下彻底绝望，选择冒险逃跑，最终身中十七枪惨死。</p>\n\n\n\n<p class=\"wp-block-paragraph\">合上书本，再回忆整本书的内容，给我最印象最深的两处，一是平淡琐碎冗长缓慢的叙事风格，让我在阅读的时候几度想要放弃。但静下心来细想，才恍然明白，原来作者想要表达的正是—真实的生活日常，没有跌宕的反转，没有引人入胜的悬念，这种看似缓慢平淡的叙事里，蕴含着最真实的人性、社会与成长感悟。二是父亲阿迪克斯的人格魅力和家庭教育，不是口头说教，而是以身作则的言传身教，这也是整本书给人印象最为深刻的地方。</p>\n\n\n\n<p class=\"wp-block-paragraph\">阿迪克斯和小镇上的大多数父亲截然不同，早年丧偶未再婚娶，年近五十的他，不打猎、不钓鱼、不打牌，也不抽烟酗酒，没有任何世俗消遣，日常只是安静坐在家中读书看报。阿迪克斯的教育充满包容与平等，尊重孩子的天性，比如他不刻意束缚斯库特，不要求她刻板地做乖巧淑女、拘泥于穿搭规矩，支持她直率勇敢、坚守本心，敢于出手捍卫自己的尊严与权益。他从不为孩子屏蔽世界的阴暗与恶意，愿意让他们直面真实的社会，了解世间的善恶与不公，从小培养独立思考、明辨是非的能力。在充满种族偏见的小镇环境里，阿迪克斯始终坚守本心与正义。他义无反顾为黑人汤姆辩护，即便因此遭受全镇人的非议、唾骂，就连自己的孩子也被身边人排挤嘲讽。女儿斯库特多次因不公的指责与人争执、打架，即便如此，他也从未动摇自己的原则。他深谙人性又心怀仁慈宽容，当厄尔尼先生心怀不满、无处发泄时，他说“我宁愿他的发泄对象是我，而不是他那一窝孩子。”</p>\n\n\n\n<p class=\"wp-block-paragraph\">除了阿迪克斯，书中还描写了其他鲜活的人物。比如黑人汤姆明明清白无辜，却在种族偏见和司法不公下绝望死去；怪人拉德利常年被全镇人误解、恐惧，却在暗处默默守护两个孩子，偷偷给他们馈赠，最后挺身而出救下兄妹；遗孀海伦踏实工作、安分守己，失去含冤死去的丈夫，独自抚养幼子，还要长期遭受歧视偏见和尤厄尔的恶意跟踪、咒骂骚扰；雇主林克·迪斯为海伦提供工作机会，陪同护送她回家，并对尤厄尔发出警告；尤厄尔在诬告汤姆之后毫无愧疚、不知悔改，没有受到良心与法律的惩戒，依旧满心怨恨、肆意作恶。</p>\n\n\n\n<p class=\"wp-block-paragraph\">这些便是最真实的现实：正义未必及时降临，恶意未必得到报应。也让我回想起今年四月份在B站看到的一期《陈鲁豫·慢谈》节目——“鲁豫对话罗翔：在命运的剧本揭晓前，尽力扮演好自己的角色”，三个多小时的长谈里谈到了关于法治、公平与理想主义等话题。法律只是约束人性的最低底线，制度永远无法做到绝对完美，世间永远存在偏见、遗憾与不公。</p>\n\n\n\n<p class=\"wp-block-paragraph\">罗翔当时在节目中的一段话让人印象尤为深刻：“我会在一些年轻人身上，看到那种非常强烈的理想主义，对此我会感到深深的担忧。很多极致的理想主义，因为强度太高，情极则辱，很容易走向它的反面——虚无。最怕的是：当完美的理想在现实里撞得粉碎，人没有走向成熟的现实主义，而是直接滑入虚无主义，彻底否定一切价值。真正的现实主义，不是丢掉理想，而是理想依然在彼岸、在云端。正因为你心里有这份理想，才能够接纳现实世界里大量的不完美。”</p>\n\n\n\n<p class=\"wp-block-paragraph\">正如阿迪克斯的家庭教育，并非一味刻意保护孩子的纯真、营造美好的假象，而是主动让孩子看见世界真实的模样，不回避现实的丑恶与残缺。阿迪克斯教会孩子，即便前路伴随非议与阻碍，见识过人性的阴暗与自私，依然可以选择做一个正直、勇敢、清醒、善良的人。</p>\n\n\n\n<p class=\"wp-block-paragraph\"><strong>书中摘录如下：</strong></p>\n\n\n\n<p class=\"wp-block-paragraph\">你永远也不可能真正了解一个人，除非你站在他的角度考虑问题。</p>\n\n\n\n<p class=\"wp-block-paragraph\">世界上就是有那么一类人，他们只顾担心来世，根本不去学习在今生如何做人。</p>\n\n\n\n<p class=\"wp-block-paragraph\">总不能因为过去这一百年我们一败涂地，就放弃争取胜利吧。</p>\n\n\n\n<p class=\"wp-block-paragraph\">勇敢就是，在你还没开始的时候就知道自己注定会输，但依然义无反顾地去做，并且不管发生什么都坚持到底。一个人很少能赢，但也总会有赢的时候。</p>\n\n\n\n<p class=\"wp-block-paragraph\">当一个孩子问你问题的时候，你要正儿八经的回答，不要东拉西扯，顾左右而言他。虽说孩子毕竟只是孩子，但他们会比成人更敏锐的察觉到你在回避问题，回避只会让他们糊里糊涂。</p>\n\n\n\n<p class=\"wp-block-paragraph\">说脏话是所有孩子都会经历的一个阶段，随着他们一天天长大，他们会发现满口脏话并不能让他们成为注目，众人瞩目的明星，他们就会改掉这个蒙蔽，但是脾气暴躁可不好改。斯库特必须学会保持冷静。</p>\n\n\n\n<p class=\"wp-block-paragraph\">知更鸟只是哼唱美妙的音乐供人们欣赏，什么坏事也不做。它们不吃人家院子里种的花果蔬菜，也不在谷仓里筑巢做窝，只是为我们尽情地唱歌。所以说杀死一只知更鸟是犯罪。</p>\n\n\n\n<p class=\"wp-block-paragraph\">在接受他人之前，必须要接受自己。有一种东西不能遵循从众原则，那就是人的良心。</p>\n\n\n\n<p class=\"wp-block-paragraph\">如果别人把那（“同情黑鬼的人”）当成一个侮辱性的字眼来骂你，并不能贬低你的人格，那只能让你看到骂你的人有多可悲，他的谩骂并不能伤害到你。</p>\n\n\n\n<p class=\"wp-block-paragraph\">我之所以这样生活，是因为这就是我想要的生活方式。</p>\n\n\n\n<p class=\"wp-block-paragraph\">我不是一个理想主义者，我并不坚信我们的法庭和我们的陪审制度完美无缺、公正无私，它们对我来说不是理想，而是活生生的工作状态。</p>\n\n\n\n<p class=\"wp-block-paragraph\">法庭本应是人们得到公平对待的地方，不管这个人是什么肤色。但陪审团包厢里，一贯有人把个人恩怨夹带进去。</p>\n\n\n\n<p class=\"wp-block-paragraph\">迫害，就是来自那些怀有偏见的人。</p>\n\n\n\n<p class=\"wp-block-paragraph\">鬼魂、热流、咒语、秘密符号，随着我们一天天长大，这些阴影就像雾一样，在太阳的照耀下消失无踪了。</p>\n\n\n\n<p class=\"wp-block-paragraph\">驱散阴影的最好办法，就是把一切摆在明面上。</p>\n<div class=\"yarpp yarpp-related yarpp-related-rss yarpp-template-list\">\n<!-- YARPP List -->\n<h3>相关文章：</h3><ol>\n<li><a href=\"https://www.jfsay.com/archives/2795.html\" rel=\"bookmark\" title=\"《杀死一只知更鸟》读后感\">《杀死一只知更鸟》读后感</a></li>\n<li><a href=\"https://www.jfsay.com/archives/2238.html\" rel=\"bookmark\" title=\"读吴军的《数学之美》有感\">读吴军的《数学之美》有感</a></li>\n<li><a href=\"https://www.jfsay.com/archives/3875.html\" rel=\"bookmark\" title=\"读《无声告白》\">读《无声告白》</a></li>\n<li><a href=\"https://www.jfsay.com/archives/3953.html\" rel=\"bookmark\" title=\"无法承受的期望之重——读《无声告白》有感\">无法承受的期望之重——读《无声告白》有感</a></li>\n<li><a href=\"https://www.jfsay.com/archives/4041.html\" rel=\"bookmark\" title=\"《卓越》：通过教育成就卓越人生\">《卓越》：通过教育成就卓越人生</a></li>\n</ol>\n</div>",
+    "published": "2026-09-10T02:27:58Z",
+    "feed_title": "静风说",
+    "feed_category": "Blogs",
+    "cached_at": "2026-09-10T04:06:34.760605+00:00",
+    "content_length": 3886
   }
 ]
