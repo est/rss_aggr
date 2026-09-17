@@ -4439,9 +4439,9 @@
     },
     "https://changshiban.com/index.xml": {
       "last_ok": "2026-09-15T16:42:52.367179+00:00",
-      "consecutive_failures": 2,
+      "consecutive_failures": 3,
       "last_error": "404 Client Error: Not Found for url: https://changshiban.com/index.xml",
-      "failed_at": "2026-09-17T16:41:44.561486+00:00",
+      "failed_at": "2026-09-17T21:11:21.518376+00:00",
       "last_modified": "Fri, 03 Oct 2025 13:59:21 GMT"
     },
     "https://www.guangweiblog.com/feed/": {
@@ -5256,9 +5256,9 @@
     },
     "https://blog.beltfish.cn/feed/": {
       "last_ok": "2026-09-16T04:19:33.482472+00:00",
-      "consecutive_failures": 1,
+      "consecutive_failures": 2,
       "last_error": "522 Server Error: Connection Timeout with Origin Server for url: https://blog.beltfish.cn/feed/",
-      "failed_at": "2026-09-17T16:41:44.562638+00:00"
+      "failed_at": "2026-09-17T21:11:21.518480+00:00"
     },
     "https://afipo.top/rss.xml": {
       "last_ok": "2026-09-14T12:23:48.031232+00:00",
@@ -5794,11 +5794,11 @@
     },
     "https://blog.dumogu.top/rss.xml": {
       "last_ok": "2026-09-16T11:15:46.207891+00:00",
-      "consecutive_failures": 1,
+      "consecutive_failures": 2,
       "etag": "W/\"b723-19b791cf751\"",
       "last_modified": "Thu, 01 Jan 2026 10:31:40 GMT",
       "last_error": "HTTPSConnectionPool(host='blog.dumogu.top', port=443): Max retries exceeded with url: /rss.xml (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1010)')))",
-      "failed_at": "2026-09-17T16:41:44.562615+00:00"
+      "failed_at": "2026-09-17T21:11:21.518473+00:00"
     },
     "https://jksoftcn.com/index.xml": {
       "last_ok": "2026-09-17T16:41:44.562452+00:00",
@@ -7190,9 +7190,9 @@
     },
     "https://cuixinxin.cn/feed/": {
       "last_ok": "2026-09-16T11:15:46.208806+00:00",
-      "consecutive_failures": 1,
-      "last_error": "HTTPSConnectionPool(host='cuixinxin.cn', port=443): Max retries exceeded with url: /feed/ (Caused by ConnectTimeoutError(<HTTPSConnection(host='cuixinxin.cn', port=443) at 0x7f6230d86e40>, 'Connection to cuixinxin.cn timed out. (connect timeout=15)'))",
-      "failed_at": "2026-09-17T16:41:44.564020+00:00",
+      "consecutive_failures": 2,
+      "last_error": "HTTPSConnectionPool(host='cuixinxin.cn', port=443): Max retries exceeded with url: /feed/ (Caused by ConnectTimeoutError(<HTTPSConnection(host='cuixinxin.cn', port=443) at 0x7fb902e94170>, 'Connection to cuixinxin.cn timed out. (connect timeout=15)'))",
+      "failed_at": "2026-09-17T21:11:21.518483+00:00",
       "etag": "\"9f364d61c5985f1dd7a8c38b64c0cd15\"",
       "last_modified": "Sun, 06 Sep 2026 15:35:41 GMT"
     },
@@ -11042,10 +11042,10 @@
     },
     "https://www.taober.blog/feed.xml": {
       "last_ok": "2026-09-16T11:15:46.209240+00:00",
-      "consecutive_failures": 1,
+      "consecutive_failures": 2,
       "is_aggregator": true,
       "last_error": "HTTPSConnectionPool(host='www.taober.blog', port=443): Max retries exceeded with url: /feed.xml (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)')))",
-      "failed_at": "2026-09-17T16:41:44.564012+00:00"
+      "failed_at": "2026-09-17T21:11:21.518469+00:00"
     },
     "https://137606117.xyz/rss.xml": {
       "last_ok": null,
@@ -11319,7 +11319,7 @@
       "consecutive_failures": 0
     },
     "https://www.noicdi.com/atom.xml": {
-      "last_ok": "2026-09-16T11:15:46.209253+00:00",
+      "last_ok": "2026-09-17T21:11:21.518360+00:00",
       "consecutive_failures": 0
     },
     "https://blog.sqsl.art/feed": {
@@ -11351,11 +11351,11 @@
     },
     "https://www.quji.org/feed": {
       "last_ok": "2026-09-15T21:06:06.489315+00:00",
-      "consecutive_failures": 0,
+      "consecutive_failures": 1,
       "etag": "\"7689a2bcdd784cdc076e3c993700a84b\"",
       "last_modified": "Fri, 19 Jun 2026 19:02:41 GMT",
-      "last_error": "HTTPSConnectionPool(host='www.quji.org', port=443): Max retries exceeded with url: /feed (Caused by ConnectTimeoutError(<HTTPSConnection(host='www.quji.org', port=443) at 0x7fa1b582edb0>, 'Connection to www.quji.org timed out. (connect timeout=15)'))",
-      "failed_at": "2026-08-10T13:22:03.179309+00:00"
+      "last_error": "HTTPSConnectionPool(host='www.quji.org', port=443): Max retries exceeded with url: /feed (Caused by NameResolutionError(\"HTTPSConnection(host='www.quji.org', port=443): Failed to resolve 'www.quji.org' ([Errno -2] Name or service not known)\"))",
+      "failed_at": "2026-09-17T21:11:21.518465+00:00"
     },
     "https://blog.august.hk/feeds/posts/default": {
       "last_ok": null,
@@ -11430,7 +11430,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.bg7zag.com/feed": {
-      "last_ok": "2026-09-15T21:06:06.489358+00:00",
+      "last_ok": "2026-09-17T21:11:21.518407+00:00",
       "consecutive_failures": 0,
       "last_error": "502 Server Error: Bad Gateway for url: https://blog.bg7zag.com/feed",
       "failed_at": "2026-08-10T13:22:03.179305+00:00",
@@ -11606,48 +11606,48 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://blog.kevinzhow.com/feed.xml": {
-      "last_ok": "2026-09-15T21:06:06.489294+00:00",
+      "last_ok": "2026-09-17T21:11:21.518343+00:00",
       "consecutive_failures": 0,
-      "last_modified": "Sat, 12 Sep 2026 14:31:24 GMT",
+      "last_modified": "Sat, 12 Sep 2026 14:28:25 GMT",
       "last_error": "521 Server Error: <none> for url: https://blog.kevinzhow.com/feed.xml",
       "failed_at": "2026-08-01T13:40:27.519118+00:00"
     },
     "https://wuxinhua.com/atom.xml": {
-      "last_ok": "2026-09-15T21:06:06.489309+00:00",
+      "last_ok": "2026-09-17T21:11:21.518368+00:00",
       "consecutive_failures": 0,
       "etag": "W/\"fd3b60212fa5e38f9b69de8a55f0ed1a\"",
       "last_modified": "Fri, 29 May 2026 06:02:37 GMT"
     },
     "https://s5s5.me/feed/": {
-      "last_ok": "2026-09-15T21:06:06.489362+00:00",
+      "last_ok": "2026-09-17T21:11:21.518401+00:00",
       "consecutive_failures": 0,
       "etag": "W/\"2e73-19ff8e50aec\"",
       "last_modified": "Thu, 13 Aug 2026 02:13:07 GMT"
     },
     "https://blog.7wate.com/rss.xml": {
-      "last_ok": "2026-09-15T21:06:06.489324+00:00",
+      "last_ok": "2026-09-17T21:11:21.518382+00:00",
       "consecutive_failures": 0,
-      "etag": "W/\"9191f1fe88112631694ce1a4b5563e7e\""
+      "etag": "W/\"a60df55d96685afcbbbcec789e0cb932\""
     },
     "https://www.macin.org/atom.xml": {
-      "last_ok": "2026-09-15T21:06:06.489400+00:00",
+      "last_ok": "2026-09-17T21:11:21.518391+00:00",
       "consecutive_failures": 0,
       "etag": "W/\"18ff69216c1c0bad601b3f77dd8c70bb\"",
       "last_modified": "Tue, 15 Sep 2026 16:14:36 GMT"
     },
     "https://blog.renfei.net/rss.xml": {
-      "last_ok": "2026-09-15T21:06:06.489320+00:00",
+      "last_ok": "2026-09-17T21:11:21.518387+00:00",
       "consecutive_failures": 0,
       "etag": "W/\"9e83c5389ec98c688c3d176c431a7b6a\""
     },
     "https://vjo.cc/feed/": {
-      "last_ok": "2026-09-15T21:06:06.489390+00:00",
+      "last_ok": "2026-09-17T21:11:21.518447+00:00",
       "consecutive_failures": 0
     },
     "https://impatrick.blog/feed/": {
-      "last_ok": "2026-09-15T21:06:06.489353+00:00",
+      "last_ok": "2026-09-17T21:11:21.518412+00:00",
       "consecutive_failures": 0,
-      "last_modified": "Tue, 15 Sep 2026 10:42:37 GMT"
+      "last_modified": "Thu, 17 Sep 2026 10:46:14 GMT"
     },
     "https://cocolia.fun/feed.xml": {
       "last_ok": "2026-08-17T12:54:50.089316+00:00",
@@ -11659,15 +11659,15 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://daolanx.me/zh/rss.xml": {
-      "last_ok": "2026-09-15T21:06:06.489329+00:00",
+      "last_ok": "2026-09-17T21:11:21.518396+00:00",
       "consecutive_failures": 0,
-      "etag": "W/\"583a4740f0700d3bce589f449cd6d0f4\""
+      "etag": "W/\"4e3486c9daef5e4107f93ea191117d38\""
     },
     "https://blog.sayori.org/rss.xml": {
-      "last_ok": "2026-09-15T21:06:06.489339+00:00",
+      "last_ok": "2026-09-17T21:11:21.518431+00:00",
       "consecutive_failures": 0,
       "is_aggregator": true,
-      "etag": "W/\"4aed3f3e15cd91c726928d8e979b9e00\""
+      "etag": "W/\"a6ed993729967f3716273ebbbc214146\""
     },
     "https://www.xmhai.cn/rss.xml": {
       "last_ok": null,
@@ -11679,23 +11679,23 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://timoshinoleg-eng.github.io/blog/feed.xml": {
-      "last_ok": "2026-09-15T21:06:06.489334+00:00",
+      "last_ok": "2026-09-17T21:11:21.518417+00:00",
       "consecutive_failures": 0,
       "etag": "W/\"6a346eff-27c\"",
       "last_modified": "Thu, 18 Jun 2026 22:19:43 GMT"
     },
     "https://1loli.link/feed/": {
-      "last_ok": "2026-09-15T21:06:06.489348+00:00",
+      "last_ok": "2026-09-17T21:11:21.518426+00:00",
       "consecutive_failures": 0
     },
     "https://livk30.github.io/rss.xml": {
-      "last_ok": "2026-09-15T21:06:06.489343+00:00",
+      "last_ok": "2026-09-17T21:11:21.518422+00:00",
       "consecutive_failures": 0,
       "etag": "W/\"6a34a7f4-3e3\"",
       "last_modified": "Fri, 19 Jun 2026 02:22:44 GMT"
     },
     "https://bddxg.top/feed.rss": {
-      "last_ok": "2026-09-15T21:06:06.489395+00:00",
+      "last_ok": "2026-09-17T21:11:21.518454+00:00",
       "consecutive_failures": 0,
       "etag": "\"6a9e47c2-8bee9\"",
       "last_modified": "Mon, 07 Sep 2026 05:12:34 GMT",
@@ -11725,11 +11725,11 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://keggin.tech/rss.xml": {
-      "last_ok": "2026-09-15T21:06:06.489376+00:00",
+      "last_ok": "2026-09-17T21:11:21.518450+00:00",
       "consecutive_failures": 0
     },
     "https://blog.distjr.top/atom.xml": {
-      "last_ok": "2026-09-15T21:06:06.489367+00:00",
+      "last_ok": "2026-09-17T21:11:21.518437+00:00",
       "consecutive_failures": 0,
       "etag": "W/\"09d8e1e403215e2ac37ba81e4a052f9a\"",
       "is_aggregator": true
@@ -11744,7 +11744,7 @@
       "disabled_reason": "failed 3x consecutively"
     },
     "https://iluc.cn/rss.xml": {
-      "last_ok": "2026-09-15T21:06:06.489385+00:00",
+      "last_ok": "2026-09-17T21:11:21.518443+00:00",
       "consecutive_failures": 0,
       "etag": "W/\"fa114d1d3f3af735a6c78167f6b773c4\"",
       "last_modified": "Mon, 14 Sep 2026 16:14:28 GMT",
@@ -11752,13 +11752,13 @@
       "failed_at": "2026-08-26T13:03:29.566555+00:00"
     },
     "https://blog.sxizhuo.cn/rss/feed.xml": {
-      "last_ok": "2026-09-15T21:06:06.489371+00:00",
+      "last_ok": "2026-09-17T21:11:21.518457+00:00",
       "consecutive_failures": 0,
       "etag": "W/\"91822cc83b7f89affcf06921ed70b895\"",
       "last_modified": "Fri, 26 Jun 2026 23:46:54 GMT"
     },
     "https://blog.liua.us.ci/rss.xml": {
-      "last_ok": "2026-09-15T21:06:06.489405+00:00",
+      "last_ok": "2026-09-17T21:11:21.518460+00:00",
       "consecutive_failures": 0
     },
     "https://www.coderlog.net/rss.xml": {
@@ -11767,7 +11767,7 @@
       "is_aggregator": true
     },
     "https://www.rsnocsi.cn/feed": {
-      "last_ok": "2026-09-15T21:06:06.489418+00:00",
+      "last_ok": "2026-09-17T21:11:21.518476+00:00",
       "last_error": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
       "failed_at": "2026-07-23T14:17:16.551113+00:00",
       "consecutive_failures": 0,
