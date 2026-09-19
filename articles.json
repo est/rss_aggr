@@ -10085,54 +10085,6 @@
     "content_length": 0
   },
   {
-    "guid": "d3fb5c14f3947e36",
-    "title": "新版 Shadowrocket 配置 Tailscale，实现 iPhone、iPad 与 Mac mini 远程互联",
-    "link": "https://blog.sci.ci/2026/09/05/%E6%96%B0%E7%89%88Shadowrocket%E9%85%8D%E7%BD%AETailscale%E5%AE%9E%E7%8E%B0%E5%86%85%E7%BD%91%E6%89%93%E6%B4%9E/",
-    "author": "",
-    "content": "",
-    "published": "2026-09-05T12:00:00Z",
-    "feed_title": "Qifei's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-05T20:11:52.433958+00:00",
-    "content_length": 0
-  },
-  {
-    "guid": "b3e95e2e30e1e2fe",
-    "title": "高鲁棒性 API 设计之 Idempotency Key 幂等键",
-    "link": "https://blog.yasking.org/a/idempotency-key",
-    "author": "Yieldone",
-    "content": "<p>有这样一个场景，客户端调用服务端 API 兑换奖励：</p>\n<pre class=\"shiki solarized-light\" style=\"background-color: #FDF6E3; color: #657B83;\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color: #859900;\">POST</span><span style=\"color: #657B83;\"> /api/v1/redemptions</span></span>\n<span class=\"line\"><span style=\"color: #657B83;\">{</span></span>\n<span class=\"line\"><span style=\"color: #859900;\">    \"reward_id\"</span><span style=\"color: #657B83;\">: </span><span style=\"color: #2AA198;\">\"id-123\"</span></span>\n<span class=\"line\"><span style=\"color: #657B83;\">}</span></span></code></pre>\n\n<p>用户发起一次商品兑换请求，因网络等因素，客户端不清楚是否处理成功，可能会发起重试，假设前一个请求在服务端已经成功，只是在返回途中丢失，客户端重试时，服务端没办法判断是客户端重试还是用户发起的第二次兑换请求。</p>\n<p>结合业务场景，以下方式可能在一定程度上缓解问题，如：</p>\n<ol>\n<li>这个商品一个用户生命周期只能兑换一次；</li>\n<li>在一定间隔内，粗暴的根据 Body 请求内容去重，需要琢磨间隔时间，会在一定程度上误伤正常请求；</li>\n<li>躺平、无视小概率场景，用户要是有疑问就找客服同学反馈...</li>\n</ol>\n<p>行业内正规的做法是借助 Idempotency Key 幂等键，其解决的问题正是客户端在无法确定上一次请求是否成功时，可以安全重试，而不会重复产生业务副作用。</p>\n<p>幂等键由客户端传递，标识客户端的一次业务意图，同一次业务意图的重试必须复用同一个 Idempotency Key。用户再次主动发起同类操作时，则生成新的 Key。</p>\n<p>常见的幂等标识携带方式大致有两类。第一类是作为 API 请求参数的一部分：</p>\n<pre class=\"shiki solarized-light\" style=\"background-color: #FDF6E3; color: #657B83;\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color: #859900;\">POST</span><span style=\"color: #657B83;\"> /api/v1/redemptions</span></span>\n<span class=\"line\"><span style=\"color: #657B83;\">{</span></span>\n<span class=\"line\"><span style=\"color: #859900;\">    \"reward_id\"</span><span style=\"color: #657B83;\">: </span><span style=\"color: #2AA198;\">\"id-123\"</span><span style=\"color: #657B83;\">,</span></span>\n<span class=\"line\"><span style=\"color: #859900;\">    \"idempotency_key\"</span><span style=\"color: #657B83;\">: </span><span style=\"color: #2AA198;\">\"the-idempotency-key-dhfa\"</span></span>\n<span class=\"line\"><span style=\"color: #657B83;\">}</span></span></code></pre>\n\n<p>例如 Google AIP-155 定义了 request_id，AWS EC2 部分 API 则使用 ClientToken，它们都承担了类似 Idempotency Key 的作用，在 JSON REST API 中，这类参数也经常体现在 Request Body 中。</p>\n<p>另一类是放到 Header 中。近年来，更多新设计的 API 选择这种方式，例如 <a href=\"https://docs.stripe.com/api/idempotent_requests?lang=curl\">Stripe</a>、<a href=\"https://developer.paypal.com/reference/guidelines/idempotency/\">PayPal</a>、<a href=\"https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/\">IETF 草案</a>（目前已过期，尚未成为 RFC）</p>\n<pre class=\"shiki solarized-light\" style=\"background-color: #FDF6E3; color: #657B83;\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color: #859900;\">POST</span><span style=\"color: #657B83;\"> /api/v1/redemptions</span></span>\n<span class=\"line\"><span style=\"color: #268BD2;\">Idempotency-Key</span><span style=\"color: #859900;\">:</span><span style=\"color: #2AA198;\"> the-idempotency-key-dhfa</span></span>\n<span class=\"line\"><span style=\"color: #657B83;\">{</span></span>\n<span class=\"line\"><span style=\"color: #859900;\">    \"reward_id\"</span><span style=\"color: #657B83;\">: </span><span style=\"color: #2AA198;\">\"id-123\"</span></span>\n<span class=\"line\"><span style=\"color: #657B83;\">}</span></span></code></pre>\n\n<p>我个人感觉通过 Header 的方式更好，对请求体的结构没有侵入性、Header 便于通过中间件统一处理、Idempotency Key 从语义上看也适合作为基础字段。除非业务上完全没有幂等需求，或仅几个接口需要特殊处理才考虑使用 Body 携带，否则新项目设计 API 建议通过 Header 携带幂等键。</p>\n<h3>幂等键的推荐值</h3>\n<p>建议使用 UUID v7 或 UUID v4。v7 是时间戳 + 随机数，按时间大致有序，v4 基本纯随机，都比自己生成随机数更稳定通用。</p>\n<p>同时应限制 Idempotency Key 的最大长度，比如参考 Stripe 其限制不超过 255 个字符，对于要求提供 Idempotency Key 的接口，缺失、格式非法或超长可以返回 400 Bad Request。</p>\n<h3>幂等记录的作用范围和时效性</h3>\n<p>回到服务端的实现，为了识别重复请求，需将首次请求的 Idempotency Key 及其处理状态、请求参数指纹和业务结果记录。可以借助 Redis 缓存存储，一般使用 Authenticated User + HTTP method + Endpoint 组合作为 Idempotency Key 作用范围是比较合理的，以下是 Redis 缓存 Key 的结构示例：</p>\n<pre class=\"shiki solarized-light\" style=\"background-color: #FDF6E3; color: #657B83;\" tabindex=\"0\"><code><span class=\"line\"><span>idempotency:{user_id}:{method}:{route}:{idempotency_key}</span></span></code></pre>\n\n<p>也就是</p>\n<pre class=\"shiki solarized-light\" style=\"background-color: #FDF6E3; color: #657B83;\" tabindex=\"0\"><code><span class=\"line\"><span>idempotency:USER3366:POST:/api/v1/redemptions:01a070a1-33bf-72ae-9e60-95f5e0fc3f82</span></span></code></pre>\n\n<p>缓存 Key 直接包含接口路径可能会比较长、不美观也不便于查阅，可以给接口定义 ID，例如 <code>redemption.create</code>，idempotency 也可简化。</p>\n<pre class=\"shiki solarized-light\" style=\"background-color: #FDF6E3; color: #657B83;\" tabindex=\"0\"><code><span class=\"line\"><span>idemp:USER3366:redemption.create:01a070a1-33bf-72ae-9e60-95f5e0fc3f82</span></span></code></pre>\n\n<p>缓存时间则没有统一的标准，一般建议缓存 24 小时，也有平台缓存 7 天，像是支付、转账、订单等场景更推荐将幂等记录持久化到数据库，并对 “作用域 + Idempotency Key” 建立唯一约束。如果仅仅为了解决短时间重试、重复点击问题，可以将缓存设置为几分钟，但并发场景需要原子化处理，并发问题等下篇再记录。</p>\n<p>另外也可以在中间件上做文章，按接口的重要程度设置不同的缓存时间或持久化存储策略。</p>\n<h3>遇到 Idempotency Key 重复后的返回内容</h3>\n<p>上方设计了缓存键，能否将 Response Body 保存下来，相同的重复请求正好从缓存直接返回呢？</p>\n<p>可行，但需慎重，可以保存首次请求的完整处理结果，包括请求的用户（防止撞到别人的 key 读回别人的响应体）、参数指纹、HTTP 状态码、必要的响应头和响应体，后续相同 Key 且参数一致时，返回相同结果。</p>\n<p>当请求的 Idempotency Key 相同，但 Request 不同时，应识别并抛出 <code>422 Unprocessable Content</code> 错误。</p>\n<pre class=\"shiki solarized-light\" style=\"background-color: #FDF6E3; color: #657B83;\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color: #93A1A1; font-style: italic;\"># Request Fingerprint 是基于规范化后的、与业务语义相关的请求参数生成的指纹。</span></span>\n<span class=\"line\"><span style=\"color: #268BD2;\">fingerprint(new_request</span><span style=\"color: #657B83;\">) </span><span style=\"color: #859900;\">!</span><span style=\"color: #2AA198;\">=</span><span style=\"color: #2AA198;\"> fingerprint</span><span style=\"color: #657B83;\">(</span><span style=\"color: #268BD2;\">original_request</span><span style=\"color: #657B83;\">)</span></span></code></pre>\n\n<p>Stripe 也有类似的设计，明确会比较后续请求参数和原请求参数（<a href=\"https://docs.stripe.com/api/idempotent_requests?lang=curl\">Docs</a>）防止误用，AWS 也有非常类似的 IdempotentParameterMismatch。</p>\n<p>返回错误的响应示例：</p>\n<pre class=\"shiki solarized-light\" style=\"background-color: #FDF6E3; color: #657B83;\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color: #657B83;\">{</span></span>\n<span class=\"line\"><span style=\"color: #859900;\">  \"code\"</span><span style=\"color: #657B83;\">: </span><span style=\"color: #2AA198;\">\"IDEMPOTENCY_KEY_REUSED\"</span><span style=\"color: #657B83;\">,</span></span>\n<span class=\"line\"><span style=\"color: #859900;\">  \"message\"</span><span style=\"color: #657B83;\">: </span><span style=\"color: #2AA198;\">\"Idempotency key has already been used with different request parameters.\"</span></span>\n<span class=\"line\"><span style=\"color: #657B83;\">}</span></span></code></pre>\n\n<p>简单来说，Idempotency Key 判断 “是不是同一次业务意图”，Request Fingerprint 判断 “客户端是不是拿同一个业务意图 ID 偷偷换了请求内容”。</p>\n<h3>另外的要点</h3>\n<p>了解以上内容，接口幂等键的设计就不会有大方向上的问题了，但对于幂等键，还有一些需要掌握的。</p>\n<p><strong>幂等与幂等键</strong></p>\n<p>不要混淆，两者是不同的概念。</p>\n<ul>\n<li>幂等：同一个操作执行一次和执行多次，最终效果相同（GET、HEAD、OPTIONS、PUT、DELETE 等方法在 HTTP 语义上是幂等的，而 POST、PATCH 等方法的 HTTP 语义不保证幂等，参考 <a href=\"https://datatracker.ietf.org/doc/html/rfc9110\">RFC 9110</a>）。</li>\n<li>幂等键：幂等键是为了让原本不幂等的操作获得幂等能力，是实现幂等的手段。</li>\n</ul>\n<p><strong>适用的 HTTP 方法</strong></p>\n<p>幂等键主要用于 POST、PATCH 等 HTTP 语义本身不保证幂等的方法，GET、HEAD、OPTIONS 通常没有必要使用；PUT、DELETE 按 HTTP 语义本身已经幂等，但具体 API 仍可能使用幂等键提供额外的请求去重、结果重放等能力，应以 API 的具体定义为准。</p>\n<p>Stripe 文档有这样的描述：「Don't send idempotency keys in GET and DELETE requests because it has no effect. These requests are idempotent by definition.」（不要在 GET 和 DELETE 请求中发送幂等键，因为这样做不会产生任何效果。这些请求根据定义本身就是幂等的。）</p>\n<p>关于幂等键的记录，就先到这里。</p>",
-    "published": "2026-09-05T13:34:00Z",
-    "feed_title": "东东's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-05T20:11:52.433958+00:00",
-    "content_length": 7295
-  },
-  {
-    "guid": "1018dccd1eb048fa",
-    "title": "自由软件为什么大都比较难用、难看？",
-    "link": "https://www.ccgxk.com/emlog_dev/873.html",
-    "author": "独元殇",
-    "content": "自由软件，是好。增加了世界的多样性。 但是！我想多提一句。不知道大家有没有发现，。自由软件，大部分都是很难用的。除了极少数知名的自由软件，大部分自由软件，界面 UI 很丑，用起来也没那么流畅！UX 也往往不好。（blender 除外） 为什么呢？ 因为大多数的自由软件（OSS），比如开源软件，都是天南海北的志愿者参与维护的。人人之间几乎是平等的。这个就危险了... <a href=\"https://www.ccgxk.com/emlog_dev/873.html\">阅读全文</a>",
-    "published": "2026-09-05T14:56:25Z",
-    "feed_title": "独元殇",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-05T20:11:52.433958+00:00",
-    "content_length": 243
-  },
-  {
-    "guid": "f8774c68b4768e2c",
-    "title": "周末流水账 0905",
-    "link": "https://blog.solazy.me/20260905/",
-    "author": "sol (hidden)",
-    "content": "<p>周末好。又周末了，这周的工作很累主要是会议填满了我的日程，翻了一下日程表，5 个工作日中有 4 天都被会议占满，除去午餐时间，是从 10:00 占到晚上 19:00 的那种。</p>\n\n<div id=\"img-group-enixl\">\n<div style=\"text-align: center;\">\n  <img alt=\"被会议填满的一周，就周三空了一下\" src=\"https://photo.lily.lat/file/AgACAgQAAyEGAASLgSpZAAIVc2qcEOC3LIyWdc167wLgbr2tBt8OAALKGmsbrLfgUOGVeKCv9HlRAQADAgADdwADPQQ.png\" />\n  <p class=\"desc-text\" style=\"text-align: center; font-size: 14px; margin: 5px 0 0 0; line-height: 1.5; color: #666;\">▲ 被会议填满的一周，就周三空了一下</p>\n</div>\n</div>\n<p>上周有一名同事家中有急事突然离职，我这周一开始招聘，用了不到两天的时间就招到了合适的人选，也十分消耗精力。</p>\n<p>说实话，我原本周末是想在家里躺着的。但是想了想，这周工作这么累，周末更要有仪式感地休息了。</p>\n<p>原本想要去嘉兴住平湖万怡的，但是再三调研一番，还是想剑走偏锋，去个远一点，可能人稍微少一点，但是体验感好一些的酒店。</p>\n<p>于是，在今天上午起床后，我订了张家港万豪。</p>\n<p>订完之后，马上洗漱出门，倒不是马上自驾前往。而是找老友喝咖啡，好久没去蒋村本质找何 Sir 聊天了。</p>\n<p>边喝何 Sir 做得咖啡边聊各种八卦，三杯下肚，时间过得也快。何 Sir 说，趁我们还年轻，还能再干得动下一个 10 年，为什么不一起做点什么呢？</p>\n<p>说实话，我确实有个开店的梦，但是不想这么早就急着去行动。但是职场真的卷，我最近真的有点心动了。或许，可以把这个事情作为日后某天开始的一个谋划，在心里起个小小的草稿。</p>\n<p>不知不觉已经聊了 3 个小时，必须马上启程去张家港了。一路上听着《三好坏男孩》的私房课播客，听了整整 3 个小时的鬼故事，竟然有点兴奋了。这次我是自驾来的，因为杭州到张家港的动车绕路，基本上和开车一样都是将近 3 个小时，自驾又相对自由一些，所以就开车过来吧。</p>\n<p>张家港万豪真的夯爆了，套房的配套很棒，服务也很好，就连行政酒廊晚上的 Happy Hour 配置也很棒。</p>\n\n<div id=\"img-group-kob5g\">\n<div style=\"text-align: center;\">\n  <img alt=\"套房的客厅很大\" src=\"https://photo.lily.lat/file/AgACAgQAAyEGAASLgSpZAAIVdGqcEziVPqb2AAEpmXL8roWP6y688QACzBprG6y34FBAt6E3OoKYewEAAwIAA3cAAz0E.png\" />\n  <p class=\"desc-text\" style=\"text-align: center; font-size: 14px; margin: 5px 0 0 0; line-height: 1.5; color: #666;\">▲ 套房的客厅很大</p>\n</div>\n<div style=\"text-align: center;\">\n  <img alt=\"落地窗旁边还有个柜子\" src=\"https://photo.lily.lat/file/AgACAgQAAyEGAASLgSpZAAIVdWqcE20q_hyi70l0W6eMK_ZWbqHOAALNGmsbrLfgUNiefWGrEVeaAQADAgADdwADPQQ.png\" />\n  <p class=\"desc-text\" style=\"text-align: center; font-size: 14px; margin: 5px 0 0 0; line-height: 1.5; color: #666;\">▲ 落地窗旁边还有个柜子</p>\n</div>\n<div style=\"text-align: center;\">\n  <img alt=\"换个视角，确实挺大的\" src=\"https://photo.lily.lat/file/AgACAgQAAyEGAASLgSpZAAIVdmqcE4d4cUDv1PXIScQfwp5-aERDAALOGmsbrLfgUKV-VbhFVQaIAQADAgADdwADPQQ.png\" />\n  <p class=\"desc-text\" style=\"text-align: center; font-size: 14px; margin: 5px 0 0 0; line-height: 1.5; color: #666;\">▲ 换个视角，确实挺大的</p>\n</div>\n<div style=\"text-align: center;\">\n  <img alt=\"晚上就在这儿办公做 PPT 吧\" src=\"https://photo.lily.lat/file/AgACAgQAAyEGAASLgSpZAAIVd2qcE5kddfQBxmA9XPbKcoGHM0PvAALPGmsbrLfgUB4jFVvN1zN-AQADAgADdwADPQQ.png\" />\n  <p class=\"desc-text\" style=\"text-align: center; font-size: 14px; margin: 5px 0 0 0; line-height: 1.5; color: #666;\">▲ 晚上就在这儿办公做 PPT 吧</p>\n</div>\n<div style=\"text-align: center;\">\n  <img alt=\"行政酒廊也很大\" src=\"https://photo.lily.lat/file/AgACAgQAAyEGAASLgSpZAAIVeGqcE7mvwMw6lFckEcTKIwmbFg5RAALQGmsbrLfgUFavWWn90hIbAQADAgADdwADPQQ.png\" />\n  <p class=\"desc-text\" style=\"text-align: center; font-size: 14px; margin: 5px 0 0 0; line-height: 1.5; color: #666;\">▲ 行政酒廊也很大</p>\n</div>\n<div style=\"text-align: center;\">\n  <img alt=\"Happy Hour 菜很多\" src=\"https://photo.lily.lat/file/AgACAgQAAyEGAASLgSpZAAIVeWqcE84rsVtIZDYDTeT2UGzw4QS6AALRGmsbrLfgULTj7ISWVNLFAQADAgADdwADPQQ.png\" />\n  <p class=\"desc-text\" style=\"text-align: center; font-size: 14px; margin: 5px 0 0 0; line-height: 1.5; color: #666;\">▲ Happy Hour 菜很多</p>\n</div>\n<div style=\"text-align: center;\">\n  <img alt=\"高层视野也很棒\" src=\"https://photo.lily.lat/file/AgACAgQAAyEGAASLgSpZAAIVemqcE-p0f1BeaMYwPoKjqbies7kEAALTGmsbrLfgUPQ-zzTe5rnuAQADAgADdwADPQQ.png\" />\n  <p class=\"desc-text\" style=\"text-align: center; font-size: 14px; margin: 5px 0 0 0; line-height: 1.5; color: #666;\">▲ 高层视野也很棒</p>\n</div>\n<div style=\"text-align: center;\">\n  <img alt=\"来自行政酒廊的落日余晖\" src=\"https://photo.lily.lat/file/AgACAgQAAyEGAASLgSpZAAIVe2qcFAZqqdxj3_IrN3rLZH6Qc6w-AALUGmsbrLfgUPkXTMYC8d5xAQADAgADdwADPQQ.png\" />\n  <p class=\"desc-text\" style=\"text-align: center; font-size: 14px; margin: 5px 0 0 0; line-height: 1.5; color: #666;\">▲ 来自行政酒廊的落日余晖</p>\n</div>\n<div style=\"text-align: center;\">\n  <img alt=\"套房的卧室长这样\" src=\"https://photo.lily.lat/file/AgACAgQAAyEGAASLgSpZAAIVfGqcFBYOln_hFA7Qc78qU1xAtdtsAALVGmsbrLfgUH0fg_IE6OBYAQADAgADdwADPQQ.png\" />\n  <p class=\"desc-text\" style=\"text-align: center; font-size: 14px; margin: 5px 0 0 0; line-height: 1.5; color: #666;\">▲ 套房的卧室长这样</p>\n</div>\n<div style=\"text-align: center;\">\n  <img alt=\"还有一个很大浴缸的洗手间\" src=\"https://photo.lily.lat/file/AgACAgQAAyEGAASLgSpZAAIVfWqcFCqfY1XPGI5JtGY0_8Jc-YFzAALWGmsbrLfgUNQGtB46Fh5UAQADAgADdwADPQQ.png\" />\n  <p class=\"desc-text\" style=\"text-align: center; font-size: 14px; margin: 5px 0 0 0; line-height: 1.5; color: #666;\">▲ 还有一个很大浴缸的洗手间</p>\n</div>\n</div>\n<p>在酒廊吃完饭，简单在楼下散了个步就回房间刷了会儿短视频。接着劳模体质的劲儿又犯了，起身去把下周二管理月会要汇报的 PPT 做完了，还故意留了几页错误放到周一去改。</p>\n<p>此时此刻，又回到行政酒廊喝点软饮，写完了这篇日更。</p>\n<p>祝大家周末愉快。</p>",
-    "published": "2026-09-05T12:00:00Z",
-    "feed_title": "—— So!azy",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-05T20:11:52.433958+00:00",
-    "content_length": 4616
-  },
-  {
     "guid": "4dcbd36874b277cc",
     "title": "霓虹下的微型交易：我的香港隐秘经济史游记",
     "link": "https://www.l1ch40.com/2026/09/hong-kongs-shadow-economy-under-neon-lights.html",
@@ -10143,18 +10095,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-09-05T20:11:52.433958+00:00",
     "content_length": 4413
-  },
-  {
-    "guid": "682b87fb31418eb2",
-    "title": "饭局对成年人关系维系作用初探",
-    "link": "https://www.seis-jun.xyz/blog/2026-09-05-dinner-and-relationship.html",
-    "author": "",
-    "content": "<p><img alt=\"\" src=\"https://images.unsplash.com/photo-1547573854-74d2a71d0826?q=80&amp;w=2070&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D\" /></p>\n<h2 id=\"_1\">摘要</h2>\n<p>关系对于人的作用毋庸置疑地重要。饭局是维系关系当中的最重要的手段之一。但其在关系维护中的作用尚未有精细的报道。本文通过对关系个例的分析，探讨饭局的作用，分析其与其他手段的异同。本文工作可为后续深入探讨饭局对人际关系的作用提供基础。</p>\n<h2 id=\"_2\">简介</h2>\n<p>马克思在《关于费尔巴哈的提纲》中提出：“人的本质不是单个人所固有的抽象物，在其现实性上，它是一切社会关系的总和。足见社会关系对于人的关键作用。人是社会的人，因此人难以脱离社会关系而存在。</p>\n<p>人的社会关系是变化的，在不同时期有多重关系，例如父母关系、与老师关系、同学关系、同事关系、领导下属关系、朋友关系、恋人关系、夫妻关系、亲戚关系等等。成年人是一个家庭的中流砥柱，不仅是家庭主要经济来源同时也起到稳定家庭氛围的作用。因此，为保持一个成年人健康的状态，需要对其社会关系进行维系。</p>\n<p>针对不同的关系可能会有相应的维系手段。例如维系恋人关系需要多在黑灯瞎火下面瞎聊，或者一起经历影院酒楼旅馆的操练；维系父母关系，需要多交流多打电话或者买些小礼物，有必要的话骗他们你没问题；维系亲子关系需要平等交谈、约法三章、给他买好多玩具或者给称赞。</p>\n<p>这些关系似乎都用不着什么饭局。其实不然。民以食为天。吃饭对于国人来来说非常的重要。而很多关系都是通过吃饭来进行维系。本文对一些实例对饭局当中的关系维系作用进行分析。</p>\n<h2 id=\"_3\">数据和方法</h2>\n<p>成年人重要的关系之一是与客户的关系。在商业化较为完善的现代，做生意是需要签订契约合同。有些时候，一些小单可以通过销售话术或者其他效应，例如利用小礼品的亏欠来达成。然而，对于一些大单，相比客户或者说甲方是没有那么容易和你签的。那怎么办？当然是要和甲方敞开心扉，让他充分了解你。饭桌是一个好的场所。人在进食的时候全身会比较放松，放松的时候可能就会有安全感，更加能够接受一些请求。所以，约饭吧，多喝几杯甲方可能才会给你签字。</p>\n<p>还有一个比较重要的是同事关系。在上班的你明白和同事搞好关系在职场当中是多么的重要。你说行，那送点礼物吧。有些时候你送，人家还不愿意收呢。所以，换做饭局吧。你说，哥，晚上请你吃个饭。在饭桌上，酒过三巡那该有的小心思大家都互通了。那你们的关系可会更进一步，只怕，喝到后来可以称兄道弟，最后成为生死之交。回头在职场上，你只要稍上一句，哥，下次我们又约。其他人肯定以为你们是穿一条裤子的兄弟。</p>\n<p>亲戚关系也是。我们说远亲不如近邻。那通常是因为亲戚可能住的远没有怎么走动。怎么办？叫亲戚帮个忙吗？无缘无故的帮啥忙？还是换做饭局吧。你说，姐，今天我们杀了头猪，请你来吃杀猪菜。姐姐屁颠屁颠就带着姐夫侄子全家过来了。巴拉巴拉近况，讨论讨论调皮的孩子，一顿饭过后，你会发现你们关系好像回到了小时候。这个时候一个小忙啥不好说。</p>\n<p>还有一个是弱关系。例如有可能成为你的合作伙伴；有可能成为你的客户；有可能成为你的甲方的人或者有可能成为你的未来密友的人。可能不会是对对碰或者在街上撞大运啊。多半也是饭局上认识的。有时可能是参加会议的桌餐，有时可能是朋友攒的局。觥筹交错间，你们就可以增进了解，加上微信。有什么需要也可以直接交流，记得有一饭之缘，免除了从谁谁谁哪里要来微信。</p>\n<h2 id=\"_4\">讨论</h2>\n<p>以上基于基于几种情况分析了饭局的作用。也许有人会问，很多手段似乎也可以达到饭局的效果。例如，如果你要去联系一个弱关系找帮忙，你可以登门，送礼啊。且慢，送礼带的时候要是人家在上班，对人的影响会多糟糕？要是直接送礼，人家的警钟一下就会敲响，无事不登三宝殿，压力就上来了。一般能推先推啊。那怎么办，饭局啊。恰好朋友请吃饭，大家都在，吃饭的大家都没有什么防备。总之是你们认识的好的方式啊。</p>\n<p>当然其实也有很多事情是比吃饭来得还要意义重大。例如你和同事出差或者有人出游，真的遇到危险，两人出生入死，共患难，根本不需要吃饭，关系可贴得紧，那是真生死之交。但这种情况较少，遇到到了是你的缘分，希望好好珍惜。</p>\n<p>以上的分析只是基于几个生活的小例子，可能分析有所偏差。未来将进行更多的饭局实验，获得更多的一手资料进行分析。</p>\n<h2 id=\"_5\">结论</h2>\n<p>通过以上分析，我们得出了结论，饭局对于成年人的作用是非常大的，相对于其他方式，其增进关系的效率是比较高的。而且比较易于实施，成本也不会太高。本文工作为促进成年人社会关系维护提供了参考，呼吁各界人士多参与饭局，不仅能更快乐，而且能增加内需。所以，有事没事，请我吃饭吧。</p>",
-    "published": "2026-09-05T11:52:27Z",
-    "feed_title": "seisamuse",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-05T20:11:52.433958+00:00",
-    "content_length": 2187
   },
   {
     "guid": "fd58d3ee1464f13d",
@@ -10179,42 +10119,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-09-06T04:00:20.995366+00:00",
     "content_length": 3864
-  },
-  {
-    "guid": "9607673625e11363",
-    "title": "入蜀记 day467 小小的真理",
-    "link": "https://z.arlmy.me/posts/BBBPandINSW/INSW-ko/INSW_467/",
-    "author": "素生",
-    "content": "<h2 id=\"20260903\" tabindex=\"-1\">20260903</h2><p>久违的大阴天。</p><p>成都祖传阴天哈哈，有些许凉爽，在屋里都非常安逸。</p><p>【买菜】凤尾2.2，豆花3，肉26.5，李子西梅14，豆干3，西兰花4.1，香蕉2.9，南瓜籽10。</p><p>买菜回来都没怎么出汗，脆红李都是汶川产的，脆甜但没有酸味，口感挺好，但就是没有五月脆丰富的滋味呢。</p><p>实践，任道，务实，牢固。早上读李贽说到的实践，去做才能让虚的思考和反思变得牢固，务实和牢固，想到参观工厂时看到墙上的流程图和工艺改进，都是日复一次筑起的高墙，所谓护城河，所谓壁垒，都是务实和做事带来的，持续多年，就变成了组织文化，变成了道的实践，这也是一条走出来的路。</p><p>还有一篇的感言，他说真正的饥饿，才会让人真的懂得一些道理。是的，人必须与真实碰撞，才能抓到，感受到那个内核，然后很快深化为自己的默认模式，生存技艺。</p><p>继续看克拉克森，看他在如此痛苦地告别，竟然不再浪漫地继续了，不知道是什么原因，怎么不再任性了，几万英镑对他来说应该完全可以任性的。换了一种羊，处理了所有猪，加上持续干旱少雨导致绝收，哪怕这一年用了很多高科技，还是无法对抗天灾。</p><p>农业太脆弱了，但好像人类还不习惯于这种脆弱，到底怎样程度的痛苦和灾难能让人类醒悟呢？总是局部的，成都人体验过地震，世界观都被震碎，其他地方好像很难如此程度地改变，反复的台风，广西的水灾，欧洲的高温等等，也没有摧毁很多人的日常。哦对，疫情算是一个事件，但好像对成年人的影响反而有限，年轻人尤其孩子的影响反而更大些。</p><p>现代化农业，精细农业真的是趋势，但周期仍然无法避免。</p><p>好像最近农业涨得也挺猛，能源和农业，似乎都要联手起来想想抵御天灾的方法了。最近肉价也回升了。</p><p>ai与农业，农业似乎一直被忽视，尤其中国，可以科技化的方法很多，且这是一个成熟的流程，很多卡点，除了种子，一定会出现其他卡点，还能植入到人类的低碳流程和绿色化和城市改造。</p><p>那个漂浮的农庄真的很震撼，有牛奶，有芝士，牛粪发热过滤海水，回收面包喂牛，太阳能发电，结合得太好了。</p><p>下午听歌。感叹演唱会都已经不是当年的观众了，YYYs的演唱会录音啥玩意…还是得回去听专辑……（老了的表现吗，很多习惯注定是以前养成的那样，变了就不太适应），听众变了现场就一定变了吗？或许很多正在正变得更亚，变得更幽微了，很细小，很微弱，做小也将成为一种能力呢。</p><p>前两天写的：</p><blockquote><p>若想独一无二<br />便要勇于渺小、便携<br />不曾在哪里<br />却处处可感</p></blockquote><p>这似乎就是一种小小的当代真理。</p><p>中国的文化更多时候是在建设共识性和集体感，而这种细微的个体化的趋势，刚好反过来，似乎阻力会比较大，有点卡钦斯基说的左派持续分化的感觉。</p><p>若是有比较好的结果，应该是两者能够结合，像是成都的分形化存在，小众也可以杂居其中，整体开放，小环境也能被保护，使其平静度过逆反期，不变得过度和张扬。</p><p>快八点，绵阳地震，手机显示5级，我拉着lili的手在屋里倒数，但没有什么晃感，后面好像修整下调了些，哦吧微信还来问我，给他报平安哈哈。</p><p>吃了好吃的鸡蛋羹，lili做的比我好吃，我不怎么饿，lili还是弄了点燕麦粥给我喝。</p><p>Merlin Bird ID，看克拉克森码了新APP，能实时识别鸟叫诶，好厉害。</p><p>这第五季，切实感受到开始有人文的话题，关于接生，保护环境，保护鸟（没有鸣禽，却发现它们都被杀死了），从认识农业和土地，到看到土地上的其他生物，而且越来越清醒了，作为世界上的生灵，对其他生灵的感觉，到最后才知道，他得了癌症（虽然看到有人说已经治好了，下季继续），但总觉得这跟这一季的走向是有关系的，这季最开始就是他被救护车拉走的镜头呢……</p><p>英国也有阿米什人诶。</p><p>白忙活俩月hhh，有个项目好像做不成了2333</p><p>看完这季了，看到好多好多鸟，的名字哈哈，镜头太少了，感觉这些发达国家，除了从事农业的，对于动物都非常漠视，甚至从事农业的，也不得不因为工作量的问题，不断更换品种，商业社会的某些准则。</p><p>离去的牛牛太可惜了，非常伤感，以至于愤怒！人类对于生命也太不在乎了，四川最近也发了保护鸟的文件，这个真的很重要。</p><p>但觉得似乎因为癌症，克拉克森在改变很多想法，除了要保证很多人的生活和收入以外，对自己的要求也有变化了，关注可持续性，关注生命，也可能是科技，无人作业确实解放了不少他的生产力哈哈。</p><p>人类，果然最重要的是注意力……</p><p>刷到嘻哈议事会，陈昊然的一段视频，灵魂震颤了一下，找来全片看了上半集，真好……</p><p>很通透啊，这种通透的感觉，让人敬佩，以及是那种一直做着自己热爱的事情的人，能够说出来的话，而且是那种对于人性很在意，观察很深入，那种爱思考的人，多么有趣的灵魂。</p><p>freestyle和hiphop的本心的流露，就是中国的应该的样子。</p><p>我想干，我就跟他死磕，做出来，在我的生命里，成为我的生命。</p><p>其实就这么简单罢了，人最怕受限，受限就应该流动，转化，而不是一味沉迷，浪费。</p><p>“That has genuinely made my heart sing.”</p><p>多么美好啊啊啊！！！</p><hr /><p>CHANGELOG</p><ul><li>20260905 Arlmy 创建、发布</li></ul>",
-    "published": "2026-09-05T11:49:27Z",
-    "feed_title": "素生",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-06T04:00:20.995366+00:00",
-    "content_length": 2395
-  },
-  {
-    "guid": "4e2e26b423b7f0a3",
-    "title": "入蜀记 day466 近谿",
-    "link": "https://z.arlmy.me/posts/BBBPandINSW/INSW-ko/INSW_466/",
-    "author": "素生",
-    "content": "<h2 id=\"20260902\" tabindex=\"-1\">20260902</h2><p>月亮超级亮，天空超级晴。</p><p>梦。回家在一个地方吃饭，远远看着好像有几个人面熟，以为遇到了哪个同学聚会，然后看到越来越多，一回头，竟然坐了两排的同学，我乐疯了，好多也是蛮久没见了，大家都彼此笑着，很开心，立刻聊了起来，都是那么鲜活啊，我们曾经真的是亲密无间，而且好像一直到高中，很多人都还在一个学校里，未曾远离，几乎就是十余年的朋友。</p><p>朝霞很漂亮。</p><p>好像去年这时经常起来看朝霞来着，今年就懒了，起的晚，也看不到了。</p><p>看手工耿和罗永浩对谈。</p><p>很好，真的需要对每个人都有更多面的了解，脱口秀的对谈和后采，比比赛更有趣，手工耿小齐那英在对谈中的真实流露，也比工业产品更动人，这些是工业中的垃圾，但却是人性的记录，没有人设都是表达，多么难得。</p><p>耿的作品原来可以买啊，他送老罗的这个东西也触动到我，美石，美木，都是对身体和触觉的回归。</p><p>读到李贽对苏轼的品评，那些真正反映精神品格的文章，反而被讨论得很少，这特么的真诡异，灯下黑，搜了下可以读苏轼散文全译，东坡志林译注，还有东坡书传笺译。如果原典都这么少人读了，那真正能理某位古人的人岂不就更少了吗，每个人都是那么独特，古人也不例外，除了他彼时的近友，还有谁能懂他呢？古人似乎比我们更懂得孤独和接受孤独，现代人硬着头皮说自己从来都不孤独。</p><p>王龙谿（xī）和罗近谿，李贽也多次提及，说明不是一般人物，也要读读，而且还将两个人像太极八卦一样做比，两个人的思想和方向都很互补，而很像道一样的在他们之上的人，就是提出心学的王阳明了，但其实谁也并不依从于谁的学说，最终都是某种个性、活法和选择的结果，古人的实践精神很强，讲学和交流也很多。</p><p>很厌恶把很多学说纳入到儒释道某个体系里面，尽管他们收到某家的启发，但人的身份和思考本来便是自由的。</p><p>做了个自动执行的软件，帮我做一些重复性工作，我擦，感觉花一些时间做完之后，脑子里的复杂度都降低了……</p><p>这是一次非常明确的内部减熵行动，感受到了自我净化和优化的感觉，以及，发现可以通过这样的方式，排除很多垃圾，我在努力做排泄前的准备似的。</p><p>以及忽然想到我的收集和囤积癖，其实是一种便秘，简直是排泄受阻的典范，把自己憋得通红却不知道怎么办哈哈哈，艹。</p><p>折腾deepseek harness，时间流逝，期间学会了用-force命令。</p><p>折腾完想不到什么项目，就用自己400多篇日记测试了一下，跑完之后十几块钱没了2333，直观感知到了四百多篇文章的力量哈哈，其实我总觉得我是在把一些信息注入模型啦，十几块钱像是注册费，或许以后deepseek的模型里面就有我了（我知道我只是在自作多情）。</p><p>对于自己的记忆的感受，和自己的行动，或是让别人看到和知道我，都可以作为目的，仅此就够了。</p><p>通过模型的运算形成时间杠杆真的是存在的，ai一定会进入一些流程中，其实我更喜欢的是在限定范围内使用ai突破或绕过卡点，持续优化过程，而不是直接替代全部流程，这一定是不可以的。</p><p>sop和工作流的优化和提效，启发思考而不是替代思考，就像triz那样，一套方案，但要依照具体情况做调整和适配。</p><p>除此之外的人类生活，真的应该成为一片所有人参与保护的净土，真实生活的难以化约是存在的，且注定不应被替代，一生的体验和，就像特德姜的你一生的故事，即便一生都可以被看清的时候，人仍是会做出选择的，即便是相似的选择，也是无法被压缩的，人类总是在自指，那是一次次地自指循环带来的变化，像一种光谱，光谱若都被简化，那真是太无趣了。</p><p>下午一直在看小心地滑群里的大家的8月小票，很爱看这样分享出来的日常和情绪，一下子可以看到好多人的生活，密度这么高，像是一种集体记忆的录入。</p><p>当下，认真生活的记忆，反复的交互交流和思考，无法被压缩和篡改，算法再强，也仍是压缩算法，而不是遍历和放大？这似乎也是没有的。</p><p>晚上出门买水，在超市看到一款羽衣甘蓝味道的豆浆粉，名叫自律豆浆2333</p><hr /><p>CHANGELOG</p><ul><li>20260905 Arlmy 创建、发布</li></ul>",
-    "published": "2026-09-05T11:47:27Z",
-    "feed_title": "素生",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-06T04:00:20.995366+00:00",
-    "content_length": 1829
-  },
-  {
-    "guid": "db9659f9628341bb",
-    "title": "入蜀记 day465 一点秋高气爽",
-    "link": "https://z.arlmy.me/posts/BBBPandINSW/INSW-ko/INSW_465/",
-    "author": "素生",
-    "content": "<h2 id=\"20260901\" tabindex=\"-1\">20260901</h2><p>九月！期待桂花飘香哈哈。</p><p>梦。做梦被吓醒，忙完走路时给妈妈打电话，聊天，说到爸爸咋样，妈妈忽然哽咽，说老爸确诊了肺癌晚期，旁边有飞机起飞的声音，我好像立刻回家再也不离开东北。</p><p>最近几天都不太容易感觉到饿，很神奇，不知道为啥，应该不至于是代谢过低吧，总觉得跟前几天早上吃肉馕有关联。</p><p>不过昨天开始觉得可以每天做一些拉伸，身体真的会很舒服。</p><p>lili说早上的客厅温度终于降下来了，秋天就是这样慢慢展现出来的嘛？</p><p>晴天，但春风和煦，莫名地舒服，也不闷了，这样的天气多来点！</p><p>地铁里的广告啥时候变成菊乐的？！还是李伯清，但听不太懂，最后感觉是牦牛儿来喽，高倍蛋白牛奶，这样。</p><p>真的有秋高气爽的感觉，太阳依旧很大，但没有很热。但距离立秋已经过去快一个月了，这就是时差吗2333</p><p>好像也确实好久没听见蝉鸣了，甚至都不知道什么时候停下的，处暑是这样的节气吗？</p><p>上午开会，三个项目只有一个觉得还不错，后续周二的会计划改版，增加一些线下的交流环节，其实就是一些深层的行业资讯和思考的分享和交流啦，制度化地迭代，挺好。</p><p>一直忙了会儿，折腾一些代码，想做个同步发布的多平台工具，但目前看还是不太行，auth 2.0这些东西怎么这么麻烦啊……其他平台很容易，但x就很麻烦，跟微信一样像个牢笼，把信息都锁在了里面。</p><p>想去吃碗面，但已经两点多，来不及了，于是就在少城几条胡同走了走，前面还路过了摩诃池，已经是个小湿地公园了，还有天主教堂，还是那么舒服和安静，真想在教堂里睡一觉，天气再凉快些这里会非常舒服。</p><p>吃了个清真汉堡，很便宜，然后就在店里工作，写些东西，店里有五个伊斯兰女孩，听起来是东南亚那边的，一直在纠结吃哪个汉堡，然后很喜欢店里放的歌，用软件一直搜着，叽叽喳喳，感觉像是白噪音了。</p><p>她们走之后店里就不太忙了，有个外卖小哥开着巨大的外放声音看视频等餐，我有点大声地让他关掉声音，他说了句不好意思，我倒有点愧疚了。</p><p>后厨三个人都出来休息了，这一片真的蛮多清真店铺的，是不是有聚集区啊，毕竟距离清真寺也比较近了。</p><p>发现一片028C的小街区，里面好多新店，还有很便宜的外带咖啡，真好诶，在一个手帐店转了下，发现一个叫白色向内的品牌，很好看的随身小本，转了转旁边的读本屋，没人在选书，都聚集在卖周边的地方……</p><p>第一批白果已经在地上开始臭了。</p><p>晚上一起点了份荤豆花饭，我下单竟然比lili便宜十几块，杀熟程度有点吓人了。</p><p>看克拉克森，总觉得有一些隐隐的东西没有放出来。</p><hr /><p>CHANGELOG</p><ul><li>20260905 Arlmy 创建、发布</li></ul>",
-    "published": "2026-09-05T11:43:27Z",
-    "feed_title": "素生",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-06T04:00:20.995366+00:00",
-    "content_length": 1240
   },
   {
     "guid": "3bdc7fce24dfc4ae",
@@ -10431,78 +10335,6 @@
     "feed_category": "Blogs",
     "cached_at": "2026-09-06T04:00:20.995366+00:00",
     "content_length": 139
-  },
-  {
-    "guid": "40319860b5e92e1a",
-    "title": "Kimi K3 模型结构（5）：宽度维度，Stable LatentMoE",
-    "link": "https://blog.javazero.top/2026/09/05/kimi-k3-05-stable-latentmoe/",
-    "author": "",
-    "content": "896 选 16 的 MoE 为什么要在一半宽度的 latent 空间里跑。先复述 NVIDIA LatentMoE 的论证链，再逐个拆 K3 加的三样东西：latent 上的 RMSNorm、SiTU-GLU 激活、Quantile Balancing 负载均衡，包括它从平衡指派问题推出来的过程。",
-    "published": "2026-09-05T15:20:00Z",
-    "feed_title": "Java不加糖's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-06T04:00:20.995366+00:00",
-    "content_length": 150
-  },
-  {
-    "guid": "9e9149794bf50eaf",
-    "title": "Kimi K3 模型结构（3）：序列维度，Gated MLA 与 3:1 混合",
-    "link": "https://blog.javazero.top/2026/09/05/kimi-k3-03-gated-mla/",
-    "author": "",
-    "content": "每四层一层的全局注意力。MLA 的低秩 KV 压缩按 K3 的真实维度走一遍，解释为什么 K3 敢让所有 MLA 层完全不带位置编码，满秩输出门是什么，3:1 这个比例怎么选出来的，以及 1M 上下文时 KV cache 和 KDA 状态各占多少。",
-    "published": "2026-09-05T14:40:00Z",
-    "feed_title": "Java不加糖's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-06T04:00:20.995366+00:00",
-    "content_length": 124
-  },
-  {
-    "guid": "54fb160c234e593c",
-    "title": "Kimi K3 模型结构（2）：序列维度（下），chunkwise 并行与下界衰减",
-    "link": "https://blog.javazero.top/2026/09/05/kimi-k3-02-kda-chunkwise/",
-    "author": "",
-    "content": "KDA 的 chunkwise 并行形式：WY 表示、UT 变换、块间递推加块内矩阵乘。然后是 K3 的改动：给每步的 log-decay 加一个 −5 的下界，让 16-token 对角 tile 也能用 Tensor Core 算。附一个可以拖的曲线对比。",
-    "published": "2026-09-05T14:00:00Z",
-    "feed_title": "Java不加糖's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-06T04:00:20.995366+00:00",
-    "content_length": 130
-  },
-  {
-    "guid": "955a6aa653e1bbfb",
-    "title": "Kimi K3 模型结构（1）：序列维度（上），从线性注意力到 KDA",
-    "link": "https://blog.javazero.top/2026/09/05/kimi-k3-01-kda-recurrence/",
-    "author": "",
-    "content": "Kimi Delta Attention 的递推形式。先把记忆看成在线学习，从目标函数推出「加、擦、忘」三个动作，再沿两条路径走完线性注意力到 KDA 的谱系（RetNet、Mamba2、GLA、HGRN2、DeltaNet、GDN、RWKV-7 等），用三个合成任务看每一步买来了什么，把状态更新公式的每一项画出来，解释为什么转移矩阵的累乘就是位置编码，最后对上 K3 的真实维度和 K3 在输出门上的第一个改动。",
-    "published": "2026-09-05T13:20:00Z",
-    "feed_title": "Java不加糖's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-06T04:00:20.995366+00:00",
-    "content_length": 208
-  },
-  {
-    "guid": "8d6a29bf4c95d5e1",
-    "title": "Kimi K3 模型结构（4）：深度维度，Attention Residuals",
-    "link": "https://blog.javazero.top/2026/09/05/kimi-k3-04-attnres/",
-    "author": "",
-    "content": "残差连接是深度方向上的 RNN，Attention Residuals 把它换成深度方向上的 softmax 注意力。讲清 Full 与 Block 两种形式、每个符号的含义、K3 里 93 层怎么切成 8 块 9 个来源，以及 Hugging Face 代码里论文没写的接线细节。",
-    "published": "2026-09-05T12:40:00Z",
-    "feed_title": "Java不加糖's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-06T04:00:20.995366+00:00",
-    "content_length": 141
-  },
-  {
-    "guid": "92fd330f147d3dd4",
-    "title": "Kimi K3 模型结构（0）：一张图看懂 Kimi K3",
-    "link": "https://blog.javazero.top/2026/09/05/kimi-k3-00-overview/",
-    "author": "",
-    "content": "连载开篇。用一张可点击的总架构图把 Kimi K3 的 93 层、三个维度上的三个新模块和视觉通路摆在一起，给出 K2 → K3 的结构对照表，并说明后面每一篇讲什么。",
-    "published": "2026-09-05T12:00:00Z",
-    "feed_title": "Java不加糖's Blog",
-    "feed_category": "Blogs",
-    "cached_at": "2026-09-06T04:00:20.995366+00:00",
-    "content_length": 84
   },
   {
     "guid": "1dc4bc34d083651a",
