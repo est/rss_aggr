@@ -10,6 +10,8 @@ state.json
 articles.json
 status.json
 output/
+archive/
+.runtime/
 .pytest_cache/
 .worktrees/
 .data/
@@ -19,6 +21,7 @@ output/
 .restore-data-ok
 .restore-site-ok
 .data-push-ok
+.cache-save-ok
 _build/
 *.tmp
 .mimocode

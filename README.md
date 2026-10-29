@@ -9,7 +9,7 @@ GitHub Actions 驱动的 RSS 采集 + AI 分类打分工具。
 | 原则 | 说明 | ADR |
 |------|------|-----|
 | Output append-only | `output/YYYY/MMDD.md` 只追加不删除；过去日期只做幂等追加/修复，同一天可扩展 | [ADR-003](docs/ADR/003.output.immutable-output.md) |
-| 分支职责分离 | `main` 代码/配置/文档，`data` 运行时状态，`gh-pages` 渲染输出 | [ADR-015](docs/ADR/015.branch.runtime-data.md) |
+| 分支职责分离 | `main` 代码/配置/文档，`data` 每日元数据快照；正文只在 Actions cache | [ADR-016](docs/ADR/016.cache.daily-metadata-snapshot.md) |
 | Article 14 天窗口 | `articles.json` 保存最近 14 天的待分类/已采集记录 | [ADR-004](docs/ADR/004.cache.fifteen-day-window.md) |
 | Fetch/Classify 独立 | 采集和分类可以分开运行 | [ADR-005](docs/ADR/005.architecture.fetch-classify-decoupled.md) |
 | Per-feed 筛选 | `skip_prompt` 按 feed 粒度配置 | [ADR-006](docs/ADR/006.filter.per-feed-skip-prompt.md) |
@@ -60,21 +60,32 @@ python -m src.main --check      # 校验运行时数据/输出契约
 | 分支 | 内容 | 写入方式 |
 |------|------|----------|
 | `main` | `src/`、`tests/`、`docs/`、`config.toml`、`feeds.toml`、`sources.toml`、workflow | 普通提交；`sync-feeds` 每周提交 `feeds.toml` |
-| `data` | `state.json`、`articles.json`、`status.json` | 每次采集一个 snapshot commit，force-push |
-| `gh-pages` | `output/` | 每次采集一个 snapshot commit，force-push |
+| `data` | `state.json`、`articles.json`（仅元数据）、`status.json`、`output/`、`archive/` | 每天最多一次 metadata snapshot，普通 push（冲突时 rebase 重试一次） |
 
-- `data` 和 `gh-pages` 都是**派生快照**，只由 CI 写入，不要手工 merge 或把 `main` 的内容推上去。
-- `gh-pages` 不保存 `state.json` / `articles.json`；Pages 部署来自 Actions artifact，不依赖该分支。
-- 恢复、回滚与重新启用 feed 见 [RUNBOOK](docs/RUNBOOK.md)。
+- 只有 `main` 和 `data` 两个长期分支。GitHub Pages 直接从 Actions artifact 部署，**没有 `gh-pages` 分支**。
+- 文章正文（`articles.json` 的 `content`）只保存在 Actions cache，不进入 git 历史；`data` 是可用于冷启动恢复的元数据快照，不是热数据源。按每天一次快照估算，git 年增量约 14 MB，而不是含正文的约 300 MB/年。
+- `data` 由 CI 写入。需要人工恢复时先暂停 workflow，修改后普通 push（不要 force-push），并清理 `rss-runtime-*` cache，否则下一轮会优先使用热 cache；步骤见 RUNBOOK。
+- 恢复、回滚、cache 驱逐与删除旧 `gh-pages` 见 [RUNBOOK](docs/RUNBOOK.md)。
+
+## 缓存与恢复
+
+每次采集按以下顺序恢复：
+
+1. `actions/cache/restore` 恢复 `.runtime/`（含正文的热数据），并用 Python 校验 `state.json` / `articles.json`；
+2. cache 缺失或损坏时从 `data` 恢复 `state.json`、`status.json`、`output/`、`archive/`；
+3. `data` 不存在时，允许一次性从旧 `gh-pages` 迁移 `state.json` / `output/`；
+4. 都没有时以空状态启动，首次成功运行后自动创建 `data`。
+
+cache 未命中时，`data` 中的 `articles.json` 只有元数据、没有正文。工作流会删除本地 `articles.json`，让 fetch 跳过 ETag 条件请求并重新抓取 14 天窗口；因此 cache 被驱逐最多丢失约一天内尚未分类的正文，但可以重新抓取。运行时文件 JSON 损坏会让 job 失败，而不是静默覆盖 `data`。
 
 ## Workflow
 
 | Workflow | 触发 | 行为 |
 |----------|------|------|
-| `collect.yml` | 每 6 小时 + 手动 | 先跑 `test`（ruff + pytest）；从 `data` 恢复运行时状态、从 `gh-pages` 恢复 `output/`，执行 fetch/classify/cleanup/report，构建并部署 Pages，然后运行 `--check` 报警，最后在 `always()` 中持久化两个快照 |
+| `collect.yml` | 每 6 小时 + 手动（可强制 `snapshot=true`） | 先跑 `test`（ruff + pytest）；从 Actions cache 或 `data` 恢复运行时状态，执行 fetch/classify/cleanup/report，构建并部署 Pages，运行 `--check` 报警；`always()` 中保存 cache，并按 20 小时窗口写一次 `data` 元数据快照 |
 | `sync-feeds.yml` | 每周一 04:00 UTC + 手动 | 运行 `--sync`，仅在 `feeds.toml` 变化时提交到 `main` |
 
-`collect` 使用 concurrency group `rss-collect` 且 `cancel-in-progress: false`：上一轮未结束时新任务排队，不会中途取消。缺少 `data` / `gh-pages` 分支时工作流会警告并继续，首次成功运行会自动创建分支。
+`collect` 使用 concurrency group `rss-collect` 且 `cancel-in-progress: false`：上一轮未结束时新任务排队，不会中途取消。缺少 `data` 分支时工作流会警告并继续；首次成功运行会自动创建分支。需要立即生成快照时，手动运行并勾选 `snapshot`。
 
 ## 架构
 
@@ -165,16 +176,18 @@ output/
     0513.md
 ```
 
-运行时文件保存在 `data` 分支：
+运行时与归档文件：
 
 ```
-data/
-  state.json      # feed 状态（last_ok、失败次数、disabled、etag）
-  articles.json   # 14 天窗口的待分类文章
-  status.json     # 最近一次运行报告
+data/                     # 每日元数据快照（CI 写入）
+  state.json              # feed 状态（last_ok、失败次数、disabled、etag）
+  articles.json           # 14 天窗口元数据，不含正文 content
+  status.json             # 最近一次运行报告
+  output/                 # 渲染输出快照
+  archive/                # 可选，按天 JSONL：archive/YYYY-MM-DD.jsonl
 ```
 
-本地运行生成的 `state.json` / `articles.json` / `status.json` / `output/` 都被 `.gitignore` 忽略，不会进入 `main`。旧版 `cache.json` 会在恢复时迁移为 `articles.json`。
+本地运行生成的 `state.json` / `articles.json` / `status.json` / `output/` / `archive/` 都被 `.gitignore` 忽略，不会进入 `main`。含正文的 `articles.json` 只在 Actions cache 中；`data` 上的版本总是去正文的。旧版 `cache.json` / `gh-pages` 运行时文件只用于首次迁移。
 
 ## 成本
 
