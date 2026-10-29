@@ -5,75 +5,92 @@ on:
     - cron: "0 */6 * * *"
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
+concurrency:
+  group: rss-collect
+  cancel-in-progress: false
 
 jobs:
-  collect:
+  test:
     runs-on: ubuntu-latest
-    environment: github-pages
+    timeout-minutes: 15
     steps:
       - name: Checkout main
         uses: actions/checkout@v4
-
-      - name: Restore state and articles cache
-        uses: actions/cache@v4
         with:
-          path: |
-            state.json
-            articles.json
-          key: rss-state
+          ref: main
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Test
+        run: pytest -q
+
+  collect:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: github-pages
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Sync feeds
-        run: python -m src.main --sync
-
-      - name: Commit feeds to main
+      - name: Restore runtime data from data branch
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.com"
-          git add feeds.toml
-          git diff --cached --quiet || git commit -m "chore: sync feeds $(date -u +%Y-%m-%d)" && git push
-
-      - name: Setup worktree and restore data from gh-pages
-        run: |
-          # Create gh-pages worktree (or update if exists)
-          if git show-ref --verify --quiet refs/heads/gh-pages; then
-            git worktree add /tmp/gh-pages gh-pages 2>/dev/null || true
-          else
-            git fetch origin gh-pages:gh-pages 2>/dev/null || true
-            if git rev-parse --verify gh-pages >/dev/null 2>&1; then
-              git worktree add /tmp/gh-pages gh-pages 2>/dev/null || true
-            else
-              git worktree add -b gh-pages /tmp/gh-pages 2>/dev/null || true
-              echo "Created new gh-pages branch"
+          set -euo pipefail
+          mkdir -p .data
+          if git fetch --depth=1 origin data; then
+            git archive FETCH_HEAD | tar -x -C .data
+            for f in state.json articles.json status.json; do
+              if [ -f ".data/$f" ]; then
+                cp ".data/$f" "./$f"
+                echo "Restored $f from data branch"
+              fi
+            done
+            # Backward compatibility for the pre-ADR-015 layout.
+            if [ ! -f articles.json ] && [ -f .data/cache.json ]; then
+              cp .data/cache.json articles.json
+              echo "Migrated .data/cache.json to articles.json"
             fi
+          else
+            echo "::warning::data branch not found; starting with empty runtime state"
           fi
-          # Copy data from gh-pages to working directory
+
+      - name: Restore output from gh-pages
+        run: |
+          set -euo pipefail
           mkdir -p output
-          if [ -d /tmp/gh-pages/output ]; then
-            cp -R /tmp/gh-pages/output/. output/ 2>/dev/null || true
+          if git fetch --depth=1 origin gh-pages; then
+            if git cat-file -e FETCH_HEAD:output 2>/dev/null; then
+              git archive FETCH_HEAD output | tar -x -C .
+              echo "Restored $(find output -name '*.md' | wc -l) output files"
+            else
+              echo "::warning::gh-pages has no output/ directory; starting with empty output"
+            fi
+          else
+            echo "::warning::gh-pages branch not found; starting with empty output"
           fi
-          if [ -f /tmp/gh-pages/state.json ]; then
-            cp /tmp/gh-pages/state.json state.json
-          fi
-          if [ -f /tmp/gh-pages/articles.json ]; then
-            cp /tmp/gh-pages/articles.json articles.json
-          elif [ -f /tmp/gh-pages/cache.json ]; then
-            # Backward compatibility: migrate cache.json to articles.json
-            cp /tmp/gh-pages/cache.json articles.json
-          fi
-          echo "Restored $(find output/ -name '*.md' 2>/dev/null | wc -l) output files"
 
       - name: Fetch RSS
         run: python -m src.main --fetch
@@ -86,45 +103,125 @@ jobs:
         run: python -m src.main --classify
 
       - name: Cleanup old articles
-        if: success()
         run: python -m src.main --cleanup
 
-      - name: Fix links for Jekyll
-        if: success()
-        run: test -f output/index.md && sed -i 's/\.md)/.html)/g' output/index.md || echo "No index.md, skipping"
+      - name: Generate run report
+        if: always()
+        run: python -m src.main --report
+
+      - name: Verify runtime contract
+        if: always()
+        run: python -m src.main --check
+
+      - name: Prepare Pages content
+        run: |
+          set -euo pipefail
+          rm -rf _build
+          cp -R output _build
+          if [ -f _build/index.md ]; then
+            sed -i 's/\.md)/.html)/g' _build/index.md
+          fi
 
       - name: Build with Jekyll
-        if: success()
         uses: actions/jekyll-build-pages@v1
         with:
-          source: ./output
+          source: ./_build
           destination: ./_site
 
       - name: Upload Pages artifact
-        if: success()
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
       - name: Deploy to GitHub Pages
-        if: success()
         uses: actions/deploy-pages@v4
 
-      - name: Persist data to gh-pages worktree
-        if: success() || failure()
+      - name: Persist runtime data to data branch
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Copy results to gh-pages worktree
-          rm -rf /tmp/gh-pages/output
-          cp -R output /tmp/gh-pages/output
-          cp state.json /tmp/gh-pages/state.json
-          cp articles.json /tmp/gh-pages/articles.json
-          # Commit and push
-          cd /tmp/gh-pages
+          set -euo pipefail
+          if [ ! -f state.json ] || [ ! -f articles.json ]; then
+            echo "::warning::state.json or articles.json is missing; skipping data branch push"
+            exit 0
+          fi
+
+          REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          rm -rf .data-push
+
+          if git clone --depth 1 --branch data "$REMOTE" .data-push 2>/dev/null; then
+            echo "Cloned existing data branch"
+          elif DATA_HEADS="$(git ls-remote --heads "$REMOTE" data 2>/dev/null)" && [ -z "$DATA_HEADS" ]; then
+            echo "data branch does not exist; creating it"
+            mkdir -p .data-push
+            git -C .data-push init
+            git -C .data-push checkout --orphan data
+            git -C .data-push remote add origin "$REMOTE"
+          else
+            echo "::error::data branch exists but could not be cloned"
+            exit 1
+          fi
+
+          cp -f state.json articles.json .data-push/
+          if [ -f status.json ]; then
+            cp -f status.json .data-push/
+          else
+            rm -f .data-push/status.json
+          fi
+          # The data branch is a runtime snapshot; cache.json is no longer part of it.
+          rm -f .data-push/cache.json
+
+          cd .data-push
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.com"
-          git add output state.json articles.json
-          git diff --cached --quiet || git commit -m "chore: persist output $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          git push origin gh-pages
-          cd -
-          # Cleanup worktree
-          git worktree remove /tmp/gh-pages --force
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No runtime data changes"
+          else
+            git commit -m "data: snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push --force origin data
+          fi
+
+      - name: Persist site output to gh-pages
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ ! -d output ]; then
+            echo "::warning::output directory is missing; skipping gh-pages push"
+            exit 0
+          fi
+
+          REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          rm -rf .site-push
+
+          if git clone --depth 1 --branch gh-pages "$REMOTE" .site-push 2>/dev/null; then
+            echo "Cloned existing gh-pages branch"
+          elif SITE_HEADS="$(git ls-remote --heads "$REMOTE" gh-pages 2>/dev/null)" && [ -z "$SITE_HEADS" ]; then
+            echo "gh-pages branch does not exist; creating it"
+            mkdir -p .site-push
+            git -C .site-push init
+            git -C .site-push checkout --orphan gh-pages
+            git -C .site-push remote add origin "$REMOTE"
+          else
+            echo "::error::gh-pages branch exists but could not be cloned"
+            exit 1
+          fi
+
+          rm -rf .site-push/output
+          cp -R output .site-push/output
+          # gh-pages is the rendered-output snapshot only; runtime state lives on data.
+          rm -f .site-push/state.json .site-push/articles.json .site-push/status.json .site-push/cache.json
+
+          cd .site-push
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No site output changes"
+          else
+            git commit -m "site: snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push --force origin gh-pages
+          fi
