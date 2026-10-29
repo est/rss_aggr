@@ -8,7 +8,14 @@ node_modules/
 .DS_Store
 state.json
 articles.json
+status.json
 output/
+.pytest_cache/
+.worktrees/
+.data/
+.data-push/
+.site-push/
+_build/
 *.tmp
 .mimocode
 
