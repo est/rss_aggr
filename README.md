@@ -48,7 +48,7 @@ python -m src.main --check      # 校验运行时数据/输出契约
 --classify  从 articles.json 读取，AI 分类后写入 output/YYYY/MMDD.md
 --cleanup   清理 articles.json 中超过 14 天的老条目
 --report    写入 status.json，记录本次运行概况
---check     校验数据文件与输出目录，失败时阻止 Pages 部署
+--check     校验数据/输出契约；在部署后运行，失败时把 job 标记为失败并报警
 ```
 
 - 各步骤完全独立，可任意顺序重跑
@@ -70,7 +70,7 @@ python -m src.main --check      # 校验运行时数据/输出契约
 
 | Workflow | 触发 | 行为 |
 |----------|------|------|
-| `collect.yml` | 每 6 小时 + 手动 | 先跑 `test`（ruff + pytest）；再从 `data` 恢复运行时状态、从 `gh-pages` 恢复 `output/`，执行 fetch/classify/cleanup/report/check，构建并部署 Pages，最后在 `always()` 中持久化两个快照 |
+| `collect.yml` | 每 6 小时 + 手动 | 先跑 `test`（ruff + pytest）；从 `data` 恢复运行时状态、从 `gh-pages` 恢复 `output/`，执行 fetch/classify/cleanup/report，构建并部署 Pages，然后运行 `--check` 报警，最后在 `always()` 中持久化两个快照 |
 | `sync-feeds.yml` | 每周一 04:00 UTC + 手动 | 运行 `--sync`，仅在 `feeds.toml` 变化时提交到 `main` |
 
 `collect` 使用 concurrency group `rss-collect` 且 `cancel-in-progress: false`：上一轮未结束时新任务排队，不会中途取消。缺少 `data` / `gh-pages` 分支时工作流会警告并继续，首次成功运行会自动创建分支。

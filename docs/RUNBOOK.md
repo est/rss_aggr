@@ -37,14 +37,14 @@ pytest -q
 | Classify articles | API key 失效、额度不足、`base_url` 错误 | 轮换 key（第 4 节），检查 `config.toml` |
 | Cleanup | `articles.json` 损坏 | 恢复 `articles.json` 或删除让其重建 |
 | Generate run report | `--report` 实现/数据问题 | 查看日志；修复后重跑 |
-| Verify runtime contract | `--check` 发现数据或输出不一致 | 按日志修复，修复前不会部署 Pages |
+| Verify runtime contract | `--check` 在部署后发现数据或输出不一致 | 按日志修复；内容可能已发布，但 job 会保持红色直到契约恢复 |
 | Persist data/site | 权限、分支保护、clone 失败 | 检查 job 的 `contents: write`，确认分支未被保护 |
 
 补充：
 
 - 同一 `rss-collect` 组的运行会排队，不会取消正在运行的采集。
 - fetch/classify 可以安全重跑：`articles.json` 和 `output/` 都按链接去重。
-- `--check` 失败时 Pages 不部署，但 `always()` 的数据/站点快照仍会尝试写入；修复后用 `workflow_dispatch` 重跑。
+- `--check` 在 Pages 部署之后运行：它不会回滚已发布内容，但会让 job 失败并保留 `always()` 的数据/站点快照；修复后用 `workflow_dispatch` 重跑。
 - 持久化步骤发现 `state.json` 或 `articles.json` 缺失时会 warning 并跳过 `data` push，这是保护行为，不要绕过。
 
 ## 2. 重新启用被自动禁用的 feed
@@ -241,4 +241,4 @@ git push --force origin refs/heads/backup/data-<timestamp>:refs/heads/data
    git ls-tree -r --name-only origin/gh-pages | grep -E 'state\.json|articles\.json|status\.json' || echo "ok: no runtime files on gh-pages"
    ```
 
-7. 页面未更新时：先硬刷新/清缓存；再检查 `deploy-pages` 是否被 `--check` 失败跳过；最后确认 `environment: github-pages` 的 deployment branch/tag 规则没有阻止部署。
+7. 页面未更新时：先硬刷新/清缓存；再检查 `deploy-pages` 是否失败或 `Prepare Pages content`/Jekyll 是否被前序步骤跳过；最后确认 `environment: github-pages` 的 deployment branch/tag 规则没有阻止部署。
