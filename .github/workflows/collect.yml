@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "0 */6 * * *"
   workflow_dispatch:
+    inputs:
+      snapshot:
+        description: "Force a metadata snapshot to the data branch"
+        type: boolean
+        default: false
 
 concurrency:
   group: rss-collect
@@ -56,123 +61,185 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Restore runtime data from data branch
+      # The cache is the hot copy of runtime state, including raw article
+      # bodies. It is not the source of truth: the data branch has a daily,
+      # metadata-only snapshot that is used when the cache is evicted.
+      - name: Restore runtime cache
+        id: runtime-cache
+        # A cache outage must not block collection: the data branch is the
+        # fallback. Invalid/partial restores are rejected by the next step.
+        continue-on-error: true
+        uses: actions/cache/restore@v4
+        with:
+          path: .runtime
+          key: rss-runtime-${{ github.run_id }}
+          restore-keys: |
+            rss-runtime-
+
+      - name: Restore runtime data
+        env:
+          CACHE_HIT: ${{ steps.runtime-cache.outputs.cache-hit }}
+          CACHE_MATCHED_KEY: ${{ steps.runtime-cache.outputs.cache-matched-key }}
+          CACHE_OUTCOME: ${{ steps.runtime-cache.outcome }}
         run: |
           set -euo pipefail
-          rm -f .restore-data-ok
-          mkdir -p .data
+          rm -f .restore-data-ok .cache-restore-miss
+          mkdir -p output
 
-          data_heads=""
-          data_rc=0
-          data_heads="$(git ls-remote --exit-code --heads origin data 2>/dev/null)" || data_rc=$?
-          if [ "$data_rc" -eq 0 ] && [ -n "$data_heads" ]; then
-            if ! git fetch --depth=1 origin data; then
-              echo "::error::data branch exists but could not be fetched"
-              exit 1
-            fi
-            git archive FETCH_HEAD | tar -x -C .data
-            for f in state.json articles.json status.json; do
-              if [ -f ".data/$f" ]; then
-                cp ".data/$f" "./$f"
-                echo "Restored $f from data branch"
-              fi
-            done
-            # Backward compatibility for the pre-ADR-015 layout.
-            if [ ! -f articles.json ] && [ -f .data/cache.json ]; then
-              cp .data/cache.json articles.json
-              echo "Migrated .data/cache.json to articles.json"
-            fi
-          elif [ "$data_rc" -eq 2 ] || { [ "$data_rc" -eq 0 ] && [ -z "$data_heads" ]; }; then
-            echo "::warning::data branch not found; starting with empty runtime state"
-          else
-            echo "::error::could not query data branch (git ls-remote rc=$data_rc)"
-            exit 1
+          if [ "${CACHE_OUTCOME}" = "failure" ]; then
+            echo "::warning::runtime cache restore action failed; treating it as a cold start"
           fi
 
-          # Backward compatibility for the first run after ADR-015. The old
-          # gh-pages layout held state.json/articles.json next to output/.
-          # Migrate them on the fly so a deployment does not lose the backlog.
-          if [ ! -f state.json ] || [ ! -f articles.json ]; then
-            site_heads=""
-            site_rc=0
-            site_heads="$(git ls-remote --exit-code --heads origin gh-pages 2>/dev/null)" || site_rc=$?
-            if [ "$site_rc" -eq 0 ] && [ -n "$site_heads" ]; then
-              if ! git fetch --depth=1 origin gh-pages; then
-                echo "::error::gh-pages exists but could not be fetched for legacy runtime data"
+          validate_json() {
+            python -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' "$1"
+          }
+
+          # cache-hit is "true" only for an exact key match. The key contains
+          # run_id, so a normal run restores a previous cache through
+          # restore-keys and reports a partial match. Treat validated files as
+          # authoritative, and log the exact/partial state for debugging.
+          cache_ok=false
+          if [ -f .runtime/state.json ] && [ -f .runtime/articles.json ]; then
+            if validate_json .runtime/state.json && validate_json .runtime/articles.json; then
+              cache_ok=true
+            else
+              echo "::warning::runtime cache is not valid JSON; falling back to the data branch"
+            fi
+          fi
+
+          if [ "$cache_ok" = true ]; then
+            cp -a .runtime/. .
+            echo "Restored runtime state from Actions cache (cache-hit=${CACHE_HIT:-false}, matched-key=${CACHE_MATCHED_KEY:-none})"
+          else
+            echo "::warning::runtime cache missing or invalid; restoring from the data branch"
+            # A cache miss means articles.json cannot be trusted as a live
+            # cache: the data branch snapshot is metadata-only (no raw bodies).
+            # Removing it makes fetch ignore persisted ETags and re-fetch the
+            # whole 14-day window with full content.
+            touch .cache-restore-miss
+
+            data_heads=""
+            data_rc=0
+            data_heads="$(git ls-remote --exit-code --heads origin data 2>/dev/null)" || data_rc=$?
+            if [ "$data_rc" -eq 0 ] && [ -n "$data_heads" ]; then
+              if ! git fetch --depth=1 origin data; then
+                echo "::error::data branch exists but could not be fetched"
                 exit 1
               fi
-              mkdir -p .legacy
-              for f in state.json articles.json cache.json; do
-                if git cat-file -e "FETCH_HEAD:$f" 2>/dev/null; then
-                  git show "FETCH_HEAD:$f" > ".legacy/$f"
+              rm -rf .data
+              mkdir -p .data
+              git archive FETCH_HEAD | tar -x -C .data
+
+              for f in state.json articles.json status.json; do
+                if [ -f ".data/$f" ]; then
+                  cp ".data/$f" "./$f"
                 fi
               done
-              if [ ! -f state.json ] && [ -f .legacy/state.json ]; then
-                cp .legacy/state.json state.json
-                echo "::warning::restored legacy state.json from gh-pages"
+              if [ -d .data/output ]; then
+                rm -rf output
+                cp -R .data/output output
               fi
-              if [ ! -f articles.json ]; then
-                if [ -f .legacy/articles.json ]; then
-                  cp .legacy/articles.json articles.json
-                  echo "::warning::restored legacy articles.json from gh-pages"
-                elif [ -f .legacy/cache.json ]; then
-                  cp .legacy/cache.json articles.json
-                  echo "::warning::migrated legacy cache.json from gh-pages"
+              if [ -d .data/archive ]; then
+                rm -rf archive
+                cp -R .data/archive archive
+              fi
+
+              # An ADR-015 data branch contains runtime state only. Recover
+              # historical site output from legacy gh-pages once so the first
+              # post-migration cold start does not erase old pages.
+              if [ -z "$(find output -type f -print -quit 2>/dev/null)" ]; then
+                site_heads=""
+                site_rc=0
+                site_heads="$(git ls-remote --exit-code --heads origin gh-pages 2>/dev/null)" || site_rc=$?
+                if [ "$site_rc" -eq 0 ] && [ -n "$site_heads" ]; then
+                  if ! git fetch --depth=1 origin gh-pages; then
+                    echo "::error::gh-pages exists but could not be fetched for legacy output migration"
+                    exit 1
+                  fi
+                  if git cat-file -e "FETCH_HEAD:output" 2>/dev/null; then
+                    rm -rf output
+                    git archive FETCH_HEAD output | tar -x -C .
+                    echo "::warning::restored legacy output/ from gh-pages during migration"
+                  fi
+                elif [ "$site_rc" -ne 2 ] && ! { [ "$site_rc" -eq 0 ] && [ -z "$site_heads" ]; }; then
+                  echo "::error::could not query gh-pages for legacy output migration (rc=$site_rc)"
+                  exit 1
                 fi
               fi
-            elif [ "$site_rc" -ne 2 ] && ! { [ "$site_rc" -eq 0 ] && [ -z "$site_heads" ]; }; then
-              echo "::error::could not query gh-pages for legacy runtime data (rc=$site_rc)"
+
+              if [ ! -f state.json ] || [ ! -f articles.json ]; then
+                echo "::error::data branch exists but is missing state.json or articles.json"
+                exit 1
+              fi
+              # Validate before deleting articles.json so corruption on the
+              # snapshot branch is reported instead of silently ignored.
+              if ! validate_json state.json; then
+                echo "::error::restored state.json is not valid JSON; refusing to start"
+                exit 1
+              fi
+              if ! validate_json articles.json; then
+                echo "::error::restored articles.json is not valid JSON; refusing to start"
+                exit 1
+              fi
+
+              rm -f articles.json
+              echo "Restored state/output/archive from data branch; dropped metadata-only articles.json to force a full 14-day refetch"
+              rm -rf .data
+            elif [ "$data_rc" -eq 2 ] || { [ "$data_rc" -eq 0 ] && [ -z "$data_heads" ]; }; then
+              # One-time migration path for the pre-ADR-016 layout. Only state
+              # and output are copied: restoring articles.json from gh-pages
+              # would bring raw content back from git, and the 14-day window is
+              # re-fetched anyway because the cache missed.
+              echo "::warning::data branch not found; checking legacy gh-pages for a one-time migration"
+              site_heads=""
+              site_rc=0
+              site_heads="$(git ls-remote --exit-code --heads origin gh-pages 2>/dev/null)" || site_rc=$?
+              if [ "$site_rc" -eq 0 ] && [ -n "$site_heads" ]; then
+                if ! git fetch --depth=1 origin gh-pages; then
+                  echo "::error::gh-pages exists but could not be fetched for legacy migration"
+                  exit 1
+                fi
+                rm -rf .legacy
+                mkdir -p .legacy
+                if git cat-file -e "FETCH_HEAD:state.json" 2>/dev/null; then
+                  git show "FETCH_HEAD:state.json" > .legacy/state.json
+                  cp .legacy/state.json state.json
+                  echo "::warning::restored legacy state.json from gh-pages"
+                fi
+                if git cat-file -e "FETCH_HEAD:output" 2>/dev/null; then
+                  rm -rf output
+                  git archive FETCH_HEAD output | tar -x -C .
+                fi
+                echo "Legacy migration: state/output restored; legacy articles.json is intentionally not copied"
+                rm -rf .legacy
+              elif [ "$site_rc" -eq 2 ] || { [ "$site_rc" -eq 0 ] && [ -z "$site_heads" ]; }; then
+                echo "::warning::no data or gh-pages branch found; starting with empty runtime state"
+              else
+                echo "::error::could not query gh-pages for legacy migration (rc=$site_rc)"
+                exit 1
+              fi
+            else
+              echo "::error::could not query data branch (git ls-remote rc=$data_rc)"
               exit 1
             fi
           fi
 
           # Never run with a corrupt cache: it would be silently treated as
-          # empty and then force-pushed over the data branch.
+          # empty and then written back over the data branch.
           for f in state.json articles.json; do
             if [ -f "$f" ]; then
-              if ! python -c "import json,sys; json.load(open(sys.argv[1]))" "$f"; then
+              if ! validate_json "$f"; then
                 echo "::error::$f is not valid JSON; refusing to start"
                 exit 1
               fi
             fi
           done
 
-          if [ "$data_rc" -eq 0 ] && [ -n "$data_heads" ] \
-              && [ ! -f state.json ] && [ ! -f articles.json ]; then
-            echo "::error::data branch exists but contains no state.json/articles.json"
-            exit 1
-          fi
-
+          # Reaching this point means the restore path completed safely. An
+          # empty bootstrap is allowed here; the snapshot step still requires
+          # valid state.json/articles.json before writing the data branch.
           touch .restore-data-ok
-
-      - name: Restore output from gh-pages
-        run: |
-          set -euo pipefail
-          rm -f .restore-site-ok
-          mkdir -p output
-
-          site_heads=""
-          site_rc=0
-          site_heads="$(git ls-remote --exit-code --heads origin gh-pages 2>/dev/null)" || site_rc=$?
-          if [ "$site_rc" -eq 0 ] && [ -n "$site_heads" ]; then
-            if ! git fetch --depth=1 origin gh-pages; then
-              echo "::error::gh-pages exists but could not be fetched"
-              exit 1
-            fi
-            if git cat-file -e FETCH_HEAD:output 2>/dev/null; then
-              git archive FETCH_HEAD output | tar -x -C .
-              echo "Restored $(find output -name '*.md' | wc -l) output files"
-            else
-              echo "::warning::gh-pages has no output/ directory; starting with empty output"
-            fi
-          elif [ "$site_rc" -eq 2 ] || { [ "$site_rc" -eq 0 ] && [ -z "$site_heads" ]; }; then
-            echo "::warning::gh-pages branch not found; starting with empty output"
-          else
-            echo "::error::could not query gh-pages (rc=$site_rc)"
-            exit 1
-          fi
-
-          touch .restore-site-ok
+          echo "Runtime restore complete (cache_ok=$cache_ok)"
 
       - name: Fetch RSS
         run: python -m src.main --fetch
@@ -220,115 +287,185 @@ jobs:
         if: always()
         run: python -m src.main --check
 
-      - name: Persist runtime data to data branch
+      # Stage a validated copy for the immutable Actions cache. Missing or
+      # corrupt runtime files are skipped with a warning: a partial cache must
+      # never become the next run's hot state.
+      - name: Prepare runtime cache
+        id: prepare-runtime-cache
         if: always()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          rm -f .data-push-ok
-          if [ ! -f .restore-data-ok ]; then
-            echo "::warning::runtime restore did not succeed; skipping data branch push"
-            exit 0
-          fi
+          rm -f .cache-save-ok
+          echo "ok=false" >> "$GITHUB_OUTPUT"
+          rm -rf .runtime
+          mkdir -p .runtime
+
+          validate_json() {
+            python -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' "$1"
+          }
+
           if [ ! -f state.json ] || [ ! -f articles.json ]; then
-            echo "::warning::state.json or articles.json is missing; skipping data branch push"
+            echo "::warning::state.json or articles.json is missing; skipping cache save"
             exit 0
           fi
-          for f in state.json articles.json; do
-            if ! python -c "import json,sys; json.load(open(sys.argv[1]))" "$f"; then
-              echo "::error::$f is not valid JSON; skipping data branch push"
+          for f in state.json articles.json status.json; do
+            if [ -f "$f" ] && ! validate_json "$f"; then
+              echo "::warning::$f is not valid JSON; skipping cache save"
               exit 0
             fi
           done
 
+          cp state.json articles.json .runtime/
+          if [ -f status.json ]; then
+            cp status.json .runtime/
+          fi
+          if [ -d output ]; then
+            cp -R output .runtime/output
+          fi
+          if [ -d archive ]; then
+            cp -R archive .runtime/archive
+          fi
+
+          touch .cache-save-ok
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+          echo "Prepared runtime cache"
+
+      - name: Save runtime cache
+        if: always() && steps.prepare-runtime-cache.outputs.ok == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .runtime
+          key: rss-runtime-${{ github.run_id }}
+
+      # The data branch is a once-daily, metadata-only snapshot. It never
+      # receives raw article bodies; those live only in the Actions cache.
+      # A normal fast-forward push is used so a human commit on data is not
+      # silently overwritten.
+      - name: Snapshot metadata to data branch
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SNAPSHOT_FORCED: ${{ github.event.inputs.snapshot || 'false' }}
+        run: |
+          set -euo pipefail
+          validate_json() {
+            python -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' "$1"
+          }
+
+          if [ ! -f .restore-data-ok ]; then
+            echo "::warning::runtime restore did not succeed; skipping data snapshot"
+            exit 0
+          fi
+          if [ ! -f .cache-save-ok ]; then
+            echo "::warning::runtime artifacts were not validated for cache; skipping data snapshot"
+            exit 0
+          fi
+          if [ ! -f state.json ] || [ ! -f articles.json ]; then
+            echo "::warning::state.json or articles.json is missing; skipping data snapshot"
+            exit 0
+          fi
+          if ! validate_json state.json || ! validate_json articles.json; then
+            echo "::warning::runtime files are not valid JSON; skipping data snapshot"
+            exit 0
+          fi
+
           REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           rm -rf .data-push
 
+          data_existed=false
           if git clone --depth 1 --branch data "$REMOTE" .data-push 2>/dev/null; then
+            data_existed=true
             echo "Cloned existing data branch"
           elif DATA_HEADS="$(git ls-remote --heads "$REMOTE" data 2>/dev/null)" && [ -z "$DATA_HEADS" ]; then
             echo "data branch does not exist; creating it"
+            rm -rf .data-push
             mkdir -p .data-push
-            git -C .data-push init
-            git -C .data-push checkout --orphan data
+            git -C .data-push init -q
+            git -C .data-push checkout -q --orphan data
             git -C .data-push remote add origin "$REMOTE"
           else
             echo "::error::data branch exists but could not be cloned"
             exit 1
           fi
 
-          cp -f state.json articles.json .data-push/
-          if [ -f status.json ]; then
-            cp -f status.json .data-push/
+          snapshot_due=false
+          if [ "$data_existed" != true ]; then
+            snapshot_due=true
+          elif [ "$SNAPSHOT_FORCED" = "true" ]; then
+            snapshot_due=true
+            echo "Snapshot forced by workflow_dispatch input"
           else
-            rm -f .data-push/status.json
+            last_epoch="$(git -C .data-push log -1 --format=%ct)"
+            now_epoch="$(date -u +%s)"
+            age=$(( now_epoch - last_epoch ))
+            if [ "$age" -ge 72000 ]; then
+              snapshot_due=true
+              echo "Last data snapshot is ${age}s old; due"
+            else
+              echo "Last data snapshot is ${age}s old; not due"
+            fi
           fi
-          # The data branch is a runtime snapshot; cache.json is no longer part of it.
-          rm -f .data-push/cache.json
 
-          cd .data-push
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "No runtime data changes"
-          else
-            git commit -m "data: snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push --force origin data
-          fi
-          cd ..
-          touch .data-push-ok
-
-      - name: Persist site output to gh-pages
-        if: always()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          if [ ! -f .restore-site-ok ]; then
-            echo "::warning::site restore did not succeed; skipping gh-pages push"
-            exit 0
-          fi
-          if [ ! -d output ]; then
-            echo "::warning::output directory is missing; skipping gh-pages push"
+          if [ "$snapshot_due" != true ]; then
+            echo "No data snapshot this run"
+            rm -rf .data-push
             exit 0
           fi
 
-          REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          rm -rf .site-push
+          # Start from a clean tree so the data branch contains exactly the
+          # metadata snapshot, with no stale cache.json or raw-content files.
+          find .data-push -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          python -m src.archive --snapshot .data-push
 
-          if git clone --depth 1 --branch gh-pages "$REMOTE" .site-push 2>/dev/null; then
-            echo "Cloned existing gh-pages branch"
-          elif SITE_HEADS="$(git ls-remote --heads "$REMOTE" gh-pages 2>/dev/null)" && [ -z "$SITE_HEADS" ]; then
-            echo "gh-pages branch does not exist; creating it"
-            mkdir -p .site-push
-            git -C .site-push init
-            git -C .site-push checkout --orphan gh-pages
-            git -C .site-push remote add origin "$REMOTE"
-          else
-            echo "::error::gh-pages branch exists but could not be cloned"
-            exit 1
+          # Fail closed if the archive CLI ever leaks raw bodies or writes an
+          # unexpected path into the long-lived branch.
+          python - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          root = Path(".data-push")
+          allowed = {"state.json", "articles.json", "status.json", "output", "archive"}
+          entries = {p.name for p in root.iterdir() if p.name != ".git"}
+          extra = entries - allowed
+          if extra:
+              sys.exit(f"unexpected paths in data snapshot: {sorted(extra)}")
+
+          for name in ("state.json", "articles.json"):
+              path = root / name
+              if not path.is_file():
+                  sys.exit(f"missing {name} in data snapshot")
+              data = json.loads(path.read_text(encoding="utf-8"))
+              if name == "articles.json" and isinstance(data, list):
+                  leaked = [
+                      a for a in data
+                      if isinstance(a, dict) and (a.get("content") or "").strip()
+                  ]
+                  if leaked:
+                      sys.exit(
+                          f"raw content found in {len(leaked)} snapshot articles; "
+                          "refusing to push"
+                      )
+              print(f"{name}: ok")
+
+          if not (root / "archive").exists():
+              print("::warning::archive/ not present in snapshot")
+          PY
+
+          git -C .data-push config user.name "github-actions[bot]"
+          git -C .data-push config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C .data-push add -A
+          if git -C .data-push diff --cached --quiet; then
+            echo "No data snapshot changes"
+            rm -rf .data-push
+            exit 0
           fi
 
-          rm -rf .site-push/output
-          cp -R output .site-push/output
-          # gh-pages is the rendered-output snapshot only; runtime state lives
-          # on data. Only delete legacy runtime files after the data snapshot
-          # was pushed successfully, otherwise they are the only recovery copy.
-          if [ -f .data-push-ok ]; then
-            rm -f .site-push/state.json .site-push/articles.json .site-push/status.json .site-push/cache.json
-          else
-            echo "::warning::data snapshot not persisted; keeping legacy runtime files on gh-pages"
+          git -C .data-push commit -q -m "data: snapshot $(date -u +%Y-%m-%d)"
+          if ! git -C .data-push push origin data; then
+            echo "::warning::data push rejected; rebasing once and retrying"
+            git -C .data-push pull --rebase origin data
+            git -C .data-push push origin data
           fi
-
-          cd .site-push
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "No site output changes"
-          else
-            git commit -m "site: snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push --force origin gh-pages
-          fi
+          echo "Pushed data snapshot $(date -u +%Y-%m-%d)"
+          rm -rf .data-push

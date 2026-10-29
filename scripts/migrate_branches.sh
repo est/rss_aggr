@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
 #
-# One-time migration to the ADR-015 branch layout:
-#   data      -> runtime state only (state.json, articles.json)
-#   gh-pages  -> rendered output only (output/)
+# LEGACY (ADR-015 / pre-ADR-016). Do not run this script after the repository
+# has migrated to the cache + daily data snapshot architecture.
 #
-# By default this script only prints the plan. Pass --apply to rewrite the
-# remote branches. Local branches and the working tree are never modified.
+# This script rewrites gh-pages to contain output/ only. ADR-016 removes
+# gh-pages entirely (Pages deploys from the Actions artifact), so there is
+# nothing left for this script to migrate. Keep it only for recovering an old
+# ADR-015 checkout; the supported migration path is the first collect run,
+# which copies legacy state/output once and creates the data branch.
+#
+# By default this script only prints the plan. --apply is destructive: it
+# force-pushes rewritten gh-pages/data branches after creating backup/* refs.
+# Verify the printed plan and take a manual backup before using --apply.
+# Local branches and the working tree are never modified.
 
 set -euo pipefail
 
@@ -13,8 +20,13 @@ usage() {
   cat <<'EOF'
 Usage: scripts/migrate_branches.sh [--apply]
 
+LEGACY: this script targets the ADR-015 layout and rewrites gh-pages.
+ADR-016 no longer uses gh-pages; do not run this after migration.
+
 Without --apply: fetch origin and print the migration plan (no remote writes).
-With --apply:    back up the old branches and force-push the new snapshots.
+With --apply:    DESTRUCTIVE. Back up the old branches, then force-push the
+                 rewritten data/gh-pages snapshots. Review the plan first and
+                 confirm no collect run is active.
 EOF
 }
 
@@ -151,6 +163,7 @@ if [ "$APPLY" != true ]; then
   exit 0
 fi
 
+echo "WARNING: --apply is destructive and only appropriate for the legacy ADR-015 layout."
 echo "Creating remote backups..."
 git push "$REMOTE_NAME" "${SITE_SHA}:refs/heads/${BACKUP_SITE}"
 if [ "$DATA_EXISTED" = true ]; then
