@@ -175,7 +175,7 @@ def _copy_tree(src: Path, dest: Path) -> int:
         return 0
     copied = 0
     for path in sorted(src.rglob("*")):
-        if not path.is_file():
+        if not path.is_file() or path.name.endswith(".tmp"):
             continue
         target = dest / path.relative_to(src)
         target.parent.mkdir(parents=True, exist_ok=True)
