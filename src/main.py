@@ -10,6 +10,7 @@ except ModuleNotFoundError:
     import tomli as tomllib
 
 from src.aggregator import is_aggregator
+from src.archive import append_metadata
 from src.articles import (
     append_to_articles,
     cleanup_articles,
@@ -252,6 +253,7 @@ def step_classify():
     limits = config.get("limits", {})
     categories = [c["name"] for c in config.get("category", [])]
     data_dir = config.get("storage", {}).get("data_dir", "output")
+    archive_dir = config.get("storage", {}).get("archive_dir", "archive")
     max_articles = limits.get("max_articles", 0)
     keep_days = config.get("fetch", {}).get("keep_days", 14)
     global_skip_prompt = (filter_cfg.get("skip_prompt") or "").strip()
@@ -401,6 +403,21 @@ def step_classify():
                 last_classified=now,
                 keep_days=0,
             )
+            # Archive metadata for the rows that actually reached the output.
+            # A failure here must never lose the Markdown we just wrote.
+            try:
+                archived = append_metadata(to_write, archive_dir)
+            except (OSError, ValueError) as exc:
+                print(
+                    f"[{ts()}] WARNING: could not write archive metadata: {exc}",
+                    flush=True,
+                )
+            else:
+                if archived:
+                    print(
+                        f"[{ts()}] Archived {archived} metadata records",
+                        flush=True,
+                    )
 
     # Always regenerate the index, even when nothing was written.
     _update_index(

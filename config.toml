@@ -40,6 +40,7 @@ disable_after_failures = 3 # auto-disable feed after N consecutive failures
 # Storage
 [storage]
 data_dir = "output"
+archive_dir = "archive"
 keep_days = 0          # 0 = never delete old output
 
 # Classification categories (passed to AI)
