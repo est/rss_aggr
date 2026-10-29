@@ -99,7 +99,8 @@ jobs:
           # restore-keys and reports a partial match. Treat validated files as
           # authoritative, and log the exact/partial state for debugging.
           cache_ok=false
-          if [ -f .runtime/state.json ] && [ -f .runtime/articles.json ]; then
+          if [ -f .runtime/state.json ] && [ -f .runtime/articles.json ] \
+              && [ -d .runtime/output ]; then
             if validate_json .runtime/state.json && validate_json .runtime/articles.json; then
               cache_ok=true
             else
@@ -117,6 +118,7 @@ jobs:
             # Removing it makes fetch ignore persisted ETags and re-fetch the
             # whole 14-day window with full content.
             touch .cache-restore-miss
+            echo "RSS_FORCE_FETCH=1" >> "$GITHUB_ENV"
 
             data_heads=""
             data_rc=0
@@ -308,6 +310,10 @@ jobs:
             echo "::warning::state.json or articles.json is missing; skipping cache save"
             exit 0
           fi
+          if [ ! -d output ]; then
+            echo "::warning::output/ is missing; skipping cache save"
+            exit 0
+          fi
           for f in state.json articles.json status.json; do
             if [ -f "$f" ] && ! validate_json "$f"; then
               echo "::warning::$f is not valid JSON; skipping cache save"
@@ -332,6 +338,7 @@ jobs:
 
       - name: Save runtime cache
         if: always() && steps.prepare-runtime-cache.outputs.ok == 'true'
+        continue-on-error: true
         uses: actions/cache/save@v4
         with:
           path: .runtime
@@ -362,6 +369,10 @@ jobs:
           fi
           if [ ! -f state.json ] || [ ! -f articles.json ]; then
             echo "::warning::state.json or articles.json is missing; skipping data snapshot"
+            exit 0
+          fi
+          if [ ! -d output ]; then
+            echo "::warning::output/ is missing; skipping data snapshot"
             exit 0
           fi
           if ! validate_json state.json || ! validate_json articles.json; then

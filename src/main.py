@@ -146,6 +146,10 @@ def step_fetch():
     data_dir = config.get("storage", {}).get("data_dir", "output")
     max_feeds = limits.get("max_feeds", 0)
     fetch_interval = limits.get("fetch_interval_hours", 24)
+    if os.environ.get("RSS_FORCE_FETCH") == "1":
+        # Cache miss: data-branch articles.json has no raw bodies, so ignore
+        # the normal interval and rebuild the 14-day window immediately.
+        fetch_interval = 0
     max_failures = limits.get("disable_after_failures", 3)
     max_workers = limits.get("max_workers", fetch_cfg.get("max_workers", 10))
     max_entries = limits.get("max_entries_per_feed", 0)

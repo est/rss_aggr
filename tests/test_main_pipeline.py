@@ -1,5 +1,6 @@
 import contextlib
 import io
+import os
 import unittest
 from unittest.mock import patch
 
@@ -77,6 +78,25 @@ class FetchStepTests(unittest.TestCase):
         _, kwargs = fetch_all.call_args
         self.assertEqual(kwargs["feeds_state"], {})
         save_articles.assert_called_once_with([])
+
+    def test_cache_miss_env_forces_immediate_refetch(self):
+        feed = {"xml_url": "https://a.com/feed", "title": "A", "priority": 1}
+        state = {"feeds": {}}
+        results = [{"feed": feed, "status": "not_modified", "entries": []}]
+
+        with patch.dict(os.environ, {"RSS_FORCE_FETCH": "1"}), \
+                patch("src.main.load_config", return_value=_fetch_config()), \
+                patch("src.main.parse_feeds", return_value=[feed]), \
+                patch("src.main.load_state", return_value=state), \
+                patch("src.main.save_state"), \
+                patch("src.main.validate_articles_file", return_value="ok"), \
+                patch("src.main.get_due_feeds", return_value=[feed]) as due, \
+                patch("src.fetcher.fetch_all_feeds", return_value=results), \
+                patch("src.main.load_seen_links", return_value=set()), \
+                patch("src.main.get_article_links", return_value=set()):
+            step_fetch()
+
+        self.assertEqual(due.call_args.args[2], 0)
 
     def test_all_due_feeds_failing_raises(self):
         feed = {"xml_url": "https://a.com/feed", "title": "A", "priority": 1}
