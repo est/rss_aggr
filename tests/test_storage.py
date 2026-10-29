@@ -140,6 +140,14 @@ class SaveDailyResultsTests(unittest.TestCase):
             self.assertEqual(content.count("x" * 280), 1)
             self.assertNotIn("x" * 281, content)
 
+    def test_article_without_classification_renders_title_and_em_dashes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            article = self._article(classification={})
+            written = save_daily_results({"articles": [article]}, tmp)
+            content = written[0].read_text(encoding="utf-8")
+            self.assertIn("[Hello](<https://example.com/post>)", content)
+            self.assertIn("| — | — | — |", content)
+
     def test_index_exists_when_no_articles(self):
         with tempfile.TemporaryDirectory() as tmp:
             written = save_daily_results({"articles": []}, tmp)

@@ -19,6 +19,7 @@ GitHub Actions 驱动的 RSS 采集 + AI 分类打分工具。
 - **RSS 采集** — 并行抓取，14 天窗口内的文章
 - **Aliveness 监控** — HTTP 健康检测，连续失败自动禁用 [ADR-010](docs/ADR/010.health.aliveness-monitoring.md)
 - **AI 分类/打分** — 支持 OpenAI、Claude、OpenRouter [ADR-008](docs/ADR/008.ai.multi-provider.md)
+- **无 AI 降级** — 未配置 key、provider 故障或模型未返回结果时，仍然输出标题；Category/Summary/Score 留空（`—`）
 - **聚合检测** — 自动识别 HN/Reddit 等聚合源并记录到 state（当前只做统计，不跳过分类） *(draft: [ADR-009](docs/ADR/009.filter.aggregation-detection.md))*
 - **Markdown 输出** — `YYYY/MMDD.md` 表格格式，GitHub Pages 直接看 [ADR-007](docs/ADR/007.platform.github-actions-pages.md)
 
@@ -45,7 +46,7 @@ python -m src.main --check      # 校验运行时数据/输出契约
 ```
 --sync      从 sources.toml 拉取外部 RSS 源列表 → 合并到 feeds.toml（独立 workflow）
 --fetch     抓取 RSS，追加新文章到 articles.json（去重：output + articles）
---classify  从 articles.json 读取，AI 分类后写入 output/YYYY/MMDD.md
+--classify  从 articles.json 读取，AI 分类后写入 output/YYYY/MMDD.md；AI 不可用时写标题-only 行
 --cleanup   清理 articles.json 中超过 14 天的老条目
 --report    写入 status.json，记录本次运行概况
 --check     校验数据/输出契约；在部署后运行，失败时把 job 标记为失败并报警
@@ -125,7 +126,6 @@ python -m src.main --check      # 校验运行时数据/输出契约
 | `limits.max_workers` | `10` | 并行抓取线程数 |
 | `limits.max_feeds` | `500` | 每次最多抓取的 feed 数（0 = 不限制） |
 | `limits.max_articles` | `200` | 每次最多分类的文章数（0 = 不限制） |
-| `limits.max_attempts` | `5` | 单篇分类失败多少次后停止重试（dead-letter） |
 | `limits.max_entries_per_feed` | `50` | 单个 feed 每轮最多取多少篇（0 = 不限制） |
 | `limits.max_backlog` | `5000` | 待分类+失败文章超过此值时 `--check` 失败 |
 | `limits.freshness_hours` | `24` | 最近 fetch/classify 超过此小时数时 `--check` 失败 |

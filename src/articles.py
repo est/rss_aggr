@@ -12,14 +12,16 @@ STATUS_PENDING = "pending"
 STATUS_CLASSIFIED = "classified"
 STATUS_SKIPPED = "skipped"
 STATUS_FAILED = "failed"
+STATUS_UNCLASSIFIED = "unclassified"
 
 # Legacy aliases kept for callers that import the constants directly.
 PENDING = STATUS_PENDING
 CLASSIFIED = STATUS_CLASSIFIED
 SKIPPED = STATUS_SKIPPED
 FAILED = STATUS_FAILED
+UNCLASSIFIED = STATUS_UNCLASSIFIED
 
-_DONE_STATUSES = {STATUS_CLASSIFIED, STATUS_SKIPPED}
+_DONE_STATUSES = {STATUS_CLASSIFIED, STATUS_SKIPPED, STATUS_UNCLASSIFIED}
 
 
 def _parse_dt(value) -> datetime | None:
@@ -181,6 +183,7 @@ def summarize_articles(path: str = ARTICLES_FILE) -> dict:
         "pending": 0,
         "classified": 0,
         "skipped": 0,
+        "unclassified": 0,
         "failed": 0,
         "invalid_dates": 0,
         "content_bytes": 0,

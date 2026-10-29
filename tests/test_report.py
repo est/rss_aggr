@@ -174,7 +174,7 @@ class WriteStatusTests(unittest.TestCase):
         }
         text = print_summary(status)
         self.assertIn("| Metric | Value |", text)
-        self.assertIn("2/3/1/0", text)
+        self.assertIn("2/3/0/1/0", text)
 
 
 if __name__ == "__main__":

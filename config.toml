@@ -30,7 +30,6 @@ skip_prompt = "If this article is a news digest, link roundup, personal diary, o
 [limits]
 max_feeds = 500          # max feeds to fetch per run
 max_articles = 200       # max articles to classify per run
-max_attempts = 5         # dead-letter an article after N failed classifications
 max_workers = 10         # parallel fetch workers
 max_entries_per_feed = 50  # cap entries returned per feed (0 = unlimited)
 max_backlog = 5000       # max pending+failed articles before --check fails

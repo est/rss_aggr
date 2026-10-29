@@ -8,6 +8,7 @@ from src.articles import (
     STATUS_FAILED,
     STATUS_PENDING,
     STATUS_SKIPPED,
+    STATUS_UNCLASSIFIED,
     append_to_articles,
     cleanup_articles,
     get_article_links,
@@ -125,6 +126,25 @@ class ArticleCacheTests(unittest.TestCase):
                     "https://a.com/c-new",
                     "https://a.com/c-old-pub",
                 },
+            )
+
+    def test_unclassified_uses_classified_at_window(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = _path(tmp)
+            save_articles(
+                [
+                    {"link": "https://a.com/u-old", "status": STATUS_UNCLASSIFIED,
+                     "classified_at": _iso(-2)},
+                    {"link": "https://a.com/u-new", "status": STATUS_UNCLASSIFIED,
+                     "published": _iso(-30), "classified_at": _iso(-0.04)},
+                ],
+                path,
+            )
+            removed = cleanup_articles(keep_days=14, path=path)
+            self.assertEqual(removed, 1)
+            self.assertEqual(
+                {a["link"] for a in load_articles(path)},
+                {"https://a.com/u-new"},
             )
 
     def test_get_article_links_returns_canonical_keys(self):

@@ -611,9 +611,14 @@ def classify_articles(
                     print(f"    SKIP {a.get('title', '')[:50]}: {type(e2).__name__}: {e2}", flush=True)
 
     stats.failed = max(0, stats.articles - stats.classified - stats.skipped)
-    if stats.classified == 0 and stats.skipped == 0 and api_errors > 0:
-        # Every article failed at the API layer. Do not dead-letter the
-        # backlog because of a provider/key/network outage.
+    if (
+        stats.classified == 0
+        and stats.skipped == 0
+        and (api_errors > 0 or stats.unmatched >= stats.articles)
+    ):
+        # Every article failed at the API layer. Signal a provider-wide
+        # outage so the caller can publish title-only rows instead of
+        # pretending the model rejected each article.
         stats.provider_failed = True
     print(
         f"  Summary: {stats.classified} classified, {stats.skipped} skipped, "

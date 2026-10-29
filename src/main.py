@@ -30,7 +30,7 @@ from src.state import (
 from src.storage import _update_index, load_seen_links, save_daily_results
 from src.urls import canonical_url, is_safe_http_url
 
-_STATUS_DONE = ("classified", "skipped")
+_STATUS_DONE = ("classified", "skipped", "unclassified")
 
 
 def ts():
@@ -253,7 +253,6 @@ def step_classify():
     categories = [c["name"] for c in config.get("category", [])]
     data_dir = config.get("storage", {}).get("data_dir", "output")
     max_articles = limits.get("max_articles", 0)
-    max_attempts = limits.get("max_attempts", 5)
     keep_days = config.get("fetch", {}).get("keep_days", 14)
     global_skip_prompt = (filter_cfg.get("skip_prompt") or "").strip()
     cutoff = datetime.now(timezone.utc) - timedelta(days=keep_days)
@@ -336,7 +335,7 @@ def step_classify():
 
     total_classified = 0
     total_skipped = 0
-    total_failed = 0
+    total_unclassified = 0
 
     for skip_prompt, arts in by_site_rule.items():
         site_norm, site_prompt = rule_prompts[skip_prompt]
@@ -354,10 +353,9 @@ def step_classify():
         )
         total_classified += stats.classified
         total_skipped += stats.skipped
-        total_failed += stats.failed
 
         now = _now_iso()
-        classified = []
+        to_write = []
         for a in arts:
             cls = a.get("classification")
             if cls:
@@ -369,35 +367,35 @@ def step_classify():
                     a["skip_reason"] = "unsafe_link"
                 else:
                     a["status"] = "classified"
-                    classified.append(a)
+                    to_write.append(a)
                 # Drop the full text; only the AI summary is retained.
                 a["content"] = ""
                 a["content_length"] = 0
-            elif stats.provider_failed:
-                # Provider/key/network outage: keep the article pending and
-                # keep its content. It must not be dead-lettered as if the
-                # model had rejected this specific article.
-                a["status"] = "pending"
-                a["last_classification_error"] = "provider unavailable"
             else:
+                # AI unavailable or the model did not return a usable result.
+                # Never drop the article: publish the title now with empty
+                # category/summary/score instead of retrying forever.
                 a["attempts"] = int(a.get("attempts") or 0) + 1
-                if max_attempts and a["attempts"] >= max_attempts:
-                    # Dead-letter persistent per-article failures so they stop
-                    # consuming the AI budget on every run.
-                    a["status"] = "skipped"
-                    a["skip_reason"] = "max_attempts"
-                    a["content"] = ""
-                    a["content_length"] = 0
-                else:
-                    a["status"] = "failed"
+                a["status"] = "unclassified"
+                a["classified_at"] = now
+                a["unclassified_at"] = now
+                a["unclassified_reason"] = (
+                    "provider_unavailable"
+                    if stats.provider_failed
+                    else "classification_failed"
+                )
+                a["content"] = ""
+                a["content_length"] = 0
+                to_write.append(a)
+                total_unclassified += 1
 
         # Persist statuses after every group so progress survives later failures.
         save_articles(cached)
 
-        # Write only classified articles, immediately per group.
-        if classified:
+        # Write classified and title-only articles, immediately per group.
+        if to_write:
             save_daily_results(
-                {"articles": classified},
+                {"articles": to_write},
                 data_dir,
                 last_fetched=now,
                 last_classified=now,
@@ -411,22 +409,22 @@ def step_classify():
         last_classified=_last_classified_at(cached),
     )
 
-    if total_classified or total_skipped:
+    if total_classified or total_skipped or total_unclassified:
         print(
-            f"[{ts()}] Classified {total_classified} articles "
-            f"({total_skipped} skipped) total",
+            f"[{ts()}] Wrote {total_classified} classified, "
+            f"{total_unclassified} title-only, {total_skipped} skipped",
             flush=True,
         )
-
-    if total_classified or total_skipped:
         state = load_state()
         state["last_classify"] = _now_iso()
+        state["last_unclassified"] = total_unclassified
         save_state(state)
 
-    if articles and total_classified == 0 and total_skipped == 0 and total_failed > 0:
-        raise RuntimeError(
-            f"Classification failed for all {len(articles)} pending articles "
-            f"({total_failed} failures); refusing to report a silent no-op"
+    if total_unclassified:
+        print(
+            f"::warning::{total_unclassified} articles were written without AI "
+            f"classification (title only)",
+            flush=True,
         )
 
 

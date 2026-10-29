@@ -145,17 +145,21 @@ class ClassifyStepTests(unittest.TestCase):
         self.assertTrue(cached[0]["classified_at"])
         self.assertEqual(cached[1]["status"], "skipped")
         self.assertEqual(cached[1]["content"], "")
-        self.assertEqual(cached[2]["status"], "failed")
+        self.assertEqual(cached[2]["status"], "unclassified")
         self.assertEqual(cached[2]["attempts"], 1)
-        self.assertEqual(cached[2]["content"], "fail text")
+        self.assertEqual(cached[2]["content"], "")
+        self.assertEqual(cached[2]["unclassified_reason"], "classification_failed")
 
         save_articles.assert_called()
         save_daily.assert_called_once()
         written = save_daily.call_args.args[0]["articles"]
-        self.assertEqual([a["link"] for a in written], ["https://a.com/ok"])
+        self.assertEqual(
+            [a["link"] for a in written],
+            ["https://a.com/ok", "https://a.com/fail"],
+        )
         update_index.assert_called()
 
-    def test_fail_fast_when_every_article_fails(self):
+    def test_missing_ai_outputs_title_only(self):
         cached = [self._articles()[2]]
 
         def fake_classify(articles, **kwargs):
@@ -171,14 +175,15 @@ class ClassifyStepTests(unittest.TestCase):
                 patch("src.main.save_articles") as save_articles, \
                 patch("src.main.save_daily_results") as save_daily, \
                 patch("src.main._update_index") as update_index:
-            with self.assertRaises(RuntimeError):
-                step_classify()
+            step_classify()
 
-        self.assertEqual(cached[0]["status"], "failed")
+        self.assertEqual(cached[0]["status"], "unclassified")
         self.assertEqual(cached[0]["attempts"], 1)
-        self.assertEqual(cached[0]["content"], "fail text")
+        self.assertEqual(cached[0]["content"], "")
         save_articles.assert_called()
-        save_daily.assert_not_called()
+        save_daily.assert_called_once()
+        written = save_daily.call_args.args[0]["articles"]
+        self.assertEqual([a["link"] for a in written], ["https://a.com/fail"])
         update_index.assert_called()
 
     def test_stale_backlog_is_not_sent_to_ai(self):
@@ -202,7 +207,7 @@ class ClassifyStepTests(unittest.TestCase):
         save_state.assert_not_called()
         update_index.assert_called_once()
 
-    def test_provider_outage_does_not_dead_letter_backlog(self):
+    def test_provider_outage_still_outputs_title_only(self):
         article = {
             "link": "https://a.com/ok",
             "status": "pending",
@@ -226,15 +231,16 @@ class ClassifyStepTests(unittest.TestCase):
                 patch("src.main.save_state"), \
                 patch("src.main.classify_articles", side_effect=fake_classify), \
                 patch("src.main.save_articles"), \
-                patch("src.main.save_daily_results"), \
+                patch("src.main.save_daily_results") as save_daily, \
                 patch("src.main._update_index"):
-            with self.assertRaises(RuntimeError):
-                step_classify()
+            step_classify()
 
-        self.assertEqual(article["status"], "pending")
-        self.assertEqual(article["attempts"], 4)
-        self.assertEqual(article["content"], "keep me")
-        self.assertEqual(article["last_classification_error"], "provider unavailable")
+        self.assertEqual(article["status"], "unclassified")
+        self.assertEqual(article["attempts"], 5)
+        self.assertEqual(article["content"], "")
+        self.assertEqual(article["unclassified_reason"], "provider_unavailable")
+        written = save_daily.call_args.args[0]["articles"]
+        self.assertEqual([a["link"] for a in written], ["https://a.com/ok"])
 
     def test_all_skipped_does_not_fail(self):
         cached = [self._articles()[1]]

@@ -96,6 +96,11 @@ def build_status(
                 f"{feeds['disabled']}/{feeds['total']} feeds disabled "
                 f"({disabled_ratio:.0%}); check feed health"
             )
+    if article_summary.get("unclassified", 0) > 0:
+        warnings.append(
+            f"{article_summary['unclassified']} articles were written without AI "
+            f"classification (title only)"
+        )
     if article_summary["classified"] > 0 and not output["index_exists"]:
         warnings.append("output/index.md is missing but classified articles exist")
 
@@ -135,6 +140,7 @@ def _render_status_md(status: dict) -> str:
         ("Articles", "Total", articles.get("total", 0)),
         ("Articles", "Pending", articles.get("pending", 0)),
         ("Articles", "Classified", articles.get("classified", 0)),
+        ("Articles", "Title only", articles.get("unclassified", 0)),
         ("Articles", "Skipped", articles.get("skipped", 0)),
         ("Articles", "Failed", articles.get("failed", 0)),
         ("Output", "Days", output.get("days", 0)),
@@ -188,9 +194,10 @@ def print_summary(status: dict) -> str:
         "|--------|-------|",
         f"| Feeds healthy/failing/disabled | "
         f"{feeds.get('healthy', 0)}/{feeds.get('failing', 0)}/{feeds.get('disabled', 0)} |",
-        f"| Articles pending/classified/skipped/failed | "
+        f"| Articles pending/classified/title-only/skipped/failed | "
         f"{articles.get('pending', 0)}/{articles.get('classified', 0)}/"
-        f"{articles.get('skipped', 0)}/{articles.get('failed', 0)} |",
+        f"{articles.get('unclassified', 0)}/{articles.get('skipped', 0)}/"
+        f"{articles.get('failed', 0)} |",
         f"| Output days / index | {output.get('days', 0)} / "
         f"{'yes' if output.get('index_exists') else 'no'} |",
         f"| Last fetch | {status.get('last_fetch', '') or '—'} |",
