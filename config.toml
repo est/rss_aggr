@@ -17,6 +17,7 @@ base_url = 'https://opencode.ai/zen/v1'
 timeout_seconds = 15
 keep_days = 14
 user_agent = "rss_aggr/1.0 (https://github.com/est/rss_aggr/)"
+# Fallback only: limits.max_workers takes precedence when set.
 max_workers = 10
 
 # Filters: deterministic rules (free, fast) + AI prompt (cheap)
@@ -25,9 +26,14 @@ skip_titles = ["weekly digest", "周报", "link list", "newsletter", "周刊", "
 skip_prompt = "If this article is a news digest, link roundup, personal diary, or off-topic life update, set category to 'skip'. Only classify substantive technical articles, business insights, or thoughtful personal essays."
 
 # Limits: control per-run scope (0 = no limit)
+# max_workers and max_articles are wired into fetch/classify.
 [limits]
 max_feeds = 500          # max feeds to fetch per run
 max_articles = 200       # max articles to classify per run
+max_workers = 10         # parallel fetch workers
+max_entries_per_feed = 50  # cap entries returned per feed (0 = unlimited)
+max_backlog = 2000       # max pending articles before --check fails
+freshness_hours = 24     # max age of last fetch/classify before --check fails
 fetch_interval_hours = 12  # skip feeds fetched within this window
 disable_after_failures = 3 # auto-disable feed after N consecutive failures
 
