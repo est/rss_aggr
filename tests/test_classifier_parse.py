@@ -6,6 +6,7 @@ from src.classifier import (
     BaseClassifier,
     ClassifyStats,
     OpenAICompatibleClassifier,
+    _parse_blocks,
     classify_articles,
 )
 
@@ -190,6 +191,19 @@ class _Response:
 
     def json(self):
         return {"choices": [{"message": {"content": self.content}}]} if self.ok else {}
+
+
+class ParseBlocksTests(unittest.TestCase):
+    def test_tolerates_markdown_and_trailing_punctuation(self):
+        text = (
+            "[https://Example.com/a/](https://Example.com/a/)\n"
+            "category: Tech\nscore: 8\nsummary: ok\n\n"
+            "<https://example.com/b>,\n"
+            "category: Life\nscore: 7\nsummary: ok2\n"
+        )
+        parsed = _parse_blocks(text)
+        self.assertIn("https://Example.com/a/", parsed)
+        self.assertIn("https://example.com/b", parsed)
 
 
 class _Session:

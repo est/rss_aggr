@@ -25,6 +25,7 @@ def _classify_config():
         "ai": {"provider": "custom", "model": "m", "base_url": "", "api_key_env": ""},
         "filter": {"skip_prompt": "global rule"},
         "limits": {"max_articles": 0},
+        "fetch": {"keep_days": 3650},
         "storage": {"data_dir": "out"},
         "category": [{"name": "Tech"}],
     }
@@ -153,6 +154,24 @@ class ClassifyStepTests(unittest.TestCase):
         save_articles.assert_called()
         save_daily.assert_not_called()
         update_index.assert_called()
+
+    def test_stale_backlog_is_not_sent_to_ai(self):
+        cached = self._articles()
+        config = _classify_config()
+        config["fetch"] = {"keep_days": 1}
+
+        with patch("src.main.load_config", return_value=config), \
+                patch("src.main.parse_feeds", return_value=[]), \
+                patch("src.main.load_articles", return_value=cached), \
+                patch("src.main.load_seen_links", return_value=set()), \
+                patch("src.main.classify_articles") as classify, \
+                patch("src.main.save_articles"), \
+                patch("src.main.save_daily_results"), \
+                patch("src.main._update_index") as update_index:
+            step_classify()
+
+        classify.assert_not_called()
+        update_index.assert_called_once()
 
     def test_all_skipped_does_not_fail(self):
         cached = [self._articles()[1]]

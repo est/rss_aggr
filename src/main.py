@@ -1,19 +1,15 @@
 """Main entry point with decoupled fetch/classify/save/report steps."""
 import argparse
-import json
 import os
 import sys
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import datetime, timedelta, timezone
 
 try:
     import tomllib
 except ModuleNotFoundError:
     import tomli as tomllib
 
-from src.opml_parser import parse_feeds
-from src.classifier import classify_articles, is_skip_category
-from src.storage import save_daily_results, load_seen_links, _update_index
+from src.aggregator import is_aggregator
 from src.articles import (
     append_to_articles,
     cleanup_articles,
@@ -21,16 +17,18 @@ from src.articles import (
     load_articles,
     save_articles,
 )
-from src.urls import canonical_url
+from src.classifier import classify_articles, is_skip_category
+from src.opml_parser import parse_feeds
 from src.state import (
-    load_state,
-    save_state,
-    mark_ok,
-    mark_failed,
     get_due_feeds,
+    load_state,
+    mark_failed,
+    mark_ok,
     prioritize_feeds,
+    save_state,
 )
-from src.aggregator import is_aggregator
+from src.storage import _update_index, load_seen_links, save_daily_results
+from src.urls import canonical_url, is_safe_http_url
 
 _STATUS_DONE = ("classified", "skipped")
 
@@ -163,6 +161,8 @@ def step_fetch():
     print(f"[{ts()}] Due: {len(due_feeds)}", flush=True)
 
     if not due_feeds:
+        # get_due_feeds() may have auto-disabled or re-enabled feeds.
+        save_state(state)
         print(f"[{ts()}] No feeds to fetch", flush=True)
         return
 
@@ -236,7 +236,9 @@ def step_classify():
     categories = [c["name"] for c in config.get("category", [])]
     data_dir = config.get("storage", {}).get("data_dir", "output")
     max_articles = limits.get("max_articles", 0)
+    keep_days = config.get("fetch", {}).get("keep_days", 14)
     global_skip_prompt = (filter_cfg.get("skip_prompt") or "").strip()
+    cutoff = datetime.now(timezone.utc) - timedelta(days=keep_days)
 
     feeds = parse_feeds("feeds.toml")
     site_skip_prompt_rules = _build_site_skip_prompt_rules(feeds)
@@ -250,12 +252,24 @@ def step_classify():
     for a in cached:
         link = (a.get("link") or "").strip()
         if not link:
+            # No URL means it can never be rendered or deduped; retire it
+            # instead of keeping it pending forever.
+            a["status"] = "skipped"
+            a["skip_reason"] = "missing_link"
+            a["content"] = ""
+            a["content_length"] = 0
             continue
         status = a.get("status") or "pending"
         key = canonical_url(link) or link
         if status == "skipped":
             continue
         if key in output_links:
+            continue
+        # Do not spend AI tokens on stale backlog. cleanup_articles() removes
+        # these after classify; filtering here keeps the first runs after a
+        # long outage focused on fresh content.
+        effective = _parse_dt(a.get("published")) or _parse_dt(a.get("cached_at"))
+        if effective is None or effective < cutoff:
             continue
         articles.append(a)
 
@@ -272,6 +286,7 @@ def step_classify():
 
     if not articles:
         print(f"[{ts()}] Nothing to classify", flush=True)
+        save_articles(cached)
         _update_index(
             data_dir,
             last_fetched=_now_iso(),
@@ -317,11 +332,15 @@ def step_classify():
                 a["classified_at"] = now
                 if is_skip_category(cls.get("category", "")):
                     a["status"] = "skipped"
+                elif not is_safe_http_url(a.get("link", "")):
+                    a["status"] = "skipped"
+                    a["skip_reason"] = "unsafe_link"
                 else:
                     a["status"] = "classified"
                     classified.append(a)
                 # Drop the full text; only the AI summary is retained.
                 a["content"] = ""
+                a["content_length"] = 0
             else:
                 a["status"] = "failed"
                 a["attempts"] = int(a.get("attempts") or 0) + 1
@@ -403,16 +422,10 @@ def step_check():
     limits = config.get("limits", {})
     data_dir = config.get("storage", {}).get("data_dir", "output")
 
-    status_path = Path("status.json")
-    status = None
-    if status_path.exists():
-        try:
-            status = json.loads(status_path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            status = None
-    if not isinstance(status, dict):
-        status = build_status(data_dir=data_dir)
-        write_status(status, root="status.json", data_dir=data_dir)
+    # Always rebuild from the current runtime files. Reading a stale
+    # status.json could make --check pass after the data changed.
+    status = build_status(data_dir=data_dir)
+    write_status(status, root="status.json", data_dir=data_dir)
 
     violations = check_status(
         status,

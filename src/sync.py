@@ -1,5 +1,4 @@
 """Sync external feed lists into feeds.toml."""
-import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 

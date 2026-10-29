@@ -75,10 +75,39 @@ class SaveDailyResultsTests(unittest.TestCase):
             written = save_daily_results({"articles": [second]}, tmp)
             daily = Path(tmp) / (datetime.now(timezone.utc).strftime("%Y/%m%d") + ".md")
             content = daily.read_text(encoding="utf-8")
-            self.assertEqual(content.count("](https"), 1)
+            self.assertEqual(content.count("](<https"), 1)
             self.assertIn("First", content)
             self.assertNotIn("Second", content)
             self.assertEqual(len(written), 1)
+
+    def test_parentheses_in_url_round_trip_through_seen_links(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            link = "https://example.com/a(b)"
+            save_daily_results({"articles": [self._article(link=link)]}, tmp)
+            daily = Path(tmp) / (datetime.now(timezone.utc).strftime("%Y/%m%d") + ".md")
+            content = daily.read_text(encoding="utf-8")
+            self.assertIn(f"](<{link}>)", content)
+            self.assertEqual(load_seen_links(tmp), {"example.com/a(b)"})
+
+    def test_summary_links_do_not_pollute_seen_links(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            daily = Path(tmp) / "2026" / "1029.md"
+            daily.parent.mkdir(parents=True)
+            daily.write_text(
+                "| A | [T](<https://example.com/article>) | Tech | "
+                "[fake](https://evil.com/trap) | 8 |\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(load_seen_links(tmp), {"example.com/article"})
+
+    def test_pipe_in_url_is_not_rendered_as_a_link(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            article = self._article(link="https://example.com/a|b")
+            written = save_daily_results({"articles": [article]}, tmp)
+            content = written[0].read_text(encoding="utf-8")
+            self.assertNotIn("](<https://example.com/a", content)
+            self.assertIn("Hello", content)
+            self.assertEqual(load_seen_links(tmp), set())
 
     def test_clamps_score_and_truncates_summary(self):
         with tempfile.TemporaryDirectory() as tmp:

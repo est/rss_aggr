@@ -11,8 +11,13 @@ def _is_tracking(name: str) -> bool:
     return key in TRACKING_PARAMS or any(key.startswith(p) for p in TRACKING_PREFIXES)
 
 
+_UNSAFE_CHARS = frozenset('<>"\'`|')
+
+
 def _has_unsafe_chars(value: str) -> bool:
-    return any(ch.isspace() or ord(ch) < 0x20 for ch in value)
+    return any(
+        ch.isspace() or ord(ch) < 0x20 or ch in _UNSAFE_CHARS for ch in value
+    )
 
 
 def canonical_url(url: str) -> str:

@@ -165,6 +165,28 @@ class DueFeedTests(unittest.TestCase):
         self.assertEqual(info["consecutive_failures"], 0)
         self.assertNotIn("disabled_until", info)
 
+    def test_legacy_disabled_feed_without_until_re_enables_after_quarantine(self):
+        state = _empty_state()
+        url = "https://example.com/feed"
+        state["feeds"][url] = {
+            "disabled": True,
+            "disabled_at": (_now() - timedelta(days=8)).isoformat(),
+        }
+
+        due = get_due_feeds([_feed(url)], state, interval_hours=24, max_failures=3)
+
+        self.assertEqual([url], [f["xml_url"] for f in due])
+        self.assertFalse(state["feeds"][url].get("disabled", False))
+
+    def test_legacy_disabled_feed_without_timestamps_is_re_probed(self):
+        state = _empty_state()
+        url = "https://example.com/feed"
+        state["feeds"][url] = {"disabled": True}
+
+        due = get_due_feeds([_feed(url)], state, interval_hours=24, max_failures=3)
+
+        self.assertEqual([url], [f["xml_url"] for f in due])
+
     def test_disabled_feed_with_future_until_is_skipped(self):
         state = _empty_state()
         url = "https://example.com/feed"

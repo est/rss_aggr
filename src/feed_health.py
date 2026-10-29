@@ -2,11 +2,9 @@
 measure update frequency, and flag content farms.
 """
 import re
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urlparse
 
 import feedparser
 import requests
@@ -149,7 +147,7 @@ def generate_health_report(health_results: dict, output_path: str = "output/heal
     lines = [
         f"# Feed Health Report - {now}",
         "",
-        f"## Summary",
+        "## Summary",
         f"- ✅ OK: {len(ok)}",
         f"- ❌ Error: {len(errors)}",
         f"- 📭 Empty: {len(empty)}",

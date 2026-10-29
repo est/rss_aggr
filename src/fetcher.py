@@ -2,7 +2,7 @@
 import hashlib
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
 import feedparser
 import requests
@@ -199,6 +199,17 @@ def fetch_feed(feed_info: dict, timeout: int | tuple | None = None,
 
     resp.encoding = _detect_encoding(resp)
     parsed = feedparser.parse(resp.text)
+
+    # A malformed feed must not look like a healthy empty feed, otherwise it
+    # never enters the error/disable lifecycle.
+    if not parsed.entries and getattr(parsed, "bozo", False):
+        return {
+            "feed": feed_info,
+            "status": "error",
+            "error": f"parse error: {getattr(parsed, 'bozo_exception', 'invalid feed')}",
+            "entries": [],
+            "fetched_at": datetime.now(timezone.utc).isoformat(),
+        }
 
     now = datetime.now(timezone.utc)
     cutoff = now - timedelta(days=keep_days)

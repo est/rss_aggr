@@ -109,6 +109,15 @@ class FetchFeedTests(unittest.TestCase):
         self.assertIn("404", result["error"])
         self.assertEqual(result["entries"], [])
 
+    def test_malformed_feed_returns_parse_error(self):
+        with mock.patch(
+            "src.fetcher._request_with_retry",
+            return_value=_response(200, body="not xml at all"),
+        ):
+            result = fetch_feed(FEED)
+        self.assertEqual(result["status"], "error")
+        self.assertIn("parse error", result["error"])
+
     def test_invalid_published_dates_become_empty(self):
         now = datetime.now(timezone.utc)
         self.assertEqual(

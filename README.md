@@ -19,7 +19,7 @@ GitHub Actions 驱动的 RSS 采集 + AI 分类打分工具。
 - **RSS 采集** — 并行抓取，14 天窗口内的文章
 - **Aliveness 监控** — HTTP 健康检测，连续失败自动禁用 [ADR-010](docs/ADR/010.health.aliveness-monitoring.md)
 - **AI 分类/打分** — 支持 OpenAI、Claude、OpenRouter [ADR-008](docs/ADR/008.ai.multi-provider.md)
-- **聚合检测** — 自动识别 HN/Reddit 等聚合源，跳过 AI 分类 *(draft: [ADR-009](docs/ADR/009.filter.aggregation-detection.md))*
+- **聚合检测** — 自动识别 HN/Reddit 等聚合源并记录到 state（当前只做统计，不跳过分类） *(draft: [ADR-009](docs/ADR/009.filter.aggregation-detection.md))*
 - **Markdown 输出** — `YYYY/MMDD.md` 表格格式，GitHub Pages 直接看 [ADR-007](docs/ADR/007.platform.github-actions-pages.md)
 
 ## 快速开始
@@ -120,12 +120,18 @@ python -m src.main --check      # 校验运行时数据/输出契约
 
 | Key | 默认 | 说明 |
 |-----|------|------|
-| `fetch.max_workers` | `10` | 并行抓取线程数 |
 | `fetch.keep_days` | `14` | 只保留最近 N 天的文章 |
+| `fetch.max_workers` | `10` | `limits.max_workers` 的兼容 fallback |
+| `limits.max_workers` | `10` | 并行抓取线程数 |
 | `limits.max_feeds` | `500` | 每次最多抓取的 feed 数（0 = 不限制） |
 | `limits.max_articles` | `200` | 每次最多分类的文章数（0 = 不限制） |
+| `limits.max_entries_per_feed` | `50` | 单个 feed 每轮最多取多少篇（0 = 不限制） |
+| `limits.max_backlog` | `2000` | 待分类超过此值时 `--check` 失败 |
+| `limits.freshness_hours` | `24` | 最近 fetch/classify 超过此小时数时 `--check` 失败 |
 | `limits.fetch_interval_hours` | `12` | 同一 feed 的最小抓取间隔 |
-| `limits.disable_after_failures` | `3` | 连续失败多少次后自动禁用 |
+| `limits.disable_after_failures` | `3` | 连续 permanent/parse 失败多少次后隔离；临时错误只退避 |
+
+`filter.skip_prompt` 是全局 AI 过滤规则；如果某个 feed 也配置了 `skip_prompt`，两者会合并后一起传给模型。
 
 ### Per-feed skip_prompt
 

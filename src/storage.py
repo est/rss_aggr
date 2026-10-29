@@ -1,7 +1,7 @@
 """Storage module: save results as markdown files (YYYY/MMDD.md) + index."""
 import html
 import re
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from src.urls import canonical_url, is_safe_http_url
@@ -133,12 +133,32 @@ def _format_score(value) -> str:
     return str(max(1, min(10, score)))
 
 
+def _extract_row_link(line: str) -> str:
+    """Extract the article URL from the Title cell of a table row.
+
+    Only the title cell is inspected so links that happen to appear in an AI
+    summary can never pollute the seen-article set.
+    """
+    if not _is_data_row(line):
+        return ""
+    cells = _split_md_row(line)
+    if len(cells) < 3:
+        return ""
+    # New rows use angle-bracket destinations so parentheses in URLs are safe;
+    # old rows use plain destinations.
+    match = re.search(r"\]\(<([^>]+)>\)", cells[2]) or re.search(
+        r"\]\(([^)]+)\)", cells[2]
+    )
+    return match.group(1).strip() if match else ""
+
+
 def _article_title_cell(article: dict) -> str:
     """Render title as a link only for safe http(s) URLs."""
     title = _md_escape(article.get("title", "") or "—")
     link = (article.get("link") or "").strip()
     if link and is_safe_http_url(link):
-        return f"[{title}]({link})"
+        # Angle brackets keep parentheses/query strings intact inside a table.
+        return f"[{title}](<{link}>)"
     return title
 
 
@@ -204,13 +224,15 @@ def save_daily_results(
             for line in content.splitlines():
                 if _is_data_row(line):
                     existing_lines.append(_upgrade_old_row_to_category(line))
-                    m = re.search(r"\]\(([^)]+)\)", line)
-                    if m:
-                        existing_links.add(_dedup_key(m.group(1)))
+                    link = _extract_row_link(line)
+                    if link:
+                        existing_links.add(_dedup_key(link))
 
         new_rows = []
         for a in articles:
-            c = a.get("classification") or {}
+            c = a.get("classification")
+            if not isinstance(c, dict):
+                c = {}
             author = _md_escape(
                 a.get("author", "") or a.get("feed_title", "") or "-"
             )
@@ -321,10 +343,12 @@ def load_seen_links(data_dir: str = "output") -> set[str]:
             continue
         try:
             content = f.read_text(encoding="utf-8")
-            for m in re.finditer(r"\]\(([^)]+)\)", content):
-                key = _dedup_key(m.group(1))
-                if key:
-                    seen.add(key)
+            for line in content.splitlines():
+                link = _extract_row_link(line)
+                if link:
+                    key = _dedup_key(link)
+                    if key:
+                        seen.add(key)
         except OSError:
             continue
     return seen

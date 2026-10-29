@@ -2,7 +2,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.articles import load_articles, save_articles, append_to_articles, cleanup_articles, get_article_links
+from src.articles import (
+    append_to_articles,
+    cleanup_articles,
+    get_article_links,
+    load_articles,
+    save_articles,
+)
 
 
 class ArticlesTests(unittest.TestCase):

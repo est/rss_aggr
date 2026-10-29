@@ -78,7 +78,7 @@ def add_feeds_to_toml(feeds_file: str, new_feeds: list[tuple[str, str, str]]):
     lines = []
     for title, url, site in new_feeds:
         safe_title = title.replace('"', "'")[:60] if title else url.split('//')[-1].split('/')[0]
-        lines.append(f'\n[[category.feed]]')
+        lines.append('\n[[category.feed]]')
         lines.append(f'title = "{safe_title}"')
         lines.append(f'url = "{url}"')
         lines.append(f'site = "{site}"')

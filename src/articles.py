@@ -5,7 +5,6 @@ from pathlib import Path
 
 from src.urls import canonical_url
 
-
 ARTICLES_FILE = "articles.json"
 
 # Article lifecycle statuses.

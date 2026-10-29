@@ -11,7 +11,6 @@ import requests
 
 from src.urls import canonical_url
 
-
 # =============================================================================
 # Configuration (centralized for easy tuning)
 # =============================================================================
@@ -171,6 +170,12 @@ def _parse_blocks(text: str) -> dict[str, dict]:
             continue
 
         url = lines[0].strip()
+        # Tolerate common model formatting: Markdown links, angle brackets and
+        # trailing punctuation copied from prose.
+        markdown_link = re.match(r"\[[^\]]*\]\((https?://[^)]+)\)", url)
+        if markdown_link:
+            url = markdown_link.group(1)
+        url = url.rstrip(".,;:)").strip().strip("<>").strip()
         if not url.startswith("http"):
             continue
 

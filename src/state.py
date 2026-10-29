@@ -4,7 +4,6 @@ import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-
 STATE_FILE = "state.json"
 
 # Error kinds used to decide retry/disable behaviour.
@@ -172,7 +171,15 @@ def is_disabled(state: dict, url: str) -> bool:
 
 def _is_auto_re_enable_due(feed: dict, now: datetime) -> bool:
     until = _parse_dt(feed.get("disabled_until"))
-    return bool(until and until <= now)
+    if until is not None:
+        return until <= now
+    # Legacy state (pre-ADR-015) has disabled=true but no disabled_until.
+    # Re-probe it after the default quarantine instead of keeping it disabled
+    # forever.
+    disabled_at = _parse_dt(feed.get("disabled_at"))
+    if disabled_at is not None:
+        return disabled_at + timedelta(days=DEFAULT_DISABLE_DAYS) <= now
+    return True
 
 
 def get_due_feeds(feeds: list[dict], state: dict, interval_hours: int = 24,

@@ -77,6 +77,33 @@ jobs:
             echo "::warning::data branch not found; starting with empty runtime state"
           fi
 
+          # Backward compatibility for the first run after ADR-015. The old
+          # gh-pages layout held state.json/articles.json next to output/.
+          # Migrate them on the fly so a deployment does not lose the backlog.
+          if [ ! -f state.json ] || [ ! -f articles.json ]; then
+            if git fetch --depth=1 origin gh-pages; then
+              mkdir -p .legacy
+              for f in state.json articles.json cache.json; do
+                if git cat-file -e "FETCH_HEAD:$f" 2>/dev/null; then
+                  git show "FETCH_HEAD:$f" > ".legacy/$f"
+                fi
+              done
+              if [ ! -f state.json ] && [ -f .legacy/state.json ]; then
+                cp .legacy/state.json state.json
+                echo "::warning::restored legacy state.json from gh-pages"
+              fi
+              if [ ! -f articles.json ]; then
+                if [ -f .legacy/articles.json ]; then
+                  cp .legacy/articles.json articles.json
+                  echo "::warning::restored legacy articles.json from gh-pages"
+                elif [ -f .legacy/cache.json ]; then
+                  cp .legacy/cache.json articles.json
+                  echo "::warning::migrated legacy cache.json from gh-pages"
+                fi
+              fi
+            fi
+          fi
+
       - name: Restore output from gh-pages
         run: |
           set -euo pipefail
