@@ -7,6 +7,8 @@ from src.archive import (
     METADATA_FIELDS,
     append_metadata,
     metadata_record,
+    repair_archive_dir,
+    validate_archive_dir,
     write_snapshot,
 )
 
@@ -129,6 +131,46 @@ class AppendMetadataTests(unittest.TestCase):
 
             # Appending again must dedup against both the valid and partial rows.
             self.assertEqual(append_metadata([new_article], tmp), 0)
+
+
+class ValidateArchiveTests(unittest.TestCase):
+    def test_flags_partial_lines_and_raw_content(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp)
+            (archive / "2026-05-01.jsonl").write_text(
+                json.dumps(metadata_record(_article()), ensure_ascii=False) + "\n"
+                + '{"link":"https://example.com/part\n'
+                + json.dumps({"link": "https://example.com/raw", "content": RAW_BODY})
+                + "\n",
+                encoding="utf-8",
+            )
+            errors = validate_archive_dir(str(archive))
+            self.assertTrue(any("invalid JSON" in e for e in errors))
+            self.assertTrue(any("raw content" in e for e in errors))
+
+    def test_repair_drops_partial_and_raw_rows(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp)
+            valid = json.dumps(metadata_record(_article()), ensure_ascii=False)
+            (archive / "2026-05-01.jsonl").write_text(
+                valid + "\n"
+                + '{"link":"https://example.com/part\n'
+                + json.dumps({"link": "https://example.com/raw", "content": RAW_BODY})
+                + "\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(repair_archive_dir(str(archive)), 2)
+            self.assertEqual(validate_archive_dir(str(archive)), [])
+            self.assertEqual(
+                (archive / "2026-05-01.jsonl").read_text(encoding="utf-8"),
+                valid + "\n",
+            )
+
+    def test_clean_archive_has_no_errors(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp)
+            append_metadata([_article()], str(archive))
+            self.assertEqual(validate_archive_dir(str(archive)), [])
 
 
 class WriteSnapshotTests(unittest.TestCase):

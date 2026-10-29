@@ -60,7 +60,7 @@ python -m src.main --check      # 校验运行时数据/输出契约
 | 分支 | 内容 | 写入方式 |
 |------|------|----------|
 | `main` | `src/`、`tests/`、`docs/`、`config.toml`、`feeds.toml`、`sources.toml`、workflow | 普通提交；`sync-feeds` 每周提交 `feeds.toml` |
-| `data` | `state.json`、`articles.json`（仅元数据）、`status.json`、`output/`、`archive/` | 每天最多一次 metadata snapshot，普通 push（冲突时 rebase 重试一次） |
+| `data` | `state.json`、`articles.json`（仅元数据）、`status.json`、`output/`、`archive/` | 每天最多一次 metadata snapshot，普通 push；冲突时自动 rebase 重试一次，仍冲突则需人工处理 |
 
 - 只有 `main` 和 `data` 两个长期分支。GitHub Pages 直接从 Actions artifact 部署，**没有 `gh-pages` 分支**。
 - 文章正文（`articles.json` 的 `content`）只保存在 Actions cache，不进入 git 历史；`data` 是可用于冷启动恢复的元数据快照，不是热数据源。按每天一次快照估算，git 年增量约 14 MB，而不是含正文的约 300 MB/年。
@@ -76,7 +76,7 @@ python -m src.main --check      # 校验运行时数据/输出契约
 3. `data` 不存在时，允许一次性从旧 `gh-pages` 迁移 `state.json` / `output/`；
 4. 都没有时以空状态启动，首次成功运行后自动创建 `data`。
 
-cache 未命中时，`data` 中的 `articles.json` 只有元数据、没有正文。工作流会删除本地 `articles.json`，让 fetch 跳过 ETag 条件请求并重新抓取 14 天窗口；因此 cache 被驱逐最多丢失约一天内尚未分类的正文，但可以重新抓取。运行时文件 JSON 损坏会让 job 失败，而不是静默覆盖 `data`。
+cache 未命中时，`data` 中的 `articles.json` 只有元数据、没有正文。工作流会保留这些 pending 记录，并设置 `RSS_FORCE_FETCH=1` 让 fetch 跳过 ETag/抓取间隔、重新抓取 14 天窗口；抓到的正文会按 canonical link 回填到对应 pending 记录。只有源已经不再暴露的正文无法恢复，但文章标题和元数据仍保留，仍会继续分类或标题-only 输出。运行时文件 JSON 损坏会让 job 失败，而不是静默覆盖 `data`。
 
 ## Workflow
 
@@ -187,7 +187,7 @@ data/                     # 每日元数据快照（CI 写入）
   archive/                # 可选，按天 JSONL：archive/YYYY-MM-DD.jsonl
 ```
 
-本地运行生成的 `state.json` / `articles.json` / `status.json` / `output/` / `archive/` 都被 `.gitignore` 忽略，不会进入 `main`。含正文的 `articles.json` 只在 Actions cache 中；`data` 上的版本总是去正文的。旧版 `cache.json` / `gh-pages` 运行时文件只用于首次迁移。
+本地运行生成的 `state.json` / `articles.json` / `status.json` / `output/` / `archive/` 都被 `.gitignore` 忽略，不会进入 `main`。含正文的 `articles.json` 只在 Actions cache 中；`data` 上的版本总是去正文的。首次迁移时旧 `articles.json` / `cache.json` 会先剥离正文，只保留 pending 元数据；旧 `gh-pages` 的 state/output 用于冷启动。
 
 ## 成本
 

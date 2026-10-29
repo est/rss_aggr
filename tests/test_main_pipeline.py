@@ -47,12 +47,11 @@ class FetchStepTests(unittest.TestCase):
                 patch("src.main.validate_articles_file", return_value="ok"), \
                 patch("src.fetcher.fetch_all_feeds", return_value=results) as fetch_all, \
                 patch("src.main.load_seen_links", return_value=set()), \
-                patch("src.main.get_article_links", return_value=set()), \
-                patch("src.main.append_to_articles") as append:
+                patch("src.main.merge_fetched_entries") as merge:
             step_fetch()
 
         save_state.assert_called_once()
-        append.assert_not_called()
+        merge.assert_not_called()
         self.assertEqual(state["feeds"][feed["xml_url"]]["last_status"], "not_modified")
         self.assertEqual(state["feeds"][feed["xml_url"]]["consecutive_failures"], 0)
         _, kwargs = fetch_all.call_args
@@ -71,8 +70,7 @@ class FetchStepTests(unittest.TestCase):
                 patch("src.main.validate_articles_file", return_value="missing"), \
                 patch("src.main.save_articles") as save_articles, \
                 patch("src.fetcher.fetch_all_feeds", return_value=results) as fetch_all, \
-                patch("src.main.load_seen_links", return_value=set()), \
-                patch("src.main.get_article_links", return_value=set()):
+                patch("src.main.load_seen_links", return_value=set()):
             step_fetch()
 
         _, kwargs = fetch_all.call_args
@@ -91,12 +89,12 @@ class FetchStepTests(unittest.TestCase):
                 patch("src.main.save_state"), \
                 patch("src.main.validate_articles_file", return_value="ok"), \
                 patch("src.main.get_due_feeds", return_value=[feed]) as due, \
-                patch("src.fetcher.fetch_all_feeds", return_value=results), \
-                patch("src.main.load_seen_links", return_value=set()), \
-                patch("src.main.get_article_links", return_value=set()):
+                patch("src.fetcher.fetch_all_feeds", return_value=results) as fetch_all, \
+                patch("src.main.load_seen_links", return_value=set()):
             step_fetch()
 
         self.assertEqual(due.call_args.args[2], 0)
+        self.assertEqual(fetch_all.call_args.kwargs["feeds_state"], {})
 
     def test_all_due_feeds_failing_raises(self):
         feed = {"xml_url": "https://a.com/feed", "title": "A", "priority": 1}
@@ -109,8 +107,7 @@ class FetchStepTests(unittest.TestCase):
                 patch("src.main.save_state") as save_state, \
                 patch("src.main.validate_articles_file", return_value="ok"), \
                 patch("src.fetcher.fetch_all_feeds", return_value=results), \
-                patch("src.main.load_seen_links", return_value=set()), \
-                patch("src.main.get_article_links", return_value=set()):
+                patch("src.main.load_seen_links", return_value=set()):
             with self.assertRaises(RuntimeError):
                 step_fetch()
 

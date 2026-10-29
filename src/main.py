@@ -10,12 +10,11 @@ except ModuleNotFoundError:
     import tomli as tomllib
 
 from src.aggregator import is_aggregator
-from src.archive import append_metadata
+from src.archive import append_metadata, repair_archive_dir
 from src.articles import (
-    append_to_articles,
     cleanup_articles,
-    get_article_links,
     load_articles,
+    merge_fetched_entries,
     save_articles,
     validate_articles_file,
 )
@@ -161,8 +160,14 @@ def step_fetch():
             "articles.json is corrupt; restore it from the data branch before running"
         )
     # With no cache, persisted ETags would produce 304s and the cache would
-    # never be rebuilt. Force a full fetch in that case.
-    force_refresh = cache_status == "missing"
+    # never be rebuilt. Force a full fetch in that case. The workflow also
+    # sets RSS_FORCE_FETCH=1 on a cache miss even when a metadata-only
+    # articles.json survived.
+    force_refresh = (
+        cache_status == "missing"
+        or os.environ.get("RSS_FORCE_FETCH") == "1"
+    )
+    cache_missing = cache_status == "missing"
 
     all_feeds = parse_feeds("feeds.toml")
     print(f"[{ts()}] {len(all_feeds)} feeds total", flush=True)
@@ -177,7 +182,7 @@ def step_fetch():
         # get_due_feeds() may have auto-disabled or re-enabled feeds.
         state["last_fetch"] = _now_iso()
         save_state(state)
-        if force_refresh:
+        if cache_missing:
             save_articles([])
         print(f"[{ts()}] No feeds to fetch", flush=True)
         return
@@ -223,23 +228,25 @@ def step_fetch():
             f"All {len(due_feeds)} due feeds failed to fetch; runtime is unhealthy"
         )
 
-    # Dedup against rendered output, cached articles, and duplicates within
-    # this run, using canonical URL keys.
-    seen = set(load_seen_links(data_dir)) | set(get_article_links())
-    new_entries = []
+    # Skip anything already rendered. Everything else is merged: new links are
+    # added, and existing metadata-only pending rows get their body reattached
+    # after a cache miss instead of being discarded.
+    output_links = load_seen_links(data_dir)
+    candidates = []
     for entry in all_entries:
         link = (entry.get("link") or "").strip()
         key = canonical_url(link) or link or entry.get("guid", "")
-        if not key or key in seen:
+        if not key or key in output_links:
             continue
-        seen.add(key)
-        new_entries.append(entry)
-    print(f"[{ts()}] {len(new_entries)} new articles", flush=True)
+        candidates.append(entry)
 
-    if new_entries:
-        added = append_to_articles(new_entries)
-        print(f"[{ts()}] Added {added} articles to cache", flush=True)
-    elif force_refresh:
+    if candidates:
+        added, refreshed = merge_fetched_entries(candidates)
+        print(
+            f"[{ts()}] Merged fetch: {added} new, {refreshed} bodies refreshed",
+            flush=True,
+        )
+    elif cache_missing:
         # Create the file even if the full refresh found nothing new.
         save_articles([])
 
@@ -267,6 +274,14 @@ def step_classify():
         raise RuntimeError(
             "articles.json is corrupt; restore it from the data branch before classifying"
         )
+
+    try:
+        repaired = repair_archive_dir(archive_dir)
+    except (OSError, ValueError) as exc:
+        print(f"[{ts()}] WARNING: could not repair archive: {exc}", flush=True)
+    else:
+        if repaired:
+            print(f"[{ts()}] Repaired archive: removed {repaired} invalid rows", flush=True)
 
     feeds = parse_feeds("feeds.toml")
     site_skip_prompt_rules = _build_site_skip_prompt_rules(feeds)

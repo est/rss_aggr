@@ -7,6 +7,7 @@ local ``articles.json`` working copy.
 import argparse
 import json
 import shutil
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -213,6 +214,80 @@ def _metadata_articles(path: Path) -> list[dict] | None:
     return [metadata_record(a) for a in data if isinstance(a, dict)]
 
 
+def repair_archive_dir(archive_dir: str = "archive") -> int:
+    """Drop partial/invalid lines and raw-content rows from JSONL archives.
+
+    Returns the number of removed lines. Files with no remaining records are
+    left as empty files rather than deleted, so the day remains visible.
+    """
+    removed = 0
+    base = Path(archive_dir)
+    if not base.exists():
+        return 0
+    for path in sorted(base.glob("*.jsonl")):
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        kept: list[str] = []
+        for line in lines:
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except (json.JSONDecodeError, ValueError, TypeError):
+                removed += 1
+                continue
+            if (
+                not isinstance(record, dict)
+                or not _article_key(record)
+                or "content" in record
+                or "content_length" in record
+            ):
+                removed += 1
+                continue
+            kept.append(line)
+        if len(kept) == len(lines):
+            continue
+        tmp = path.with_name(path.name + ".tmp")
+        tmp.write_text(
+            "\n".join(kept) + ("\n" if kept else ""),
+            encoding="utf-8",
+        )
+        tmp.replace(path)
+    return removed
+
+
+def validate_archive_dir(archive_dir: str = "archive") -> list[str]:
+    """Return validation errors for per-day JSONL archive files."""
+    errors: list[str] = []
+    base = Path(archive_dir)
+    if not base.exists():
+        return errors
+    for path in sorted(base.glob("*.jsonl")):
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError) as exc:
+            errors.append(f"{path}: {exc}")
+            continue
+        for lineno, line in enumerate(lines, 1):
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except (json.JSONDecodeError, ValueError, TypeError):
+                errors.append(f"{path}:{lineno}: invalid JSON")
+                continue
+            if not isinstance(record, dict):
+                errors.append(f"{path}:{lineno}: record is not an object")
+                continue
+            if "content" in record or "content_length" in record:
+                errors.append(f"{path}:{lineno}: raw content field")
+            if not _article_key(record):
+                errors.append(f"{path}:{lineno}: missing dedup key")
+    return errors
+
+
 def write_snapshot(dest_dir: str, root: str = ".") -> dict:
     """Prepare a metadata-only data-branch snapshot in ``dest_dir``.
 
@@ -250,10 +325,31 @@ def main(argv: list[str] | None = None) -> int:
         metavar="DEST",
         help="Write a metadata-only data-branch snapshot to DEST",
     )
+    parser.add_argument(
+        "--validate",
+        metavar="DIR",
+        help="Validate per-day JSONL archive files under DIR",
+    )
+    parser.add_argument(
+        "--repair",
+        metavar="DIR",
+        help="Drop partial/invalid lines from per-day JSONL archive files",
+    )
     args = parser.parse_args(argv)
 
+    if args.repair:
+        removed = repair_archive_dir(args.repair)
+        print(json.dumps({"removed": removed}, sort_keys=True), flush=True)
+        return 0
+
+    if args.validate:
+        errors = validate_archive_dir(args.validate)
+        for error in errors:
+            print(error, file=sys.stderr)
+        return 1 if errors else 0
+
     if not args.snapshot:
-        parser.error("--snapshot DEST is required")
+        parser.error("--snapshot DEST, --validate DIR or --repair DIR is required")
 
     manifest = write_snapshot(args.snapshot)
     print(json.dumps(manifest, ensure_ascii=False, sort_keys=True), flush=True)

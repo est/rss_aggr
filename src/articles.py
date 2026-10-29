@@ -111,6 +111,57 @@ def append_to_articles(new_articles: list[dict], path: str = ARTICLES_FILE) -> i
     return added
 
 
+def merge_fetched_entries(entries: list[dict], path: str = ARTICLES_FILE) -> tuple[int, int]:
+    """Merge fetched entries into the cache.
+
+    New links are appended. Existing pending/failed records whose body was
+    lost (for example after a cache miss) get their ``content`` reattached
+    from the feed instead of being dropped. Finished records are never
+    modified. Returns ``(added, refreshed)``.
+    """
+    existing = load_articles(path)
+    by_key = {_article_key(a): a for a in existing if _article_key(a)}
+    now = datetime.now(timezone.utc).isoformat()
+    added = 0
+    refreshed = 0
+
+    for a in entries:
+        key = _article_key(a)
+        if not key:
+            continue
+        current = by_key.get(key)
+        if current is None:
+            content = a.get("content") or ""
+            entry = {**a}
+            entry["canonical"] = canonical_url(a.get("link", "")) or a.get("link", "") or key
+            entry["status"] = STATUS_PENDING
+            entry["attempts"] = 0
+            entry["cached_at"] = a.get("cached_at") or now
+            entry["content_length"] = len(content)
+            existing.append(entry)
+            by_key[key] = entry
+            added += 1
+            continue
+
+        status = current.get("status") or STATUS_PENDING
+        if status in _DONE_STATUSES:
+            continue
+
+        incoming = a.get("content") or ""
+        if not (current.get("content") or "").strip() and incoming.strip():
+            current["content"] = incoming
+            current["content_length"] = len(incoming)
+            current["content_refreshed_at"] = now
+            refreshed += 1
+        for field in ("title", "author", "published", "feed_title", "feed_category", "canonical"):
+            if not current.get(field) and a.get(field):
+                current[field] = a[field]
+
+    if added or refreshed:
+        save_articles(existing, path)
+    return added, refreshed
+
+
 def get_pending_articles(limit: int = 0, path: str = ARTICLES_FILE) -> list[dict]:
     """Return not-yet-classified articles ordered by cached_at (oldest first)."""
     pending = [

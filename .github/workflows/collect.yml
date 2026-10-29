@@ -100,7 +100,7 @@ jobs:
           # authoritative, and log the exact/partial state for debugging.
           cache_ok=false
           if [ -f .runtime/state.json ] && [ -f .runtime/articles.json ] \
-              && [ -d .runtime/output ]; then
+              && [ -f .runtime/output/index.md ]; then
             if validate_json .runtime/state.json && validate_json .runtime/articles.json; then
               cache_ok=true
             else
@@ -184,8 +184,7 @@ jobs:
                 exit 1
               fi
 
-              rm -f articles.json
-              echo "Restored state/output/archive from data branch; dropped metadata-only articles.json to force a full 14-day refetch"
+              echo "Restored state/output/archive from data branch; keeping metadata-only articles.json so pending records survive the cold start"
               rm -rf .data
             elif [ "$data_rc" -eq 2 ] || { [ "$data_rc" -eq 0 ] && [ -z "$data_heads" ]; }; then
               # One-time migration path for the pre-ADR-016 layout. Only state
@@ -212,7 +211,28 @@ jobs:
                   rm -rf output
                   git archive FETCH_HEAD output | tar -x -C .
                 fi
-                echo "Legacy migration: state/output restored; legacy articles.json is intentionally not copied"
+                if git cat-file -e "FETCH_HEAD:articles.json" 2>/dev/null; then
+                  git show "FETCH_HEAD:articles.json" > .legacy/articles.json
+                elif git cat-file -e "FETCH_HEAD:cache.json" 2>/dev/null; then
+                  git show "FETCH_HEAD:cache.json" > .legacy/articles.json
+                fi
+                if [ -f .legacy/articles.json ]; then
+                  python - <<'PY'
+          import json
+          from pathlib import Path
+          from src.archive import metadata_record
+
+          src = Path(".legacy/articles.json")
+          data = json.loads(src.read_text(encoding="utf-8"))
+          records = [metadata_record(a) for a in data if isinstance(a, dict)]
+          Path("articles.json").write_text(
+              json.dumps(records, ensure_ascii=False, separators=(",", ":")),
+              encoding="utf-8",
+          )
+          PY
+                  echo "::warning::migrated pending metadata from legacy articles.json (bodies will be re-fetched)"
+                fi
+                echo "Legacy migration: state/output/pending metadata restored"
                 rm -rf .legacy
               elif [ "$site_rc" -eq 2 ] || { [ "$site_rc" -eq 0 ] && [ -z "$site_heads" ]; }; then
                 echo "::warning::no data or gh-pages branch found; starting with empty runtime state"
@@ -228,7 +248,7 @@ jobs:
 
           # Never run with a corrupt cache: it would be silently treated as
           # empty and then written back over the data branch.
-          for f in state.json articles.json; do
+          for f in state.json articles.json status.json; do
             if [ -f "$f" ]; then
               if ! validate_json "$f"; then
                 echo "::error::$f is not valid JSON; refusing to start"
@@ -236,6 +256,12 @@ jobs:
               fi
             fi
           done
+          if [ -d archive ]; then
+            python -m src.archive --repair archive >/dev/null || true
+            if ! python -m src.archive --validate archive; then
+              echo "::warning::archive/ still has invalid JSONL after repair; continuing"
+            fi
+          fi
 
           # Reaching this point means the restore path completed safely. An
           # empty bootstrap is allowed here; the snapshot step still requires
@@ -306,12 +332,16 @@ jobs:
             python -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' "$1"
           }
 
+          if [ ! -f .restore-data-ok ]; then
+            echo "::warning::runtime restore did not succeed; skipping cache save"
+            exit 0
+          fi
           if [ ! -f state.json ] || [ ! -f articles.json ]; then
             echo "::warning::state.json or articles.json is missing; skipping cache save"
             exit 0
           fi
-          if [ ! -d output ]; then
-            echo "::warning::output/ is missing; skipping cache save"
+          if [ ! -f output/index.md ]; then
+            echo "::warning::output/index.md is missing; skipping cache save"
             exit 0
           fi
           for f in state.json articles.json status.json; do
@@ -320,6 +350,13 @@ jobs:
               exit 0
             fi
           done
+          if [ -d archive ]; then
+            python -m src.archive --repair archive >/dev/null || true
+            if ! python -m src.archive --validate archive; then
+              echo "::warning::archive/ contains invalid JSONL; skipping cache save"
+              exit 0
+            fi
+          fi
 
           cp state.json articles.json .runtime/
           if [ -f status.json ]; then
@@ -371,13 +408,24 @@ jobs:
             echo "::warning::state.json or articles.json is missing; skipping data snapshot"
             exit 0
           fi
-          if [ ! -d output ]; then
-            echo "::warning::output/ is missing; skipping data snapshot"
+          if [ ! -f output/index.md ]; then
+            echo "::warning::output/index.md is missing; skipping data snapshot"
             exit 0
           fi
           if ! validate_json state.json || ! validate_json articles.json; then
             echo "::warning::runtime files are not valid JSON; skipping data snapshot"
             exit 0
+          fi
+          if [ -f status.json ] && ! validate_json status.json; then
+            echo "::warning::status.json is not valid JSON; skipping data snapshot"
+            exit 0
+          fi
+          if [ -d archive ]; then
+            python -m src.archive --repair archive >/dev/null || true
+            if ! python -m src.archive --validate archive; then
+              echo "::warning::archive/ contains invalid JSONL; skipping data snapshot"
+              exit 0
+            fi
           fi
 
           REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
@@ -423,9 +471,11 @@ jobs:
             exit 0
           fi
 
-          # Start from a clean tree so the data branch contains exactly the
-          # metadata snapshot, with no stale cache.json or raw-content files.
-          find .data-push -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          # Replace managed metadata files but preserve historical output/
+          # and archive/ from the branch. A cache hit may legitimately lack
+          # one of those trees; deleting them here would shrink the archive.
+          find .data-push -mindepth 1 -maxdepth 1 \
+            ! -name .git ! -name output ! -name archive -exec rm -rf {} +
           python -m src.archive --snapshot .data-push
 
           # Fail closed if the archive CLI ever leaks raw bodies or writes an
@@ -435,6 +485,8 @@ jobs:
           import sys
           from pathlib import Path
 
+          from src.archive import validate_archive_dir
+
           root = Path(".data-push")
           allowed = {"state.json", "articles.json", "status.json", "output", "archive"}
           entries = {p.name for p in root.iterdir() if p.name != ".git"}
@@ -442,8 +494,10 @@ jobs:
           if extra:
               sys.exit(f"unexpected paths in data snapshot: {sorted(extra)}")
 
-          for name in ("state.json", "articles.json"):
+          for name in ("state.json", "articles.json", "status.json"):
               path = root / name
+              if name == "status.json" and not path.exists():
+                  continue
               if not path.is_file():
                   sys.exit(f"missing {name} in data snapshot")
               data = json.loads(path.read_text(encoding="utf-8"))
@@ -459,7 +513,14 @@ jobs:
                       )
               print(f"{name}: ok")
 
-          if not (root / "archive").exists():
+          if not (root / "output" / "index.md").is_file():
+              sys.exit("output/index.md missing in data snapshot")
+
+          if (root / "archive").exists():
+              errors = validate_archive_dir(str(root / "archive"))
+              if errors:
+                  sys.exit("invalid archive records: " + "; ".join(errors[:5]))
+          else:
               print("::warning::archive/ not present in snapshot")
           PY
 

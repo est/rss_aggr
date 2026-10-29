@@ -61,7 +61,7 @@ pytest -q
 - fetch/classify 可以安全重跑：`articles.json` 和 `output/` 都按链接去重。
 - `--check` 在 Pages 部署之后运行：不回滚已发布内容，但会让 job 失败。
 - 恢复失败时 `.restore-data-ok` 不存在，快照步骤会 warning 并跳过，**这是保护行为，不要绕过**。
-- `data` 使用普通 push；如果被拒绝，工作流自动 `pull --rebase` 重试一次。不要 force-push。
+- `data` 使用普通 push；如果被拒绝，工作流自动 `pull --rebase` 重试一次。由于每日快照会重写 `state.json` / `articles.json`，并发提交通常会在 rebase 时冲突，此时重试会失败并保持远端不变，需要人工解决或等待下一次快照。不要 force-push。
 
 ## 2. 重新启用被自动禁用的 feed
 
@@ -214,10 +214,11 @@ gh workflow enable "RSS Collection & Classification"
 
 cache 是热数据，随时可能被 GitHub 驱逐，这是设计内的：
 
-- **驱逐**：下一轮自动从 `data` 恢复，并删除 `articles.json` 强制重抓 14 天窗口；无法从 `data` 还原的只有最近尚未分类的正文，最多约一天；
+- **驱逐**：下一轮自动从 `data` 恢复 pending 元数据，并设置 `RSS_FORCE_FETCH=1` 重抓 14 天窗口，把正文回填到对应记录；源已经不再暴露的正文无法恢复，但标题/元数据仍保留，文章会继续分类或标题-only 输出；
 - **损坏**：恢复步骤检测到非法 JSON 后 warning 并回退 `data`，不会把损坏内容写回；
 - **保存失败**：只影响下一次冷启动成本。日志中 `Prepare runtime cache` 的 `ok=false` 或 `Save runtime cache` 失败都不应手工补 cache；
-- **key**：`rss-runtime-${run_id}`，通过 `rss-runtime-` 前缀恢复最近一份。日常运行是前缀命中，`cache-hit` 通常为 `false`，以恢复后的文件校验为准。
+- **key**：`rss-runtime-${run_id}`，通过 `rss-runtime-` 前缀恢复最近一份。日常运行是前缀命中，`cache-hit` 通常为 `false`，以恢复后的文件校验为准；
+- **配额**：每轮一个 cache，GitHub 按约 10GB/LRU 管理。频繁冷启动通常是旧 cache 被驱逐；可用 `gh cache list` 查看，并只删除旧的 `rss-runtime-*`，不要无差别删除其他 workflow 的 cache。
 
 常用命令：
 
@@ -241,13 +242,14 @@ gh cache delete <cache-id>
 1. clone `data`（不存在则 orphan init）；
 2. 清空除 `.git` 外的内容，运行 `python -m src.archive --snapshot .data-push`；
 3. 校验只存在允许路径，且 `articles.json` 没有非空 `content`；
-4. 提交 `data: snapshot YYYY-MM-DD`，普通 push；被拒时 `pull --rebase` 重试一次。
+4. 提交 `data: snapshot YYYY-MM-DD`，普通 push；被拒时 `pull --rebase` 重试一次。若选择文件冲突，重试会失败而不是覆盖远端，需要人工解决。
 
 失败处理：
 
 - **`src.archive` 报错**：检查日志和 CLI 契约，修复后手动触发并勾选 `snapshot`；远端 `data` 不会被半成品覆盖。
 - **校验发现 raw content / 多余路径**：快照步骤失败，这是保护。检查 archive 模块是否去正文，以及是否写入了 cache 临时文件。
 - **push 被拒且 rebase 后仍失败**：通常是 `data` 上有不兼容的人工提交。拉取 `data`、解决冲突后再手动触发；不要 force-push。
+- **`could not write archive metadata`**：站点输出仍然成功，但 `archive/` 可能缺少该条记录；`append_metadata` 只在下次处理新文章时追加，不会自动补旧记录。需要完整归档时从 `output/` 或 cache 手工重建对应行。
 - **恢复失败导致快照跳过**：先修恢复（第 3 节），不要直接手工推送不完整状态。
 - **长时间没有新快照**：确认最近几次运行是否因 cache 恢复失败、job 提前失败或 20 小时窗口未到。必要时 `snapshot=true`。
 

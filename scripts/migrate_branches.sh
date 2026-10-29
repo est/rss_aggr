@@ -87,15 +87,41 @@ fi
 mkdir -p "$TMP_DIR/legacy" "$TMP_DIR/data" "$TMP_DIR/site"
 git archive "$SITE_REF" | tar -x -C "$TMP_DIR/legacy"
 
-# Runtime state from the old gh-pages layout.
-for f in state.json articles.json; do
-  if [ -f "$TMP_DIR/legacy/$f" ]; then
-    cp "$TMP_DIR/legacy/$f" "$TMP_DIR/data/$f"
-  fi
-done
-if [ ! -f "$TMP_DIR/data/articles.json" ] && [ -f "$TMP_DIR/legacy/cache.json" ]; then
-  cp "$TMP_DIR/legacy/cache.json" "$TMP_DIR/data/articles.json"
-  echo "note: migrating legacy cache.json to articles.json"
+# Runtime state from the old gh-pages layout. Articles are stripped to
+# metadata: raw bodies must never enter the data branch (ADR-016).
+if [ -f "$TMP_DIR/legacy/state.json" ]; then
+  cp "$TMP_DIR/legacy/state.json" "$TMP_DIR/data/state.json"
+fi
+
+LEGACY_ARTICLES=""
+if [ -f "$TMP_DIR/legacy/articles.json" ]; then
+  LEGACY_ARTICLES="$TMP_DIR/legacy/articles.json"
+elif [ -f "$TMP_DIR/legacy/cache.json" ]; then
+  LEGACY_ARTICLES="$TMP_DIR/legacy/cache.json"
+  echo "note: migrating legacy cache.json to metadata-only articles.json"
+fi
+if [ -n "$LEGACY_ARTICLES" ]; then
+  python - "$LEGACY_ARTICLES" "$TMP_DIR/data/articles.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+from src.archive import metadata_record
+
+source, dest = Path(sys.argv[1]), Path(sys.argv[2])
+data = json.loads(source.read_text(encoding="utf-8"))
+records = [metadata_record(a) for a in data if isinstance(a, dict)]
+dest.write_text(
+    json.dumps(records, ensure_ascii=False, separators=(",", ":")),
+    encoding="utf-8",
+)
+PY
+  echo "note: stripped raw article bodies from migrated articles.json"
+fi
+
+# The new data layout also carries rendered output. Keep historical pages.
+if [ -d "$TMP_DIR/legacy/output" ]; then
+  cp -R "$TMP_DIR/legacy/output" "$TMP_DIR/data/output"
 fi
 
 CREATE_DATA=false

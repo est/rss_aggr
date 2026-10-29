@@ -14,6 +14,7 @@ from src.articles import (
     get_article_links,
     get_pending_articles,
     load_articles,
+    merge_fetched_entries,
     save_articles,
     summarize_articles,
     validate_articles_file,
@@ -64,6 +65,63 @@ class ArticleCacheTests(unittest.TestCase):
             self.assertEqual(
                 append_to_articles([{"guid": "g1", "title": "Again"}], path), 0
             )
+
+    def test_merge_reattaches_body_to_metadata_only_pending_record(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = _path(tmp)
+            save_articles(
+                [
+                    {
+                        "link": "https://example.com/a",
+                        "title": "Old title",
+                        "status": STATUS_PENDING,
+                        "content": "",
+                        "content_length": 0,
+                        "cached_at": _iso(-1),
+                    }
+                ],
+                path,
+            )
+
+            added, refreshed = merge_fetched_entries(
+                [
+                    {
+                        "link": "https://www.example.com/a/?utm_source=x",
+                        "title": "New title",
+                        "content": "full body",
+                    }
+                ],
+                path,
+            )
+
+            self.assertEqual((added, refreshed), (0, 1))
+            cache = load_articles(path)
+            self.assertEqual(len(cache), 1)
+            self.assertEqual(cache[0]["content"], "full body")
+            self.assertEqual(cache[0]["content_length"], len("full body"))
+            self.assertEqual(cache[0]["title"], "Old title")
+
+    def test_merge_does_not_touch_finished_records(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = _path(tmp)
+            save_articles(
+                [
+                    {
+                        "link": "https://example.com/a",
+                        "status": STATUS_CLASSIFIED,
+                        "content": "",
+                    }
+                ],
+                path,
+            )
+
+            added, refreshed = merge_fetched_entries(
+                [{"link": "https://example.com/a", "content": "should not return"}],
+                path,
+            )
+
+            self.assertEqual((added, refreshed), (0, 0))
+            self.assertEqual(load_articles(path)[0]["content"], "")
 
     def test_get_pending_sorts_and_limits(self):
         with tempfile.TemporaryDirectory() as tmp:
