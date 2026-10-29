@@ -1,16 +1,22 @@
 """Storage module: save results as markdown files (YYYY/MMDD.md) + index."""
+import html
 import re
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+
+from src.urls import canonical_url, is_safe_http_url
 
 OLD_HEADER = "| Author | Title | Summary | Score |"
 OLD_SEP = "|--------|-------|---------|-------|"
 NEW_HEADER = "| Author | Title | Category | Summary | Score |"
 NEW_SEP = "|--------|-------|----------|---------|-------|"
 
+SUMMARY_MAX_CHARS = 280
+CATEGORY_MAX_CHARS = 100
+
 
 def _normalize_link(url: str) -> str:
-    """Normalize URL for dedup: strip scheme and trailing slash."""
+    """Legacy normalizer: strip scheme and trailing slash."""
     if not url:
         return ""
     for scheme in ("https://", "http://"):
@@ -20,8 +26,19 @@ def _normalize_link(url: str) -> str:
     return url.rstrip("/")
 
 
-def _md_escape(text: str) -> str:
-    return text.replace("|", "\\|").replace("\n", " ").replace("\r", "")
+def _dedup_key(url: str) -> str:
+    return canonical_url(url) or _normalize_link(url)
+
+
+def _md_escape(text) -> str:
+    """Escape untrusted text for safe Markdown table rendering.
+
+    HTML is escaped first so titles/authors/summaries cannot inject raw tags;
+    pipes are then escaped and newlines collapsed to keep table rows intact.
+    """
+    escaped = html.escape(str(text if text is not None else ""), quote=True)
+    escaped = escaped.replace("\r", " ").replace("\n", " ")
+    return escaped.replace("|", "\\|")
 
 
 def _split_md_row(line: str) -> list[str]:
@@ -53,7 +70,9 @@ def _is_data_row(line: str) -> bool:
     if len(cells) < 2:
         return False
     # Header/separator rows.
-    if cells[1].lower() in ("author", "feed"):
+    if (cells[1].lower() in ("author", "feed")
+            and len(cells) > 2
+            and cells[2].lower() in ("title", "title link")):
         return False
     if all((not c) or set(c) <= {"-"} for c in cells[1:-1]):
         return False
@@ -75,24 +94,52 @@ def _upgrade_old_row_to_category(line: str) -> str:
     return line
 
 
-def _parse_published(published: str) -> datetime | None:
-    """Parse published date string to datetime."""
-    if not published:
+def _parse_dt(value) -> datetime | None:
+    """Parse an ISO-ish date string to an aware UTC datetime."""
+    if not value:
         return None
-    for fmt in ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%M:%S%z", "%Y-%m-%d"):
+    if isinstance(value, datetime):
+        dt = value
+    else:
         try:
-            dt = datetime.strptime(published, fmt)
-            if dt.tzinfo is None:
-                dt = dt.replace(tzinfo=timezone.utc)
-            return dt
-        except ValueError:
-            continue
-    return None
+            dt = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        except (ValueError, TypeError):
+            return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
+def _parse_published(published: str) -> datetime | None:
+    """Parse published/cached date string to an aware UTC datetime."""
+    return _parse_dt(published)
 
 
 def _article_date(article: dict) -> datetime | None:
-    """Get the publish date of an article."""
-    return _parse_published(article.get("published", ""))
+    """Published date, falling back to cached_at when published is invalid."""
+    return _parse_published(article.get("published", "")) or _parse_published(
+        article.get("cached_at", "")
+    )
+
+
+def _format_score(value) -> str:
+    """Return a score clamped to 1..10, or an em dash when unusable."""
+    if value is None or value == "":
+        return "—"
+    try:
+        score = int(float(value))
+    except (TypeError, ValueError):
+        return "—"
+    return str(max(1, min(10, score)))
+
+
+def _article_title_cell(article: dict) -> str:
+    """Render title as a link only for safe http(s) URLs."""
+    title = _md_escape(article.get("title", "") or "—")
+    link = (article.get("link") or "").strip()
+    if link and is_safe_http_url(link):
+        return f"[{title}]({link})"
+    return title
 
 
 def save_daily_results(
@@ -100,17 +147,31 @@ def save_daily_results(
     data_dir: str = "output",
     last_fetched: str = "",
     keep_days: int = 0,
+    last_classified: str = "",
+    last_classify: str | None = None,
+    last_fetch: str = "",
 ) -> list[Path]:
     """Save articles grouped by their published date. Returns list of written files.
 
     Args:
         keep_days: 0 means no age filtering (all articles saved).
+        last_classified: timestamp shown on the index (``last_classify`` is a
+            backward-compatible alias; ``last_fetch`` aliases ``last_fetched``).
     """
+    if last_fetch and not last_fetched:
+        last_fetched = last_fetch
+    if last_classify and not last_classified:
+        last_classified = last_classify
+
     now = datetime.now(timezone.utc)
-    cutoff_old = now - timedelta(days=keep_days) if keep_days > 0 else datetime.min.replace(tzinfo=timezone.utc)
+    cutoff_old = (
+        now - timedelta(days=keep_days)
+        if keep_days > 0
+        else datetime.min.replace(tzinfo=timezone.utc)
+    )
     written = []
 
-    # Group valid articles by date
+    # Group valid articles by date (published, else cached_at).
     by_date: dict[str, list[dict]] = {}
     skipped = 0
     for a in data.get("articles", []):
@@ -145,19 +206,28 @@ def save_daily_results(
                     existing_lines.append(_upgrade_old_row_to_category(line))
                     m = re.search(r"\]\(([^)]+)\)", line)
                     if m:
-                        existing_links.add(_normalize_link(m.group(1)))
+                        existing_links.add(_dedup_key(m.group(1)))
 
         new_rows = []
         for a in articles:
             c = a.get("classification") or {}
-            author = _md_escape(a.get("author", "") or a.get("feed_title", "") or "-")
-            title = _md_escape(a.get("title", ""))
-            link = a.get("link", "")
-            category = _md_escape(c.get("category", "") or "")
-            summary = _md_escape(c.get("summary", "") or "")
-            score = c.get("score", "—")
-            if link and _normalize_link(link) not in existing_links:
-                new_rows.append(f"| {author} | [{title}]({link}) | {category or '—'} | {summary or '—'} | {score} |")
+            author = _md_escape(
+                a.get("author", "") or a.get("feed_title", "") or "-"
+            )
+            title_cell = _article_title_cell(a)
+            link = (a.get("link") or "").strip()
+            category = _md_escape((c.get("category") or "")[:CATEGORY_MAX_CHARS])
+            summary = _md_escape((c.get("summary") or "")[:SUMMARY_MAX_CHARS])
+            score = _format_score(c.get("score"))
+            key_for_link = _dedup_key(link)
+            if key_for_link and key_for_link in existing_links:
+                continue
+            if key_for_link:
+                existing_links.add(key_for_link)
+            new_rows.append(
+                f"| {author} | {title_cell} | {category or '—'} | "
+                f"{summary or '—'} | {score} |"
+            )
 
         all_rows = existing_lines + new_rows
         if not all_rows:
@@ -177,20 +247,26 @@ def save_daily_results(
         lines.extend(all_rows)
         lines.append("")
 
-        tmp_path = file_path.with_suffix(".tmp")
+        tmp_path = file_path.with_name(file_path.name + ".tmp")
         tmp_path.write_text("\n".join(lines), encoding="utf-8")
-        tmp_path.rename(file_path)
+        tmp_path.replace(file_path)
         written.append(file_path)
 
-    _update_index(data_dir, last_fetched=last_fetched)
+    # Always regenerate the index, even when there were no new articles.
+    _update_index(
+        data_dir, last_fetched=last_fetched, last_classified=last_classified
+    )
     return written
 
 
-def _update_index(data_dir: str = "output", last_fetched: str = ""):
+def _update_index(
+    data_dir: str = "output",
+    last_fetched: str = "",
+    last_classified: str = "",
+):
     """Regenerate index.md listing all daily files, newest first."""
     base = Path(data_dir)
-    if not base.exists():
-        return
+    base.mkdir(parents=True, exist_ok=True)
 
     entries = []
     for yyyy_dir in sorted(base.iterdir(), reverse=True):
@@ -207,10 +283,13 @@ def _update_index(data_dir: str = "output", last_fetched: str = ""):
             entries.append((display, rel))
 
     now = last_fetched or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    meta = f"{len(entries)} days | last fetched: <span id='lf'>{now}</span>"
+    if last_classified:
+        meta += f" | last classified: <span id='lc'>{last_classified}</span>"
     lines = [
         "# RSS Aggregator",
         "",
-        f"> {len(entries)} days | last fetched: <span id='lf'>{now}</span>",
+        f"> {meta}",
         "",
         "<script>",
         "try{var e=document.getElementById('lf'),d=new Date(e.textContent);",
@@ -225,25 +304,31 @@ def _update_index(data_dir: str = "output", last_fetched: str = ""):
     lines.append("")
 
     index_path = base / "index.md"
-    tmp_path = index_path.with_suffix(".tmp")
+    tmp_path = index_path.with_name(index_path.name + ".tmp")
     tmp_path.write_text("\n".join(lines), encoding="utf-8")
-    tmp_path.rename(index_path)
+    tmp_path.replace(index_path)
 
 
-def load_seen_guids(data_dir: str = "output") -> set[str]:
-    """Load all previously seen article links from past markdown files."""
+def load_seen_links(data_dir: str = "output") -> set[str]:
+    """Load canonical article links from previously rendered markdown files."""
     path = Path(data_dir)
     if not path.exists():
         return set()
 
-    guids = set()
+    seen = set()
     for f in path.rglob("*.md"):
-        if f.name == "index.md":
+        if f.name in ("index.md", "status.md"):
             continue
         try:
             content = f.read_text(encoding="utf-8")
             for m in re.finditer(r"\]\(([^)]+)\)", content):
-                guids.add(m.group(1))
+                key = _dedup_key(m.group(1))
+                if key:
+                    seen.add(key)
         except OSError:
             continue
-    return guids
+    return seen
+
+
+# Legacy alias: the old name exposed raw links, the new one is canonical.
+load_seen_guids = load_seen_links

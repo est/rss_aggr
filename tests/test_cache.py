@@ -1,4 +1,3 @@
-import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -55,7 +54,7 @@ class ArticlesTests(unittest.TestCase):
             save_articles(articles, path)
 
             links = get_article_links(path)
-            self.assertEqual(links, {"https://a.com/1", "https://a.com/2"})
+            self.assertEqual(links, {"a.com/1", "a.com/2"})
 
 
 if __name__ == "__main__":
