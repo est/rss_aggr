@@ -15,6 +15,7 @@ from src.articles import (
     load_articles,
     save_articles,
     summarize_articles,
+    validate_articles_file,
 )
 
 
@@ -107,6 +108,9 @@ class ArticleCacheTests(unittest.TestCase):
                     # Recent classified -> kept.
                     {"link": "https://a.com/c-new", "status": STATUS_CLASSIFIED,
                      "published": _iso(0)},
+                    # Old article classified just now -> kept (classified_at wins).
+                    {"link": "https://a.com/c-old-pub", "status": STATUS_CLASSIFIED,
+                     "published": _iso(-30), "classified_at": _iso(-0.04)},
                 ],
                 path,
             )
@@ -114,7 +118,14 @@ class ArticleCacheTests(unittest.TestCase):
             removed = cleanup_articles(keep_days=14, path=path)
             self.assertEqual(removed, 4)
             links = {a["link"] for a in load_articles(path)}
-            self.assertEqual(links, {"https://a.com/fallback", "https://a.com/c-new"})
+            self.assertEqual(
+                links,
+                {
+                    "https://a.com/fallback",
+                    "https://a.com/c-new",
+                    "https://a.com/c-old-pub",
+                },
+            )
 
     def test_get_article_links_returns_canonical_keys(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -152,6 +163,17 @@ class ArticleCacheTests(unittest.TestCase):
             self.assertEqual(summary["failed"], 1)
             self.assertEqual(summary["invalid_dates"], 2)
             self.assertEqual(summary["content_bytes"], 38)
+
+    def test_validate_articles_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = _path(tmp)
+            self.assertEqual(validate_articles_file(path), "missing")
+            Path(path).write_text("{not json", encoding="utf-8")
+            self.assertEqual(validate_articles_file(path), "corrupt")
+            Path(path).write_text('{"not": "a list"}', encoding="utf-8")
+            self.assertEqual(validate_articles_file(path), "corrupt")
+            save_articles([], path)
+            self.assertEqual(validate_articles_file(path), "ok")
 
     def test_save_articles_creates_parent_directory(self):
         with tempfile.TemporaryDirectory() as tmp:

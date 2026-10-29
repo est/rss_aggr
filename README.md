@@ -125,8 +125,9 @@ python -m src.main --check      # 校验运行时数据/输出契约
 | `limits.max_workers` | `10` | 并行抓取线程数 |
 | `limits.max_feeds` | `500` | 每次最多抓取的 feed 数（0 = 不限制） |
 | `limits.max_articles` | `200` | 每次最多分类的文章数（0 = 不限制） |
+| `limits.max_attempts` | `5` | 单篇分类失败多少次后停止重试（dead-letter） |
 | `limits.max_entries_per_feed` | `50` | 单个 feed 每轮最多取多少篇（0 = 不限制） |
-| `limits.max_backlog` | `2000` | 待分类超过此值时 `--check` 失败 |
+| `limits.max_backlog` | `5000` | 待分类+失败文章超过此值时 `--check` 失败 |
 | `limits.freshness_hours` | `24` | 最近 fetch/classify 超过此小时数时 `--check` 失败 |
 | `limits.fetch_interval_hours` | `12` | 同一 feed 的最小抓取间隔 |
 | `limits.disable_after_failures` | `3` | 连续 permanent/parse 失败多少次后隔离；临时错误只退避 |

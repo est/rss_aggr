@@ -102,8 +102,10 @@ def build_status(
         "feeds": feeds,
         "articles": article_summary,
         "output": output,
-        "last_fetch": _last_state_activity(state),
-        "last_classify": _last_classified(articles),
+        # Prefer run-level markers so pruning the article cache cannot make a
+        # successful classification look stale.
+        "last_fetch": state.get("last_fetch") or _last_state_activity(state),
+        "last_classify": state.get("last_classify") or _last_classified(articles),
         "warnings": warnings,
     }
 
@@ -225,22 +227,27 @@ def check_status(
     output = status.get("output") or {}
 
     pending = int(articles.get("pending", 0) or 0)
-    if max_backlog > 0 and pending > max_backlog:
+    failed = int(articles.get("failed", 0) or 0)
+    backlog = pending + failed
+    if max_backlog > 0 and backlog > max_backlog:
         violations.append(
-            f"article backlog too large: {pending} pending (limit {max_backlog})"
+            f"article backlog too large: {pending} pending + {failed} failed "
+            f"(limit {max_backlog})"
         )
 
-    if int(feeds.get("total", 0) or 0) > 0:
+    total_feeds = int(feeds.get("total", 0) or 0)
+    disabled_feeds = int(feeds.get("disabled", 0) or 0)
+    if total_feeds > 0 and disabled_feeds < total_feeds:
         if _is_stale(status.get("last_fetch", ""), freshness_hours, now):
             violations.append(
                 f"last fetch is missing or older than {freshness_hours}h"
             )
 
-    if pending > 0:
+    if backlog > 0:
         if _is_stale(status.get("last_classify", ""), freshness_hours, now):
             violations.append(
-                f"articles are pending but last classify is missing or older than "
-                f"{freshness_hours}h"
+                f"articles are pending/failed but last classify is missing or "
+                f"older than {freshness_hours}h"
             )
 
     classified = int(articles.get("classified", 0) or 0)

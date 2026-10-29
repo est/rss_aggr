@@ -175,7 +175,9 @@ def _parse_blocks(text: str) -> dict[str, dict]:
         markdown_link = re.match(r"\[[^\]]*\]\((https?://[^)]+)\)", url)
         if markdown_link:
             url = markdown_link.group(1)
-        url = url.rstrip(".,;:)").strip().strip("<>").strip()
+        # Do not strip ")" or "]": they are valid URL characters (e.g.
+        # Wikipedia titles like Foo_(bar)).
+        url = url.rstrip(".,;:").strip().strip("<>").strip()
         if not url.startswith("http"):
             continue
 

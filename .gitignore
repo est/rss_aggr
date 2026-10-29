@@ -15,6 +15,10 @@ output/
 .data/
 .data-push/
 .site-push/
+.legacy/
+.restore-data-ok
+.restore-site-ok
+.data-push-ok
 _build/
 *.tmp
 .mimocode

@@ -199,11 +199,14 @@ class ParseBlocksTests(unittest.TestCase):
             "[https://Example.com/a/](https://Example.com/a/)\n"
             "category: Tech\nscore: 8\nsummary: ok\n\n"
             "<https://example.com/b>,\n"
-            "category: Life\nscore: 7\nsummary: ok2\n"
+            "category: Life\nscore: 7\nsummary: ok2\n\n"
+            "https://en.wikipedia.org/wiki/Foo_(bar)\n"
+            "category: Tech\nscore: 6\nsummary: ok3\n"
         )
         parsed = _parse_blocks(text)
         self.assertIn("https://Example.com/a/", parsed)
         self.assertIn("https://example.com/b", parsed)
+        self.assertIn("https://en.wikipedia.org/wiki/Foo_(bar)", parsed)
 
 
 class _Session:

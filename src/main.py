@@ -16,6 +16,7 @@ from src.articles import (
     get_article_links,
     load_articles,
     save_articles,
+    validate_articles_file,
 )
 from src.classifier import classify_articles, is_skip_category
 from src.opml_parser import parse_feeds
@@ -24,7 +25,6 @@ from src.state import (
     load_state,
     mark_failed,
     mark_ok,
-    prioritize_feeds,
     save_state,
 )
 from src.storage import _update_index, load_seen_links, save_daily_results
@@ -150,19 +150,30 @@ def step_fetch():
     max_entries = limits.get("max_entries_per_feed", 0)
     skip_titles = filter_cfg.get("skip_titles", [])
 
+    cache_status = validate_articles_file()
+    if cache_status == "corrupt":
+        raise RuntimeError(
+            "articles.json is corrupt; restore it from the data branch before running"
+        )
+    # With no cache, persisted ETags would produce 304s and the cache would
+    # never be rebuilt. Force a full fetch in that case.
+    force_refresh = cache_status == "missing"
+
     all_feeds = parse_feeds("feeds.toml")
     print(f"[{ts()}] {len(all_feeds)} feeds total", flush=True)
 
     state = load_state()
     due_feeds = get_due_feeds(all_feeds, state, fetch_interval, max_failures)
-    due_feeds = prioritize_feeds(due_feeds)
     if max_feeds > 0:
         due_feeds = due_feeds[:max_feeds]
     print(f"[{ts()}] Due: {len(due_feeds)}", flush=True)
 
     if not due_feeds:
         # get_due_feeds() may have auto-disabled or re-enabled feeds.
+        state["last_fetch"] = _now_iso()
         save_state(state)
+        if force_refresh:
+            save_articles([])
         print(f"[{ts()}] No feeds to fetch", flush=True)
         return
 
@@ -173,7 +184,7 @@ def step_fetch():
         user_agent=user_agent,
         skip_titles=skip_titles,
         max_workers=max_workers,
-        feeds_state=state.get("feeds", {}),
+        feeds_state={} if force_refresh else state.get("feeds", {}),
         max_entries_per_feed=max_entries,
     )
 
@@ -223,7 +234,13 @@ def step_fetch():
     if new_entries:
         added = append_to_articles(new_entries)
         print(f"[{ts()}] Added {added} articles to cache", flush=True)
+    elif force_refresh:
+        # Create the file even if the full refresh found nothing new.
+        save_articles([])
 
+    # Only a run with at least one successful/304 response counts as a fresh
+    # fetch for the runtime contract.
+    state["last_fetch"] = _now_iso()
     save_state(state)
 
 
@@ -236,9 +253,15 @@ def step_classify():
     categories = [c["name"] for c in config.get("category", [])]
     data_dir = config.get("storage", {}).get("data_dir", "output")
     max_articles = limits.get("max_articles", 0)
+    max_attempts = limits.get("max_attempts", 5)
     keep_days = config.get("fetch", {}).get("keep_days", 14)
     global_skip_prompt = (filter_cfg.get("skip_prompt") or "").strip()
     cutoff = datetime.now(timezone.utc) - timedelta(days=keep_days)
+
+    if validate_articles_file() == "corrupt":
+        raise RuntimeError(
+            "articles.json is corrupt; restore it from the data branch before classifying"
+        )
 
     feeds = parse_feeds("feeds.toml")
     site_skip_prompt_rules = _build_site_skip_prompt_rules(feeds)
@@ -273,20 +296,23 @@ def step_classify():
             continue
         articles.append(a)
 
-    # Drop stale classifications so a failed retry cannot be mistaken for a
-    # fresh result when statuses are persisted.
-    for a in articles:
-        a.pop("classification", None)
-        a.pop("classification_meta", None)
-
     articles.sort(key=_cached_sort_key)
     if max_articles and max_articles > 0:
         articles = articles[:max_articles]
+
+    # Drop stale classifications only for articles actually selected this run,
+    # so the max_articles cap cannot strip results from the rest of the cache.
+    for a in articles:
+        a.pop("classification", None)
+        a.pop("classification_meta", None)
     print(f"[{ts()}] {len(articles)} articles to classify (from cache)", flush=True)
 
     if not articles:
         print(f"[{ts()}] Nothing to classify", flush=True)
         save_articles(cached)
+        state = load_state()
+        state["last_classify"] = _now_iso()
+        save_state(state)
         _update_index(
             data_dir,
             last_fetched=_now_iso(),
@@ -342,8 +368,16 @@ def step_classify():
                 a["content"] = ""
                 a["content_length"] = 0
             else:
-                a["status"] = "failed"
                 a["attempts"] = int(a.get("attempts") or 0) + 1
+                if max_attempts and a["attempts"] >= max_attempts:
+                    # Dead-letter persistent per-article failures so they stop
+                    # consuming the AI budget on every run.
+                    a["status"] = "skipped"
+                    a["skip_reason"] = "max_attempts"
+                    a["content"] = ""
+                    a["content_length"] = 0
+                else:
+                    a["status"] = "failed"
 
         # Persist statuses after every group so progress survives later failures.
         save_articles(cached)
@@ -372,6 +406,11 @@ def step_classify():
             flush=True,
         )
 
+    if total_classified or total_skipped:
+        state = load_state()
+        state["last_classify"] = _now_iso()
+        save_state(state)
+
     if articles and total_classified == 0 and total_skipped == 0 and total_failed > 0:
         raise RuntimeError(
             f"Classification failed for all {len(articles)} pending articles "
@@ -383,6 +422,10 @@ def step_cleanup():
     """Remove expired articles cache entries."""
     config = load_config()
     keep_days = config.get("fetch", {}).get("keep_days", 14)
+    if validate_articles_file() == "corrupt":
+        raise RuntimeError(
+            "articles.json is corrupt; restore it from the data branch before cleanup"
+        )
     removed = cleanup_articles(keep_days=keep_days)
     print(f"[{ts()}] Cleaned up {removed} old cache entries", flush=True)
 
@@ -402,6 +445,10 @@ def step_report():
             last_classified=status["last_classify"],
         )
         status = build_status(data_dir=data_dir)
+        # Record the repair so --check does not silently hide the condition.
+        status.setdefault("warnings", []).insert(
+            0, "output/index.md was missing and has been regenerated"
+        )
     write_status(status, root="status.json", data_dir=data_dir)
     summary = print_summary(status)
 

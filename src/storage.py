@@ -38,6 +38,10 @@ def _md_escape(text) -> str:
     """
     escaped = html.escape(str(text if text is not None else ""), quote=True)
     escaped = escaped.replace("\r", " ").replace("\n", " ")
+    # Escape Markdown control characters in untrusted text. Without this a
+    # title like `x](javascript:...)[` can inject a link into the table.
+    for char in ("\\", "`", "*", "_", "{", "}", "[", "]", "(", ")", "!"):
+        escaped = escaped.replace(char, "\\" + char)
     return escaped.replace("|", "\\|")
 
 

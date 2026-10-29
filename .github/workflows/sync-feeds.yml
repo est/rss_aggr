@@ -32,6 +32,9 @@ jobs:
       - name: Sync feeds
         run: python -m src.main --sync
 
+      - name: Validate feeds.toml
+        run: python -c "import tomllib; tomllib.load(open('feeds.toml','rb'))"
+
       - name: Commit feeds.toml
         run: |
           set -euo pipefail

@@ -49,6 +49,18 @@ def _article_key(article: dict) -> str:
     return str(guid)
 
 
+def validate_articles_file(path: str = ARTICLES_FILE) -> str:
+    """Return ``missing``, ``ok`` or ``corrupt`` without mutating the file."""
+    p = Path(path)
+    if not p.exists():
+        return "missing"
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError, UnicodeDecodeError):
+        return "corrupt"
+    return "ok" if isinstance(data, list) else "corrupt"
+
+
 def load_articles(path: str = ARTICLES_FILE) -> list[dict]:
     """Load cached articles from JSON file."""
     p = Path(path)
@@ -56,7 +68,7 @@ def load_articles(path: str = ARTICLES_FILE) -> list[dict]:
         return []
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
+    except (json.JSONDecodeError, OSError, UnicodeDecodeError):
         return []
     return data if isinstance(data, list) else []
 
@@ -128,8 +140,18 @@ def cleanup_articles(keep_days: int = 14, path: str = ARTICLES_FILE) -> int:
     removed = 0
     for a in articles:
         status = a.get("status") or STATUS_PENDING
-        cutoff = done_cutoff if status in _DONE_STATUSES else pending_cutoff
-        dt = _parse_dt(a.get("published")) or _parse_dt(a.get("cached_at"))
+        if status in _DONE_STATUSES:
+            # A recent classification of an old article must not be deleted
+            # just because its publish date is outside the done window.
+            cutoff = done_cutoff
+            dt = (
+                _parse_dt(a.get("classified_at"))
+                or _parse_dt(a.get("cached_at"))
+                or _parse_dt(a.get("published"))
+            )
+        else:
+            cutoff = pending_cutoff
+            dt = _parse_dt(a.get("published")) or _parse_dt(a.get("cached_at"))
         if dt is None or dt < cutoff:
             removed += 1
             continue

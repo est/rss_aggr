@@ -89,6 +89,22 @@ class SaveDailyResultsTests(unittest.TestCase):
             self.assertIn(f"](<{link}>)", content)
             self.assertEqual(load_seen_links(tmp), {"example.com/a(b)"})
 
+    def test_markdown_link_injection_in_title_is_escaped(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            article = self._article(
+                title="x](javascript:alert(1))[",
+                author="a](javascript:alert(2))[",
+                classification={
+                    "category": "Tech",
+                    "summary": "s](javascript:alert(3))[",
+                    "score": 8,
+                },
+            )
+            written = save_daily_results({"articles": [article]}, tmp)
+            content = written[0].read_text(encoding="utf-8")
+            self.assertNotRegex(content, r"\]\(javascript:")
+            self.assertEqual(load_seen_links(tmp), {"example.com/post"})
+
     def test_summary_links_do_not_pollute_seen_links(self):
         with tempfile.TemporaryDirectory() as tmp:
             daily = Path(tmp) / "2026" / "1029.md"

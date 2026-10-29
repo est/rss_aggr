@@ -1,4 +1,5 @@
 """Sync external feed lists into feeds.toml."""
+import json
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -91,35 +92,49 @@ def load_feeds_toml(path: Path) -> dict:
         return tomllib.load(f)
 
 
+def _toml_string(value: str) -> str:
+    """Encode a Python string as a TOML basic string.
+
+    JSON string escaping is compatible with TOML basic strings for the
+    characters we care about (quotes, backslashes, newlines, control chars).
+    """
+    return json.dumps(str(value), ensure_ascii=False)
+
+
+def _toml_value(value) -> str | None:
+    if value is True:
+        return "true"
+    if value is False:
+        return "false"
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, float):
+        return repr(value)
+    if isinstance(value, str):
+        return _toml_string(value)
+    return None
+
+
+def _write_mapping(lines: list[str], mapping: dict, skip: set[str] | None = None):
+    for key, value in mapping.items():
+        if skip and key in skip:
+            continue
+        encoded = _toml_value(value)
+        if encoded is not None:
+            lines.append(f"{key} = {encoded}")
+
+
 def save_feeds_toml(data: dict, path: Path):
-    """Save feeds.toml in human-readable format."""
+    """Save feeds.toml in human-readable format with escaped values."""
     lines = []
     for cat in data.get("category", []):
-        lines.append('[[category]]')
-        lines.append(f'name = "{cat["name"]}"')
-        for key, value in cat.items():
-            if key == "name" or key == "feed":
-                continue
-            if value is True:
-                lines.append(f'{key} = true')
-            elif value is False:
-                lines.append(f'{key} = false')
-            elif isinstance(value, int):
-                lines.append(f'{key} = {value}')
-            elif isinstance(value, str):
-                lines.append(f'{key} = "{value}"')
+        lines.append("[[category]]")
+        lines.append(f"name = {_toml_string(cat.get('name', ''))}")
+        _write_mapping(lines, cat, skip={"name", "feed"})
         lines.append("")
         for feed in cat.get("feed", []):
-            lines.append('[[category.feed]]')
-            for key, value in feed.items():
-                if value is True:
-                    lines.append(f'{key} = true')
-                elif value is False:
-                    lines.append(f'{key} = false')
-                elif isinstance(value, int):
-                    lines.append(f'{key} = {value}')
-                elif isinstance(value, str):
-                    lines.append(f'{key} = "{value}"')
+            lines.append("[[category.feed]]")
+            _write_mapping(lines, feed)
             lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")
 

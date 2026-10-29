@@ -54,16 +54,18 @@ def classify_error(error: str) -> str:
     """
     text = (error or "").lower()
 
-    # Specific HTTP statuses first: they are unambiguous when present.
+    # Explicit parse errors come from our own fetcher prefix. Do not infer
+    # parse errors from the URL (e.g. ".../feed.xml" on a 500 response).
+    if text.startswith("parse error") or "parse error" in text or "invalid feed" in text:
+        return ERROR_PARSE
+
+    # Specific HTTP statuses: they are unambiguous when present.
     if re.search(r"\b(?:404|410)\b", text):
         return ERROR_PERMANENT
     if re.search(r"\b(?:401|403)\b", text):
         return ERROR_BLOCKED
     if re.search(r"\b429\b", text) or "too many requests" in text:
         return ERROR_RATE_LIMIT
-
-    if "parse" in text or "xml" in text or "invalid feed" in text:
-        return ERROR_PARSE
 
     if re.search(r"\b5\d\d\b", text) or "server error" in text:
         return ERROR_TRANSIENT
@@ -186,7 +188,7 @@ def get_due_feeds(feeds: list[dict], state: dict, interval_hours: int = 24,
                   max_failures: int = 3) -> list[dict]:
     """Return feeds that should be fetched now.
 
-    Ordering is ``(priority, last_attempt)`` with the least recently attempted
+    Ordering is ``(last_attempt, priority)`` with the least recently attempted
     feeds first, which prevents low-priority feeds from starving when the
     per-run feed limit is smaller than the feed count.
     """
@@ -244,7 +246,10 @@ def get_due_feeds(feeds: list[dict], state: dict, interval_hours: int = 24,
     def _sort_key(f: dict):
         feed = state.get("feeds", {}).get(f["xml_url"], {})
         last = _parse_dt(feed.get("last_attempt")) or _parse_dt(feed.get("last_ok"))
-        return (f.get("priority", 99), last.timestamp() if last else 0.0)
+        # Fairness first: never-attempted / oldest-attempted feeds go first.
+        # Priority only breaks ties, otherwise a large high-priority group
+        # would starve every lower-priority feed when max_feeds is hit.
+        return (last.timestamp() if last else 0.0, f.get("priority", 99))
 
     return sorted(due, key=_sort_key)
 

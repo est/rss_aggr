@@ -41,6 +41,7 @@ class FetchStepTests(unittest.TestCase):
                 patch("src.main.parse_feeds", return_value=[feed]), \
                 patch("src.main.load_state", return_value=state), \
                 patch("src.main.save_state") as save_state, \
+                patch("src.main.validate_articles_file", return_value="ok"), \
                 patch("src.fetcher.fetch_all_feeds", return_value=results) as fetch_all, \
                 patch("src.main.load_seen_links", return_value=set()), \
                 patch("src.main.get_article_links", return_value=set()), \
@@ -55,6 +56,26 @@ class FetchStepTests(unittest.TestCase):
         self.assertEqual(kwargs["max_workers"], 3)
         self.assertEqual(kwargs["max_entries_per_feed"], 7)
 
+    def test_missing_articles_cache_forces_full_fetch(self):
+        feed = {"xml_url": "https://a.com/feed", "title": "A", "priority": 1}
+        state = {"feeds": {feed["xml_url"]: {"etag": '"old"'}}}
+        results = [{"feed": feed, "status": "ok", "entries": []}]
+
+        with patch("src.main.load_config", return_value=_fetch_config()), \
+                patch("src.main.parse_feeds", return_value=[feed]), \
+                patch("src.main.load_state", return_value=state), \
+                patch("src.main.save_state"), \
+                patch("src.main.validate_articles_file", return_value="missing"), \
+                patch("src.main.save_articles") as save_articles, \
+                patch("src.fetcher.fetch_all_feeds", return_value=results) as fetch_all, \
+                patch("src.main.load_seen_links", return_value=set()), \
+                patch("src.main.get_article_links", return_value=set()):
+            step_fetch()
+
+        _, kwargs = fetch_all.call_args
+        self.assertEqual(kwargs["feeds_state"], {})
+        save_articles.assert_called_once_with([])
+
     def test_all_due_feeds_failing_raises(self):
         feed = {"xml_url": "https://a.com/feed", "title": "A", "priority": 1}
         state = {"feeds": {}}
@@ -64,6 +85,7 @@ class FetchStepTests(unittest.TestCase):
                 patch("src.main.parse_feeds", return_value=[feed]), \
                 patch("src.main.load_state", return_value=state), \
                 patch("src.main.save_state") as save_state, \
+                patch("src.main.validate_articles_file", return_value="ok"), \
                 patch("src.fetcher.fetch_all_feeds", return_value=results), \
                 patch("src.main.load_seen_links", return_value=set()), \
                 patch("src.main.get_article_links", return_value=set()):
@@ -109,6 +131,8 @@ class ClassifyStepTests(unittest.TestCase):
                 patch("src.main.parse_feeds", return_value=[]), \
                 patch("src.main.load_articles", return_value=cached), \
                 patch("src.main.load_seen_links", return_value=set()), \
+                patch("src.main.load_state", return_value={"feeds": {}}), \
+                patch("src.main.save_state"), \
                 patch("src.main.classify_articles", side_effect=fake_classify), \
                 patch("src.main.save_articles") as save_articles, \
                 patch("src.main.save_daily_results") as save_daily, \
@@ -141,6 +165,8 @@ class ClassifyStepTests(unittest.TestCase):
                 patch("src.main.parse_feeds", return_value=[]), \
                 patch("src.main.load_articles", return_value=cached), \
                 patch("src.main.load_seen_links", return_value=set()), \
+                patch("src.main.load_state", return_value={"feeds": {}}), \
+                patch("src.main.save_state"), \
                 patch("src.main.classify_articles", side_effect=fake_classify), \
                 patch("src.main.save_articles") as save_articles, \
                 patch("src.main.save_daily_results") as save_daily, \
@@ -164,6 +190,8 @@ class ClassifyStepTests(unittest.TestCase):
                 patch("src.main.parse_feeds", return_value=[]), \
                 patch("src.main.load_articles", return_value=cached), \
                 patch("src.main.load_seen_links", return_value=set()), \
+                patch("src.main.load_state", return_value={"feeds": {}}), \
+                patch("src.main.save_state"), \
                 patch("src.main.classify_articles") as classify, \
                 patch("src.main.save_articles"), \
                 patch("src.main.save_daily_results"), \
@@ -187,6 +215,8 @@ class ClassifyStepTests(unittest.TestCase):
                 patch("src.main.parse_feeds", return_value=[]), \
                 patch("src.main.load_articles", return_value=cached), \
                 patch("src.main.load_seen_links", return_value=set()), \
+                patch("src.main.load_state", return_value={"feeds": {}}), \
+                patch("src.main.save_state"), \
                 patch("src.main.classify_articles", side_effect=fake_classify), \
                 patch("src.main.save_articles"), \
                 patch("src.main.save_daily_results"), \

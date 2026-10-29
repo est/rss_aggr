@@ -59,8 +59,17 @@ jobs:
       - name: Restore runtime data from data branch
         run: |
           set -euo pipefail
+          rm -f .restore-data-ok
           mkdir -p .data
-          if git fetch --depth=1 origin data; then
+
+          data_heads=""
+          data_rc=0
+          data_heads="$(git ls-remote --exit-code --heads origin data 2>/dev/null)" || data_rc=$?
+          if [ "$data_rc" -eq 0 ] && [ -n "$data_heads" ]; then
+            if ! git fetch --depth=1 origin data; then
+              echo "::error::data branch exists but could not be fetched"
+              exit 1
+            fi
             git archive FETCH_HEAD | tar -x -C .data
             for f in state.json articles.json status.json; do
               if [ -f ".data/$f" ]; then
@@ -73,15 +82,25 @@ jobs:
               cp .data/cache.json articles.json
               echo "Migrated .data/cache.json to articles.json"
             fi
-          else
+          elif [ "$data_rc" -eq 2 ] || { [ "$data_rc" -eq 0 ] && [ -z "$data_heads" ]; }; then
             echo "::warning::data branch not found; starting with empty runtime state"
+          else
+            echo "::error::could not query data branch (git ls-remote rc=$data_rc)"
+            exit 1
           fi
 
           # Backward compatibility for the first run after ADR-015. The old
           # gh-pages layout held state.json/articles.json next to output/.
           # Migrate them on the fly so a deployment does not lose the backlog.
           if [ ! -f state.json ] || [ ! -f articles.json ]; then
-            if git fetch --depth=1 origin gh-pages; then
+            site_heads=""
+            site_rc=0
+            site_heads="$(git ls-remote --exit-code --heads origin gh-pages 2>/dev/null)" || site_rc=$?
+            if [ "$site_rc" -eq 0 ] && [ -n "$site_heads" ]; then
+              if ! git fetch --depth=1 origin gh-pages; then
+                echo "::error::gh-pages exists but could not be fetched for legacy runtime data"
+                exit 1
+              fi
               mkdir -p .legacy
               for f in state.json articles.json cache.json; do
                 if git cat-file -e "FETCH_HEAD:$f" 2>/dev/null; then
@@ -101,23 +120,59 @@ jobs:
                   echo "::warning::migrated legacy cache.json from gh-pages"
                 fi
               fi
+            elif [ "$site_rc" -ne 2 ] && ! { [ "$site_rc" -eq 0 ] && [ -z "$site_heads" ]; }; then
+              echo "::error::could not query gh-pages for legacy runtime data (rc=$site_rc)"
+              exit 1
             fi
           fi
+
+          # Never run with a corrupt cache: it would be silently treated as
+          # empty and then force-pushed over the data branch.
+          for f in state.json articles.json; do
+            if [ -f "$f" ]; then
+              if ! python -c "import json,sys; json.load(open(sys.argv[1]))" "$f"; then
+                echo "::error::$f is not valid JSON; refusing to start"
+                exit 1
+              fi
+            fi
+          done
+
+          if [ "$data_rc" -eq 0 ] && [ -n "$data_heads" ] \
+              && [ ! -f state.json ] && [ ! -f articles.json ]; then
+            echo "::error::data branch exists but contains no state.json/articles.json"
+            exit 1
+          fi
+
+          touch .restore-data-ok
 
       - name: Restore output from gh-pages
         run: |
           set -euo pipefail
+          rm -f .restore-site-ok
           mkdir -p output
-          if git fetch --depth=1 origin gh-pages; then
+
+          site_heads=""
+          site_rc=0
+          site_heads="$(git ls-remote --exit-code --heads origin gh-pages 2>/dev/null)" || site_rc=$?
+          if [ "$site_rc" -eq 0 ] && [ -n "$site_heads" ]; then
+            if ! git fetch --depth=1 origin gh-pages; then
+              echo "::error::gh-pages exists but could not be fetched"
+              exit 1
+            fi
             if git cat-file -e FETCH_HEAD:output 2>/dev/null; then
               git archive FETCH_HEAD output | tar -x -C .
               echo "Restored $(find output -name '*.md' | wc -l) output files"
             else
               echo "::warning::gh-pages has no output/ directory; starting with empty output"
             fi
-          else
+          elif [ "$site_rc" -eq 2 ] || { [ "$site_rc" -eq 0 ] && [ -z "$site_heads" ]; }; then
             echo "::warning::gh-pages branch not found; starting with empty output"
+          else
+            echo "::error::could not query gh-pages (rc=$site_rc)"
+            exit 1
           fi
+
+          touch .restore-site-ok
 
       - name: Fetch RSS
         run: python -m src.main --fetch
@@ -169,10 +224,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+          rm -f .data-push-ok
+          if [ ! -f .restore-data-ok ]; then
+            echo "::warning::runtime restore did not succeed; skipping data branch push"
+            exit 0
+          fi
           if [ ! -f state.json ] || [ ! -f articles.json ]; then
             echo "::warning::state.json or articles.json is missing; skipping data branch push"
             exit 0
           fi
+          for f in state.json articles.json; do
+            if ! python -c "import json,sys; json.load(open(sys.argv[1]))" "$f"; then
+              echo "::error::$f is not valid JSON; skipping data branch push"
+              exit 0
+            fi
+          done
 
           REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           rm -rf .data-push
@@ -209,6 +275,8 @@ jobs:
             git commit -m "data: snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             git push --force origin data
           fi
+          cd ..
+          touch .data-push-ok
 
       - name: Persist site output to gh-pages
         if: always()
@@ -216,6 +284,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+          if [ ! -f .restore-site-ok ]; then
+            echo "::warning::site restore did not succeed; skipping gh-pages push"
+            exit 0
+          fi
           if [ ! -d output ]; then
             echo "::warning::output directory is missing; skipping gh-pages push"
             exit 0
@@ -239,8 +311,14 @@ jobs:
 
           rm -rf .site-push/output
           cp -R output .site-push/output
-          # gh-pages is the rendered-output snapshot only; runtime state lives on data.
-          rm -f .site-push/state.json .site-push/articles.json .site-push/status.json .site-push/cache.json
+          # gh-pages is the rendered-output snapshot only; runtime state lives
+          # on data. Only delete legacy runtime files after the data snapshot
+          # was pushed successfully, otherwise they are the only recovery copy.
+          if [ -f .data-push-ok ]; then
+            rm -f .site-push/state.json .site-push/articles.json .site-push/status.json .site-push/cache.json
+          else
+            echo "::warning::data snapshot not persisted; keeping legacy runtime files on gh-pages"
+          fi
 
           cd .site-push
           git config user.name "github-actions[bot]"

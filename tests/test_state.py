@@ -121,6 +121,15 @@ class MarkFailedTests(unittest.TestCase):
         self.assertAlmostEqual(blocked.total_seconds() / 86400, 7, delta=0.1)
         self.assertFalse(state["feeds"]["https://a.com/rl"].get("disabled"))
 
+    def test_5xx_on_xml_url_is_transient_not_parse(self):
+        kinds = [
+            "500 Server Error for url: https://example.com/feed.xml",
+            "502 Bad Gateway for url: https://example.com/rss.xml",
+            "ConnectionResetError for url: https://example.com/feed.xml",
+        ]
+        for error in kinds:
+            self.assertEqual(classify_error(error), ERROR_TRANSIENT, error)
+
     def test_permanent_failure_has_no_retry_and_disables_after_max(self):
         state = _empty_state()
         url = "https://example.com/feed"
@@ -225,11 +234,17 @@ class DueFeedTests(unittest.TestCase):
             ],
         )
 
-    def test_priority_is_primary_sort_key(self):
+    def test_oldest_attempt_wins_and_priority_breaks_ties(self):
         state = _empty_state()
         now = _now()
         state["feeds"]["https://a.com/low"] = {"last_attempt": (now - timedelta(days=5)).isoformat()}
         state["feeds"]["https://a.com/high"] = {"last_attempt": (now - timedelta(days=1)).isoformat()}
+        feeds = [_feed("https://a.com/low", priority=50), _feed("https://a.com/high", priority=1)]
+        due = get_due_feeds(feeds, state, interval_hours=1)
+        self.assertEqual([f["xml_url"] for f in due], ["https://a.com/low", "https://a.com/high"])
+
+    def test_priority_breaks_ties_for_never_attempted(self):
+        state = _empty_state()
         feeds = [_feed("https://a.com/low", priority=50), _feed("https://a.com/high", priority=1)]
         due = get_due_feeds(feeds, state, interval_hours=1)
         self.assertEqual([f["xml_url"] for f in due], ["https://a.com/high", "https://a.com/low"])

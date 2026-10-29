@@ -86,11 +86,15 @@ if [ ! -f "$TMP_DIR/data/articles.json" ] && [ -f "$TMP_DIR/legacy/cache.json" ]
   echo "note: migrating legacy cache.json to articles.json"
 fi
 
-CREATE_DATA=true
-if [ ! -f "$TMP_DIR/data/state.json" ] && [ ! -f "$TMP_DIR/data/articles.json" ]; then
-  CREATE_DATA=false
+CREATE_DATA=false
+if [ "$DATA_EXISTED" = true ]; then
+  echo "note: ${REMOTE_NAME}/data already exists; it will not be overwritten by migration"
+elif [ -f "$TMP_DIR/data/state.json" ] || [ -f "$TMP_DIR/data/articles.json" ]; then
+  CREATE_DATA=true
+else
   echo "warning: no state.json/articles.json found on ${REMOTE_NAME}/gh-pages"
-  echo "         the data branch will not be created; CI will bootstrap it empty"
+  echo "         and no data branch exists; refusing to rewrite gh-pages without a state copy"
+  exit 1
 fi
 
 # Rendered output from the old gh-pages layout.
@@ -122,7 +126,7 @@ if [ "$CREATE_DATA" = true ]; then
     [ -f "$TMP_DIR/data/$f" ] && echo "       - $f"
   done
 else
-  echo "  2. Skip 'data' creation (no runtime state to migrate)."
+  echo "  2. Keep the existing 'data' branch unchanged."
 fi
 echo "  3. Rewrite 'gh-pages' to contain only output/ ($(find "$TMP_DIR/site/output" -type f | wc -l | tr -d ' ') files)."
 echo "  4. Force-push the snapshots."
@@ -138,9 +142,9 @@ if [ "$APPLY" != true ]; then
   fi
   echo
   echo "Rollback after applying:"
-  echo "  git push --force ${REMOTE_NAME} refs/heads/${BACKUP_SITE}:refs/heads/gh-pages"
+  echo "  git push --force ${REMOTE_NAME} ${SITE_SHA}:refs/heads/gh-pages"
   if [ "$DATA_EXISTED" = true ]; then
-    echo "  git push --force ${REMOTE_NAME} refs/heads/${BACKUP_DATA}:refs/heads/data"
+    echo "  git push --force ${REMOTE_NAME} ${DATA_SHA}:refs/heads/data"
   elif [ "$CREATE_DATA" = true ]; then
     echo "  git push ${REMOTE_NAME} --delete data"
   fi
@@ -169,6 +173,16 @@ if [ "$CREATE_DATA" = true ]; then
   git -C "$TMP_DIR/data" push --force "$REMOTE_URL" "data:refs/heads/data"
 fi
 
+# Refuse to delete legacy runtime files from gh-pages unless a data branch
+# with runtime state exists (either pre-existing or just pushed above).
+if [ "$DATA_EXISTED" = true ]; then
+  if ! git cat-file -e "${DATA_REF}:state.json" 2>/dev/null \
+      && ! git cat-file -e "${DATA_REF}:articles.json" 2>/dev/null; then
+    echo "error: ${REMOTE_NAME}/data exists but has no state.json/articles.json; refusing to rewrite gh-pages" >&2
+    exit 1
+  fi
+fi
+
 echo "Creating gh-pages snapshot..."
 git -C "$TMP_DIR/site" init -q
 git -C "$TMP_DIR/site" checkout -q --orphan gh-pages
@@ -187,9 +201,9 @@ if [ "$DATA_EXISTED" = true ]; then
 fi
 echo
 echo "Rollback:"
-echo "  git push --force ${REMOTE_NAME} refs/heads/${BACKUP_SITE}:refs/heads/gh-pages"
+echo "  git push --force ${REMOTE_NAME} ${SITE_SHA}:refs/heads/gh-pages"
 if [ "$DATA_EXISTED" = true ]; then
-  echo "  git push --force ${REMOTE_NAME} refs/heads/${BACKUP_DATA}:refs/heads/data"
+  echo "  git push --force ${REMOTE_NAME} ${DATA_SHA}:refs/heads/data"
 elif [ "$CREATE_DATA" = true ]; then
   echo "  git push ${REMOTE_NAME} --delete data"
 fi

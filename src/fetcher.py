@@ -200,13 +200,16 @@ def fetch_feed(feed_info: dict, timeout: int | tuple | None = None,
     resp.encoding = _detect_encoding(resp)
     parsed = feedparser.parse(resp.text)
 
-    # A malformed feed must not look like a healthy empty feed, otherwise it
-    # never enters the error/disable lifecycle.
-    if not parsed.entries and getattr(parsed, "bozo", False):
+    # A malformed feed or an HTML/WAF page must not look like a healthy empty
+    # feed, otherwise it never enters the error/disable lifecycle.
+    if not parsed.entries and (
+        getattr(parsed, "bozo", False) or not getattr(parsed, "version", "")
+    ):
+        reason = getattr(parsed, "bozo_exception", None) or "not a feed document"
         return {
             "feed": feed_info,
             "status": "error",
-            "error": f"parse error: {getattr(parsed, 'bozo_exception', 'invalid feed')}",
+            "error": f"parse error: {reason}",
             "entries": [],
             "fetched_at": datetime.now(timezone.utc).isoformat(),
         }
