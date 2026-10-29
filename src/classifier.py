@@ -65,6 +65,7 @@ class ClassifyStats:
     batches: int = 0
     provider: str = ""
     model: str = ""
+    provider_failed: bool = False
 
 
 # =============================================================================
@@ -172,7 +173,7 @@ def _parse_blocks(text: str) -> dict[str, dict]:
         url = lines[0].strip()
         # Tolerate common model formatting: Markdown links, angle brackets and
         # trailing punctuation copied from prose.
-        markdown_link = re.match(r"\[[^\]]*\]\((https?://[^)]+)\)", url)
+        markdown_link = re.match(r"\[[^\]]*\]\((https?://.+)\)\s*$", url)
         if markdown_link:
             url = markdown_link.group(1)
         # Do not strip ")" or "]": they are valid URL characters (e.g.
@@ -558,6 +559,7 @@ def classify_articles(
     classifier = get_classifier(provider, model, base_url=base_url, api_key_env=api_key_env)
     if not classifier:
         stats.failed = len(articles)
+        stats.provider_failed = True
         return stats
 
     stats.model = getattr(classifier, "model", model or "") or ""
@@ -574,6 +576,7 @@ def classify_articles(
     stats.batches = len(batches)
     print(f"  {len(articles)} articles, {len(batches)} batches (dynamic), provider={provider}, model={stats.model}", flush=True)
 
+    api_errors = 0
     for batch_num, batch in enumerate(batches, 1):
         try:
             results = classifier.classify_batch(batch, cats, skip_prompt=skip_prompt)
@@ -603,10 +606,15 @@ def classify_articles(
                     if unmatched:
                         print(f"    SKIP {a.get('title', '')[:50]}: unmatched", flush=True)
                 except Exception as e2:
+                    api_errors += 1
                     stats.unmatched += 1
                     print(f"    SKIP {a.get('title', '')[:50]}: {type(e2).__name__}: {e2}", flush=True)
 
     stats.failed = max(0, stats.articles - stats.classified - stats.skipped)
+    if stats.classified == 0 and stats.skipped == 0 and api_errors > 0:
+        # Every article failed at the API layer. Do not dead-letter the
+        # backlog because of a provider/key/network outage.
+        stats.provider_failed = True
     print(
         f"  Summary: {stats.classified} classified, {stats.skipped} skipped, "
         f"{stats.failed} failed, {stats.unmatched} unmatched",

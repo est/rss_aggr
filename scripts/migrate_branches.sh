@@ -177,8 +177,9 @@ fi
 # with runtime state exists (either pre-existing or just pushed above).
 if [ "$DATA_EXISTED" = true ]; then
   if ! git cat-file -e "${DATA_REF}:state.json" 2>/dev/null \
-      && ! git cat-file -e "${DATA_REF}:articles.json" 2>/dev/null; then
-    echo "error: ${REMOTE_NAME}/data exists but has no state.json/articles.json; refusing to rewrite gh-pages" >&2
+      || ! git cat-file -e "${DATA_REF}:articles.json" 2>/dev/null; then
+    echo "error: ${REMOTE_NAME}/data exists but is missing state.json or articles.json; refusing to rewrite gh-pages" >&2
+    echo "       fix the data branch first (or remove it) before rerunning --apply" >&2
     exit 1
   fi
 fi

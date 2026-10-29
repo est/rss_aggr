@@ -97,8 +97,9 @@ def _toml_string(value: str) -> str:
 
     JSON string escaping is compatible with TOML basic strings for the
     characters we care about (quotes, backslashes, newlines, control chars).
+    TOML also forbids DEL (U+007F), which JSON leaves unescaped.
     """
-    return json.dumps(str(value), ensure_ascii=False)
+    return json.dumps(str(value), ensure_ascii=False).replace("\x7f", "\\u007f")
 
 
 def _toml_value(value) -> str | None:
@@ -112,6 +113,11 @@ def _toml_value(value) -> str | None:
         return repr(value)
     if isinstance(value, str):
         return _toml_string(value)
+    if isinstance(value, (list, tuple)):
+        encoded = [_toml_value(item) for item in value]
+        if any(item is None for item in encoded):
+            return None
+        return "[" + ", ".join(item for item in encoded if item is not None) + "]"
     return None
 
 
@@ -120,8 +126,11 @@ def _write_mapping(lines: list[str], mapping: dict, skip: set[str] | None = None
         if skip and key in skip:
             continue
         encoded = _toml_value(value)
-        if encoded is not None:
-            lines.append(f"{key} = {encoded}")
+        if encoded is None:
+            raise ValueError(
+                f"unsupported TOML value for {key!r}: {type(value).__name__}"
+            )
+        lines.append(f"{key} = {encoded}")
 
 
 def save_feeds_toml(data: dict, path: Path):
@@ -136,7 +145,9 @@ def save_feeds_toml(data: dict, path: Path):
             lines.append("[[category.feed]]")
             _write_mapping(lines, feed)
             lines.append("")
-    path.write_text("\n".join(lines), encoding="utf-8")
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text("\n".join(lines), encoding="utf-8")
+    tmp.replace(path)
 
 
 def sync(sources_path: str = "sources.toml", feeds_path: str = "feeds.toml", user_agent: str = "rss_aggr/1.0"):

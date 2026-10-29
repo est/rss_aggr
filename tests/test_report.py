@@ -85,6 +85,18 @@ class BuildStatusTests(unittest.TestCase):
 
 
 class CheckStatusTests(unittest.TestCase):
+    def test_all_feeds_disabled_is_a_violation(self):
+        status = {
+            "feeds": {"total": 3, "disabled": 3},
+            "articles": {"pending": 0, "failed": 0, "classified": 0},
+            "output": {"index_exists": True},
+            "last_fetch": _iso(0),
+            "last_classify": _iso(0),
+        }
+        violations = check_status(status)
+        self.assertEqual(len(violations), 1)
+        self.assertIn("all feeds are disabled", violations[0])
+
     def test_reports_backlog_and_freshness_violations(self):
         status = {
             "feeds": {"total": 1},

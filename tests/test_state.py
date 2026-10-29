@@ -126,6 +126,9 @@ class MarkFailedTests(unittest.TestCase):
             "500 Server Error for url: https://example.com/feed.xml",
             "502 Bad Gateway for url: https://example.com/rss.xml",
             "ConnectionResetError for url: https://example.com/feed.xml",
+            "500 Server Error for url: https://example.com/404-feed.xml",
+            "503 Server Error for url: https://example.com/410/rss",
+            "Read timed out for url https://example.com/429-feed",
         ]
         for error in kinds:
             self.assertEqual(classify_error(error), ERROR_TRANSIENT, error)

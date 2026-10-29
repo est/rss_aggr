@@ -309,9 +309,11 @@ def _update_index(
             entries.append((display, rel))
 
     now = last_fetched or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    meta = f"{len(entries)} days | last fetched: <span id='lf'>{now}</span>"
+    now_html = html.escape(str(now), quote=True)
+    meta = f"{len(entries)} days | last fetched: <span id='lf'>{now_html}</span>"
     if last_classified:
-        meta += f" | last classified: <span id='lc'>{last_classified}</span>"
+        classified_html = html.escape(str(last_classified), quote=True)
+        meta += f" | last classified: <span id='lc'>{classified_html}</span>"
     lines = [
         "# RSS Aggregator",
         "",

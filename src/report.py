@@ -89,7 +89,9 @@ def build_status(
 
     if feeds.get("total", 0) > 0:
         disabled_ratio = feeds.get("disabled", 0) / feeds["total"]
-        if disabled_ratio > 0.7:
+        if disabled_ratio >= 1:
+            warnings.append("all feeds are disabled; fetching is effectively stopped")
+        elif disabled_ratio > 0.7:
             warnings.append(
                 f"{feeds['disabled']}/{feeds['total']} feeds disabled "
                 f"({disabled_ratio:.0%}); check feed health"
@@ -237,11 +239,14 @@ def check_status(
 
     total_feeds = int(feeds.get("total", 0) or 0)
     disabled_feeds = int(feeds.get("disabled", 0) or 0)
-    if total_feeds > 0 and disabled_feeds < total_feeds:
-        if _is_stale(status.get("last_fetch", ""), freshness_hours, now):
-            violations.append(
-                f"last fetch is missing or older than {freshness_hours}h"
-            )
+    if total_feeds > 0 and disabled_feeds >= total_feeds:
+        violations.append("all feeds are disabled; fetching is effectively stopped")
+    elif total_feeds > 0 and _is_stale(
+        status.get("last_fetch", ""), freshness_hours, now
+    ):
+        violations.append(
+            f"last fetch is missing or older than {freshness_hours}h"
+        )
 
     if backlog > 0:
         if _is_stale(status.get("last_classify", ""), freshness_hours, now):

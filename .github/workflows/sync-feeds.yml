@@ -33,7 +33,25 @@ jobs:
         run: python -m src.main --sync
 
       - name: Validate feeds.toml
-        run: python -c "import tomllib; tomllib.load(open('feeds.toml','rb'))"
+        run: |
+          python - <<'PY'
+          import subprocess
+          import tomllib
+          from pathlib import Path
+
+          def count(data: dict) -> int:
+              return sum(len(cat.get("feed", [])) for cat in data.get("category", []))
+
+          new = tomllib.loads(Path("feeds.toml").read_text(encoding="utf-8"))
+          old_text = subprocess.check_output(
+              ["git", "show", "HEAD:feeds.toml"], text=True
+          )
+          old = tomllib.loads(old_text)
+          new_count, old_count = count(new), count(old)
+          print(f"feeds: {old_count} -> {new_count}")
+          if new_count == 0 or (old_count and new_count < old_count * 0.5):
+              raise SystemExit("feeds.toml shrank unexpectedly; refusing to commit")
+          PY
 
       - name: Commit feeds.toml
         run: |

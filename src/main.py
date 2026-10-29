@@ -310,9 +310,15 @@ def step_classify():
     if not articles:
         print(f"[{ts()}] Nothing to classify", flush=True)
         save_articles(cached)
-        state = load_state()
-        state["last_classify"] = _now_iso()
-        save_state(state)
+        # If pending rows remain (e.g. stale backlog waiting for cleanup),
+        # do not refresh last_classify: that would hide a stalled pipeline.
+        pending_left = any(
+            (a.get("status") or "pending") not in _STATUS_DONE for a in cached
+        )
+        if not pending_left:
+            state = load_state()
+            state["last_classify"] = _now_iso()
+            save_state(state)
         _update_index(
             data_dir,
             last_fetched=_now_iso(),
@@ -367,6 +373,12 @@ def step_classify():
                 # Drop the full text; only the AI summary is retained.
                 a["content"] = ""
                 a["content_length"] = 0
+            elif stats.provider_failed:
+                # Provider/key/network outage: keep the article pending and
+                # keep its content. It must not be dead-lettered as if the
+                # model had rejected this specific article.
+                a["status"] = "pending"
+                a["last_classification_error"] = "provider unavailable"
             else:
                 a["attempts"] = int(a.get("attempts") or 0) + 1
                 if max_attempts and a["attempts"] >= max_attempts:

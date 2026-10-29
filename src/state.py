@@ -52,23 +52,34 @@ def classify_error(error: str) -> str:
     Defaults to ``transient`` so unknown failures are retried rather than
     silently abandoning a feed.
     """
-    text = (error or "").lower()
+    text = (error or "").strip().lower()
 
     # Explicit parse errors come from our own fetcher prefix. Do not infer
     # parse errors from the URL (e.g. ".../feed.xml" on a 500 response).
     if text.startswith("parse error") or "parse error" in text or "invalid feed" in text:
         return ERROR_PARSE
 
-    # Specific HTTP statuses: they are unambiguous when present.
-    if re.search(r"\b(?:404|410)\b", text):
-        return ERROR_PERMANENT
-    if re.search(r"\b(?:401|403)\b", text):
-        return ERROR_BLOCKED
-    if re.search(r"\b429\b", text) or "too many requests" in text:
-        return ERROR_RATE_LIMIT
-
-    if re.search(r"\b5\d\d\b", text) or "server error" in text:
+    # Only trust a status code at the start of the message. The URL often
+    # contains status-looking slugs like /404-feed.xml; scanning the whole
+    # string would misclassify a transient 500 as permanent.
+    status_match = re.match(r"^(?:http\s+)?(\d{3})\b", text)
+    if status_match:
+        status = int(status_match.group(1))
+        if status in (404, 410):
+            return ERROR_PERMANENT
+        if status in (401, 403):
+            return ERROR_BLOCKED
+        if status == 429:
+            return ERROR_RATE_LIMIT
+        if 500 <= status <= 599:
+            return ERROR_TRANSIENT
+        if 400 <= status <= 499:
+            # Other client errors are unlikely to heal by themselves.
+            return ERROR_PERMANENT
         return ERROR_TRANSIENT
+
+    if "too many requests" in text:
+        return ERROR_RATE_LIMIT
     if ("timeout" in text or "timed out" in text or "connection" in text
             or "connect" in text or "reset" in text or "dns" in text
             or "name resolution" in text or "temporarily unavailable" in text):

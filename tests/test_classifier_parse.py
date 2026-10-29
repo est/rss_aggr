@@ -162,6 +162,7 @@ class ClassifierMatchingTests(unittest.TestCase):
         with patch("src.classifier.get_classifier", return_value=None):
             stats = classify_articles([_article()], provider="openai")
         self.assertEqual(stats.failed, 1)
+        self.assertTrue(stats.provider_failed)
 
 
 class PromptHardeningTests(unittest.TestCase):
@@ -201,12 +202,15 @@ class ParseBlocksTests(unittest.TestCase):
             "<https://example.com/b>,\n"
             "category: Life\nscore: 7\nsummary: ok2\n\n"
             "https://en.wikipedia.org/wiki/Foo_(bar)\n"
-            "category: Tech\nscore: 6\nsummary: ok3\n"
+            "category: Tech\nscore: 6\nsummary: ok3\n\n"
+            "[Wiki](https://en.wikipedia.org/wiki/Baz_(qux))\n"
+            "category: Tech\nscore: 6\nsummary: ok4\n"
         )
         parsed = _parse_blocks(text)
         self.assertIn("https://Example.com/a/", parsed)
         self.assertIn("https://example.com/b", parsed)
         self.assertIn("https://en.wikipedia.org/wiki/Foo_(bar)", parsed)
+        self.assertIn("https://en.wikipedia.org/wiki/Baz_(qux)", parsed)
 
 
 class _Session:

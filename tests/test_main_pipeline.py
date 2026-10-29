@@ -191,7 +191,7 @@ class ClassifyStepTests(unittest.TestCase):
                 patch("src.main.load_articles", return_value=cached), \
                 patch("src.main.load_seen_links", return_value=set()), \
                 patch("src.main.load_state", return_value={"feeds": {}}), \
-                patch("src.main.save_state"), \
+                patch("src.main.save_state") as save_state, \
                 patch("src.main.classify_articles") as classify, \
                 patch("src.main.save_articles"), \
                 patch("src.main.save_daily_results"), \
@@ -199,7 +199,42 @@ class ClassifyStepTests(unittest.TestCase):
             step_classify()
 
         classify.assert_not_called()
+        save_state.assert_not_called()
         update_index.assert_called_once()
+
+    def test_provider_outage_does_not_dead_letter_backlog(self):
+        article = {
+            "link": "https://a.com/ok",
+            "status": "pending",
+            "content": "keep me",
+            "content_length": 7,
+            "cached_at": "2026-10-29T00:00:00Z",
+            "attempts": 4,
+        }
+        config = _classify_config()
+
+        def fake_classify(articles, **kwargs):
+            return ClassifyStats(
+                articles=len(articles), failed=len(articles), provider_failed=True
+            )
+
+        with patch("src.main.load_config", return_value=config), \
+                patch("src.main.parse_feeds", return_value=[]), \
+                patch("src.main.load_articles", return_value=[article]), \
+                patch("src.main.load_seen_links", return_value=set()), \
+                patch("src.main.load_state", return_value={"feeds": {}}), \
+                patch("src.main.save_state"), \
+                patch("src.main.classify_articles", side_effect=fake_classify), \
+                patch("src.main.save_articles"), \
+                patch("src.main.save_daily_results"), \
+                patch("src.main._update_index"):
+            with self.assertRaises(RuntimeError):
+                step_classify()
+
+        self.assertEqual(article["status"], "pending")
+        self.assertEqual(article["attempts"], 4)
+        self.assertEqual(article["content"], "keep me")
+        self.assertEqual(article["last_classification_error"], "provider unavailable")
 
     def test_all_skipped_does_not_fail(self):
         cached = [self._articles()[1]]
