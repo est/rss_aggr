@@ -1,3 +1,5 @@
+import contextlib
+import io
 import unittest
 from unittest.mock import patch
 
@@ -136,6 +138,7 @@ class ClassifyStepTests(unittest.TestCase):
                 patch("src.main.classify_articles", side_effect=fake_classify), \
                 patch("src.main.save_articles") as save_articles, \
                 patch("src.main.save_daily_results") as save_daily, \
+                patch("src.main.append_metadata") as append_metadata, \
                 patch("src.main._update_index") as update_index:
             step_classify()
 
@@ -158,6 +161,11 @@ class ClassifyStepTests(unittest.TestCase):
             ["https://a.com/ok", "https://a.com/fail"],
         )
         update_index.assert_called()
+        self.assertEqual(
+            [a["link"] for a in append_metadata.call_args.args[0]],
+            ["https://a.com/ok", "https://a.com/fail"],
+        )
+        self.assertEqual(append_metadata.call_args.args[1], "archive")
 
     def test_missing_ai_outputs_title_only(self):
         cached = [self._articles()[2]]
@@ -174,6 +182,7 @@ class ClassifyStepTests(unittest.TestCase):
                 patch("src.main.classify_articles", side_effect=fake_classify), \
                 patch("src.main.save_articles") as save_articles, \
                 patch("src.main.save_daily_results") as save_daily, \
+                patch("src.main.append_metadata") as append_metadata, \
                 patch("src.main._update_index") as update_index:
             step_classify()
 
@@ -184,6 +193,7 @@ class ClassifyStepTests(unittest.TestCase):
         save_daily.assert_called_once()
         written = save_daily.call_args.args[0]["articles"]
         self.assertEqual([a["link"] for a in written], ["https://a.com/fail"])
+        append_metadata.assert_called_once()
         update_index.assert_called()
 
     def test_stale_backlog_is_not_sent_to_ai(self):
@@ -200,6 +210,7 @@ class ClassifyStepTests(unittest.TestCase):
                 patch("src.main.classify_articles") as classify, \
                 patch("src.main.save_articles"), \
                 patch("src.main.save_daily_results"), \
+                patch("src.main.append_metadata"), \
                 patch("src.main._update_index") as update_index:
             step_classify()
 
@@ -232,6 +243,7 @@ class ClassifyStepTests(unittest.TestCase):
                 patch("src.main.classify_articles", side_effect=fake_classify), \
                 patch("src.main.save_articles"), \
                 patch("src.main.save_daily_results") as save_daily, \
+                patch("src.main.append_metadata") as append_metadata, \
                 patch("src.main._update_index"):
             step_classify()
 
@@ -241,6 +253,7 @@ class ClassifyStepTests(unittest.TestCase):
         self.assertEqual(article["unclassified_reason"], "provider_unavailable")
         written = save_daily.call_args.args[0]["articles"]
         self.assertEqual([a["link"] for a in written], ["https://a.com/ok"])
+        append_metadata.assert_called_once()
 
     def test_all_skipped_does_not_fail(self):
         cached = [self._articles()[1]]
@@ -261,10 +274,74 @@ class ClassifyStepTests(unittest.TestCase):
                 patch("src.main.classify_articles", side_effect=fake_classify), \
                 patch("src.main.save_articles"), \
                 patch("src.main.save_daily_results"), \
+                patch("src.main.append_metadata"), \
                 patch("src.main._update_index"):
             step_classify()
 
         self.assertEqual(cached[0]["status"], "skipped")
+
+    def test_archives_only_written_articles_with_configured_dir(self):
+        cached = self._articles()[:2]
+        config = _classify_config()
+        config["storage"] = {"data_dir": "out", "archive_dir": "custom-archive"}
+
+        def fake_classify(articles, **kwargs):
+            for article in articles:
+                article["classification"] = {
+                    "category": "Tech", "score": 8, "summary": "s",
+                }
+            return ClassifyStats(articles=len(articles), classified=len(articles))
+
+        with patch("src.main.load_config", return_value=config), \
+                patch("src.main.parse_feeds", return_value=[]), \
+                patch("src.main.load_articles", return_value=cached), \
+                patch("src.main.load_seen_links", return_value=set()), \
+                patch("src.main.load_state", return_value={"feeds": {}}), \
+                patch("src.main.save_state"), \
+                patch("src.main.classify_articles", side_effect=fake_classify), \
+                patch("src.main.save_articles"), \
+                patch("src.main.save_daily_results"), \
+                patch("src.main.append_metadata") as append_metadata, \
+                patch("src.main._update_index"):
+            step_classify()
+
+        append_metadata.assert_called_once()
+        archived, archive_dir = append_metadata.call_args.args
+        self.assertEqual(
+            [a["link"] for a in archived],
+            ["https://a.com/ok", "https://a.com/skip"],
+        )
+        self.assertEqual(archive_dir, "custom-archive")
+
+    def test_archive_failure_keeps_written_output(self):
+        cached = [self._articles()[0]]
+
+        def fake_classify(articles, **kwargs):
+            for article in articles:
+                article["classification"] = {
+                    "category": "Tech", "score": 8, "summary": "s",
+                }
+            return ClassifyStats(articles=len(articles), classified=len(articles))
+
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), \
+                patch("src.main.load_config", return_value=_classify_config()), \
+                patch("src.main.parse_feeds", return_value=[]), \
+                patch("src.main.load_articles", return_value=cached), \
+                patch("src.main.load_seen_links", return_value=set()), \
+                patch("src.main.load_state", return_value={"feeds": {}}), \
+                patch("src.main.save_state"), \
+                patch("src.main.classify_articles", side_effect=fake_classify), \
+                patch("src.main.save_articles"), \
+                patch("src.main.save_daily_results") as save_daily, \
+                patch("src.main.append_metadata", side_effect=OSError("disk full")), \
+                patch("src.main._update_index"):
+            step_classify()
+
+        save_daily.assert_called_once()
+        self.assertEqual(cached[0]["status"], "classified")
+        self.assertIn("WARNING", out.getvalue())
+        self.assertIn("disk full", out.getvalue())
 
 
 class SkipPromptCombinationTests(unittest.TestCase):
