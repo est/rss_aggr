@@ -11,6 +11,7 @@ articles.json
 status.json
 output/
 archive/
+feeds/
 .runtime/
 .pytest_cache/
 .worktrees/
@@ -23,6 +24,8 @@ archive/
 .data-push-ok
 .cache-save-ok
 _build/
+_site/
+.backfill/
 *.tmp
 .mimocode
 

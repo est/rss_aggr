@@ -1,13 +1,20 @@
 #!/usr/bin/env bash
 #
-# LEGACY (ADR-015 / pre-ADR-016). Do not run this script after the repository
-# has migrated to the cache + daily data snapshot architecture.
+# LEGACY (ADR-015 / ADR-016). Do not run this script after the repository has
+# migrated to the permanent Markdown archive architecture (ADR-017).
 #
-# This script rewrites gh-pages to contain output/ only. ADR-016 removes
-# gh-pages entirely (Pages deploys from the Actions artifact), so there is
-# nothing left for this script to migrate. Keep it only for recovering an old
-# ADR-015 checkout; the supported migration path is the first collect run,
-# which copies legacy state/output once and creates the data branch.
+# ADR-017 removes gh-pages entirely and stores the durable archive on the data
+# branch. The supported migration path is the first collect run, which restores
+# legacy state/output once and uses src.backfill to create archive/ + feeds/.
+# For a manual migration use:
+#
+#   scripts/backfill_archive.sh OLD_ARTICLES_JSON --root . --feeds feeds \
+#     --out articles.json
+#
+# This script remains only for recovering an old ADR-015 checkout. It rewrites
+# gh-pages to contain output/ only (legacy behavior); if it creates the data
+# branch, it uses src.backfill so the snapshot also contains the Markdown
+# archive and feed indexes. Never rewrite gh-pages after ADR-017 migration.
 #
 # By default this script only prints the plan. --apply is destructive: it
 # force-pushes rewritten gh-pages/data branches after creating backup/* refs.
@@ -21,7 +28,9 @@ usage() {
 Usage: scripts/migrate_branches.sh [--apply]
 
 LEGACY: this script targets the ADR-015 layout and rewrites gh-pages.
-ADR-016 no longer uses gh-pages; do not run this after migration.
+ADR-017 no longer uses gh-pages; do not run this after migration.
+Use the first collect run plus src.backfill / scripts/backfill_archive.sh
+for the supported ADR-017 migration.
 
 Without --apply: fetch origin and print the migration plan (no remote writes).
 With --apply:    DESTRUCTIVE. Back up the old branches, then force-push the
@@ -87,8 +96,9 @@ fi
 mkdir -p "$TMP_DIR/legacy" "$TMP_DIR/data" "$TMP_DIR/site"
 git archive "$SITE_REF" | tar -x -C "$TMP_DIR/legacy"
 
-# Runtime state from the old gh-pages layout. Articles are stripped to
-# metadata: raw bodies must never enter the data branch (ADR-016).
+# Runtime state from the old gh-pages layout. Legacy article bodies are
+# sanitized into archive/ and feeds/ by src.backfill; articles.json itself is
+# metadata-only (ADR-017).
 if [ -f "$TMP_DIR/legacy/state.json" ]; then
   cp "$TMP_DIR/legacy/state.json" "$TMP_DIR/data/state.json"
 fi
@@ -101,22 +111,14 @@ elif [ -f "$TMP_DIR/legacy/cache.json" ]; then
   echo "note: migrating legacy cache.json to metadata-only articles.json"
 fi
 if [ -n "$LEGACY_ARTICLES" ]; then
-  python - "$LEGACY_ARTICLES" "$TMP_DIR/data/articles.json" <<'PY'
-import json
-import sys
-from pathlib import Path
-
-from src.archive import metadata_record
-
-source, dest = Path(sys.argv[1]), Path(sys.argv[2])
-data = json.loads(source.read_text(encoding="utf-8"))
-records = [metadata_record(a) for a in data if isinstance(a, dict)]
-dest.write_text(
-    json.dumps(records, ensure_ascii=False, separators=(",", ":")),
-    encoding="utf-8",
-)
-PY
-  echo "note: stripped raw article bodies from migrated articles.json"
+  # ADR-017: sanitize the legacy bodies into the permanent Markdown archive
+  # and write metadata-only articles.json with archive offsets.
+  python -m src.backfill \
+    --articles "$LEGACY_ARTICLES" \
+    --root "$TMP_DIR/data" \
+    --feeds "$TMP_DIR/data/feeds" \
+    --out "$TMP_DIR/data/articles.json"
+  echo "note: backfilled legacy article bodies into archive/ and feeds/"
 fi
 
 # The new data layout also carries rendered output. Keep historical pages.
@@ -159,10 +161,12 @@ fi
 echo
 echo "  1. Back up the current remote branches under refs/heads/backup/."
 if [ "$CREATE_DATA" = true ]; then
-  echo "  2. Create orphan 'data' containing only runtime state:"
+  echo "  2. Create orphan 'data' containing runtime state, archive/ and feeds/:"
   for f in state.json articles.json; do
     [ -f "$TMP_DIR/data/$f" ] && echo "       - $f"
   done
+  [ -d "$TMP_DIR/data/archive" ] && echo "       - archive/"
+  [ -d "$TMP_DIR/data/feeds" ] && echo "       - feeds/"
 else
   echo "  2. Keep the existing 'data' branch unchanged."
 fi
@@ -208,7 +212,7 @@ if [ "$CREATE_DATA" = true ]; then
   git -C "$TMP_DIR/data" checkout -q --orphan data
   git_config "$TMP_DIR/data"
   git -C "$TMP_DIR/data" add -A
-  git -C "$TMP_DIR/data" commit -q -m "data: migrate runtime state off gh-pages"
+  git -C "$TMP_DIR/data" commit -q -m "data: migrate runtime state and Markdown archive off gh-pages"
   git -C "$TMP_DIR/data" push --force "$REMOTE_URL" "data:refs/heads/data"
 fi
 
