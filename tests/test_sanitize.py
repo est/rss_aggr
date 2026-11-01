@@ -1,4 +1,4 @@
-from src.sanitize import sanitize_html
+from src.sanitize import sanitize_html, sanitize_text
 
 BASE = "https://example.com/posts/1"
 
@@ -108,3 +108,9 @@ def test_output_is_deterministic_and_malformed_input_never_raises():
 def test_empty_input_returns_empty_string():
     assert sanitize_html("", BASE) == ""
     assert sanitize_html("   \r\n  ", BASE) == ""
+
+
+def test_sanitize_text_strips_tags_and_normalizes_whitespace():
+    assert sanitize_text("  Hello <script>x</script>\n <b>world</b>  ") == "Hello x world"
+    assert sanitize_text(None) == ""
+    assert sanitize_text("Tom &amp; Jerry") == "Tom & Jerry"
