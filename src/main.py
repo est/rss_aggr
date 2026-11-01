@@ -3,23 +3,30 @@ import argparse
 import os
 import sys
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 try:
     import tomllib
 except ModuleNotFoundError:
     import tomli as tomllib
 
+from src import md_archive
 from src.aggregator import is_aggregator
-from src.archive import append_metadata, repair_archive_dir
 from src.articles import (
+    archive_fields,
+    article_archive_ref,
+    article_keys,
     cleanup_articles,
+    clear_content,
     load_articles,
-    merge_fetched_entries,
     save_articles,
+    set_content_hydrated,
+    store_fetched_entries,
     validate_articles_file,
 )
 from src.classifier import classify_articles, is_skip_category
 from src.opml_parser import parse_feeds
+from src.sanitize import sanitize_html
 from src.state import (
     get_due_feeds,
     load_state,
@@ -39,6 +46,117 @@ def ts():
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _archive_root(archive_dir: str) -> Path:
+    """Resolve the directory that directly contains ``YYYY/MM/DD.md``."""
+    path = Path(archive_dir)
+    return path if path.name == "archive" else path / "archive"
+
+
+def _archive_record_path(archive_root: Path, archive_file: str) -> Path:
+    """Resolve an index ``file`` value (e.g. ``archive/2026/05/01.md``)."""
+    path = Path(archive_file)
+    if path.is_absolute():
+        return path
+    if path.parts and path.parts[0] == "archive":
+        return Path(archive_root).parent / path
+    return Path(archive_root) / path
+
+
+def _feed_meta_for_result(result: dict) -> dict:
+    """Build feed metadata from one fetch result."""
+    feed = result.get("feed") or {}
+    feed_url = feed.get("xml_url") or ""
+    site_url = feed.get("html_url") or feed.get("site_url") or ""
+    title = feed.get("title") or ""
+    return {
+        "feed_id": md_archive.feed_id(feed_url, site_url, title),
+        "feed_url": feed_url,
+        "site_url": site_url,
+        "title": title,
+    }
+
+
+def _feed_meta_for_article(article: dict) -> dict:
+    """Build feed metadata from an articles.json record."""
+    feed_url = article.get("feed_url") or ""
+    site_url = article.get("site_url") or ""
+    title = article.get("feed_title") or ""
+    return {
+        "feed_id": article.get("feed_id")
+        or md_archive.feed_id(feed_url, site_url, title),
+        "feed_url": feed_url,
+        "site_url": site_url,
+        "title": title,
+    }
+
+
+def _load_feed_index_keys(feeds_dir: str, feed_meta: dict) -> tuple[dict, set[str]]:
+    """Load one feed index once and return ``(feed_meta, article keys)``."""
+    path = Path(feeds_dir) / f"{feed_meta['feed_id']}.jsonl"
+    keys: set[str] = set()
+    try:
+        _header, records = md_archive.read_feed_index(path)
+    except (OSError, ValueError) as exc:
+        print(f"[{ts()}] WARNING: cannot read feed index {path}: {exc}", flush=True)
+        records = []
+    for record in records:
+        if record.get("kind", "article") == "article":
+            keys.update(article_keys(record))
+    return feed_meta, keys
+
+
+def _archive_article_meta(entry: dict, feed_meta: dict, fetched_at: str) -> dict:
+    """Article header metadata for :func:`src.md_archive.append_articles`."""
+    return {
+        "guid": entry.get("guid") or "",
+        "feed_id": feed_meta["feed_id"],
+        "feed_url": feed_meta["feed_url"],
+        "site_url": feed_meta["site_url"],
+        "link": (entry.get("link") or "").strip(),
+        "title": entry.get("title") or "",
+        "author": entry.get("author") or "",
+        "published": entry.get("published") or "",
+        "fetched_at": fetched_at,
+    }
+
+
+def _article_metadata_record(entry: dict, feed_meta: dict, record: dict) -> dict:
+    """Build the articles.json row for an appended archive record."""
+    metadata = {
+        "guid": entry.get("guid") or record.get("guid") or "",
+        "title": entry.get("title") or "",
+        "link": (entry.get("link") or "").strip(),
+        "author": entry.get("author") or "",
+        "published": entry.get("published") or "",
+        "feed_title": feed_meta.get("title") or "",
+        "feed_category": entry.get("feed_category") or "",
+        "feed_id": feed_meta["feed_id"],
+        "feed_url": feed_meta.get("feed_url") or "",
+        "site_url": feed_meta.get("site_url") or "",
+    }
+    metadata["canonical"] = (
+        canonical_url(metadata["link"]) or metadata["link"] or metadata["guid"]
+    )
+    metadata.update(archive_fields(record))
+    return metadata
+
+
+def _annotation_for_article(article: dict) -> dict:
+    """Build an append-only feed annotation for a classified/title-only row."""
+    classification = article.get("classification")
+    if not isinstance(classification, dict):
+        classification = {}
+    return {
+        "guid": article.get("guid") or "",
+        "file": article.get("archive_file") or "",
+        "offset": article.get("archive_offset"),
+        "category": classification.get("category") or "",
+        "summary": classification.get("summary") or "",
+        "score": classification.get("score"),
+        "classified_at": article.get("classified_at") or "",
+    }
 
 
 def _parse_dt(value) -> datetime | None:
@@ -134,15 +252,18 @@ def step_sync():
 
 
 def step_fetch():
-    """Fetch RSS entries, append new articles to articles.json."""
+    """Fetch RSS entries, archive Markdown bodies, and update metadata cache."""
     config = load_config()
     from src.fetcher import fetch_all_feeds
     fetch_cfg = config.get("fetch", {})
     filter_cfg = config.get("filter", {})
     limits = config.get("limits", {})
+    storage_cfg = config.get("storage", {})
     user_agent = fetch_cfg.get("user_agent", "rss_aggr/1.0")
     keep_days = fetch_cfg.get("keep_days", 7)
-    data_dir = config.get("storage", {}).get("data_dir", "output")
+    data_dir = storage_cfg.get("data_dir", "output")
+    archive_dir = storage_cfg.get("archive_dir", "archive")
+    feeds_dir = storage_cfg.get("feeds_dir", "feeds")
     max_feeds = limits.get("max_feeds", 0)
     fetch_interval = limits.get("fetch_interval_hours", 24)
     if os.environ.get("RSS_FORCE_FETCH") == "1":
@@ -198,12 +319,11 @@ def step_fetch():
         max_entries_per_feed=max_entries,
     )
 
-    all_entries = []
     aggregator_feeds = 0
     ok_count = 0
     not_modified_count = 0
     for r in results:
-        url = r["feed"]["xml_url"]
+        url = (r.get("feed") or {}).get("xml_url", "")
         status = r.get("status", "error")
         if status in ("ok", "not_modified"):
             # A 304 is a successful fetch, never a failure.
@@ -215,7 +335,6 @@ def step_fetch():
                 if is_aggregator(r["entries"]):
                     aggregator_feeds += 1
                     state["feeds"][url]["is_aggregator"] = True
-                all_entries.extend(r["entries"])
         else:
             mark_failed(state, url, r.get("error", "unknown"))
 
@@ -228,22 +347,112 @@ def step_fetch():
             f"All {len(due_feeds)} due feeds failed to fetch; runtime is unhealthy"
         )
 
-    # Skip anything already rendered. Everything else is merged: new links are
-    # added, and existing metadata-only pending rows get their body reattached
-    # after a cache miss instead of being discarded.
+    fetched_at = _now_iso()
+    archive_root = _archive_root(archive_dir)
     output_links = load_seen_links(data_dir)
-    candidates = []
-    for entry in all_entries:
-        link = (entry.get("link") or "").strip()
-        key = canonical_url(link) or link or entry.get("guid", "")
-        if not key or key in output_links:
-            continue
-        candidates.append(entry)
 
-    if candidates:
-        added, refreshed = merge_fetched_entries(candidates)
+    # Existing metadata rows are used for dedup so a cache miss can reattach an
+    # archive reference to a pending record without creating a duplicate.
+    existing_by_key: dict[str, dict] = {}
+    for article in load_articles():
+        for key in article_keys(article):
+            existing_by_key.setdefault(key, article)
+
+    run_links: set[str] = set()
+    run_keys: set[str] = set()
+    index_cache: dict[str, tuple[dict, set[str]]] = {}
+    metadata_entries: list[dict] = []
+    archived_count = 0
+
+    for r in results:
+        if r.get("status") != "ok":
+            continue
+        feed_meta = _feed_meta_for_result(r)
+        feed_key = feed_meta["feed_id"]
+        if feed_key not in index_cache:
+            index_cache[feed_key] = _load_feed_index_keys(feeds_dir, feed_meta)
+        feed_meta, index_keys = index_cache[feed_key]
+
+        items: list[tuple[dict, str]] = []
+        queued: list[dict] = []
+        for entry in r.get("entries") or []:
+            link = (entry.get("link") or "").strip()
+            if link:
+                entry = dict(entry, link=link)
+            keys = article_keys(entry)
+            if not keys:
+                continue
+            canonical = canonical_url(link) or link
+            if canonical and canonical in output_links:
+                continue
+            if any(key in run_keys for key in keys):
+                continue
+            if any(key in index_keys for key in keys):
+                continue
+            if canonical and canonical in run_links:
+                continue
+
+            existing = next(
+                (existing_by_key[key] for key in keys if key in existing_by_key),
+                None,
+            )
+            if existing is not None and (
+                existing.get("archive_file")
+                or existing.get("status") in _STATUS_DONE
+            ):
+                # Already archived/finished; mark it seen so another feed in
+                # this run cannot archive the same canonical link again.
+                if canonical:
+                    run_links.add(canonical)
+                run_keys.update(article_keys(existing))
+                continue
+
+            body = sanitize_html(
+                entry.get("content") or "",
+                base_url=entry.get("link") or feed_meta.get("site_url") or "",
+            )
+            meta = _archive_article_meta(entry, feed_meta, fetched_at)
+            items.append((meta, body))
+            queued.append(entry)
+            # Reserve the keys before writing so a later feed in the same run
+            # cannot queue a duplicate.
+            run_keys.update(keys)
+            if canonical:
+                run_links.add(canonical)
+
+        if not items:
+            continue
+
+        try:
+            records = md_archive.append_articles(str(archive_root), items)
+        except Exception as exc:  # noqa: BLE001 - fail the step, lose nothing
+            raise RuntimeError(
+                f"failed to append {len(items)} article(s) to {archive_root}: {exc}"
+            ) from exc
+        if len(records) != len(items):
+            raise RuntimeError(
+                f"archive append returned {len(records)} record(s) "
+                f"for {len(items)} article(s)"
+            )
+
+        for entry, record in zip(queued, records):
+            try:
+                md_archive.append_feed_record(feeds_dir, feed_meta, record)
+            except Exception as exc:  # noqa: BLE001 - fail the step
+                raise RuntimeError(
+                    f"failed to append feed index record for {feed_key}: {exc}"
+                ) from exc
+            index_keys.update(article_keys(record))
+            metadata_entries.append(
+                _article_metadata_record(entry, feed_meta, record)
+            )
+            archived_count += 1
+
+    if metadata_entries:
+        added, refreshed = store_fetched_entries(metadata_entries)
         print(
-            f"[{ts()}] Merged fetch: {added} new, {refreshed} bodies refreshed",
+            f"[{ts()}] Archived {archived_count} article(s); "
+            f"merged fetch: {added} new, {refreshed} archive refs refreshed",
             flush=True,
         )
     elif cache_missing:
@@ -265,6 +474,7 @@ def step_classify():
     categories = [c["name"] for c in config.get("category", [])]
     data_dir = config.get("storage", {}).get("data_dir", "output")
     archive_dir = config.get("storage", {}).get("archive_dir", "archive")
+    feeds_dir = config.get("storage", {}).get("feeds_dir", "feeds")
     max_articles = limits.get("max_articles", 0)
     keep_days = config.get("fetch", {}).get("keep_days", 14)
     global_skip_prompt = (filter_cfg.get("skip_prompt") or "").strip()
@@ -275,13 +485,7 @@ def step_classify():
             "articles.json is corrupt; restore it from the data branch before classifying"
         )
 
-    try:
-        repaired = repair_archive_dir(archive_dir)
-    except (OSError, ValueError) as exc:
-        print(f"[{ts()}] WARNING: could not repair archive: {exc}", flush=True)
-    else:
-        if repaired:
-            print(f"[{ts()}] Repaired archive: removed {repaired} invalid rows", flush=True)
+    archive_root = _archive_root(archive_dir)
 
     feeds = parse_feeds("feeds.toml")
     site_skip_prompt_rules = _build_site_skip_prompt_rules(feeds)
@@ -299,8 +503,7 @@ def step_classify():
             # instead of keeping it pending forever.
             a["status"] = "skipped"
             a["skip_reason"] = "missing_link"
-            a["content"] = ""
-            a["content_length"] = 0
+            clear_content(a)
             continue
         status = a.get("status") or "pending"
         key = canonical_url(link) or link
@@ -325,7 +528,43 @@ def step_classify():
     for a in articles:
         a.pop("classification", None)
         a.pop("classification_meta", None)
-    print(f"[{ts()}] {len(articles)} articles to classify (from cache)", flush=True)
+
+    # Hydrate bodies from the durable archive. A missing/corrupt record is a
+    # hard archive problem: keep the metadata row pending (never delete it) and
+    # retry on the next run instead of sending an empty body to the model.
+    hydrated: list[dict] = []
+    for a in articles:
+        ref = article_archive_ref(a)
+        if ref is None:
+            # Legacy metadata-only row: classify the title now rather than
+            # keeping it pending forever. Cleanup still owns its expiry.
+            clear_content(a)
+            set_content_hydrated(a, "")
+            hydrated.append(a)
+            continue
+        path = _archive_record_path(archive_root, ref["path"])
+        try:
+            record = md_archive.read_record(path, ref["offset"], ref["length"])
+        except (OSError, ValueError) as exc:
+            clear_content(a)
+            a["status"] = "pending"
+            a["archive_error"] = str(exc)
+            a["archive_checked_at"] = _now_iso()
+            print(
+                f"[{ts()}] WARNING: keeping article pending; archive record "
+                f"unreadable ({path}@{ref['offset']}): {exc}",
+                flush=True,
+            )
+            continue
+        a.pop("archive_error", None)
+        a.pop("archive_checked_at", None)
+        set_content_hydrated(a, record.get("body") or "")
+        hydrated.append(a)
+    articles = hydrated
+    print(
+        f"[{ts()}] {len(articles)} articles to classify (hydrated from archive)",
+        flush=True,
+    )
 
     if not articles:
         print(f"[{ts()}] Nothing to classify", flush=True)
@@ -390,8 +629,7 @@ def step_classify():
                     a["status"] = "classified"
                     to_write.append(a)
                 # Drop the full text; only the AI summary is retained.
-                a["content"] = ""
-                a["content_length"] = 0
+                clear_content(a)
             else:
                 # AI unavailable or the model did not return a usable result.
                 # Never drop the article: publish the title now with empty
@@ -405,8 +643,7 @@ def step_classify():
                     if stats.provider_failed
                     else "classification_failed"
                 )
-                a["content"] = ""
-                a["content_length"] = 0
+                clear_content(a)
                 to_write.append(a)
                 total_unclassified += 1
 
@@ -422,21 +659,30 @@ def step_classify():
                 last_classified=now,
                 keep_days=0,
             )
-            # Archive metadata for the rows that actually reached the output.
-            # A failure here must never lose the Markdown we just wrote.
-            try:
-                archived = append_metadata(to_write, archive_dir)
-            except (OSError, ValueError) as exc:
+            # Append derived classification annotations to the permanent feed
+            # indexes. A failure here must never lose the Markdown just written.
+            annotation_errors = 0
+            for a in to_write:
+                try:
+                    md_archive.append_feed_annotation(
+                        feeds_dir,
+                        _feed_meta_for_article(a),
+                        _annotation_for_article(a),
+                    )
+                except (OSError, ValueError) as exc:
+                    annotation_errors += 1
+                    if annotation_errors == 1:
+                        print(
+                            f"[{ts()}] WARNING: could not append feed "
+                            f"annotation: {exc}",
+                            flush=True,
+                        )
+            if annotation_errors:
                 print(
-                    f"[{ts()}] WARNING: could not write archive metadata: {exc}",
+                    f"[{ts()}] WARNING: {annotation_errors} feed annotation(s) "
+                    f"were not written",
                     flush=True,
                 )
-            else:
-                if archived:
-                    print(
-                        f"[{ts()}] Archived {archived} metadata records",
-                        flush=True,
-                    )
 
     # Always regenerate the index, even when nothing was written.
     _update_index(
@@ -482,6 +728,8 @@ def step_report():
 
     config = load_config()
     data_dir = config.get("storage", {}).get("data_dir", "output")
+    archive_dir = config.get("storage", {}).get("archive_dir", "archive")
+    feeds_dir = config.get("storage", {}).get("feeds_dir", "feeds")
     status = build_status(data_dir=data_dir)
     if not status["output"]["index_exists"]:
         # The site index must exist even before the first classified article.
@@ -497,6 +745,19 @@ def step_report():
         )
     write_status(status, root="status.json", data_dir=data_dir)
     summary = print_summary(status)
+
+    archive_root = _archive_root(archive_dir)
+    daily_files = (
+        len(list(archive_root.rglob("*.md"))) if archive_root.exists() else 0
+    )
+    feed_indexes = (
+        len(list(Path(feeds_dir).glob("*.jsonl"))) if Path(feeds_dir).exists() else 0
+    )
+    print(
+        f"[{ts()}] Archive: {daily_files} daily file(s), "
+        f"{feed_indexes} feed index(es)",
+        flush=True,
+    )
 
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary_path:
