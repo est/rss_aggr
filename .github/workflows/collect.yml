@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       snapshot:
-        description: "Force a metadata snapshot to the data branch"
+        description: "Force an archive snapshot to the data branch"
         type: boolean
         default: false
 
@@ -41,7 +41,7 @@ jobs:
   collect:
     needs: test
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     environment: github-pages
     permissions:
       contents: write
@@ -61,9 +61,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # The cache is the hot copy of runtime state, including raw article
-      # bodies. It is not the source of truth: the data branch has a daily,
-      # metadata-only snapshot that is used when the cache is evicted.
+      # The cache is a hot copy of the durable archive and runtime metadata.
+      # It is not the source of truth: the data branch is. A cache miss now
+      # restores the append-only Markdown archive and feed indexes, so bodies
+      # are no longer lost when GitHub evicts the cache.
       - name: Restore runtime cache
         id: runtime-cache
         # A cache outage must not block collection: the data branch is the
@@ -84,23 +85,26 @@ jobs:
         run: |
           set -euo pipefail
           rm -f .restore-data-ok .cache-restore-miss
+          rm -rf .data .legacy .backfill
           mkdir -p output
-
-          if [ "${CACHE_OUTCOME}" = "failure" ]; then
-            echo "::warning::runtime cache restore action failed; treating it as a cold start"
-          fi
 
           validate_json() {
             python -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' "$1"
           }
+          has_daily_archive() {
+            [ -n "$(find archive -type f -name '*.md' -print -quit 2>/dev/null)" ]
+          }
+
+          if [ "${CACHE_OUTCOME}" = "failure" ]; then
+            echo "::warning::runtime cache restore action failed; treating it as a cold start"
+          fi
 
           # cache-hit is "true" only for an exact key match. The key contains
           # run_id, so a normal run restores a previous cache through
           # restore-keys and reports a partial match. Treat validated files as
           # authoritative, and log the exact/partial state for debugging.
           cache_ok=false
-          if [ -f .runtime/state.json ] && [ -f .runtime/articles.json ] \
-              && [ -f .runtime/output/index.md ]; then
+          if [ -f .runtime/state.json ] && [ -f .runtime/articles.json ]; then
             if validate_json .runtime/state.json && validate_json .runtime/articles.json; then
               cache_ok=true
             else
@@ -110,18 +114,17 @@ jobs:
 
           if [ "$cache_ok" = true ]; then
             cp -a .runtime/. .
-            echo "Restored runtime state from Actions cache (cache-hit=${CACHE_HIT:-false}, matched-key=${CACHE_MATCHED_KEY:-none})"
+            echo "Restored runtime from Actions cache (cache-hit=${CACHE_HIT:-false}, matched-key=${CACHE_MATCHED_KEY:-none})"
           else
             echo "::warning::runtime cache missing or invalid; restoring from the data branch"
-            # A cache miss means articles.json cannot be trusted as a live
-            # cache: the data branch snapshot is metadata-only (no raw bodies).
-            # Removing it makes fetch ignore persisted ETags and re-fetch the
-            # whole 14-day window with full content.
+            # A cache miss means persisted ETags cannot be trusted as a live
+            # cache. Force a full 14-day fetch. Pending metadata is preserved:
+            # the durable archive and feed indexes restore its bodies.
             touch .cache-restore-miss
             echo "RSS_FORCE_FETCH=1" >> "$GITHUB_ENV"
 
-            data_heads=""
             data_rc=0
+            data_heads=""
             data_heads="$(git ls-remote --exit-code --heads origin data 2>/dev/null)" || data_rc=$?
             if [ "$data_rc" -eq 0 ] && [ -n "$data_heads" ]; then
               if ! git fetch --depth=1 origin data; then
@@ -130,51 +133,31 @@ jobs:
               fi
               rm -rf .data
               mkdir -p .data
-              git archive FETCH_HEAD | tar -x -C .data
+              if ! git archive FETCH_HEAD | tar -x -C .data; then
+                echo "::error::data branch exists but its tree could not be extracted"
+                exit 1
+              fi
 
+              # Metadata is replaced by the snapshot; archive/, feeds/ and
+              # output/ are durable append-only trees.
               for f in state.json articles.json status.json; do
                 if [ -f ".data/$f" ]; then
                   cp ".data/$f" "./$f"
                 fi
               done
-              if [ -d .data/output ]; then
-                rm -rf output
-                cp -R .data/output output
-              fi
-              if [ -d .data/archive ]; then
-                rm -rf archive
-                cp -R .data/archive archive
-              fi
-
-              # An ADR-015 data branch contains runtime state only. Recover
-              # historical site output from legacy gh-pages once so the first
-              # post-migration cold start does not erase old pages.
-              if [ -z "$(find output -type f -print -quit 2>/dev/null)" ]; then
-                site_heads=""
-                site_rc=0
-                site_heads="$(git ls-remote --exit-code --heads origin gh-pages 2>/dev/null)" || site_rc=$?
-                if [ "$site_rc" -eq 0 ] && [ -n "$site_heads" ]; then
-                  if ! git fetch --depth=1 origin gh-pages; then
-                    echo "::error::gh-pages exists but could not be fetched for legacy output migration"
-                    exit 1
-                  fi
-                  if git cat-file -e "FETCH_HEAD:output" 2>/dev/null; then
-                    rm -rf output
-                    git archive FETCH_HEAD output | tar -x -C .
-                    echo "::warning::restored legacy output/ from gh-pages during migration"
-                  fi
-                elif [ "$site_rc" -ne 2 ] && ! { [ "$site_rc" -eq 0 ] && [ -z "$site_heads" ]; }; then
-                  echo "::error::could not query gh-pages for legacy output migration (rc=$site_rc)"
-                  exit 1
+              for d in archive feeds output; do
+                if [ -d ".data/$d" ]; then
+                  rm -rf "$d"
+                  cp -R ".data/$d" "$d"
                 fi
-              fi
+              done
 
               if [ ! -f state.json ] || [ ! -f articles.json ]; then
                 echo "::error::data branch exists but is missing state.json or articles.json"
                 exit 1
               fi
-              # Validate before deleting articles.json so corruption on the
-              # snapshot branch is reported instead of silently ignored.
+              # Validate before deleting the extracted tree so corruption on
+              # the snapshot branch is reported instead of silently ignored.
               if ! validate_json state.json; then
                 echo "::error::restored state.json is not valid JSON; refusing to start"
                 exit 1
@@ -183,57 +166,54 @@ jobs:
                 echo "::error::restored articles.json is not valid JSON; refusing to start"
                 exit 1
               fi
+              if [ -f status.json ] && ! validate_json status.json; then
+                echo "::error::restored status.json is not valid JSON; refusing to start"
+                exit 1
+              fi
 
-              echo "Restored state/output/archive from data branch; keeping metadata-only articles.json so pending records survive the cold start"
+              if ! has_daily_archive; then
+                if [ -d archive ] && [ -n "$(find archive -maxdepth 1 -type f -name '*.jsonl' -print -quit 2>/dev/null)" ]; then
+                  echo "::warning::data branch uses the old ADR-016 metadata archive (archive/*.jsonl); a one-time backfill will create the Markdown archive"
+                else
+                  echo "::warning::data branch has no Markdown archive; a one-time backfill will run if legacy raw articles are available"
+                fi
+                if [ ! -d feeds ]; then
+                  echo "::warning::data branch has no feeds/ indexes; they will be built during backfill or the next fetch"
+                fi
+              fi
+
+              echo "Restored state/articles/status plus archive/feeds/output from data branch"
               rm -rf .data
             elif [ "$data_rc" -eq 2 ] || { [ "$data_rc" -eq 0 ] && [ -z "$data_heads" ]; }; then
-              # One-time migration path for the pre-ADR-016 layout. Only state
-              # and output are copied: restoring articles.json from gh-pages
-              # would bring raw content back from git, and the 14-day window is
-              # re-fetched anyway because the cache missed.
+              # One-time migration path for the pre-ADR-016 layout. Raw
+              # articles are copied to .legacy/ only as input for src.backfill;
+              # they are never restored directly into articles.json.
               echo "::warning::data branch not found; checking legacy gh-pages for a one-time migration"
-              site_heads=""
               site_rc=0
+              site_heads=""
               site_heads="$(git ls-remote --exit-code --heads origin gh-pages 2>/dev/null)" || site_rc=$?
               if [ "$site_rc" -eq 0 ] && [ -n "$site_heads" ]; then
                 if ! git fetch --depth=1 origin gh-pages; then
-                  echo "::error::gh-pages exists but could not be fetched for legacy migration"
-                  exit 1
+                  echo "::warning::gh-pages exists but could not be fetched; starting without legacy state"
+                else
+                  if git cat-file -e "FETCH_HEAD:state.json" 2>/dev/null; then
+                    git show "FETCH_HEAD:state.json" > state.json
+                    echo "::warning::restored legacy state.json from gh-pages"
+                  fi
+                  if git cat-file -e "FETCH_HEAD:output" 2>/dev/null; then
+                    rm -rf output
+                    git archive FETCH_HEAD output | tar -x -C .
+                    echo "::warning::restored legacy output/ from gh-pages"
+                  fi
+                  mkdir -p .legacy
+                  if git cat-file -e "FETCH_HEAD:articles.json" 2>/dev/null; then
+                    git show "FETCH_HEAD:articles.json" > .legacy/articles.json
+                    echo "::warning::captured legacy articles.json for a one-time Markdown backfill"
+                  elif git cat-file -e "FETCH_HEAD:cache.json" 2>/dev/null; then
+                    git show "FETCH_HEAD:cache.json" > .legacy/articles.json
+                    echo "::warning::captured legacy cache.json for a one-time Markdown backfill"
+                  fi
                 fi
-                rm -rf .legacy
-                mkdir -p .legacy
-                if git cat-file -e "FETCH_HEAD:state.json" 2>/dev/null; then
-                  git show "FETCH_HEAD:state.json" > .legacy/state.json
-                  cp .legacy/state.json state.json
-                  echo "::warning::restored legacy state.json from gh-pages"
-                fi
-                if git cat-file -e "FETCH_HEAD:output" 2>/dev/null; then
-                  rm -rf output
-                  git archive FETCH_HEAD output | tar -x -C .
-                fi
-                if git cat-file -e "FETCH_HEAD:articles.json" 2>/dev/null; then
-                  git show "FETCH_HEAD:articles.json" > .legacy/articles.json
-                elif git cat-file -e "FETCH_HEAD:cache.json" 2>/dev/null; then
-                  git show "FETCH_HEAD:cache.json" > .legacy/articles.json
-                fi
-                if [ -f .legacy/articles.json ]; then
-                  python - <<'PY'
-          import json
-          from pathlib import Path
-          from src.archive import metadata_record
-
-          src = Path(".legacy/articles.json")
-          data = json.loads(src.read_text(encoding="utf-8"))
-          records = [metadata_record(a) for a in data if isinstance(a, dict)]
-          Path("articles.json").write_text(
-              json.dumps(records, ensure_ascii=False, separators=(",", ":")),
-              encoding="utf-8",
-          )
-          PY
-                  echo "::warning::migrated pending metadata from legacy articles.json (bodies will be re-fetched)"
-                fi
-                echo "Legacy migration: state/output/pending metadata restored"
-                rm -rf .legacy
               elif [ "$site_rc" -eq 2 ] || { [ "$site_rc" -eq 0 ] && [ -z "$site_heads" ]; }; then
                 echo "::warning::no data or gh-pages branch found; starting with empty runtime state"
               else
@@ -246,7 +226,7 @@ jobs:
             fi
           fi
 
-          # Never run with a corrupt cache: it would be silently treated as
+          # Never run with corrupt metadata: it would be silently treated as
           # empty and then written back over the data branch.
           for f in state.json articles.json status.json; do
             if [ -f "$f" ]; then
@@ -256,18 +236,249 @@ jobs:
               fi
             fi
           done
-          if [ -d archive ]; then
-            python -m src.archive --repair archive >/dev/null || true
-            if ! python -m src.archive --validate archive; then
-              echo "::warning::archive/ still has invalid JSONL after repair; continuing"
+
+          echo "Runtime files restored (cache_ok=$cache_ok)"
+
+      # A cache hit from the old architecture may carry raw bodies but no
+      # Markdown archive; a data branch may be the ADR-016 metadata-only
+      # snapshot. In both cases migrate once from a legacy raw articles.json.
+      - name: Migrate legacy articles into Markdown archive
+        run: |
+          set -euo pipefail
+          has_daily_archive() {
+            [ -n "$(find archive -type f -name '*.md' -print -quit 2>/dev/null)" ]
+          }
+          articles_have_bodies() {
+            python - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          try:
+              data = json.loads(Path("articles.json").read_text(encoding="utf-8"))
+          except (OSError, ValueError):
+              sys.exit(1)
+          if not isinstance(data, list):
+              sys.exit(1)
+          has_body = any(
+              isinstance(item, dict) and (item.get("content") or "").strip()
+              for item in data
+          )
+          sys.exit(0 if has_body else 1)
+          PY
+          }
+
+          if has_daily_archive; then
+            echo "Markdown archive already present; no legacy backfill needed"
+            # Feed indexes are derived data. If they are completely missing
+            # (for example a partial cache that kept archive/ but lost feeds/),
+            # rebuild them from the archive before continuing. There are no
+            # annotation records to lose when the directory is empty.
+            if [ -z "$(find feeds -type f -name '*.jsonl' -print -quit 2>/dev/null)" ]; then
+              echo "::warning::archive present but feeds/ is empty; rebuilding feed indexes"
+              if ! python -m src.md_archive --rebuild-indexes archive --feeds feeds; then
+                echo "::error::could not rebuild feed indexes from the archive"
+                exit 1
+              fi
+            fi
+            rm -rf .legacy
+            exit 0
+          fi
+
+          raw_source=""
+          # 1. The cache itself may predate the Markdown archive and still
+          #    contain raw bodies.
+          if [ -f articles.json ] && articles_have_bodies; then
+            raw_source=articles.json
+            echo "Found raw bodies in the restored cache; backfilling from articles.json"
+          fi
+          # 2. A legacy gh-pages capture from the restore step.
+          if [ -z "$raw_source" ] && [ -f .legacy/articles.json ]; then
+            if python -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' .legacy/articles.json; then
+              raw_source=.legacy/articles.json
+              echo "Using legacy articles captured from gh-pages for backfill"
+            else
+              echo "::warning::legacy gh-pages articles.json is not valid JSON; ignoring it"
+            fi
+          fi
+          # 3. The data branch restored only metadata, but gh-pages may still
+          #    have a raw copy. Fetch it once, best-effort.
+          if [ -z "$raw_source" ]; then
+            site_rc=0
+            site_heads=""
+            site_heads="$(git ls-remote --exit-code --heads origin gh-pages 2>/dev/null)" || site_rc=$?
+            if [ "$site_rc" -eq 0 ] && [ -n "$site_heads" ]; then
+              if git fetch --depth=1 origin gh-pages; then
+                mkdir -p .legacy
+                for name in articles.json cache.json; do
+                  if git cat-file -e "FETCH_HEAD:$name" 2>/dev/null; then
+                    git show "FETCH_HEAD:$name" > .legacy/articles.json
+                    if python -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' .legacy/articles.json; then
+                      raw_source=.legacy/articles.json
+                      echo "Fetched legacy $name from gh-pages for one-time backfill"
+                    else
+                      echo "::warning::legacy gh-pages $name is not valid JSON; ignoring it"
+                      rm -f .legacy/articles.json
+                    fi
+                    break
+                  fi
+                done
+              else
+                echo "::warning::gh-pages exists but could not be fetched for legacy backfill"
+              fi
+            elif [ "$site_rc" -eq 2 ] || { [ "$site_rc" -eq 0 ] && [ -z "$site_heads" ]; }; then
+              echo "No legacy gh-pages branch; nothing to backfill"
+            else
+              echo "::warning::could not query gh-pages for legacy backfill (rc=$site_rc)"
             fi
           fi
 
-          # Reaching this point means the restore path completed safely. An
-          # empty bootstrap is allowed here; the snapshot step still requires
-          # valid state.json/articles.json before writing the data branch.
+          if [ -n "$raw_source" ]; then
+            mkdir -p .backfill
+            # The CLI is idempotent: existing feed-index links/guids are
+            # skipped, so a retried migration never duplicates archive records.
+            python -m src.backfill \
+              --articles "$raw_source" \
+              --root . \
+              --feeds feeds \
+              --out .backfill/articles.json
+
+            # Keep pending metadata from the restored snapshot, but attach the
+            # archive offsets produced by the backfill. Records that only exist
+            # in the legacy file are appended as pending.
+            python - <<'PY'
+          from src.articles import archive_fields, article_keys, load_articles, save_articles
+
+          existing = load_articles("articles.json")
+          migrated = load_articles(".backfill/articles.json")
+          by_key = {}
+          for record in migrated:
+              for key in article_keys(record):
+                  by_key.setdefault(key, record)
+
+          used = set()
+          merged = []
+          for record in existing:
+              match = next(
+                  (by_key[key] for key in article_keys(record) if key in by_key),
+                  None,
+              )
+              if match is not None:
+                  record.update(archive_fields(match))
+                  # Keep the restored status/attempts/classification but fill
+                  # genuinely missing feed metadata from the migration.
+                  for field in (
+                      "guid",
+                      "feed_id",
+                      "feed_url",
+                      "site_url",
+                      "feed_title",
+                      "canonical",
+                      "title",
+                      "author",
+                      "published",
+                  ):
+                      if not record.get(field) and match.get(field):
+                          record[field] = match[field]
+                  used.add(id(match))
+              merged.append(record)
+          for record in migrated:
+              if id(record) not in used:
+                  merged.append(record)
+          save_articles(merged, "articles.json")
+          print(f"backfill merge: {len(existing)} existing, {len(migrated)} migrated, {len(merged)} total")
+          PY
+            rm -rf .backfill
+            echo "Backfill complete: Markdown archive and feed indexes created"
+          else
+            echo "::warning::no Markdown archive and no legacy raw articles; bodies will be fetched again"
+            echo "RSS_FORCE_FETCH=1" >> "$GITHUB_ENV"
+            # Stale archive refs would make fetch skip these rows. Drop only
+            # the refs so the forced fetch can archive the bodies again; the
+            # pending metadata itself is preserved.
+            python - <<'PY'
+          from src.articles import STATUS_CLASSIFIED, STATUS_SKIPPED, STATUS_UNCLASSIFIED, load_articles, save_articles
+
+          done = {STATUS_CLASSIFIED, STATUS_SKIPPED, STATUS_UNCLASSIFIED}
+          articles = load_articles("articles.json")
+          changed = False
+          for article in articles:
+              if article.get("status") in done:
+                  continue
+              for field in (
+                  "archive_file",
+                  "archive_offset",
+                  "archive_length",
+                  "archive_body_len",
+                  "archive_sha256",
+              ):
+                  if field in article:
+                      article.pop(field, None)
+                      changed = True
+          if changed:
+              save_articles(articles, "articles.json")
+              print("stripped stale archive refs from pending metadata")
+          PY
+          fi
+          rm -rf .legacy
+
+      - name: Validate runtime archive
+        run: |
+          set -euo pipefail
+          validate_json() {
+            python -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' "$1"
+          }
+          for f in state.json articles.json status.json; do
+            if [ -f "$f" ] && ! validate_json "$f"; then
+              echo "::error::$f is not valid JSON; refusing to run"
+              exit 1
+            fi
+          done
+
+          if [ -n "$(find archive -type f -name '*.md' -print -quit 2>/dev/null)" ]; then
+            # Repair only incomplete trailing records, then fail closed if any
+            # checksum/framing error remains.
+            if ! python -m src.md_archive --repair archive; then
+              echo "::warning::archive tail repair reported an error; validating anyway"
+            fi
+            if ! python -m src.md_archive --validate archive; then
+              echo "::error::Markdown archive is invalid after tail repair; refusing to run"
+              exit 1
+            fi
+          else
+            echo "::warning::no daily Markdown archive yet (first run or migration pending)"
+          fi
+
+          python - <<'PY'
+          import sys
+          from pathlib import Path
+
+          from src import md_archive
+
+          indexes = sorted(Path("feeds").glob("*.jsonl")) if Path("feeds").is_dir() else []
+          errors = []
+          for path in indexes:
+              try:
+                  header, _records = md_archive.read_feed_index(path)
+              except (OSError, ValueError) as exc:
+                  errors.append(f"{path}: {exc}")
+                  continue
+              if not header or header.get("kind") != "feed":
+                  errors.append(f"{path}: missing feed header")
+          # Defense in depth: validate the archive through the module directly
+          # as well, so a missing/broken CLI cannot silently skip the check.
+          errors.extend(md_archive.validate_archive("archive"))
+          if errors:
+              for error in errors:
+                  print(f"::error::invalid runtime artifact: {error}")
+              sys.exit(1)
+          print(f"feed indexes: {len(indexes)} valid; archive validated")
+          PY
+
+          # Reaching this point means restore, optional migration and archive
+          # validation all completed safely. Snapshot/cache steps require it.
           touch .restore-data-ok
-          echo "Runtime restore complete (cache_ok=$cache_ok)"
+          echo "Runtime restore validated"
 
       - name: Fetch RSS
         run: python -m src.main --fetch
@@ -286,20 +497,11 @@ jobs:
         if: always()
         run: python -m src.main --report
 
-      - name: Prepare Pages content
-        run: |
-          set -euo pipefail
-          rm -rf _build
-          cp -R output _build
-          if [ -f _build/index.md ]; then
-            sed -i 's/\.md)/.html)/g' _build/index.md
-          fi
-
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./_build
-          destination: ./_site
+      # The archive is the source of truth. Render it directly to a static
+      # site (day pages, per-feed pages and JSON Feeds); Jekyll is no longer
+      # involved and gh-pages is not written by the workflow.
+      - name: Render archive site
+        run: python -m src.render --site _site --archive archive --feeds feeds
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -331,6 +533,9 @@ jobs:
           validate_json() {
             python -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' "$1"
           }
+          has_daily_archive() {
+            [ -n "$(find archive -type f -name '*.md' -print -quit 2>/dev/null)" ]
+          }
 
           if [ ! -f .restore-data-ok ]; then
             echo "::warning::runtime restore did not succeed; skipping cache save"
@@ -350,24 +555,89 @@ jobs:
               exit 0
             fi
           done
+
+          mkdir -p archive feeds
+          if has_daily_archive && [ -z "$(find feeds -type f -name '*.jsonl' -print -quit 2>/dev/null)" ]; then
+            echo "::warning::archive has articles but feeds/ is empty; skipping cache save"
+            exit 0
+          fi
+
           if [ -d archive ]; then
-            python -m src.archive --repair archive >/dev/null || true
-            if ! python -m src.archive --validate archive; then
-              echo "::warning::archive/ contains invalid JSONL; skipping cache save"
+            if ! python -m src.md_archive --repair archive >/dev/null; then
+              echo "::warning::archive tail repair reported an error"
+            fi
+            if ! python -m src.md_archive --validate archive; then
+              echo "::warning::Markdown archive is invalid; skipping cache save"
               exit 0
             fi
           fi
+
+          if ! python - <<'PY'
+          import sys
+          from pathlib import Path
+
+          from src import md_archive
+
+          indexes = sorted(Path("feeds").glob("*.jsonl")) if Path("feeds").is_dir() else []
+          for path in indexes:
+              try:
+                  header, _records = md_archive.read_feed_index(path)
+              except (OSError, ValueError) as exc:
+                  print(f"::warning::invalid feed index {path}: {exc}")
+                  sys.exit(1)
+              if not header or header.get("kind") != "feed":
+                  print(f"::warning::invalid feed index {path}: missing feed header")
+                  sys.exit(1)
+          archive_errors = md_archive.validate_archive("archive")
+          if archive_errors:
+              for error in archive_errors:
+                  print(f"::warning::invalid archive record: {error}")
+              sys.exit(1)
+          print(f"feed indexes: {len(indexes)} valid; archive validated")
+          PY
+          then
+            echo "::warning::feed indexes are invalid; skipping cache save"
+            exit 0
+          fi
+
+          # articles.json is metadata-only. Strip any legacy raw body fields
+          # before they can enter the cache (and later the data branch).
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          from src.articles import save_articles
+
+          path = Path("articles.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          if not isinstance(data, list):
+              raise SystemExit("articles.json is not a JSON array")
+          cleaned = []
+          leaked = 0
+          for item in data:
+              if not isinstance(item, dict):
+                  continue
+              if item.get("content") or "content_length" in item:
+                  leaked += 1
+              cleaned.append(
+                  {
+                      key: value
+                      for key, value in item.items()
+                      if key not in ("content", "content_length")
+                  }
+              )
+          if leaked:
+              save_articles(cleaned, "articles.json")
+              print(f"::warning::stripped raw bodies from {leaked} cache articles")
+          PY
 
           cp state.json articles.json .runtime/
           if [ -f status.json ]; then
             cp status.json .runtime/
           fi
-          if [ -d output ]; then
-            cp -R output .runtime/output
-          fi
-          if [ -d archive ]; then
-            cp -R archive .runtime/archive
-          fi
+          cp -R output .runtime/output
+          cp -R archive .runtime/archive
+          cp -R feeds .runtime/feeds
 
           touch .cache-save-ok
           echo "ok=true" >> "$GITHUB_OUTPUT"
@@ -381,11 +651,11 @@ jobs:
           path: .runtime
           key: rss-runtime-${{ github.run_id }}
 
-      # The data branch is a once-daily, metadata-only snapshot. It never
-      # receives raw article bodies; those live only in the Actions cache.
-      # A normal fast-forward push is used so a human commit on data is not
-      # silently overwritten.
-      - name: Snapshot metadata to data branch
+      # The data branch is the durable archive. archive/, feeds/ and output/
+      # are append-only and preserved from the remote branch; state/articles/
+      # status are replaced by this run. A normal fast-forward push is used so
+      # a human commit on data is never silently overwritten.
+      - name: Snapshot archive to data branch
         if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -394,6 +664,9 @@ jobs:
           set -euo pipefail
           validate_json() {
             python -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' "$1"
+          }
+          has_daily_archive() {
+            [ -n "$(find archive -type f -name '*.md' -print -quit 2>/dev/null)" ]
           }
 
           if [ ! -f .restore-data-ok ]; then
@@ -420,12 +693,19 @@ jobs:
             echo "::warning::status.json is not valid JSON; skipping data snapshot"
             exit 0
           fi
-          if [ -d archive ]; then
-            python -m src.archive --repair archive >/dev/null || true
-            if ! python -m src.archive --validate archive; then
-              echo "::warning::archive/ contains invalid JSONL; skipping data snapshot"
-              exit 0
+
+          # Fail closed on archive corruption: repair incomplete tails first,
+          # then refuse to publish if framing/checksums are still wrong.
+          if [ -n "$(find archive -type f -name '*.md' -print -quit 2>/dev/null)" ]; then
+            if ! python -m src.md_archive --repair archive; then
+              echo "::warning::archive tail repair reported an error"
             fi
+            if ! python -m src.md_archive --validate archive; then
+              echo "::error::Markdown archive is invalid; refusing to snapshot"
+              exit 1
+            fi
+          else
+            echo "::warning::no daily Markdown archive; snapshot will contain metadata/output only"
           fi
 
           REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
@@ -471,40 +751,62 @@ jobs:
             exit 0
           fi
 
-          # Replace managed metadata files but preserve historical output/
-          # and archive/ from the branch. A cache hit may legitimately lack
-          # one of those trees; deleting them here would shrink the archive.
+          # Replace managed metadata files but preserve remote append-only
+          # trees. Local copies are then written over them without deleting
+          # remote files, so a stale cache cannot shrink the archive.
           find .data-push -mindepth 1 -maxdepth 1 \
-            ! -name .git ! -name output ! -name archive -exec rm -rf {} +
-          python -m src.archive --snapshot .data-push
+            ! -name .git ! -name archive ! -name feeds ! -name output -exec rm -rf {} +
+          mkdir -p .data-push/archive .data-push/feeds .data-push/output
+          if [ -d archive ]; then
+            cp -R archive/. .data-push/archive/
+          fi
+          if [ -d feeds ]; then
+            cp -R feeds/. .data-push/feeds/
+          fi
+          if [ -d output ]; then
+            cp -R output/. .data-push/output/
+          fi
+          cp state.json .data-push/state.json
+          cp articles.json .data-push/articles.json
+          if [ -f status.json ]; then
+            cp status.json .data-push/status.json
+          else
+            rm -f .data-push/status.json
+          fi
 
-          # Fail closed if the archive CLI ever leaks raw bodies or writes an
-          # unexpected path into the long-lived branch.
+          # The old ADR-016 archive was a flat archive/YYYY-MM-DD.jsonl.
+          # Its metadata is superseded by the Markdown archive; keep only the
+          # permanent archive/YYYY/MM/DD.md tree.
+          find .data-push/archive -maxdepth 1 -type f -name '*.jsonl' -delete
+
+          # Fail closed if the snapshot leaks bodies, contains unexpected
+          # paths, or has archive/feeds inconsistencies.
           python - <<'PY'
           import json
           import sys
           from pathlib import Path
 
-          from src.archive import validate_archive_dir
+          from src import md_archive
 
           root = Path(".data-push")
-          allowed = {"state.json", "articles.json", "status.json", "output", "archive"}
+          allowed = {"state.json", "articles.json", "status.json", "output", "archive", "feeds"}
           entries = {p.name for p in root.iterdir() if p.name != ".git"}
           extra = entries - allowed
           if extra:
               sys.exit(f"unexpected paths in data snapshot: {sorted(extra)}")
 
-          for name in ("state.json", "articles.json", "status.json"):
+          for name in ("state.json", "articles.json"):
               path = root / name
-              if name == "status.json" and not path.exists():
-                  continue
               if not path.is_file():
                   sys.exit(f"missing {name} in data snapshot")
               data = json.loads(path.read_text(encoding="utf-8"))
-              if name == "articles.json" and isinstance(data, list):
+              if name == "articles.json":
+                  if not isinstance(data, list):
+                      sys.exit("articles.json is not a JSON array")
                   leaked = [
-                      a for a in data
-                      if isinstance(a, dict) and (a.get("content") or "").strip()
+                      item for item in data
+                      if isinstance(item, dict)
+                      and (item.get("content") or item.get("content_length"))
                   ]
                   if leaked:
                       sys.exit(
@@ -513,15 +815,46 @@ jobs:
                       )
               print(f"{name}: ok")
 
+          status = root / "status.json"
+          if status.exists():
+              json.loads(status.read_text(encoding="utf-8"))
+              print("status.json: ok")
+
           if not (root / "output" / "index.md").is_file():
               sys.exit("output/index.md missing in data snapshot")
 
-          if (root / "archive").exists():
-              errors = validate_archive_dir(str(root / "archive"))
+          # Repair only incomplete tails on the combined remote+local archive.
+          # src.md_archive does not have a Python "repair then validate" entry
+          # point that returns diagnostics, so run the CLI-equivalent steps in
+          # order via subprocess for a single failure message.
+          import subprocess
+
+          archive_dir = root / "archive"
+          if archive_dir.exists():
+              subprocess.run(
+                  [sys.executable, "-m", "src.md_archive", "--repair", str(archive_dir)],
+                  check=False,
+              )
+              errors = md_archive.validate_archive(archive_dir)
               if errors:
                   sys.exit("invalid archive records: " + "; ".join(errors[:5]))
           else:
               print("::warning::archive/ not present in snapshot")
+
+          daily = list((root / "archive").rglob("*.md")) if archive_dir.exists() else []
+          indexes = list((root / "feeds").glob("*.jsonl")) if (root / "feeds").is_dir() else []
+          for path in indexes:
+              try:
+                  header, _records = md_archive.read_feed_index(path)
+              except (OSError, ValueError) as exc:
+                  sys.exit(f"invalid feed index {path}: {exc}")
+              if not header or header.get("kind") != "feed":
+                  sys.exit(f"invalid feed index {path}: missing feed header")
+          if daily and not indexes:
+              sys.exit("archive contains articles but feeds/ has no indexes")
+          if indexes and not daily:
+              print("::warning::feeds/ indexes exist but archive has no daily files")
+          print(f"snapshot: {len(daily)} daily file(s), {len(indexes)} feed index(es)")
           PY
 
           git -C .data-push config user.name "github-actions[bot]"
@@ -536,6 +869,9 @@ jobs:
           git -C .data-push commit -q -m "data: snapshot $(date -u +%Y-%m-%d)"
           if ! git -C .data-push push origin data; then
             echo "::warning::data push rejected; rebasing once and retrying"
+            # Note: a concurrent human commit that touches state.json /
+            # articles.json usually conflicts here. That is intentional: the
+            # retry then fails instead of overwriting the remote branch.
             git -C .data-push pull --rebase origin data
             git -C .data-push push origin data
           fi

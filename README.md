@@ -1,27 +1,33 @@
 # RSS Aggregator
 
-GitHub Actions 驱动的 RSS 采集 + AI 分类打分工具。
+GitHub Actions 驱动的 RSS 采集 + AI 分类打分工具，同时把清洗后的文章正文永久归档为 Markdown。
 
-> **核心问题：能不能用最少的人工干预，自动从海量 RSS 文章中筛选出值得阅读的内容？**
+> **核心问题：能不能用最少的人工干预，自动从海量 RSS 文章中筛选出值得阅读的内容，并长期保留原文？**
 
 ## 设计原则
 
 | 原则 | 说明 | ADR |
 |------|------|-----|
 | Output append-only | `output/YYYY/MMDD.md` 只追加不删除；过去日期只做幂等追加/修复，同一天可扩展 | [ADR-003](docs/ADR/003.output.immutable-output.md) |
-| 分支职责分离 | `main` 代码/配置/文档，`data` 每日元数据快照；正文只在 Actions cache | [ADR-016](docs/ADR/016.cache.daily-metadata-snapshot.md) |
-| Article 14 天窗口 | `articles.json` 保存最近 14 天的待分类/已采集记录 | [ADR-004](docs/ADR/004.cache.fifteen-day-window.md) |
+| 原文永久归档 | 清洗后的 Markdown 写入 `archive/YYYY/MM/DD.md`，append-only；每 feed 用偏移索引 | [ADR-017](docs/ADR/017.archive.permanent-markdown.md) |
+| 分支职责分离 | `main` 代码/配置/文档，`data` 保存归档、索引、元数据和输出 | [ADR-017](docs/ADR/017.archive.permanent-markdown.md) |
+| Article 14 天窗口 | `articles.json` 保存最近 14 天的待分类/已采集元数据 | [ADR-004](docs/ADR/004.cache.fifteen-day-window.md) |
 | Fetch/Classify 独立 | 采集和分类可以分开运行 | [ADR-005](docs/ADR/005.architecture.fetch-classify-decoupled.md) |
 | Per-feed 筛选 | `skip_prompt` 按 feed 粒度配置 | [ADR-006](docs/ADR/006.filter.per-feed-skip-prompt.md) |
+
+ADR-016 的“正文只进 cache、data 只存元数据”已被 ADR-017 取代。
 
 ## 功能
 
 - **RSS 采集** — 并行抓取，14 天窗口内的文章
+- **Markdown 归档** — 正文清洗后 append 到 `archive/YYYY/MM/DD.md`，永久保留
+- **每 feed 索引** — `feeds/<feed_id>.jsonl` 按 feed 聚合，保存字节偏移和分类 annotation
 - **Aliveness 监控** — HTTP 健康检测，连续失败自动禁用 [ADR-010](docs/ADR/010.health.aliveness-monitoring.md)
 - **AI 分类/打分** — 支持 OpenAI、Claude、OpenRouter [ADR-008](docs/ADR/008.ai.multi-provider.md)
 - **无 AI 降级** — 未配置 key、provider 故障或模型未返回结果时，仍然输出标题；Category/Summary/Score 留空（`—`）
 - **聚合检测** — 自动识别 HN/Reddit 等聚合源并记录到 state（当前只做统计，不跳过分类） *(draft: [ADR-009](docs/ADR/009.filter.aggregation-detection.md))*
-- **Markdown 输出** — `YYYY/MMDD.md` 表格格式，GitHub Pages 直接看 [ADR-007](docs/ADR/007.platform.github-actions-pages.md)
+- **静态站点 + JSON Feed** — 从归档渲染每日页面、feed 页面和 JSON Feed 1.1，发布到 GitHub Pages
+- **人工摘要** — 继续生成 `output/YYYY/MMDD.md` 表格，便于快速浏览
 
 ## 快速开始
 
@@ -34,90 +40,207 @@ python -m src.main
 也可以按步骤运行：
 
 ```bash
-python -m src.main --fetch      # 抓取 RSS，写入 articles.json
-python -m src.main --classify   # AI 分类，写入 output/
+python -m src.main --fetch      # 抓取 RSS，清洗正文，追加 archive/ 和 feeds/
+python -m src.main --classify   # 按偏移读取归档正文，AI 分类，写 output/
 python -m src.main --cleanup    # 清理 articles.json 中超过 14 天的条目
 python -m src.main --report     # 生成 status.json（最近一次运行状态）
 python -m src.main --check      # 校验运行时数据/输出契约
+python -m src.render --site _site --archive archive --feeds feeds  # 渲染站点
 ```
 
 ## 流程
 
 ```
 --sync      从 sources.toml 拉取外部 RSS 源列表 → 合并到 feeds.toml（独立 workflow）
---fetch     抓取 RSS，追加新文章到 articles.json（去重：output + articles）
---classify  从 articles.json 读取，AI 分类后写入 output/YYYY/MMDD.md；AI 不可用时写标题-only 行
---cleanup   清理 articles.json 中超过 14 天的老条目
+--fetch     抓取 RSS，清洗正文 → 追加 archive/YYYY/MM/DD.md 和 feeds/<feed_id>.jsonl
+            articles.json 只写元数据 + 归档偏移
+--classify  读取 articles.json，按 archive_file/offset/length hydrate 正文；
+            AI 分类后写 output/YYYY/MMDD.md 和 feeds/ 的 annotation 记录
+--cleanup   清理 articles.json 中超过 14 天的老条目（不删除归档）
 --report    写入 status.json，记录本次运行概况
 --check     校验数据/输出契约；在部署后运行，失败时把 job 标记为失败并报警
 ```
 
 - 各步骤完全独立，可任意顺序重跑
-- `output/` 采用 append-only：已写入的行不删除，重复运行只追加去重后的新行
+- `output/` 和 `archive/` 都是 append-only：已写入的记录/行不删除，重复运行只追加去重后的新内容
+- `articles.json` 不保存正文；正文只在归档中
 
 ## 分支模型
 
 | 分支 | 内容 | 写入方式 |
 |------|------|----------|
 | `main` | `src/`、`tests/`、`docs/`、`config.toml`、`feeds.toml`、`sources.toml`、workflow | 普通提交；`sync-feeds` 每周提交 `feeds.toml` |
-| `data` | `state.json`、`articles.json`（仅元数据）、`status.json`、`output/`、`archive/` | 每天最多一次 metadata snapshot，普通 push；冲突时自动 rebase 重试一次，仍冲突则需人工处理 |
+| `data` | `state.json`、`articles.json`（仅元数据）、`status.json`、`archive/`、`feeds/`、`output/` | 每天最多一次快照，普通 push；冲突时自动 rebase 重试一次，仍冲突则需人工处理 |
 
 - 只有 `main` 和 `data` 两个长期分支。GitHub Pages 直接从 Actions artifact 部署，**没有 `gh-pages` 分支**。
-- 文章正文（`articles.json` 的 `content`）只保存在 Actions cache，不进入 git 历史；`data` 是可用于冷启动恢复的元数据快照，不是热数据源。按每天一次快照估算，git 年增量约 14 MB，而不是含正文的约 300 MB/年。
+- `data` 是持久归档：`archive/`、`feeds/`、`output/` 只追加；`state.json` / `articles.json` / `status.json` 每轮整体替换。
+- 正文以 sanitized Markdown 形式进入 `data` 的 git 历史。仓库是公开的，因此只保存清洗后的 Markdown，不保存原始 HTML/脚本。
 - `data` 由 CI 写入。需要人工恢复时先暂停 workflow，修改后普通 push（不要 force-push），并清理 `rss-runtime-*` cache，否则下一轮会优先使用热 cache；步骤见 RUNBOOK。
 - 恢复、回滚、cache 驱逐与删除旧 `gh-pages` 见 [RUNBOOK](docs/RUNBOOK.md)。
+
+### data 分支布局
+
+```
+data/
+  state.json               # feed 健康、ETag、失败计数
+  articles.json            # 14 天窗口元数据；无 content/content_length
+  status.json              # 最近一次运行报告
+  archive/
+    2026/
+      05/
+        01.md              # 永久归档，append-only
+  feeds/
+    example.com-1a2b3c4d5e6f.jsonl
+  output/
+    index.md
+    2026/
+      0501.md              # 人工摘要表格
+```
+
+## 归档格式
+
+每日文件 `archive/YYYY/MM/DD.md` 由一条条记录拼接而成：
+
+```markdown
+<!-- rss-aggr:article v1
+{"v":1,"guid":"tag:example.com,2026:1","feed_id":"example.com-1a2b3c4d5e6f","feed_url":"https://example.com/feed.xml","site_url":"https://example.com/","link":"https://example.com/post/1","title":"An example post","author":"Alice","published":"2026-05-01T08:00:00Z","fetched_at":"2026-05-01T09:12:00Z","body_len":42,"body_sha256":"..."}
+-->
+Body **Markdown** goes here.
+
+<!-- /rss-aggr -->
+```
+
+- 头部 JSON 包含 `body_len`（UTF-8 字节数）和 `body_sha256`；正文按字节长度定界，正文中出现 footer 文本也不会破坏解析。
+- 偏移量全部是文件内的 UTF-8 字节偏移，支持中文和 emoji。
+- 每 feed 索引 `feeds/<feed_id>.jsonl` 第一行是 `kind=feed` header，之后是 `kind=article` 和 `kind=annotation` 记录。article 记录包含 `file/offset/length/body_offset/body_len/sha256` 以及 guid/link/title/published；annotation 记录保存 category/summary/score/classified_at，最新一条胜出。
+- 索引是派生数据，可以从归档重建：
+
+```bash
+python -m src.md_archive --validate archive
+python -m src.md_archive --repair archive
+python -m src.md_archive --rebuild-indexes archive --feeds feeds
+```
+
+`--repair` 只截断不完整的尾部记录，不会改写之前完整的归档。重建索引会丢失 annotation（分类历史），应优先保留现有索引。
 
 ## 缓存与恢复
 
 每次采集按以下顺序恢复：
 
-1. `actions/cache/restore` 恢复 `.runtime/`（含正文的热数据），并用 Python 校验 `state.json` / `articles.json`；
-2. cache 缺失或损坏时从 `data` 恢复 `state.json`、`status.json`、`output/`、`archive/`；
-3. `data` 不存在时，允许一次性从旧 `gh-pages` 迁移 `state.json` / `output/`；
-4. 都没有时以空状态启动，首次成功运行后自动创建 `data`。
+1. `actions/cache/restore` 恢复 `.runtime/`（含 `archive/`、`feeds/`、state/articles/status/output），并校验 JSON；
+2. cache 缺失或损坏时从 `data` 恢复完整归档和索引；ADR-016 旧布局没有 `archive/`/`feeds/` 时，仍恢复 state/articles/status/output；
+3. `data` 不存在时，允许一次性从旧 `gh-pages` 迁移 `state.json` / `output/`，并把旧 `articles.json` / `cache.json` 作为回填输入；
+4. 归档缺失时，用 `src.backfill` 把旧 raw `articles.json` 清洗后写入 `archive/` 和 `feeds/`；
+5. 都没有时以空状态启动，首次成功运行后自动创建 `data`。
 
-cache 未命中时，`data` 中的 `articles.json` 只有元数据、没有正文。工作流会保留这些 pending 记录，并设置 `RSS_FORCE_FETCH=1` 让 fetch 跳过 ETag/抓取间隔、重新抓取 14 天窗口；抓到的正文会按 canonical link 回填到对应 pending 记录。只有源已经不再暴露的正文无法恢复，但文章标题和元数据仍保留，仍会继续分类或标题-only 输出。运行时文件 JSON 损坏会让 job 失败，而不是静默覆盖 `data`。
+cache 未命中时仍然设置 `RSS_FORCE_FETCH=1`，让 fetch 忽略 ETag/抓取间隔、刷新 14 天窗口；但正文不再依赖重新抓取，`data` 的归档会直接恢复 pending 记录的正文。只有确实没有归档、也没有可回填的旧数据时，才会退化为重新抓取。
+
+归档恢复后先 `--repair` 再 `--validate`；修复后仍不合法则 job fail closed，不会把损坏内容写回 `data`。feed 索引缺失且归档存在时，工作流会用 `--rebuild-indexes` 从归档重建。
 
 ## Workflow
 
 | Workflow | 触发 | 行为 |
 |----------|------|------|
-| `collect.yml` | 每 6 小时 + 手动（可强制 `snapshot=true`） | 先跑 `test`（ruff + pytest）；从 Actions cache 或 `data` 恢复运行时状态，执行 fetch/classify/cleanup/report，构建并部署 Pages，运行 `--check` 报警；`always()` 中保存 cache，并按 20 小时窗口写一次 `data` 元数据快照 |
+| `collect.yml` | 每 6 小时 + 手动（可强制 `snapshot=true`） | 先跑 `test`（ruff + pytest）；从 Actions cache 或 `data` 恢复运行时/归档，执行 fetch/classify/cleanup/report，渲染 `_site` 并部署 Pages，运行 `--check` 报警；`always()` 中保存 cache，并按 20 小时窗口写一次 `data` 快照 |
 | `sync-feeds.yml` | 每周一 04:00 UTC + 手动 | 运行 `--sync`，仅在 `feeds.toml` 变化时提交到 `main` |
 
 `collect` 使用 concurrency group `rss-collect` 且 `cancel-in-progress: false`：上一轮未结束时新任务排队，不会中途取消。缺少 `data` 分支时工作流会警告并继续；首次成功运行会自动创建分支。需要立即生成快照时，手动运行并勾选 `snapshot`。
 
+## 渲染与发布
+
+```bash
+python -m src.render --site _site --archive archive --feeds feeds
+```
+
+输出：
+
+```
+_site/
+  index.html                 # 日期 + feed 索引
+  2026/05/01.html            # 每日文章页
+  feeds/
+    example.com-1a2b3c4d5e6f.html
+    example.com-1a2b3c4d5e6f.json   # JSON Feed 1.1
+```
+
+- Pages 使用 `upload-pages-artifact` + `deploy-pages`，来源是 Actions artifact；
+- 不使用 Jekyll（没有 `_build` / Jekyll 构建步骤）；
+- 不写 `gh-pages`。迁移完成后可删除旧分支。
+
+## 迁移与回填
+
+旧 ADR-016 的 `articles.json` 可能含原始 HTML。一次性回填：
+
+```bash
+python -m src.backfill \
+  --articles OLD_ARTICLES_JSON \
+  --root . \
+  --feeds feeds \
+  --out articles.json
+```
+
+或使用包装脚本：
+
+```bash
+scripts/backfill_archive.sh OLD_ARTICLES_JSON --out articles.json
+```
+
+回填会清洗正文、追加 `archive/`、创建/扩展 `feeds/`，并写出 metadata-only 的 `articles.json`。它是幂等的：已在索引中的 canonical link / guid 不会重复写入。`collect.yml` 在 cache miss 且归档缺失时会自动执行一次回填。
+
+迁移验证：
+
+```bash
+git fetch origin
+git ls-tree --name-only origin/data
+# 期望：archive  articles.json  feeds  output  state.json  status.json
+git show origin/data:articles.json | python -c 'import json,sys; d=json.load(sys.stdin); print("raw entries:", sum(1 for a in d if a.get("content")))'
+# 期望：raw entries: 0
+```
+
+确认 `data` 稳定、Pages 从 artifact 正常部署后，可以删除旧 `gh-pages`：
+
+```bash
+git push origin --delete gh-pages
+```
+
+`scripts/migrate_branches.sh` 是 ADR-015 时代的 legacy 工具，会重写 `gh-pages`，新架构下不要执行；迁移交给第一次 `collect` 和 `src.backfill`。
+
+## 仓库体积
+
+归档正文进入 git，按当前抓取量估算，年增量在**数百 MB/年**量级。这是保留原文的预期成本：
+
+- Markdown 是文本，git delta/zlib 压缩有效，diff 可读；
+- 不使用 gzip/SQLite（二进制会破坏 delta 和可读 diff）；
+- `data` 每天最多一次快照，`archive/`/`feeds/`/`output/` 只追加；
+- Actions cache 只是热副本，不随 git 历史增长；
+- 迁移前的 `gh-pages` / 旧 `data` 历史仍可能包含旧正文；如需清理体积或版权，需要重写历史而不是只改当前 tip。
+
 ## 架构
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                  GitHub Actions                      │
-│                    (每 6 小时)                         │
-├─────────────────────────────────────────────────────┤
-│                                                      │
-│  ┌──────────┐   ┌──────────┐   ┌──────────────────┐│
-│  │TOML 解析  │──→│ RSS 抓取  │──→│   Aliveness 检测  ││
-│  │          │   │ (并行)    │   │   (HEAD+GET)     ││
-│  └──────────┘   └──────────┘   └──────────────────┘│
-│       │                              │              │
-│       ▼                              ▼              │
-│  ┌──────────┐   ┌──────────────────────────────┐  │
-│  │  去重     │──→│   AI 分类/打分                 │  │
-│  │ (URL)    │   │  OpenAI / Claude / OpenRouter │  │
-│  └──────────┘   └──────────────────────────────┘  │
-│                         │                          │
-│                         ▼                          │
-│              ┌─────────────────────┐               │
-│              │  Markdown 输出       │               │
-│              │  output/YYYY/MMDD.md│               │
-│              └─────────────────────┘               │
-└─────────────────────────────────────────────────────┘
-                        │
-                        ▼
-              ┌─────────────────────┐
-              │   GitHub Pages      │
-              │  (Actions artifact) │
-              └─────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                    GitHub Actions (每 6 小时)             │
+├─────────────────────────────────────────────────────────┤
+│  TOML 解析 → RSS 抓取 (并行) → Aliveness 检测            │
+│       │              │                                   │
+│       ▼              ▼                                   │
+│  去重 (URL)    清洗 HTML → Markdown                       │
+│                      │                                   │
+│                      ▼                                   │
+│          archive/YYYY/MM/DD.md (append-only)             │
+│          feeds/<feed_id>.jsonl (偏移 + annotation)       │
+│                      │                                   │
+│                      ▼                                   │
+│          AI 分类 (按偏移 hydrate 正文)                    │
+│                      │                                   │
+│          ┌───────────┴───────────┐                       │
+│          ▼                       ▼                       │
+│   output/YYYY/MMDD.md      src.render → _site/           │
+│   (人工摘要)                (HTML + JSON Feed)            │
+└──────────────────────────────┬──────────────────────────┘
+                               │
+                               ▼
+                    GitHub Pages (Actions artifact)
 ```
 
 ## 配置
@@ -142,6 +265,8 @@ cache 未命中时，`data` 中的 `articles.json` 只有元数据、没有正�
 | `limits.freshness_hours` | `24` | 最近 fetch/classify 超过此小时数时 `--check` 失败 |
 | `limits.fetch_interval_hours` | `12` | 同一 feed 的最小抓取间隔 |
 | `limits.disable_after_failures` | `3` | 连续 permanent/parse 失败多少次后隔离；临时错误只退避 |
+| `storage.archive_dir` | `archive` | Markdown 归档目录 |
+| `storage.feeds_dir` | `feeds` | 每 feed JSONL 索引目录 |
 
 `filter.skip_prompt` 是全局 AI 过滤规则；如果某个 feed 也配置了 `skip_prompt`，两者会合并后一起传给模型。
 
@@ -166,28 +291,23 @@ skip_prompt = "if title starts with 读 or TIL then 'skip'"
 - `ANTHROPIC_API_KEY` — Anthropic API 密钥
 - `OPENROUTER_API_KEY` — OpenRouter API 密钥
 
-## 输出
+## 本地输出
 
 ```
-output/
-  index.md        # 按日期倒序索引
-  2026/
-    0512.md       # | Author | Title | Category | Summary | Score |
-    0513.md
+archive/                  # 永久 Markdown 归档（CI 写入 data）
+  YYYY/MM/DD.md
+feeds/                    # 每 feed JSONL 索引
+  <feed_id>.jsonl
+output/                   # 人工摘要表格
+  index.md
+  YYYY/MMDD.md
+_site/                    # 本地渲染结果
+state.json                # feed 状态
+articles.json             # 14 天窗口元数据，不含正文
+status.json               # 最近一次运行报告
 ```
 
-运行时与归档文件：
-
-```
-data/                     # 每日元数据快照（CI 写入）
-  state.json              # feed 状态（last_ok、失败次数、disabled、etag）
-  articles.json           # 14 天窗口元数据，不含正文 content
-  status.json             # 最近一次运行报告
-  output/                 # 渲染输出快照
-  archive/                # 可选，按天 JSONL：archive/YYYY-MM-DD.jsonl
-```
-
-本地运行生成的 `state.json` / `articles.json` / `status.json` / `output/` / `archive/` 都被 `.gitignore` 忽略，不会进入 `main`。含正文的 `articles.json` 只在 Actions cache 中；`data` 上的版本总是去正文的。首次迁移时旧 `articles.json` / `cache.json` 会先剥离正文，只保留 pending 元数据；旧 `gh-pages` 的 state/output 用于冷启动。
+本地生成的 `state.json` / `articles.json` / `status.json` / `output/` / `archive/` / `feeds/` / `_site/` 都被 `.gitignore` 忽略，不会进入 `main`。
 
 ## 成本
 
