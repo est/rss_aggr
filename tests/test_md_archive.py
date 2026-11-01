@@ -15,6 +15,7 @@ from src.md_archive import (
     read_feed_index,
     read_record,
     rebuild_indexes,
+    reconcile_indexes,
     repair_tail,
     validate_archive,
 )
@@ -215,6 +216,29 @@ def test_repair_tail_truncates_only_the_partial_trailing_record(tmp_path):
     assert len(list(iter_records(path))) == 3
 
 
+def test_repair_tail_refuses_mid_file_corruption(tmp_path):
+    records = append_articles(
+        str(tmp_path),
+        [
+            (_meta(guid="g1"), "one\n"),
+            (_meta(guid="g2", link="https://example.com/b"), "two\n"),
+            (_meta(guid="g3", link="https://example.com/c"), "three\n"),
+        ],
+    )
+    path = tmp_path / "archive" / "2026" / "05" / "01.md"
+    original = path.read_bytes()
+
+    with path.open("r+b") as handle:
+        handle.seek(records[1]["offset"])
+        handle.write(b"X")
+
+    with pytest.raises(ValueError, match="mid-file corruption"):
+        repair_tail(path)
+    expected = bytearray(original)
+    expected[records[1]["offset"]] = ord("X")
+    assert path.read_bytes() == bytes(expected)
+
+
 def test_validate_and_read_record_detect_corruption(tmp_path):
     record = append_articles(str(tmp_path), [(_meta(), "hello world\n")])[0]
     path = tmp_path / "archive" / "2026" / "05" / "01.md"
@@ -278,6 +302,53 @@ def test_rebuild_indexes_recovers_feed_files_from_daily_archives(tmp_path):
         parsed = read_record(tmp_path / record["file"], record["offset"], record["length"])
         assert parsed["sha256"] == record["sha256"]
         assert parsed["body"].strip() in {"one", "two"}
+
+
+def test_reconcile_indexes_drops_stale_offsets_and_keeps_valid_ones(tmp_path):
+    records = append_articles(
+        str(tmp_path),
+        [
+            (_meta(guid="g1"), "one\n"),
+            (_meta(guid="g2", link="https://example.com/b"), "two\n"),
+        ],
+    )
+    feeds_dir = tmp_path / "feeds"
+    feed_meta = _feed_meta()
+    for record in records:
+        append_feed_record(feeds_dir, feed_meta, record)
+    append_feed_annotation(
+        feeds_dir,
+        feed_meta,
+        {
+            "guid": "g1",
+            "file": records[0]["file"],
+            "offset": records[0]["offset"],
+            "category": "Tech",
+            "summary": "note",
+            "score": 8,
+            "classified_at": "2026-05-02T00:00:00Z",
+        },
+    )
+
+    path = feeds_dir / "feed-1.jsonl"
+    header, entries = read_feed_index(path)
+    entries[1]["offset"] = 10_000_000
+    path.write_text(
+        "\n".join(
+            json.dumps(item, ensure_ascii=False, separators=(",", ":"))
+            for item in [header, *entries]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    stats = reconcile_indexes(tmp_path / "archive", feeds_dir)
+
+    assert stats["dropped_articles"] == 1
+    assert stats["annotations"] == 1
+    header, entries = read_feed_index(path)
+    assert [entry["kind"] for entry in entries] == ["article", "annotation"]
+    assert entries[0]["guid"] == "g1"
 
 
 def test_feed_meta_from_meta_keeps_feed_fields():

@@ -97,6 +97,7 @@ jobs:
 
           if [ "${CACHE_OUTCOME}" = "failure" ]; then
             echo "::warning::runtime cache restore action failed; treating it as a cold start"
+            rm -rf .runtime
           fi
 
           # cache-hit is "true" only for an exact key match. The key contains
@@ -107,6 +108,35 @@ jobs:
           if [ -f .runtime/state.json ] && [ -f .runtime/articles.json ]; then
             if validate_json .runtime/state.json && validate_json .runtime/articles.json; then
               cache_ok=true
+              # Metadata validity alone is not enough: archive refs must point
+              # at files in this cache, and an archive with articles must have
+              # feed indexes (annotations live there).
+              if ! python - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          root = Path(".runtime")
+          articles = json.loads((root / "articles.json").read_text(encoding="utf-8"))
+          for article in articles if isinstance(articles, list) else []:
+              if not isinstance(article, dict):
+                  continue
+              file = article.get("archive_file")
+              if file and not (root / file).is_file():
+                  print(f"missing archive file referenced by cache: {file}")
+                  sys.exit(1)
+          archive = root / "archive"
+          feeds = root / "feeds"
+          has_archive = archive.is_dir() and any(archive.rglob("*.md"))
+          has_feeds = feeds.is_dir() and any(feeds.glob("*.jsonl"))
+          if has_archive and not has_feeds:
+              print("cache has archive but no feed indexes")
+              sys.exit(1)
+          PY
+              then
+                cache_ok=false
+                echo "::warning::runtime cache is inconsistent with its archive; falling back to the data branch"
+              fi
             else
               echo "::warning::runtime cache is not valid JSON; falling back to the data branch"
             fi
@@ -461,6 +491,47 @@ jobs:
             echo "::warning::no daily Markdown archive yet (first run or migration pending)"
           fi
 
+          # Cold starts are the only place where offsets may have drifted
+          # (partial cache, missing daily file). Validate every article ref
+          # once, drop stale feed records/annotations, and clear dead refs in
+          # metadata so fetch can re-archive the bodies.
+          if [ -f .cache-restore-miss ] && [ -d feeds ]; then
+            python -m src.md_archive --reconcile-indexes archive --feeds feeds
+            python - <<'PY'
+          from pathlib import Path
+
+          from src import md_archive
+          from src.articles import article_archive_ref, load_articles, save_articles
+
+          root = Path("archive")
+          articles = load_articles()
+          cleared = 0
+          for article in articles:
+              ref = article_archive_ref(article)
+              if not ref:
+                  continue
+              path = Path(ref["path"])
+              if path.parts and path.parts[0] == "archive":
+                  path = Path(".") / path
+              try:
+                  md_archive.read_record(path, ref["offset"], ref["length"])
+              except (OSError, ValueError):
+                  for field in (
+                      "archive_file",
+                      "archive_offset",
+                      "archive_length",
+                      "archive_body_len",
+                      "archive_sha256",
+                  ):
+                      article.pop(field, None)
+                  article["status"] = "pending"
+                  cleared += 1
+          if cleared:
+              save_articles(articles)
+              print(f"::warning::cleared {cleared} stale archive reference(s)")
+          PY
+          fi
+
           python - <<'PY'
           import sys
           from pathlib import Path
@@ -693,10 +764,6 @@ jobs:
             echo "::warning::state.json or articles.json is missing; skipping data snapshot"
             exit 0
           fi
-          if [ ! -f output/index.md ]; then
-            echo "::warning::output/index.md is missing; skipping data snapshot"
-            exit 0
-          fi
           if ! validate_json state.json || ! validate_json articles.json; then
             echo "::warning::runtime files are not valid JSON; skipping data snapshot"
             exit 0
@@ -768,16 +835,50 @@ jobs:
           # remote files, so a stale cache cannot shrink the archive.
           find .data-push -mindepth 1 -maxdepth 1 \
             ! -name .git ! -name archive ! -name feeds ! -name output -exec rm -rf {} +
-          mkdir -p .data-push/archive .data-push/feeds .data-push/output
+          mkdir -p .data-push/archive .data-push/feeds
+
+          # Append-only trees may only grow. Refuse to overwrite a longer
+          # remote file with a shorter/stale local copy (e.g. after a failed
+          # cache save or a partial restore). Missing local files are simply
+          # left as remote-only; remote files are never deleted.
+          python - <<'PY'
+          import sys
+          from pathlib import Path
+
+          allow_feed_reconcile = Path(".cache-restore-miss").exists()
+          for tree in ("archive", "feeds"):
+              remote_root = Path(".data-push") / tree
+              local_root = Path(tree)
+              if not local_root.is_dir():
+                  continue
+              if tree == "feeds" and allow_feed_reconcile:
+                  # A cold start may have reconciled stale offsets and
+                  # intentionally dropped invalid feed records. Archive files
+                  # are still prefix-checked below/above.
+                  continue
+              for local in local_root.rglob("*"):
+                  if not local.is_file():
+                      continue
+                  remote = remote_root / local.relative_to(local_root)
+                  if not remote.is_file():
+                      continue
+                  remote_bytes = remote.read_bytes()
+                  local_bytes = local.read_bytes()
+                  if not local_bytes.startswith(remote_bytes):
+                      sys.exit(
+                          f"refusing to shrink {remote}: local copy is not an "
+                          "append-only extension of the data branch"
+                      )
+          PY
+
           if [ -d archive ]; then
             cp -R archive/. .data-push/archive/
           fi
           if [ -d feeds ]; then
             cp -R feeds/. .data-push/feeds/
           fi
-          if [ -d output ]; then
-            cp -R output/. .data-push/output/
-          fi
+          # output/ is a derived human summary. Keep any existing remote copy
+          # but do not overwrite it with a potentially older local tree.
           cp state.json .data-push/state.json
           cp articles.json .data-push/articles.json
           if [ -f status.json ]; then
@@ -831,9 +932,6 @@ jobs:
           if status.exists():
               json.loads(status.read_text(encoding="utf-8"))
               print("status.json: ok")
-
-          if not (root / "output" / "index.md").is_file():
-              sys.exit("output/index.md missing in data snapshot")
 
           # Repair only incomplete tails on the combined remote+local archive.
           # src.md_archive does not have a Python "repair then validate" entry

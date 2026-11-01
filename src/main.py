@@ -518,7 +518,9 @@ def step_classify():
             continue
         status = a.get("status") or "pending"
         key = canonical_url(link) or link
-        if status == "skipped":
+        # Finished rows are already archived/rendered; output/ may be a cache-
+        # only human summary and can be absent after a cold start.
+        if status in _STATUS_DONE:
             continue
         if key in output_links:
             continue

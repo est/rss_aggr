@@ -351,8 +351,32 @@ def read_record(
     return _parse_record(data, offset, length)
 
 
+def _has_valid_record_after(path: Path, offset: int) -> bool:
+    """Return True when a parseable record starts after ``offset``.
+
+    Used to distinguish a recoverable partial tail from mid-file corruption.
+    """
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return False
+    cursor = data.find(MAGIC, max(0, offset + 1))
+    while cursor >= 0:
+        try:
+            _parse_record(data[cursor:], cursor, None)
+            return True
+        except ValueError:
+            cursor = data.find(MAGIC, cursor + 1)
+    return False
+
+
 def repair_tail(path: str | os.PathLike) -> int:
-    """Truncate only an incomplete/unparseable tail; return bytes removed."""
+    """Truncate only an incomplete/unparseable tail; return bytes removed.
+
+    Mid-file corruption is never truncated: valid records after the error mean
+    the file is not just a partial append, so the caller must fail closed and
+    use a backup/rebuild instead.
+    """
     target = Path(path)
     if not target.exists():
         return 0
@@ -366,6 +390,10 @@ def repair_tail(path: str | os.PathLike) -> int:
             records, error = _scan_file(target)
             if error is None:
                 return 0
+            if _has_valid_record_after(target, error["offset"]):
+                raise ValueError(
+                    f"{target}:{error['offset']}: mid-file corruption; refusing to truncate"
+                )
             last_good = records[-1]["offset"] + records[-1]["length"] if records else 0
             if size <= last_good:
                 return 0
@@ -808,6 +836,120 @@ def feed_meta_from_meta(meta: dict) -> dict:
     }
 
 
+def _index_record_path(archive_dir: Path, value: str) -> Path:
+    path = Path(value or "")
+    if path.is_absolute():
+        return path
+    if path.parts and path.parts[0] == "archive":
+        return archive_dir.parent / path
+    return archive_dir / path
+
+
+def reconcile_indexes(
+    archive_root: str | os.PathLike, feeds_dir: str | os.PathLike
+) -> dict:
+    """Drop feed-index records whose archive offset/length no longer verifies.
+
+    Annotations are kept only for articles that remain valid. This is the
+    recovery path for a missing/truncated daily file or a stale cache; the
+    caller should also clear the corresponding archive refs in articles.json
+    so fetch can re-archive the body.
+    """
+    archive_dir = _resolve_archive_root(archive_root)
+    directory = Path(feeds_dir)
+    stats = {
+        "feeds": 0,
+        "articles": 0,
+        "annotations": 0,
+        "dropped_articles": 0,
+        "dropped_annotations": 0,
+    }
+    if not directory.is_dir():
+        return stats
+
+    for index_path in sorted(directory.glob("*.jsonl")):
+        try:
+            header, records = read_feed_index(index_path)
+        except (OSError, ValueError):
+            continue
+        stats["feeds"] += 1
+        kept_articles: list[dict] = []
+        annotations: list[dict] = []
+        kept_guids: set[str] = set()
+        kept_links: set[str] = set()
+
+        for record in records:
+            kind = record.get("kind", "article")
+            if kind == "article":
+                file = _text(record.get("file"))
+                offset = record.get("offset")
+                length = record.get("length")
+                valid = (
+                    file
+                    and isinstance(offset, int)
+                    and not isinstance(offset, bool)
+                    and offset >= 0
+                    and isinstance(length, int)
+                    and not isinstance(length, bool)
+                    and length > 0
+                )
+                if valid:
+                    try:
+                        read_record(
+                            _index_record_path(archive_dir, file), offset, length
+                        )
+                    except (OSError, ValueError):
+                        valid = False
+                if not valid:
+                    stats["dropped_articles"] += 1
+                    continue
+                kept_articles.append(record)
+                stats["articles"] += 1
+                guid = _text(record.get("guid")).strip()
+                if guid:
+                    kept_guids.add(guid)
+                link = _text(record.get("link")).strip()
+                if link:
+                    kept_links.add(canonical_url(link) or link)
+            elif kind == "annotation":
+                annotations.append(record)
+
+        kept_annotations = []
+        for annotation in annotations:
+            guid = _text(annotation.get("guid")).strip()
+            file = _text(annotation.get("file")).strip()
+            link = _text(annotation.get("link")).strip()
+            if guid and guid not in kept_guids:
+                stats["dropped_annotations"] += 1
+                continue
+            if link and (canonical_url(link) or link) not in kept_links:
+                stats["dropped_annotations"] += 1
+                continue
+            if not guid and not link and file and not any(
+                _text(a.get("file")) == file for a in kept_articles
+            ):
+                stats["dropped_annotations"] += 1
+                continue
+            kept_annotations.append(annotation)
+            stats["annotations"] += 1
+
+        _atomic_write_jsonl(
+            index_path, [_feed_header_from(header), *kept_articles, *kept_annotations]
+        )
+    return stats
+
+
+def _feed_header_from(header: dict) -> dict:
+    return {
+        "v": 1,
+        "kind": "feed",
+        "feed_id": _text(header.get("feed_id")),
+        "feed_url": _text(header.get("feed_url")),
+        "site_url": _text(header.get("site_url")),
+        "title": _text(header.get("title")),
+    }
+
+
 def validate_archive(archive_root: str | os.PathLike) -> list[str]:
     """Return errors for truncated records, bad framing or checksum mismatches."""
     errors: list[str] = []
@@ -839,6 +981,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--validate", metavar="ARCHIVE_ROOT")
     parser.add_argument("--repair", metavar="ARCHIVE_ROOT")
     parser.add_argument("--rebuild-indexes", metavar="ARCHIVE_ROOT")
+    parser.add_argument("--reconcile-indexes", metavar="ARCHIVE_ROOT")
     parser.add_argument("--feeds", default="feeds")
     args = parser.parse_args(argv)
 
@@ -848,7 +991,11 @@ def main(argv: list[str] | None = None) -> int:
             print(error, file=sys.stderr)
         return 1 if errors else 0
     if args.repair:
-        removed = repair_archive(args.repair)
+        try:
+            removed = repair_archive(args.repair)
+        except ValueError as exc:
+            print(f"::error::{exc}", file=sys.stderr)
+            return 1
         print(json.dumps({"removed": removed}, sort_keys=True))
         return 0
     if args.rebuild_indexes:
@@ -858,7 +1005,16 @@ def main(argv: list[str] | None = None) -> int:
             )
         )
         return 0
-    parser.error("one of --validate, --repair or --rebuild-indexes is required")
+    if args.reconcile_indexes:
+        print(
+            json.dumps(
+                reconcile_indexes(args.reconcile_indexes, args.feeds), sort_keys=True
+            )
+        )
+        return 0
+    parser.error(
+        "one of --validate, --repair, --rebuild-indexes or --reconcile-indexes is required"
+    )
     return 2
 
 
