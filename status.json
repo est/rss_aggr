@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-11-01T06:30:13Z",
+  "feeds": {
+    "total": 1689,
+    "healthy": 1031,
+    "failing": 2,
+    "disabled": 656,
+    "retry_pending": 0,
+    "error_kinds": {}
+  },
+  "articles": {
+    "total": 2277,
+    "pending": 1853,
+    "classified": 424,
+    "skipped": 0,
+    "unclassified": 0,
+    "failed": 0,
+    "invalid_dates": 0,
+    "archived": 2277,
+    "content_bytes": 7029743
+  },
+  "output": {
+    "days": 107,
+    "last_date": "2026-09-03",
+    "index_exists": true
+  },
+  "last_fetch": "2026-09-19T15:43:56Z",
+  "last_classify": "2026-08-04T12:00:00Z",
+  "warnings": []
+}
