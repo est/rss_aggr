@@ -1,8 +1,13 @@
 """Render the Markdown archive as a static site and JSON Feed indexes.
 
 The archive is the source of truth: daily files are rendered to
-``<site>/YYYY/MM/DD.html`` and the per-feed JSONL indexes become
-``<site>/feeds/<feed_id>.html`` plus ``<site>/feeds/<feed_id>.json``.
+``<site>/YYYY/MM/DD.html`` and copied to ``<site>/archive/YYYY/MM/DD.md``.
+Each per-feed JSONL index becomes a metadata-only
+``<site>/feeds/<feed_id>.json`` plus a small
+``<site>/feeds/<feed_id>.html`` shell. The shell loads the JSON with
+JavaScript and fetches individual bodies from the daily Markdown files with
+HTTP Range requests, so article text is not duplicated into the JSON Feed or
+the per-feed HTML.
 
 All article text is untrusted. Titles, authors, summaries and URLs are
 HTML-escaped; article bodies are converted from Markdown and then passed
@@ -16,7 +21,7 @@ import json
 import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from urllib.parse import quote, urlsplit
 
 import bleach
@@ -72,23 +77,261 @@ h1 { margin-bottom: 0.25rem; }
 h2 { margin: 1.75rem 0 0.5rem; }
 nav { margin-bottom: 1.5rem; }
 .meta, .count { color: var(--muted); font-size: 0.9rem; }
-article, .feed-item {
+article {
   margin: 0 0 2rem;
   padding: 1rem 1.1rem;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--panel);
 }
-article h2, .feed-item h2 { margin-top: 0; }
+article h2 { margin-top: 0; }
+.feed-item {
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.feed-item h2 { margin: 0 0 0.35rem; font-size: 1.15rem; }
+.feed-item .summary { overflow-wrap: anywhere; }
+.feed-item .links { font-size: 0.9rem; }
+.feed-item .body-text {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  max-height: 42rem;
+  overflow: auto;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  font: 0.9rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.feed-item button {
+  margin-top: 0.25rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+}
+.feed-item button:disabled { cursor: wait; opacity: 0.6; }
 .body { overflow-wrap: anywhere; }
 .body pre { overflow-x: auto; padding: 0.75rem; background: var(--bg); }
 .body img { max-width: 100%; height: auto; }
 .body table { border-collapse: collapse; }
 .body th, .body td { border: 1px solid var(--border); padding: 0.3rem 0.5rem; }
 ul.plain { padding-left: 1.2rem; }
-.summary { overflow-wrap: anywhere; }
-.links { font-size: 0.9rem; }
 .empty { color: var(--muted); font-style: italic; }
+"""
+
+FEED_JS = """\
+(() => {
+  "use strict";
+  const root = document.querySelector("[data-feed-json]");
+  if (!root) return;
+  const list = document.getElementById("items");
+  const status = document.getElementById("status");
+  const title = document.getElementById("feed-title");
+  const jsonUrl = root.dataset.feedJson;
+
+  const text = (value) => (value == null ? "" : String(value));
+  const node = (tag, className, value) => {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (value != null) element.textContent = value;
+    return element;
+  };
+  const safeUrl = (value) => {
+    const raw = text(value).trim();
+    if (!raw) return "";
+    try {
+      const url = new URL(raw, location.href);
+      if (["http:", "https:", "mailto:"].includes(url.protocol)) return url.href;
+    } catch (_) {
+      return "";
+    }
+    return "";
+  };
+  const link = (href, label) => {
+    const safe = safeUrl(href);
+    if (!safe) return node("span", "", label);
+    const anchor = node("a", "", label);
+    anchor.href = safe;
+    anchor.rel = "noopener noreferrer";
+    return anchor;
+  };
+  const dailyHref = (item) => {
+    const archive = item._archive || {};
+    const match = /^archive\\/(\\d{4})\\/(\\d{2})\\/(\\d{2})\\.md$/.exec(text(archive.file));
+    if (!match) return "";
+    const anchor = encodeURIComponent(text(item.id));
+    return `../${match[1]}/${match[2]}/${match[3]}.html#${anchor}`;
+  };
+  const toHex = (buffer) =>
+    Array.from(new Uint8Array(buffer))
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+  const digest = async (bytes) => {
+    if (!window.crypto || !crypto.subtle) return "";
+    return toHex(await crypto.subtle.digest("SHA-256", bytes));
+  };
+  const fetchBytes = async (url, offset, length) => {
+    let response = await fetch(url, {
+      headers: { Range: `bytes=${offset}-${offset + length - 1}` },
+    });
+    if (response.status === 416) response = await fetch(url);
+    if (!response.ok && response.status !== 206) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    if (response.status === 206) {
+      const contentRange = response.headers.get("Content-Range") || "";
+      if (contentRange && !contentRange.startsWith(`bytes ${offset}-`)) {
+        throw new Error("unexpected Content-Range");
+      }
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      if (bytes.byteLength === length) return bytes;
+    }
+    const full = new Uint8Array(await (await fetch(url)).arrayBuffer());
+    return full.slice(offset, offset + length);
+  };
+  const fetchFullSlice = async (url, offset, length) => {
+    const full = new Uint8Array(await (await fetch(url)).arrayBuffer());
+    return full.slice(offset, offset + length);
+  };
+  const loadBody = async (entry) => {
+    if (entry.loaded) {
+      entry.body.hidden = !entry.body.hidden;
+      entry.button.textContent = entry.body.hidden ? "Show full text" : "Hide full text";
+      return;
+    }
+    if (entry.loading) return;
+    entry.loading = true;
+    entry.button.disabled = true;
+    entry.button.textContent = "Loading...";
+    const archive = entry.item._archive || {};
+    const file = text(archive.file);
+    const offset = Number(archive.body_offset);
+    const length = Number(archive.body_len);
+    const expected = text(archive.sha256);
+    try {
+      if (!file || !Number.isInteger(offset) || !Number.isInteger(length) || length <= 0) {
+        entry.body.hidden = false;
+        entry.body.textContent = "No archived body for this item.";
+        entry.loaded = true;
+        entry.button.textContent = "No body";
+        entry.button.disabled = true;
+        return;
+      }
+      const url = new URL(`../${file}`, location.href).href;
+      let bytes = await fetchBytes(url, offset, length);
+      if (bytes.byteLength !== length) {
+        throw new Error(`expected ${length} bytes, got ${bytes.byteLength}`);
+      }
+      let actual = await digest(bytes);
+      if (expected && actual && actual !== expected) {
+        // A proxy may apply Range to a compressed representation. Retry with
+        // the whole file (decoded by the browser) and slice the same bytes.
+        bytes = await fetchFullSlice(url, offset, length);
+        actual = await digest(bytes);
+        if (actual && actual !== expected) {
+          throw new Error("archive checksum mismatch");
+        }
+      }
+      entry.body.textContent = new TextDecoder("utf-8").decode(bytes);
+      entry.body.hidden = false;
+      entry.loaded = true;
+      entry.button.disabled = false;
+      entry.button.textContent = "Hide full text";
+    } catch (error) {
+      entry.body.hidden = false;
+      entry.body.textContent =
+        `Could not load full text: ${error.message}\\n` +
+        "Open the daily page for the rendered view.";
+      entry.button.disabled = false;
+      entry.button.textContent = "Retry";
+      entry.loading = false;
+    }
+  };
+  const renderItem = (item) => {
+    const entry = { item, loaded: false, loading: false };
+    const li = node("li", "feed-item");
+    const heading = node("h2");
+    heading.append(link(item.url, text(item.title) || "(untitled)"));
+    li.append(heading);
+
+    const metaParts = [];
+    if (item.date_published) metaParts.push(text(item.date_published));
+    if (Array.isArray(item.tags) && item.tags.length) {
+      metaParts.push(item.tags.map(text).join(", "));
+    }
+    if (item._score != null) metaParts.push(`Score: ${text(item._score)}`);
+    if (metaParts.length) li.append(node("p", "meta", metaParts.join(" \\u00b7 ")));
+
+    if (item.summary) li.append(node("p", "summary", text(item.summary)));
+
+    const links = node("p", "links");
+    const daily = dailyHref(item);
+    if (daily) links.append(link(daily, "Daily page"));
+    if (item.url) {
+      if (links.childNodes.length) links.append(document.createTextNode(" \\u00b7 "));
+      links.append(link(item.url, "Original"));
+    }
+    if (links.childNodes.length) li.append(links);
+
+    entry.body = node("pre", "body-text");
+    entry.body.hidden = true;
+    li.append(entry.body);
+
+    entry.button = node("button", "", "Load full text");
+    entry.button.type = "button";
+    entry.button.addEventListener("click", () => loadBody(entry));
+    li.append(entry.button);
+    entry.li = li;
+    return entry;
+  };
+
+  const observer =
+    "IntersectionObserver" in window
+      ? new IntersectionObserver(
+          (entries) => {
+            for (const observation of entries) {
+              if (!observation.isIntersecting) continue;
+              observer.unobserve(observation.target);
+              const entry = observation.target._feedEntry;
+              if (entry) loadBody(entry);
+            }
+          },
+          { rootMargin: "300px" }
+        )
+      : null;
+
+  const main = async () => {
+    const response = await fetch(jsonUrl, { cache: "no-cache" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const feed = await response.json();
+    if (feed.title) {
+      document.title = `${feed.title} - Markdown Archive`;
+      if (title) title.textContent = feed.title;
+    }
+    const items = Array.isArray(feed.items) ? feed.items : [];
+    if (!items.length) {
+      status.textContent = "No articles in this feed.";
+      return;
+    }
+    status.textContent = `${items.length} articles`;
+    for (const item of items) {
+      const entry = renderItem(item);
+      entry.li._feedEntry = entry;
+      list.append(entry.li);
+      if (observer) observer.observe(entry.li);
+    }
+  };
+
+  main().catch((error) => {
+    status.textContent = `Could not load feed: ${error.message}`;
+  });
+})();
 """
 
 
@@ -385,46 +628,6 @@ def _load_feeds(feeds_dir: Path) -> list[FeedIndex]:
     return feeds
 
 
-def _record_path(record: dict, archive_dir: Path) -> Path | None:
-    file_value = _text(record.get("file")).replace("\\", "/").lstrip("/")
-    if file_value:
-        parts = PurePosixPath(file_value).parts
-        candidates = [archive_dir / file_value]
-        if parts and parts[0] == archive_dir.name:
-            candidates.append(archive_dir.joinpath(*parts[1:]))
-        for candidate in candidates:
-            if candidate.is_file():
-                return candidate
-    day = _day_from_record(record)
-    if day:
-        candidate = archive_dir / day[0:4] / day[5:7] / f"{day[8:10]}.md"
-        if candidate.is_file():
-            return candidate
-    return None
-
-
-def _rendered_body(
-    record: dict, rendered: dict[tuple[str, int], str], archive_dir: Path
-) -> str:
-    day = _day_from_record(record)
-    offset = record.get("offset")
-    if day and isinstance(offset, int) and not isinstance(offset, bool):
-        cached = rendered.get((day, offset))
-        if cached is not None:
-            return cached
-    path = _record_path(record, archive_dir)
-    if path is None or not isinstance(offset, int) or isinstance(offset, bool):
-        return ""
-    length = record.get("length")
-    if not isinstance(length, int) or isinstance(length, bool):
-        length = None
-    try:
-        parsed = md_archive.read_record(path, offset, length)
-    except (OSError, ValueError):
-        return ""
-    return _render_markdown(parsed.get("body", ""))
-
-
 # ---------------------------------------------------------------------------
 # Page rendering
 # ---------------------------------------------------------------------------
@@ -432,7 +635,6 @@ def _render_day(
     day: str,
     records: list[dict],
     feed_lookup: dict[str, tuple[str, str]],
-    rendered: dict[tuple[str, int], str],
 ) -> str:
     articles: list[str] = []
     for index, record in enumerate(records):
@@ -455,10 +657,7 @@ def _render_day(
             if info:
                 feed_title, feed_page = info
             else:
-                feed_title = (
-                    _text(meta.get("feed_title")).strip()
-                    or feed_id
-                )
+                feed_title = _text(meta.get("feed_title")).strip() or feed_id
         if not feed_title:
             feed_title = _text(meta.get("feed_title")).strip()
 
@@ -481,9 +680,6 @@ def _render_day(
 
         body = record.get("body", "")
         body_html = _render_markdown(body)
-        offset = record.get("offset")
-        if isinstance(offset, int) and not isinstance(offset, bool):
-            rendered[(day, offset)] = body_html
         body_block = f'<div class="body">{body_html}</div>' if body_html else ""
 
         articles.append(
@@ -555,61 +751,8 @@ def _render_index(days: list[tuple[str, int]], feeds: list[FeedIndex]) -> str:
     return _document("Markdown Archive", body)
 
 
-def _render_feed(feed: FeedIndex, annotations: dict[str, dict]) -> str:
-    items: list[str] = []
-    for record in _article_records(feed):
-        title = _text(record.get("title")).strip() or "(untitled)"
-        link = _safe_url(record.get("link"))
-        if link:
-            title_html = f'<a href="{_attr(link)}">{_escape(title)}</a>'
-        else:
-            title_html = _escape(title)
-
-        published = _text(record.get("published")).strip()
-        annotation = annotations.get(_text(record.get("guid")).strip(), {})
-        category = _text(annotation.get("category")).strip()
-        score = _text(annotation.get("score")).strip()
-        summary = _text(annotation.get("summary")).strip()
-
-        meta_parts: list[str] = []
-        if published:
-            meta_parts.append(_escape(published))
-        if category:
-            meta_parts.append(f"Category: {_escape(category)}")
-        if score:
-            meta_parts.append(f"Score: {_escape(score)}")
-        meta_html = (
-            f'<p class="meta">{" · ".join(meta_parts)}</p>' if meta_parts else ""
-        )
-        summary_html = (
-            f'<p class="summary">{_escape(summary)}</p>' if summary else ""
-        )
-
-        daily = _daily_href(record, "..")
-        link_parts: list[str] = []
-        if daily:
-            link_parts.append(f'<a href="{_attr(daily)}">Archive entry</a>')
-        if link:
-            link_parts.append(f'<a href="{_attr(link)}">Original</a>')
-        links_html = (
-            f'<p class="links">{" · ".join(link_parts)}</p>' if link_parts else ""
-        )
-
-        items.append(
-            '<li class="feed-item">\n'
-            f"<h2>{title_html}</h2>\n"
-            f"{meta_html}\n"
-            f"{summary_html}\n"
-            f"{links_html}\n"
-            "</li>"
-        )
-
-    content = (
-        f'<ul class="plain">\n{chr(10).join(items)}\n</ul>'
-        if items
-        else '<p class="empty">No articles in this feed index.</p>'
-    )
-
+def _render_feed(feed: FeedIndex) -> str:
+    """Return a small HTML shell; feed data is loaded from JSON by feed.js."""
     header_parts: list[str] = []
     feed_url = _safe_url(feed.header.get("feed_url"))
     site_url = _safe_url(feed.header.get("site_url"))
@@ -617,22 +760,20 @@ def _render_feed(feed: FeedIndex, annotations: dict[str, dict]) -> str:
         header_parts.append(f'<a href="{_attr(feed_url)}">Source feed</a>')
     if site_url:
         header_parts.append(f'<a href="{_attr(site_url)}">Website</a>')
-    header_parts.append(
-        f'<a href="{_attr(feed.output_id)}.json">JSON Feed</a>'
-    )
+    header_parts.append(f'<a href="{_attr(feed.output_id)}.json">JSON Feed</a>')
     header_meta = f'<p class="meta">{" · ".join(header_parts)}</p>'
 
     body = (
-        "<main>\n"
+        f'<main class="feed" data-feed-json="{_attr(feed.output_id)}.json">\n'
         '<nav><a href="../index.html">← Archive</a></nav>\n'
         "<header>\n"
-        f"<h1>{_escape(feed.title)}</h1>\n"
+        f'<h1 id="feed-title">{_escape(feed.title)}</h1>\n'
         f"{header_meta}\n"
         "</header>\n"
-        "<section>\n"
-        f"{content}\n"
-        "</section>\n"
-        "</main>"
+        '<p id="status" class="meta">Loading feed...</p>\n'
+        '<ul id="items" class="plain"></ul>\n'
+        "</main>\n"
+        '<script src="../assets/feed.js" defer></script>'
     )
     return _document(feed.title, body)
 
@@ -659,8 +800,6 @@ def _feed_urls(feed: FeedIndex, base_url: str = "") -> tuple[str, str]:
 def _build_json_feed(
     feed: FeedIndex,
     annotations: dict[str, dict],
-    rendered: dict[tuple[str, int], str],
-    archive_dir: Path,
     base_url: str = "",
 ) -> dict:
     home_page_url, feed_url = _feed_urls(feed, base_url)
@@ -677,6 +816,8 @@ def _build_json_feed(
         )
         annotation = annotations.get(_text(record.get("guid")).strip(), {})
         summary = _plain_text(annotation.get("summary"))
+        category = _plain_text(annotation.get("category"))
+        score = annotation.get("score")
 
         item: dict = {"id": item_id, "title": title}
         if link:
@@ -688,18 +829,29 @@ def _build_json_feed(
             item["date_published"] = _iso(published)
         if summary:
             item["summary"] = summary
+        if category and category != "—":
+            item["tags"] = [category]
+        if score not in (None, ""):
+            item["_score"] = score
+        # Full article text lives in archive/YYYY/MM/DD.md (and the daily HTML
+        # page). JSON Feed requires a content field, so use the short summary
+        # (or title) instead of embedding the archived body.
+        item["content_text"] = summary or title
 
-        body_html = _rendered_body(record, rendered, archive_dir)
-        if body_html:
-            item["content_html"] = body_html
-        elif daily:
-            item["content_html"] = (
-                f'<p><a href="{_attr(daily)}">Read the archived entry</a></p>'
-            )
-        elif summary:
-            item["content_text"] = summary
-        else:
-            item["content_text"] = title
+        # Extension fields used by the per-feed page to fetch just this body
+        # with an HTTP Range request. Offsets are UTF-8 byte offsets.
+        archive = {
+            "file": _text(record.get("file")),
+            "offset": record.get("offset"),
+            "length": record.get("length"),
+            "body_offset": record.get("body_offset"),
+            "body_len": record.get("body_len"),
+            "sha256": _text(record.get("sha256")),
+        }
+        if archive["file"]:
+            item["_archive"] = archive
+        if daily:
+            item["_daily_url"] = daily
         items.append(item)
 
     return {
@@ -731,24 +883,30 @@ def render_site(
         feed_lookup.setdefault(feed.feed_id, info)
         feed_lookup.setdefault(feed.output_id, info)
 
-    rendered: dict[tuple[str, int], str] = {}
     days: list[tuple[str, int]] = []
     for day, path in _daily_files(archive_dir):
         records = list(md_archive.iter_records(path))
-        _write(site_dir / _daily_path(day), _render_day(day, records, feed_lookup, rendered))
+        _write(site_dir / _daily_path(day), _render_day(day, records, feed_lookup))
+        # Publish the raw daily Markdown too: the per-feed page range-fetches
+        # only the bytes needed for one article instead of embedding bodies in
+        # the JSON Feed or the HTML shell.
+        md_rel = Path("archive") / Path(_daily_path(day)).with_suffix(".md")
+        md_target = site_dir / md_rel
+        md_target.parent.mkdir(parents=True, exist_ok=True)
+        md_target.write_bytes(path.read_bytes())
         days.append((day, len(records)))
 
     _write(site_dir / "index.html", _render_index(days, feed_indexes))
 
+    if feed_indexes:
+        asset = site_dir / "assets" / "feed.js"
+        asset.parent.mkdir(parents=True, exist_ok=True)
+        asset.write_text(FEED_JS, encoding="utf-8")
+
     for feed in feed_indexes:
         annotations = _latest_annotations(feed.records)
-        _write(
-            site_dir / "feeds" / f"{feed.output_id}.html",
-            _render_feed(feed, annotations),
-        )
-        feed_json = _build_json_feed(
-            feed, annotations, rendered, archive_dir, base_url=base_url
-        )
+        _write(site_dir / "feeds" / f"{feed.output_id}.html", _render_feed(feed))
+        feed_json = _build_json_feed(feed, annotations, base_url=base_url)
         _write(
             site_dir / "feeds" / f"{feed.output_id}.json",
             json.dumps(feed_json, ensure_ascii=False, indent=2) + "\n",

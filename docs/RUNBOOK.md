@@ -461,9 +461,10 @@ git push origin --delete backup/gh-pages-<timestamp>
 
 3. 首页应列出最近的日期和 feed；日期链接指向 `YYYY/MM/DD.html`；
 4. 进入某天的页面，确认正文、标题链接和 feed 链接可读；
-5. 打开 `feeds/<feed_id>.json`，确认是合法 JSON Feed 1.1；
-6. 确认部署来源是 Actions artifact：仓库 **Settings → Pages → Build and deployment → Source = GitHub Actions**；
-7. 确认分支契约：
+5. 打开 `feeds/<feed_id>.html`，确认 JS 能加载列表；滚动后正文通过 Range 请求加载（DevTools 里应为 `206`，URL 指向 `archive/YYYY/MM/DD.md`）；
+6. 打开 `feeds/<feed_id>.json`，确认是合法 JSON Feed 1.1，且 item 带 `_archive` 坐标、没有 `content_html` 全文；
+7. 确认部署来源是 Actions artifact：仓库 **Settings → Pages → Build and deployment → Source = GitHub Actions**；
+8. 确认分支契约：
 
    ```bash
    git fetch origin

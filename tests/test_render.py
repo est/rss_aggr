@@ -95,10 +95,17 @@ def test_render_site_pages_json_feed_and_safety(tmp_path):
     index_path = site / "index.html"
     feed_path = site / "feeds" / "feed-1.html"
     json_path = site / "feeds" / "feed-1.json"
+    script_path = site / "assets" / "feed.js"
+    md_path = site / "archive" / "2026" / "05" / "01.md"
     assert daily_path.is_file()
     assert index_path.is_file()
     assert feed_path.is_file()
     assert json_path.is_file()
+    assert script_path.is_file()
+    assert "Range" in script_path.read_text(encoding="utf-8")
+    assert md_path.read_bytes() == (
+        tmp_path / "archive" / "2026" / "05" / "01.md"
+    ).read_bytes()
 
     daily = daily_path.read_text(encoding="utf-8")
     assert 'id="guid-1"' in daily
@@ -118,17 +125,11 @@ def test_render_site_pages_json_feed_and_safety(tmp_path):
     assert "Example Feed" in index
 
     feed_page = feed_path.read_text(encoding="utf-8")
-    assert "../2026/05/01.html#guid-1" in feed_page
-    assert "../2026/05/01.html#guid-2" in feed_page
-    assert "Latest &lt;b&gt;summary&lt;/b&gt; &amp; more" in feed_page
-    assert "Older summary" not in feed_page
-    assert "Category: Insight" in feed_page
-    assert "Score: 9" in feed_page
-    assert "https://example.com/a" in feed_page
-    assert "https://example.com/b" in feed_page
-    assert "<script" not in feed_page.lower()
-    # Newest published article is listed first.
-    assert feed_page.index("Evil &amp; Co") < feed_page.index("Safe &amp; Sound")
+    assert 'data-feed-json="feed-1.json"' in feed_page
+    assert "../assets/feed.js" in feed_page
+    assert "Example Feed" in feed_page
+    assert "<strong>bold</strong>" not in feed_page
+    assert "Hello" not in feed_page
 
     data = json.loads(json_path.read_text(encoding="utf-8"))
     assert data["version"] == "https://jsonfeed.org/version/1.1"
@@ -141,14 +142,28 @@ def test_render_site_pages_json_feed_and_safety(tmp_path):
     assert set(items) == {"guid-1", "guid-2"}
     assert items["guid-1"]["url"] == "https://example.com/a"
     assert items["guid-1"]["date_published"] == "2026-05-01T10:00:00Z"
-    assert "<strong>bold</strong>" in items["guid-1"]["content_html"]
+    assert "content_html" not in items["guid-1"]
+    assert items["guid-1"]["content_text"] == "Safe & Sound"
     assert items["guid-2"]["url"] == "https://example.com/b"
     assert items["guid-2"]["title"] == "Evil & Co"
     assert items["guid-2"]["summary"] == "Latest summary & more"
-    assert "<script" not in items["guid-2"]["content_html"].lower()
-    assert "javascript:alert" not in items["guid-2"]["content_html"]
+    assert "content_html" not in items["guid-2"]
+    assert items["guid-2"]["content_text"] == "Latest summary & more"
+    assert items["guid-2"]["tags"] == ["Insight"]
+    assert items["guid-2"]["_score"] == 9
+    assert items["guid-2"]["_daily_url"].startswith("../2026/05/01.html#")
+
+    archive_ref = items["guid-1"]["_archive"]
+    assert archive_ref["file"] == "archive/2026/05/01.md"
+    assert archive_ref["offset"] == records[0]["offset"]
+    assert archive_ref["length"] == records[0]["length"]
+    assert archive_ref["body_offset"] == records[0]["body_offset"]
+    assert archive_ref["body_len"] == records[0]["body_len"]
+    assert archive_ref["sha256"] == records[0]["sha256"]
 
     json_text = json_path.read_text(encoding="utf-8")
+    assert "<strong>bold</strong>" not in json_text
+    assert "Hello" not in json_text
     assert "<script" not in json_text.lower()
 
     # The feed records point back to the exact archived offsets.

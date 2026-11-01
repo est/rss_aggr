@@ -7,24 +7,34 @@
 1. 抓取 RSS；
 2. 把文章 HTML 清洗成 Markdown，永久保存；
 3. 可选地用 AI 分类/打分；
-4. 生成静态站点和每 feed 的 JSON Feed。
+4. 生成每日静态页面、每 feed 的轻量 HTML（JS 读 JSON，再按 Range 拉正文）和 JSON Feed。
 
-> 原文会进入 git；AI 只是增强，不是必需品。没有 API key 时仍然会输出标题和链接，只是没有分类、摘要和评分。
+> 原文会进入 `data` 分支的 git；AI 只是增强，不是必需品。没有 API key 时仍然会输出标题和链接，只是没有分类、摘要和评分。
 
 ## 先理解三个概念
 
-```text
-archive/   = 事实来源，永久保存的 Markdown 原文
-feeds/     = 索引，记录每篇文章在 archive 里的位置
-cache      = 热数据，加速运行；丢了可以从 data 恢复
-```
+先说结论：**`archive/`、`feeds/` 这些是工作区里的相对路径；它们的持久化位置是 `data` 分支上的同名路径，不在 `main`。Actions cache 只是这些路径的热副本。**
 
-- **archive**：`archive/YYYY/MM/DD.md`，按天追加，永不修改已有字节。
+| 概念 | 工作区路径（真实文件） | 持久化在哪 | 谁写 | 丢了会怎样 |
+|------|------------------------|------------|------|------------|
+| 归档 | `archive/YYYY/MM/DD.md` | `data` 分支 | `--fetch` | 不能丢，事实来源 |
+| 每 feed 索引 | `feeds/<feed_id>.jsonl` | `data` 分支 | `--fetch` / `--classify` | 可从 archive 重建（annotation 会丢） |
+| 运行时状态 | `state.json`、`articles.json`、`status.json` | `data` 分支 | 各步骤 | 可从 `data` 上一份快照恢复 |
+| 热缓存 | `.runtime/`（CI 内部） | Actions cache | workflow | 能丢，丢了从 `data` 冷启动 |
+| 人工摘要 | `output/` | 工作区/cache；旧 `data` 可保留历史副本（新快照不写入） | `--classify` | 能丢，不是归档 |
+| 对外站点 | `_site/` | Pages artifact | `src.render` | 能随时重建 |
+
+- **archive**：按文章发布日期（UTC）写入 `archive/YYYY/MM/DD.md`，append-only，永不修改已有字节。
 - **feeds**：`feeds/<feed_id>.jsonl`，按 feed 聚合；用字节 offset 指向 archive。
-- **data 分支**：持久化 archive、feeds、state 和元数据。
-- **Actions cache**：只用于加速，不是唯一真相。
+- **data 分支**：持久化 archive、feeds、state 和元数据；分支根目录下就是这些路径。
+- **Actions cache**：只用于加速，不是唯一真相；cache 可能比 `data` 新。
+- **main 分支**：只有代码、配置和文档；本地运行时数据被 `.gitignore` 忽略，本地跑完也不会自动推 `data`。
 
-`output/` 是给人看的摘要表格，只是 cache 里的临时产物，不是归档。
+> 注意：`feeds.toml` 是订阅源清单（在 `main`），`feeds/` 是每 feed 的索引目录（在 `data`），两者不是一回事。
+
+`output/` 是给人看的摘要表格，只是 cache 里的临时产物，不是归档。给其他系统消费请读渲染后的 JSON Feed（`_site/feeds/<id>.json`）；JSON 里只有元数据、摘要和归档坐标（`_archive`），没有全文。全文在 `archive/YYYY/MM/DD.md` 和每日页面里；per-feed 页面会按坐标对 `_site/archive/YYYY/MM/DD.md` 发 HTTP Range 请求，只取需要的那一段。不要直接依赖 `data` 分支的文件布局。
+
+完整的“概念 → 路径/分支 → 运行流程”对照见 [docs/ARCHITECTURE-MAP.md](docs/ARCHITECTURE-MAP.md)。
 
 ## 快速开始（本地）
 
@@ -42,6 +52,8 @@ python -m src.main
 # 生成静态站点
 python -m src.render --site _site --archive archive --feeds feeds
 ```
+
+per-feed 页面通过 `fetch` 加载 JSON 和 Markdown 片段，需要通过 HTTP 打开（GitHub Pages 或本地静态服务器）；直接 `file://` 打开会加载失败。
 
 也可以按步骤运行：
 
