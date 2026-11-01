@@ -109,7 +109,7 @@ Body **Markdown** goes here.
 ```
 
 - 头部 JSON 包含 `body_len`（UTF-8 字节数）和 `body_sha256`；正文按字节长度定界，正文中出现 footer 文本也不会破坏解析。
-- 偏移量全部是文件内的 UTF-8 字节偏移，支持中文和 emoji。
+- 偏移量全部是文件内的 UTF-8 字节偏移，支持中文和 emoji；`.gitattributes` 将 `archive/**/*.md` / `feeds/*.jsonl` 固定为 LF，避免 checkout 改变偏移。
 - 每 feed 索引 `feeds/<feed_id>.jsonl` 第一行是 `kind=feed` header，之后是 `kind=article` 和 `kind=annotation` 记录。article 记录包含 `file/offset/length/body_offset/body_len/sha256` 以及 guid/link/title/published；annotation 记录保存 category/summary/score/classified_at，最新一条胜出。
 - 索引是派生数据，可以从归档重建：
 
