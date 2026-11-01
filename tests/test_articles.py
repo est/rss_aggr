@@ -10,12 +10,18 @@ from src.articles import (
     STATUS_SKIPPED,
     STATUS_UNCLASSIFIED,
     append_to_articles,
+    archive_fields,
+    article_archive_ref,
+    article_keys,
     cleanup_articles,
+    clear_content,
     get_article_links,
     get_pending_articles,
     load_articles,
     merge_fetched_entries,
     save_articles,
+    set_content_hydrated,
+    store_fetched_entries,
     summarize_articles,
     validate_articles_file,
 )
@@ -27,6 +33,54 @@ def _iso(days: float = 0) -> str:
 
 def _path(tmp: str) -> str:
     return str(Path(tmp) / "articles.json")
+
+
+def _archive_record(**overrides):
+    record = {
+        "file": "archive/2026/05/01.md",
+        "offset": 100,
+        "length": 220,
+        "body_len": 40,
+        "sha256": "abc123",
+    }
+    record.update(overrides)
+    return record
+
+
+class ArchiveFieldTests(unittest.TestCase):
+    def test_archive_fields_maps_index_record(self):
+        self.assertEqual(
+            archive_fields(_archive_record()),
+            {
+                "archive_file": "archive/2026/05/01.md",
+                "archive_offset": 100,
+                "archive_length": 220,
+                "archive_body_len": 40,
+                "archive_sha256": "abc123",
+            },
+        )
+
+    def test_article_archive_ref_requires_file_and_offset(self):
+        article = {
+            "archive_file": "archive/2026/05/01.md",
+            "archive_offset": 12,
+            "archive_length": 99,
+        }
+        self.assertEqual(
+            article_archive_ref(article),
+            {"path": "archive/2026/05/01.md", "offset": 12, "length": 99},
+        )
+        self.assertIsNone(article_archive_ref({"archive_file": "x"}))
+        self.assertIsNone(article_archive_ref({"archive_offset": 1}))
+
+    def test_hydrate_and_clear_content(self):
+        article = {}
+        set_content_hydrated(article, "héllo")
+        self.assertEqual(article["content"], "héllo")
+        self.assertEqual(article["content_length"], len("héllo".encode("utf-8")))
+        clear_content(article)
+        self.assertNotIn("content", article)
+        self.assertNotIn("content_length", article)
 
 
 class ArticleCacheTests(unittest.TestCase):
@@ -55,6 +109,7 @@ class ArticleCacheTests(unittest.TestCase):
             self.assertEqual(entry["attempts"], 0)
             self.assertTrue(entry["cached_at"])
             self.assertEqual(entry["content_length"], len("hello"))
+            self.assertNotIn("content", entry)
 
     def test_append_falls_back_to_guid_when_link_missing(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -66,7 +121,30 @@ class ArticleCacheTests(unittest.TestCase):
                 append_to_articles([{"guid": "g1", "title": "Again"}], path), 0
             )
 
-    def test_merge_reattaches_body_to_metadata_only_pending_record(self):
+    def test_store_adds_archive_ref_without_raw_content(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = _path(tmp)
+            entry = {
+                "link": "https://example.com/a",
+                "guid": "g1",
+                "title": "A",
+                "content": "<p>raw body</p>",
+                "content_length": 17,
+            }
+            entry.update(archive_fields(_archive_record()))
+
+            self.assertEqual(store_fetched_entries([entry], path), (1, 0))
+            cache = load_articles(path)
+            self.assertEqual(len(cache), 1)
+            row = cache[0]
+            self.assertNotIn("content", row)
+            self.assertNotIn("content_length", row)
+            self.assertEqual(row["archive_file"], "archive/2026/05/01.md")
+            self.assertEqual(row["archive_offset"], 100)
+            self.assertEqual(row["archive_body_len"], 40)
+            self.assertEqual(row["status"], STATUS_PENDING)
+
+    def test_store_reattaches_archive_ref_to_pending_record(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = _path(tmp)
             save_articles(
@@ -75,33 +153,32 @@ class ArticleCacheTests(unittest.TestCase):
                         "link": "https://example.com/a",
                         "title": "Old title",
                         "status": STATUS_PENDING,
-                        "content": "",
-                        "content_length": 0,
                         "cached_at": _iso(-1),
                     }
                 ],
                 path,
             )
 
-            added, refreshed = merge_fetched_entries(
-                [
-                    {
-                        "link": "https://www.example.com/a/?utm_source=x",
-                        "title": "New title",
-                        "content": "full body",
-                    }
-                ],
-                path,
-            )
+            incoming = {
+                "link": "https://www.example.com/a/?utm_source=x",
+                "title": "New title",
+                "content": "full body",
+                "content_length": 9,
+                "feed_title": "Feed",
+            }
+            incoming.update(archive_fields(_archive_record()))
+            added, refreshed = store_fetched_entries([incoming], path)
 
             self.assertEqual((added, refreshed), (0, 1))
             cache = load_articles(path)
             self.assertEqual(len(cache), 1)
-            self.assertEqual(cache[0]["content"], "full body")
-            self.assertEqual(cache[0]["content_length"], len("full body"))
+            self.assertEqual(cache[0]["archive_file"], "archive/2026/05/01.md")
             self.assertEqual(cache[0]["title"], "Old title")
+            self.assertEqual(cache[0]["feed_title"], "Feed")
+            self.assertEqual(cache[0]["status"], STATUS_PENDING)
+            self.assertNotIn("content", cache[0])
 
-    def test_merge_does_not_touch_finished_records(self):
+    def test_store_does_not_touch_finished_records(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = _path(tmp)
             save_articles(
@@ -115,13 +192,23 @@ class ArticleCacheTests(unittest.TestCase):
                 path,
             )
 
-            added, refreshed = merge_fetched_entries(
-                [{"link": "https://example.com/a", "content": "should not return"}],
-                path,
-            )
+            incoming = {"link": "https://example.com/a", "content": "should not return"}
+            incoming.update(archive_fields(_archive_record()))
+            added, refreshed = merge_fetched_entries([incoming], path)
 
             self.assertEqual((added, refreshed), (0, 0))
-            self.assertEqual(load_articles(path)[0]["content"], "")
+            row = load_articles(path)[0]
+            self.assertEqual(row["status"], STATUS_CLASSIFIED)
+            self.assertNotIn("archive_file", row)
+            self.assertNotIn("content", row)
+
+    def test_article_keys_match_feed_index_format(self):
+        self.assertEqual(
+            article_keys(
+                {"link": "https://www.Example.com/a/?utm_source=x", "guid": "g1"}
+            ),
+            ["link:example.com/a", "guid:g1"],
+        )
 
     def test_get_pending_sorts_and_limits(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -217,13 +304,14 @@ class ArticleCacheTests(unittest.TestCase):
             )
             self.assertEqual(get_article_links(path), {"example.com/a", "example.com/b"})
 
-    def test_summarize_articles(self):
+    def test_summarize_articles_uses_archive_body_lengths(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = _path(tmp)
             save_articles(
                 [
                     {"link": "https://a.com/1", "status": STATUS_PENDING,
-                     "published": "2026-01-01T00:00:00Z", "content_length": 10},
+                     "published": "2026-01-01T00:00:00Z",
+                     "archive_body_len": 10, "archive_file": "archive/x.md"},
                     {"link": "https://a.com/2", "status": STATUS_CLASSIFIED,
                      "published": "not-a-date", "content_length": 20},
                     {"link": "https://a.com/3", "status": STATUS_SKIPPED,
@@ -240,7 +328,9 @@ class ArticleCacheTests(unittest.TestCase):
             self.assertEqual(summary["skipped"], 1)
             self.assertEqual(summary["failed"], 1)
             self.assertEqual(summary["invalid_dates"], 2)
-            self.assertEqual(summary["content_bytes"], 38)
+            self.assertEqual(summary["archived"], 1)
+            # 10 archive bytes + 20 + 0 (content was stripped) + 5.
+            self.assertEqual(summary["content_bytes"], 35)
 
     def test_validate_articles_file(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -258,6 +348,14 @@ class ArticleCacheTests(unittest.TestCase):
             path = str(Path(tmp) / "nested" / "dir" / "articles.json")
             save_articles([{"link": "https://a.com/1"}], path)
             self.assertTrue(Path(path).exists())
+
+    def test_save_articles_never_writes_raw_content(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = _path(tmp)
+            save_articles(
+                [{"link": "https://a.com/1", "content": "<p>secret</p>"}], path
+            )
+            self.assertNotIn("secret", Path(path).read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
