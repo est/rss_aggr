@@ -225,7 +225,11 @@ def save_articles(articles: list[dict], path: str = ARTICLES_FILE) -> None:
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     clean = [
-        {key: value for key, value in article.items() if key != "content"}
+        {
+            key: value
+            for key, value in article.items()
+            if key not in ("content", "content_length")
+        }
         for article in articles
         if isinstance(article, dict)
     ]

@@ -108,8 +108,8 @@ class ArticleCacheTests(unittest.TestCase):
             self.assertEqual(entry["status"], STATUS_PENDING)
             self.assertEqual(entry["attempts"], 0)
             self.assertTrue(entry["cached_at"])
-            self.assertEqual(entry["content_length"], len("hello"))
             self.assertNotIn("content", entry)
+            self.assertNotIn("content_length", entry)
 
     def test_append_falls_back_to_guid_when_link_missing(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -329,8 +329,9 @@ class ArticleCacheTests(unittest.TestCase):
             self.assertEqual(summary["failed"], 1)
             self.assertEqual(summary["invalid_dates"], 2)
             self.assertEqual(summary["archived"], 1)
-            # 10 archive bytes + 20 + 0 (content was stripped) + 5.
-            self.assertEqual(summary["content_bytes"], 35)
+            # Only archive_body_len survives; raw content/content_length are
+            # stripped by save_articles().
+            self.assertEqual(summary["content_bytes"], 10)
 
     def test_validate_articles_file(self):
         with tempfile.TemporaryDirectory() as tmp:

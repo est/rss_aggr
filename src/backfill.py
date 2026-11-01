@@ -75,6 +75,8 @@ def _archive_meta(article: dict, feed_meta: dict, fetched_at: str) -> dict:
         "feed_id": feed_meta["feed_id"],
         "feed_url": feed_meta["feed_url"],
         "site_url": feed_meta["site_url"],
+        "feed_title": feed_meta.get("title") or article.get("feed_title") or "",
+        "feed_category": article.get("feed_category") or "",
         "link": (article.get("link") or "").strip(),
         "title": article.get("title") or "",
         "author": article.get("author") or "",

@@ -92,6 +92,14 @@ def _feed_meta_for_article(article: dict) -> dict:
     }
 
 
+def _archive_ref_exists(ref: dict | None, archive_root: Path) -> bool:
+    """Whether an articles.json archive reference still points at a file."""
+    if not ref:
+        return False
+    path = _archive_record_path(archive_root, ref.get("path", ""))
+    return path.is_file()
+
+
 def _load_feed_index_keys(feeds_dir: str, feed_meta: dict) -> tuple[dict, set[str]]:
     """Load one feed index once and return ``(feed_meta, article keys)``."""
     path = Path(feeds_dir) / f"{feed_meta['feed_id']}.jsonl"
@@ -114,6 +122,8 @@ def _archive_article_meta(entry: dict, feed_meta: dict, fetched_at: str) -> dict
         "feed_id": feed_meta["feed_id"],
         "feed_url": feed_meta["feed_url"],
         "site_url": feed_meta["site_url"],
+        "feed_title": feed_meta.get("title") or entry.get("feed_title") or "",
+        "feed_category": entry.get("feed_category") or "",
         "link": (entry.get("link") or "").strip(),
         "title": entry.get("title") or "",
         "author": entry.get("author") or "",
@@ -396,8 +406,9 @@ def step_fetch():
                 (existing_by_key[key] for key in keys if key in existing_by_key),
                 None,
             )
+            existing_ref = article_archive_ref(existing) if existing else None
             if existing is not None and (
-                existing.get("archive_file")
+                _archive_ref_exists(existing_ref, archive_root)
                 or existing.get("status") in _STATUS_DONE
             ):
                 # Already archived/finished; mark it seen so another feed in

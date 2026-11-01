@@ -12,10 +12,12 @@ are derived data and can be rebuilt from the daily archive files.
 """
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import os
 import re
+import sys
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -38,6 +40,8 @@ ARTICLE_META_FIELDS = (
     "feed_id",
     "feed_url",
     "site_url",
+    "feed_title",
+    "feed_category",
     "link",
     "title",
     "author",
@@ -811,3 +815,43 @@ def validate_archive(archive_root: str | os.PathLike) -> list[str]:
             if meta.get("body_len") != record["body_len"]:
                 errors.append(f"{path}@{record['offset']}: body_len mismatch")
     return errors
+
+
+def repair_archive(archive_root: str | os.PathLike) -> int:
+    """Repair incomplete tails in every daily archive file."""
+    removed = 0
+    for path in _archive_files(archive_root):
+        removed += repair_tail(path)
+    return removed
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Markdown archive tools")
+    parser.add_argument("--validate", metavar="ARCHIVE_ROOT")
+    parser.add_argument("--repair", metavar="ARCHIVE_ROOT")
+    parser.add_argument("--rebuild-indexes", metavar="ARCHIVE_ROOT")
+    parser.add_argument("--feeds", default="feeds")
+    args = parser.parse_args(argv)
+
+    if args.validate:
+        errors = validate_archive(args.validate)
+        for error in errors:
+            print(error, file=sys.stderr)
+        return 1 if errors else 0
+    if args.repair:
+        removed = repair_archive(args.repair)
+        print(json.dumps({"removed": removed}, sort_keys=True))
+        return 0
+    if args.rebuild_indexes:
+        print(
+            json.dumps(
+                rebuild_indexes(args.rebuild_indexes, args.feeds), sort_keys=True
+            )
+        )
+        return 0
+    parser.error("one of --validate, --repair or --rebuild-indexes is required")
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
