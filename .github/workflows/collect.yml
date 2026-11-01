@@ -334,6 +334,14 @@ jobs:
           fi
 
           if [ -n "$raw_source" ]; then
+            # Feed indexes are derived data. If the Markdown archive is
+            # missing, existing indexes may point at dead offsets; drop them
+            # so backfill cannot skip records as "already indexed".
+            if ! has_daily_archive; then
+              echo "::warning::dropping stale feed indexes before archive backfill"
+              rm -rf feeds
+              mkdir -p feeds
+            fi
             mkdir -p .backfill
             # The CLI is idempotent: existing feed-index links/guids are
             # skipped, so a retried migration never duplicates archive records.
@@ -393,6 +401,10 @@ jobs:
           else
             echo "::warning::no Markdown archive and no legacy raw articles; bodies will be fetched again"
             echo "RSS_FORCE_FETCH=1" >> "$GITHUB_ENV"
+            # Stale indexes would make fetch skip links whose archive records
+            # no longer exist. They are derived and can be rebuilt.
+            rm -rf feeds
+            mkdir -p feeds
             # Stale archive refs would make fetch skip these rows. Drop only
             # the refs so the forced fetch can archive the bodies again; the
             # pending metadata itself is preserved.
