@@ -20,6 +20,11 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover
+    import tomli as tomllib
+
 from src import md_archive
 from src.articles import (
     STATUS_PENDING,
@@ -56,10 +61,35 @@ def _dedup_entries(entries: list[dict]) -> list[dict]:
     return unique
 
 
-def _feed_meta(article: dict) -> dict:
+def _load_feed_map(path: str | Path = "feeds.toml") -> dict[str, tuple[str, str]]:
+    """Map feed title -> (feed_url, site_url) from the current feeds.toml."""
+    target = Path(path)
+    if not target.is_file():
+        return {}
+    try:
+        data = tomllib.loads(target.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    mapping: dict[str, tuple[str, str]] = {}
+    for category in data.get("category", []):
+        for feed in category.get("feed", []):
+            title = str(feed.get("title") or "").strip().lower()
+            url = str(feed.get("url") or "").strip()
+            site = str(feed.get("site") or "").strip()
+            if title and url:
+                mapping.setdefault(title, (url, site))
+    return mapping
+
+
+def _feed_meta(article: dict, feed_map: dict[str, tuple[str, str]] | None = None) -> dict:
     feed_url = article.get("feed_url") or ""
     site_url = article.get("site_url") or ""
     title = article.get("feed_title") or ""
+    if not feed_url and feed_map:
+        mapped = feed_map.get(str(title).strip().lower())
+        if mapped:
+            feed_url, mapped_site = mapped
+            site_url = site_url or mapped_site
     return {
         "feed_id": article.get("feed_id")
         or md_archive.feed_id(feed_url, site_url, title),
@@ -145,6 +175,7 @@ def backfill(
     root: str | Path = ".",
     feeds_dir: str | Path = "feeds",
     out: str | Path | None = None,
+    feed_config: str | Path = "feeds.toml",
 ) -> dict:
     """Migrate a legacy articles.json into the Markdown archive.
 
@@ -153,11 +184,12 @@ def backfill(
     legacy = _load_legacy(articles_path)
     entries = _dedup_entries(legacy)
     fetched_at = _now_iso()
+    feed_map = _load_feed_map(feed_config)
 
     # Group by feed so one feed header/index is used for all of its articles.
     groups: dict[str, tuple[dict, list[dict]]] = {}
     for article in entries:
-        feed_meta = _feed_meta(article)
+        feed_meta = _feed_meta(article, feed_map)
         group = groups.setdefault(feed_meta["feed_id"], (feed_meta, []))
         group[1].append(article)
 
@@ -166,6 +198,7 @@ def backfill(
         "input": len(legacy),
         "entries": len(entries),
         "archived": 0,
+        "annotations": 0,
         "skipped_existing": 0,
         "feeds": len(groups),
     }
@@ -206,6 +239,24 @@ def backfill(
                 by_identity[id(article)] = record
                 stats["archived"] += 1
 
+                classification = article.get("classification")
+                if isinstance(classification, dict) and classification:
+                    md_archive.append_feed_annotation(
+                        feeds_dir,
+                        feed_meta,
+                        {
+                            "guid": article.get("guid") or record.get("guid"),
+                            "file": record.get("file"),
+                            "offset": record.get("offset"),
+                            "category": classification.get("category") or "",
+                            "summary": classification.get("summary") or "",
+                            "score": classification.get("score"),
+                            "classified_at": article.get("classified_at")
+                            or fetched_at,
+                        },
+                    )
+                    stats["annotations"] += 1
+
         for article in group_entries:
             record = by_identity.get(id(article))
             output.append(
@@ -236,6 +287,11 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="write metadata-only cache here (default: overwrite --articles)",
     )
+    parser.add_argument(
+        "--feed-config",
+        default="feeds.toml",
+        help="feeds.toml used to map legacy feed_title -> feed URL",
+    )
     args = parser.parse_args(argv)
 
     stats = backfill(
@@ -243,6 +299,7 @@ def main(argv: list[str] | None = None) -> int:
         root=args.root,
         feeds_dir=args.feeds,
         out=args.out,
+        feed_config=args.feed_config,
     )
     print(json.dumps(stats, ensure_ascii=False, sort_keys=True), flush=True)
     return 0
