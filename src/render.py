@@ -637,10 +637,15 @@ def _render_feed(feed: FeedIndex, annotations: dict[str, dict]) -> str:
     return _document(feed.title, body)
 
 
-def _feed_urls(feed: FeedIndex) -> tuple[str, str]:
+def _feed_urls(feed: FeedIndex, base_url: str = "") -> tuple[str, str]:
     """Return ``(home_page_url, feed_url)`` for the JSON Feed."""
-    site_url = _safe_url(feed.header.get("site_url"))
+    settings_base = _safe_url(base_url)
     quoted_id = quote(feed.output_id, safe="")
+    if _is_absolute_url(settings_base):
+        home = settings_base.rstrip("/") + "/"
+        feed_url = f"{home}feeds/{quoted_id}.json"
+        return home, feed_url
+    site_url = _safe_url(feed.header.get("site_url"))
     if _is_absolute_url(site_url):
         home = site_url
         feed_url = f"{site_url.rstrip('/')}/feeds/{quoted_id}.json"
@@ -656,8 +661,9 @@ def _build_json_feed(
     annotations: dict[str, dict],
     rendered: dict[tuple[str, int], str],
     archive_dir: Path,
+    base_url: str = "",
 ) -> dict:
-    home_page_url, feed_url = _feed_urls(feed)
+    home_page_url, feed_url = _feed_urls(feed, base_url)
     items: list[dict] = []
     for record in _article_records(feed):
         title = _plain_text(record.get("title")) or "(untitled)"
@@ -708,7 +714,12 @@ def _build_json_feed(
 # ---------------------------------------------------------------------------
 # Entry points
 # ---------------------------------------------------------------------------
-def render_site(site: str | Path, archive: str | Path, feeds: str | Path) -> dict:
+def render_site(
+    site: str | Path,
+    archive: str | Path,
+    feeds: str | Path,
+    base_url: str = "",
+) -> dict:
     """Render all pages and JSON Feeds; return a small deterministic summary."""
     site_dir = Path(site)
     archive_dir = _resolve_archive(archive)
@@ -735,7 +746,9 @@ def render_site(site: str | Path, archive: str | Path, feeds: str | Path) -> dic
             site_dir / "feeds" / f"{feed.output_id}.html",
             _render_feed(feed, annotations),
         )
-        feed_json = _build_json_feed(feed, annotations, rendered, archive_dir)
+        feed_json = _build_json_feed(
+            feed, annotations, rendered, archive_dir, base_url=base_url
+        )
         _write(
             site_dir / "feeds" / f"{feed.output_id}.json",
             json.dumps(feed_json, ensure_ascii=False, indent=2) + "\n",
@@ -755,12 +768,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--site", default="_site", help="output site directory")
     parser.add_argument("--archive", default="archive", help="archive directory or root")
     parser.add_argument("--feeds", default="feeds", help="per-feed JSONL directory")
+    parser.add_argument(
+        "--base-url",
+        default="",
+        help="absolute public site URL (used for JSON Feed URLs)",
+    )
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    summary = render_site(args.site, args.archive, args.feeds)
+    summary = render_site(args.site, args.archive, args.feeds, base_url=args.base_url)
     print(
         f"Rendered {_plural(summary['days'], 'day')}, "
         f"{_plural(summary['articles'], 'article')} and "

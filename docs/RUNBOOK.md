@@ -4,9 +4,9 @@
 
 核心模型：
 
-- **`data` 分支** 是持久归档：`archive/YYYY/MM/DD.md`、`feeds/<feed_id>.jsonl`、`state.json`、metadata-only `articles.json`、`status.json`、`output/`。
+- **`data` 分支** 是持久归档：`archive/YYYY/MM/DD.md`、`feeds/<feed_id>.jsonl`、`state.json`、metadata-only `articles.json`、`status.json`。`output/` 只是 cache 内的人工摘要，不属于持久归档。
 - **Actions cache** 保存同一套文件的热副本；可能被 GitHub 驱逐，但不再是正文的唯一副本。
-- **`archive/` / `feeds/` / `output/`** 在 `data` 上 append-only；`state.json` / `articles.json` / `status.json` 每轮整体替换。
+- **`archive/` / `feeds/`** 在 `data` 上 append-only；`state.json` / `articles.json` / `status.json` 每轮整体替换。`output/` 不写入 `data`。
 - **Pages** 从 `src.render` 生成的 `_site/` artifact 部署，没有 Jekyll，也没有 `gh-pages`。
 - 每次运行必须成功恢复（cache 或 `data`）且归档校验通过，才会写 `data` 快照；失败时用 marker 阻止覆盖。
 
@@ -156,8 +156,6 @@ articles.json
 status.json
 archive/YYYY/MM/DD.md
 feeds/<feed_id>.jsonl
-output/index.md
-output/YYYY/MMDD.md
 ```
 
 `articles.json` 不应包含 `content` / `content_length`。
@@ -321,6 +319,16 @@ python -m src.md_archive --rebuild-indexes archive --feeds feeds
 
 也可以手工执行。重建会从所有 `archive/YYYY/MM/DD.md` 重新生成 article 记录和 header。
 
+### 索引 offset 失效 / 归档文件缺失
+
+先尝试逐条校验并保留仍然有效的记录（CI 冷启动会自动做这一步）：
+
+```bash
+python -m src.md_archive --reconcile-indexes archive --feeds feeds
+```
+
+它只删除 offset/length/sha 无法验证的 article 及其 annotation；随后需要让对应 `articles.json` 清掉 archive 引用，fetch 会重新归档正文。若只想从归档整体重建，继续看下一节。
+
 ### 索引损坏
 
 先备份现有索引（annotation 可能仍有价值）：
@@ -359,7 +367,7 @@ PY
 行为：
 
 1. clone `data`（不存在则 orphan init）；
-2. 保留远端 `archive/`、`feeds/`、`output/`，把本地 append-only 内容覆盖上去；
+2. 保留远端 `archive/`、`feeds/`；本地 append-only 内容只有在“远端内容是本地前缀”时才覆盖，否则 fail closed。`output/` 不参与快照；
 3. 替换 `state.json`、`articles.json`、`status.json`；
 4. 删除旧 ADR-016 的根级 `archive/*.jsonl`；
 5. 校验归档（repair 尾部后 validate）、索引可解析、`articles.json` 无正文、有归档时有索引；
@@ -470,7 +478,7 @@ git push origin --delete backup/gh-pages-<timestamp>
 
 cache 是热数据，随时可能被 GitHub 驱逐，这是设计内的：
 
-- **驱逐**：下一轮自动从 `data` 恢复 `archive/`、`feeds/`、`state.json`、`articles.json`、`status.json`、`output/`；正文不再依赖重新抓取。设置 `RSS_FORCE_FETCH=1` 刷新 14 天窗口；
+- **驱逐**：下一轮自动从 `data` 恢复 `archive/`、`feeds/`、`state.json`、`articles.json`、`status.json`；`output/` 会由本轮 report 重新生成；正文不再依赖重新抓取。设置 `RSS_FORCE_FETCH=1` 刷新 14 天窗口；
 - **损坏**：恢复步骤检测到非法 JSON 后 warning 并回退 `data`，不会把损坏内容写回；
 - **保存失败**：只影响下一次冷启动成本。日志中 `Prepare runtime cache` 的 `ok=false` 或 `Save runtime cache` 失败都不应手工补 cache；
 - **key**：`rss-runtime-${run_id}`，通过 `rss-runtime-` 前缀恢复最近一份。日常运行是前缀命中，`cache-hit` 通常为 `false`，以恢复后的文件校验为准；

@@ -584,7 +584,9 @@ jobs:
       # site (day pages, per-feed pages and JSON Feeds); Jekyll is no longer
       # involved and gh-pages is not written by the workflow.
       - name: Render archive site
-        run: python -m src.render --site _site --archive archive --feeds feeds
+        run: >
+          python -m src.render --site _site --archive archive --feeds feeds
+          --base-url "${{ vars.PAGES_BASE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

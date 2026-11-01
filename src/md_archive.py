@@ -825,8 +825,8 @@ def rebuild_indexes(
 def feed_meta_from_meta(meta: dict) -> dict:
     """Extract feed-level fields from an article header.
 
-    Daily records do not carry the feed title, so it is empty unless the
-    caller added an optional ``feed_title`` field to the article metadata.
+    New records carry ``feed_title`` in the daily header; legacy records may
+    leave it empty.
     """
     return {
         "feed_id": _text(meta.get("feed_id")),

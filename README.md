@@ -70,10 +70,10 @@ python -m src.render --site _site --archive archive --feeds feeds  # 渲染站�
 | 分支 | 内容 | 写入方式 |
 |------|------|----------|
 | `main` | `src/`、`tests/`、`docs/`、`config.toml`、`feeds.toml`、`sources.toml`、workflow | 普通提交；`sync-feeds` 每周提交 `feeds.toml` |
-| `data` | `state.json`、`articles.json`（仅元数据）、`status.json`、`archive/`、`feeds/`、`output/` | 每天最多一次快照，普通 push；冲突时自动 rebase 重试一次，仍冲突则需人工处理 |
+| `data` | `state.json`、`articles.json`（仅元数据）、`status.json`、`archive/`、`feeds/` | 每天最多一次快照，普通 push；冲突时自动 rebase 重试一次，仍冲突则需人工处理 |
 
 - 只有 `main` 和 `data` 两个长期分支。GitHub Pages 直接从 Actions artifact 部署，**没有 `gh-pages` 分支**。
-- `data` 是持久归档：`archive/`、`feeds/`、`output/` 只追加；`state.json` / `articles.json` / `status.json` 每轮整体替换。
+- `data` 是持久归档：`archive/`、`feeds/` 只追加；`state.json` / `articles.json` / `status.json` 每轮整体替换。`output/` 是 cache 内的人工摘要，不进入 `data`，丢失后可从归档重新渲染。
 - 正文以 sanitized Markdown 形式进入 `data` 的 git 历史。仓库是公开的，因此只保存清洗后的 Markdown，不保存原始 HTML/脚本。
 - `data` 由 CI 写入。需要人工恢复时先暂停 workflow，修改后普通 push（不要 force-push），并清理 `rss-runtime-*` cache，否则下一轮会优先使用热 cache；步骤见 RUNBOOK。
 - 恢复、回滚、cache 驱逐与删除旧 `gh-pages` 见 [RUNBOOK](docs/RUNBOOK.md)。
@@ -91,11 +91,9 @@ data/
         01.md              # 永久归档，append-only
   feeds/
     example.com-1a2b3c4d5e6f.jsonl
-  output/
-    index.md
-    2026/
-      0501.md              # 人工摘要表格
 ```
+
+`output/`（人工摘要表格）只存在于 cache 和本地运行目录，不进入 `data`；页面展示以 `archive/` + `feeds/` 渲染结果为准。
 
 ## 归档格式
 
@@ -211,8 +209,8 @@ git push origin --delete gh-pages
 
 - Markdown 是文本，git delta/zlib 压缩有效，diff 可读；
 - 不使用 gzip/SQLite（二进制会破坏 delta 和可读 diff）；
-- `data` 每天最多一次快照，`archive/`/`feeds/`/`output/` 只追加；
-- Actions cache 只是热副本，不随 git 历史增长；
+- `data` 每天最多一次快照，`archive/`/`feeds/` 只追加；
+- Actions cache 只是热副本，不随 git 历史增长；但当前 cache 会复制完整 `archive/` + `feeds/`，archive 达到数百 MB 后 restore/save 传输和 10GB 配额会成为下一阶段瓶颈（后续可改为最近窗口缓存或增量渲染）；
 - 迁移前的 `gh-pages` / 旧 `data` 历史仍可能包含旧正文；如需清理体积或版权，需要重写历史而不是只改当前 tip。
 
 ## 架构

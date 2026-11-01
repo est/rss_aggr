@@ -372,6 +372,7 @@ def step_fetch():
     run_keys: set[str] = set()
     index_cache: dict[str, tuple[dict, set[str]]] = {}
     metadata_entries: list[dict] = []
+    feed_records: list[tuple[dict, dict]] = []
     archived_count = 0
 
     for r in results:
@@ -447,20 +448,25 @@ def step_fetch():
             )
 
         for entry, record in zip(queued, records):
+            metadata_entries.append(
+                _article_metadata_record(entry, feed_meta, record)
+            )
+            feed_records.append((feed_meta, record))
+            archived_count += 1
+
+    if metadata_entries:
+        # Persist metadata before the derived feed indexes. If index appends
+        # fail afterwards, the article is still pending/classifiable and the
+        # index can be rebuilt from the archive; the reverse order could leave
+        # indexed records that no future fetch can attach to metadata.
+        added, refreshed = store_fetched_entries(metadata_entries)
+        for feed_meta, record in feed_records:
             try:
                 md_archive.append_feed_record(feeds_dir, feed_meta, record)
             except Exception as exc:  # noqa: BLE001 - fail the step
                 raise RuntimeError(
-                    f"failed to append feed index record for {feed_key}: {exc}"
+                    f"failed to append feed index record for {feed_meta['feed_id']}: {exc}"
                 ) from exc
-            index_keys.update(article_keys(record))
-            metadata_entries.append(
-                _article_metadata_record(entry, feed_meta, record)
-            )
-            archived_count += 1
-
-    if metadata_entries:
-        added, refreshed = store_fetched_entries(metadata_entries)
         print(
             f"[{ts()}] Archived {archived_count} article(s); "
             f"merged fetch: {added} new, {refreshed} archive refs refreshed",
