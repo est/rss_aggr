@@ -27,7 +27,7 @@ from src.articles import (
     article_keys,
     save_articles,
 )
-from src.sanitize import sanitize_html
+from src.sanitize import sanitize_html, sanitize_text
 
 
 def _now_iso() -> str:
@@ -75,11 +75,11 @@ def _archive_meta(article: dict, feed_meta: dict, fetched_at: str) -> dict:
         "feed_id": feed_meta["feed_id"],
         "feed_url": feed_meta["feed_url"],
         "site_url": feed_meta["site_url"],
-        "feed_title": feed_meta.get("title") or article.get("feed_title") or "",
-        "feed_category": article.get("feed_category") or "",
+        "feed_title": sanitize_text(feed_meta.get("title") or article.get("feed_title") or ""),
+        "feed_category": sanitize_text(article.get("feed_category") or ""),
         "link": (article.get("link") or "").strip(),
-        "title": article.get("title") or "",
-        "author": article.get("author") or "",
+        "title": sanitize_text(article.get("title") or ""),
+        "author": sanitize_text(article.get("author") or ""),
         "published": article.get("published") or "",
         "fetched_at": fetched_at,
     }

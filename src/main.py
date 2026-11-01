@@ -26,7 +26,7 @@ from src.articles import (
 )
 from src.classifier import classify_articles, is_skip_category
 from src.opml_parser import parse_feeds
-from src.sanitize import sanitize_html
+from src.sanitize import sanitize_html, sanitize_text
 from src.state import (
     get_due_feeds,
     load_state,
@@ -74,7 +74,7 @@ def _feed_meta_for_result(result: dict) -> dict:
         "feed_id": md_archive.feed_id(feed_url, site_url, title),
         "feed_url": feed_url,
         "site_url": site_url,
-        "title": title,
+        "title": sanitize_text(title),
     }
 
 
@@ -122,11 +122,11 @@ def _archive_article_meta(entry: dict, feed_meta: dict, fetched_at: str) -> dict
         "feed_id": feed_meta["feed_id"],
         "feed_url": feed_meta["feed_url"],
         "site_url": feed_meta["site_url"],
-        "feed_title": feed_meta.get("title") or entry.get("feed_title") or "",
-        "feed_category": entry.get("feed_category") or "",
+        "feed_title": sanitize_text(feed_meta.get("title") or entry.get("feed_title") or ""),
+        "feed_category": sanitize_text(entry.get("feed_category") or ""),
         "link": (entry.get("link") or "").strip(),
-        "title": entry.get("title") or "",
-        "author": entry.get("author") or "",
+        "title": sanitize_text(entry.get("title") or ""),
+        "author": sanitize_text(entry.get("author") or ""),
         "published": entry.get("published") or "",
         "fetched_at": fetched_at,
     }
@@ -136,12 +136,12 @@ def _article_metadata_record(entry: dict, feed_meta: dict, record: dict) -> dict
     """Build the articles.json row for an appended archive record."""
     metadata = {
         "guid": entry.get("guid") or record.get("guid") or "",
-        "title": entry.get("title") or "",
+        "title": sanitize_text(entry.get("title") or ""),
         "link": (entry.get("link") or "").strip(),
-        "author": entry.get("author") or "",
+        "author": sanitize_text(entry.get("author") or ""),
         "published": entry.get("published") or "",
-        "feed_title": feed_meta.get("title") or "",
-        "feed_category": entry.get("feed_category") or "",
+        "feed_title": sanitize_text(feed_meta.get("title") or ""),
+        "feed_category": sanitize_text(entry.get("feed_category") or ""),
         "feed_id": feed_meta["feed_id"],
         "feed_url": feed_meta.get("feed_url") or "",
         "site_url": feed_meta.get("site_url") or "",

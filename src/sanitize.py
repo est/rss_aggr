@@ -168,6 +168,29 @@ def _plain_text_fallback(raw: str) -> str:
     return _normalize(html_lib.escape(text, quote=False))
 
 
+def sanitize_text(value: str) -> str:
+    """Strip markup from a short metadata field (title/author/feed name).
+
+    Titles are stored in the JSON archive header and later HTML-escaped; this
+    keeps the archive itself free of raw tags and control characters.
+    """
+    if value is None:
+        return ""
+    text = str(value)
+    text = _CRLF_RE.sub(" ", text)
+    text = _CONTROL_RE.sub("", text)
+    text = bleach.clean(
+        text,
+        tags=[],
+        attributes={},
+        protocols=[],
+        strip=True,
+        strip_comments=True,
+    )
+    text = html_lib.unescape(text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def sanitize_html(html: str, base_url: str = "") -> str:
     """Sanitize untrusted feed HTML and return deterministic Markdown.
 

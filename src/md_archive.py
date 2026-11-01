@@ -415,6 +415,9 @@ def append_articles(
                     handle.flush()
                     os.fsync(handle.fileno())
 
+                    # Keep the index deliberately small; feed-level fields are
+                    # in the first JSONL line, and body integrity is also
+                    # recorded in the daily archive header.
                     index_record = {
                         "kind": "article",
                         "v": 1,
@@ -425,9 +428,12 @@ def append_articles(
                         "body_offset": offset + body_offset,
                         "body_len": body_len,
                         "sha256": header_meta["body_sha256"],
+                        "guid": header_meta["guid"],
+                        "link": header_meta["link"],
+                        "title": header_meta["title"],
+                        "author": header_meta["author"],
+                        "published": header_meta["published"],
                     }
-                    for field in ARTICLE_META_FIELDS:
-                        index_record[field] = header_meta[field]
                     results[position] = index_record
 
     return [record for record in results if record is not None]
@@ -738,9 +744,12 @@ def rebuild_indexes(
                 "body_offset": record["body_offset"],
                 "body_len": record["body_len"],
                 "sha256": record["sha256"],
+                "guid": _text(meta.get("guid")),
+                "link": _text(meta.get("link")),
+                "title": _text(meta.get("title")),
+                "author": _text(meta.get("author")),
+                "published": _text(meta.get("published")),
             }
-            for field in ARTICLE_META_FIELDS:
-                index_record[field] = _text(meta.get(field))
             keys = _article_keys(index_record)
             if any(key in group["keys"] for key in keys):
                 duplicates += 1
