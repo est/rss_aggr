@@ -27,8 +27,14 @@ from urllib.parse import quote, urlsplit
 import bleach
 import markdown
 
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover - Python < 3.11
+    import tomli as tomllib
+
 from src import md_archive
 from src.sanitize import ALLOWED_ATTRIBUTES, ALLOWED_PROTOCOLS, ALLOWED_TAGS
+from src.urls import canonical_url
 
 MARKDOWN_EXTENSIONS = ("fenced_code", "tables", "sane_lists")
 JSON_FEED_VERSION = "https://jsonfeed.org/version/1.1"
@@ -629,6 +635,98 @@ def _load_feeds(feeds_dir: Path) -> list[FeedIndex]:
 
 
 # ---------------------------------------------------------------------------
+# Current feed metadata (feeds.toml)
+# ---------------------------------------------------------------------------
+def _load_feed_config(
+    path: str | Path | None,
+) -> tuple[dict[str, tuple[str, str, str]], dict[str, tuple[str, str, str]]]:
+    """Read current feed titles/sites from ``feeds.toml``.
+
+    Returns ``(by_url, by_id)`` where each value is ``(title, site_url,
+    feed_url)``. The JSONL index stays append-only; this config is only
+    overlaid onto a copy of each header while rendering.
+    """
+    if path is None:
+        return {}, {}
+    target = Path(path)
+    if not target.is_file():
+        return {}, {}
+    try:
+        with target.open("rb") as handle:
+            data = tomllib.load(handle)
+    except (OSError, ValueError):
+        return {}, {}
+
+    by_url: dict[str, tuple[str, str, str]] = {}
+    by_id: dict[str, tuple[str, str, str]] = {}
+    for category in data.get("category") or []:
+        if not isinstance(category, dict):
+            continue
+        for feed in category.get("feed") or []:
+            if not isinstance(feed, dict):
+                continue
+            title = _text(feed.get("title")).strip()
+            site_url = _text(feed.get("site")).strip()
+            feed_url = _text(feed.get("url")).strip()
+            if not (title or site_url or feed_url):
+                continue
+            override = (title, site_url, feed_url)
+            canonical = canonical_url(feed_url)
+            if canonical:
+                by_url.setdefault(canonical, override)
+            identifier = md_archive.feed_id(feed_url, site_url, title)
+            if identifier:
+                by_id.setdefault(identifier, override)
+    return by_url, by_id
+
+
+def _overlay_feed_header(
+    header: dict,
+    by_url: dict[str, tuple[str, str, str]],
+    by_id: dict[str, tuple[str, str, str]],
+) -> dict:
+    """Return a copy of ``header`` with feeds.toml metadata overlaid."""
+    if not by_url and not by_id:
+        return header
+    feed_url = _text(header.get("feed_url")).strip()
+    site_url = _text(header.get("site_url")).strip()
+    title = _text(header.get("title")).strip()
+    feed_id = _text(header.get("feed_id")).strip()
+
+    override = by_url.get(canonical_url(feed_url)) if feed_url else None
+    if override is None and feed_id:
+        override = by_id.get(feed_id)
+    if override is None:
+        override = by_id.get(md_archive.feed_id(feed_url, site_url, title))
+    if override is None:
+        return header
+
+    merged = dict(header)
+    for key, value in zip(("title", "site_url", "feed_url"), override):
+        if value:
+            merged[key] = value
+    return merged
+
+
+def _apply_feed_config(
+    feed_indexes: list[FeedIndex], feed_config: str | Path | None
+) -> list[FeedIndex]:
+    """Overlay current feeds.toml titles/sites onto copies of the headers."""
+    by_url, by_id = _load_feed_config(feed_config)
+    if not by_url and not by_id:
+        return feed_indexes
+    return [
+        FeedIndex(
+            feed.feed_id,
+            feed.output_id,
+            _overlay_feed_header(feed.header, by_url, by_id),
+            feed.records,
+        )
+        for feed in feed_indexes
+    ]
+
+
+# ---------------------------------------------------------------------------
 # Page rendering
 # ---------------------------------------------------------------------------
 def _render_day(
@@ -871,11 +969,12 @@ def render_site(
     archive: str | Path,
     feeds: str | Path,
     base_url: str = "",
+    feed_config: str | Path | None = None,
 ) -> dict:
     """Render all pages and JSON Feeds; return a small deterministic summary."""
     site_dir = Path(site)
     archive_dir = _resolve_archive(archive)
-    feed_indexes = _load_feeds(Path(feeds))
+    feed_indexes = _apply_feed_config(_load_feeds(Path(feeds)), feed_config)
 
     feed_lookup: dict[str, tuple[str, str]] = {}
     for feed in feed_indexes:
@@ -931,12 +1030,23 @@ def build_parser() -> argparse.ArgumentParser:
         default="",
         help="absolute public site URL (used for JSON Feed URLs)",
     )
+    parser.add_argument(
+        "--feed-config",
+        default="feeds.toml",
+        help="feeds.toml with current feed titles/sites ('' disables)",
+    )
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    summary = render_site(args.site, args.archive, args.feeds, base_url=args.base_url)
+    summary = render_site(
+        args.site,
+        args.archive,
+        args.feeds,
+        base_url=args.base_url,
+        feed_config=args.feed_config or None,
+    )
     print(
         f"Rendered {_plural(summary['days'], 'day')}, "
         f"{_plural(summary['articles'], 'article')} and "

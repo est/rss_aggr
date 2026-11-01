@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.articles import (
+from src.article_state import (
     append_to_articles,
     cleanup_articles,
     get_article_links,

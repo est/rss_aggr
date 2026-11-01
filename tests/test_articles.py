@@ -1,9 +1,13 @@
+import json
 import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from src.articles import (
+from src.article_state import (
+    ARTICLE_STATE_FILE,
+    ARTICLE_STATE_VERSION,
+    LEGACY_ARTICLE_STATE_FILE,
     STATUS_CLASSIFIED,
     STATUS_FAILED,
     STATUS_PENDING,
@@ -19,6 +23,7 @@ from src.articles import (
     get_pending_articles,
     load_articles,
     merge_fetched_entries,
+    metadata_only,
     save_articles,
     set_content_hydrated,
     store_fetched_entries,
@@ -32,7 +37,7 @@ def _iso(days: float = 0) -> str:
 
 
 def _path(tmp: str) -> str:
-    return str(Path(tmp) / "articles.json")
+    return str(Path(tmp) / ARTICLE_STATE_FILE)
 
 
 def _archive_record(**overrides):
@@ -357,6 +362,79 @@ class ArticleCacheTests(unittest.TestCase):
                 [{"link": "https://a.com/1", "content": "<p>secret</p>"}], path
             )
             self.assertNotIn("secret", Path(path).read_text(encoding="utf-8"))
+
+
+class ArticleStateFileTests(unittest.TestCase):
+    def test_legacy_articles_json_list_is_loaded_when_state_file_missing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            legacy = Path(tmp) / LEGACY_ARTICLE_STATE_FILE
+            legacy.write_text(
+                json.dumps([{"link": "https://a.com/legacy", "indexed": True}]),
+                encoding="utf-8",
+            )
+            state_path = str(Path(tmp) / ARTICLE_STATE_FILE)
+            self.assertFalse(Path(state_path).exists())
+
+            self.assertEqual(validate_articles_file(state_path), "ok")
+            articles = load_articles(state_path)
+            self.assertEqual(len(articles), 1)
+            self.assertEqual(articles[0]["link"], "https://a.com/legacy")
+            self.assertTrue(articles[0]["indexed"])
+
+    def test_save_writes_versioned_state_file_and_not_legacy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            state_path = Path(tmp) / ARTICLE_STATE_FILE
+            save_articles([{"link": "https://a.com/1", "content": "body"}], str(state_path))
+
+            self.assertTrue(state_path.exists())
+            self.assertFalse((Path(tmp) / LEGACY_ARTICLE_STATE_FILE).exists())
+
+            data = json.loads(state_path.read_text(encoding="utf-8"))
+            self.assertIsInstance(data, dict)
+            self.assertEqual(data["v"], ARTICLE_STATE_VERSION)
+            self.assertEqual(len(data["articles"]), 1)
+            self.assertEqual(data["articles"][0]["link"], "https://a.com/1")
+            self.assertNotIn("content", data["articles"][0])
+
+    def test_load_accepts_versioned_object_and_bare_list(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / ARTICLE_STATE_FILE
+            path.write_text(
+                json.dumps({"v": 1, "articles": [{"link": "https://a.com/obj"}]}),
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                [a["link"] for a in load_articles(str(path))],
+                ["https://a.com/obj"],
+            )
+            self.assertEqual(validate_articles_file(str(path)), "ok")
+
+            path.write_text(json.dumps([{"link": "https://a.com/list"}]), encoding="utf-8")
+            self.assertEqual(
+                [a["link"] for a in load_articles(str(path))],
+                ["https://a.com/list"],
+            )
+            self.assertEqual(validate_articles_file(str(path)), "ok")
+
+    def test_indexed_flag_survives_metadata_save_and_load(self):
+        article = {
+            "link": "https://a.com/1",
+            "indexed": True,
+            "content": "body",
+            "content_length": 4,
+        }
+        cleaned = metadata_only(article)
+        self.assertTrue(cleaned["indexed"])
+        self.assertNotIn("content", cleaned)
+        self.assertNotIn("content_length", cleaned)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = str(Path(tmp) / ARTICLE_STATE_FILE)
+            save_articles([article], path)
+            loaded = load_articles(path)
+            self.assertEqual(len(loaded), 1)
+            self.assertTrue(loaded[0]["indexed"])
+            self.assertNotIn("content", loaded[0])
 
 
 if __name__ == "__main__":

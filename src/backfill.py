@@ -2,13 +2,14 @@
 
 Old caches stored raw feed HTML in ``content``/``content_length``. This tool
 sanitizes each body into Markdown, appends it to the durable daily archive,
-creates/extends the per-feed index and rewrites ``articles.json`` as a
-metadata-only file carrying archive offsets.
+creates/extends the per-feed index and writes a metadata-only
+``article_state.json`` (``{"v": 1, "articles": [...]}``) carrying archive
+offsets. The ``--articles`` input remains a legacy bare JSON array.
 
 Usage::
 
     python -m src.backfill --articles articles.json --root . \
-        --feeds feeds --out articles.json
+        --feeds feeds --out article_state.json
 
 The migration is idempotent: entries whose canonical link/guid already exists
 in the feed index are not appended again.
@@ -26,7 +27,7 @@ except ModuleNotFoundError:  # pragma: no cover
     import tomli as tomllib
 
 from src import md_archive
-from src.articles import (
+from src.article_state import (
     STATUS_PENDING,
     archive_fields,
     article_keys,
@@ -141,7 +142,7 @@ def _existing_record(article: dict, index: dict[str, dict]) -> dict | None:
 def _metadata_record(
     article: dict, record: dict | None, feed_meta: dict, fetched_at: str
 ) -> dict:
-    """Build the metadata-only articles.json row for one migrated article."""
+    """Build the metadata-only article_state row for one migrated article."""
     metadata = {
         key: value
         for key, value in article.items()
@@ -167,6 +168,7 @@ def _metadata_record(
     metadata["cached_at"] = metadata.get("cached_at") or fetched_at
     if record:
         metadata.update(archive_fields(record))
+        metadata["indexed"] = True
     return metadata
 
 

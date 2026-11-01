@@ -3,20 +3,20 @@
 # Backfill a legacy raw articles.json into the permanent Markdown archive.
 #
 # This is a thin wrapper around `python -m src.backfill`; it writes the
-# metadata-only articles.json (default: ./articles.json) and then validates
-# the generated archive. The migration is idempotent: links/guids already in
-# feeds/*.jsonl are skipped.
+# metadata-only article_state.json (default: ./article_state.json) and then
+# validates the generated archive. The migration is idempotent: links/guids
+# already in feeds/*.jsonl are skipped.
 #
 # Usage:
 #   scripts/backfill_archive.sh OLD_ARTICLES_JSON [src.backfill options]
 #
 # Examples:
-#   scripts/backfill_archive.sh /tmp/legacy-articles.json
-#   scripts/backfill_archive.sh /tmp/legacy-articles.json --out articles.json
-#   scripts/backfill_archive.sh /tmp/legacy-articles.json --root . --feeds feeds
+#   scripts/backfill_archive.sh /path/to/legacy-articles.json
+#   scripts/backfill_archive.sh /path/to/legacy-articles.json --out article_state.json
+#   scripts/backfill_archive.sh /path/to/legacy-articles.json --root . --feeds feeds
 #
 # Environment:
-#   OUT    output metadata file (default: articles.json)
+#   OUT    output metadata file (default: article_state.json)
 #
 # The default archive root is ./archive. If you pass --root, validate that
 # archive manually with: python -m src.md_archive --validate ROOT/archive
@@ -28,16 +28,16 @@ usage() {
 Usage: scripts/backfill_archive.sh OLD_ARTICLES_JSON [options]
 
 Runs:
-  python -m src.backfill --articles OLD_ARTICLES_JSON --out articles.json [options]
+  python -m src.backfill --articles OLD_ARTICLES_JSON --out article_state.json [options]
   python -m src.md_archive --validate archive
 
 Options are passed through to src.backfill:
   --root DIR     project root (archive files go to DIR/archive)
   --feeds DIR    per-feed JSONL directory (default: feeds)
-  --out FILE     metadata-only output (default: $OUT or articles.json)
+  --out FILE     metadata-only output (default: $OUT or article_state.json)
 
 Environment:
-  OUT            default output file (default: articles.json)
+  OUT            default output file (default: article_state.json)
 EOF
 }
 
@@ -55,7 +55,7 @@ if [ ! -f "$ARTICLES" ]; then
   exit 1
 fi
 
-OUT="${OUT:-articles.json}"
+OUT="${OUT:-article_state.json}"
 
 python -m src.backfill --articles "$ARTICLES" --out "$OUT" "$@"
 

@@ -16,6 +16,7 @@ from src.md_archive import (
     read_record,
     rebuild_indexes,
     reconcile_indexes,
+    repair_indexes,
     repair_tail,
     validate_archive,
 )
@@ -360,3 +361,130 @@ def test_feed_meta_from_meta_keeps_feed_fields():
         "site_url": "https://example.com",
         "title": "",
     }
+
+
+def _feed_two_meta(**overrides):
+    return _feed_meta(
+        **{
+            "feed_id": "feed-2",
+            "feed_url": "https://other.example.org/feed.xml",
+            "site_url": "https://other.example.org",
+            "title": "Other Feed",
+            **overrides,
+        }
+    )
+
+
+def _build_two_feed_archive(tmp_path):
+    records = append_articles(
+        str(tmp_path),
+        [
+            (
+                _meta(
+                    guid="g1",
+                    link="https://example.com/a",
+                    feed_title="Example Feed",
+                ),
+                "one\n",
+            ),
+            (
+                _meta(guid="g2", link="https://example.com/b", feed_title="Example Feed"),
+                "two\n",
+            ),
+            (
+                _meta(
+                    guid="g3",
+                    link="https://other.example.org/c",
+                    feed_id="feed-2",
+                    feed_url="https://other.example.org/feed.xml",
+                    site_url="https://other.example.org",
+                    feed_title="Other Feed",
+                    published="2026-05-02T01:00:00Z",
+                ),
+                "three\n",
+            ),
+        ],
+    )
+    feeds_dir = tmp_path / "feeds"
+    append_feed_record(feeds_dir, _feed_meta(), records[0])
+    append_feed_record(feeds_dir, _feed_meta(), records[1])
+    append_feed_record(feeds_dir, _feed_two_meta(), records[2])
+    return records, feeds_dir
+
+
+def _drop_article_line(path, guid):
+    lines = path.read_text(encoding="utf-8").splitlines()
+    kept = [
+        line
+        for line in lines
+        if not (
+            json.loads(line).get("kind") == "article"
+            and json.loads(line).get("guid") == guid
+        )
+    ]
+    path.write_text("\n".join(kept) + "\n", encoding="utf-8")
+
+
+def test_repair_indexes_restores_missing_article_and_preserves_annotations(tmp_path):
+    records, feeds_dir = _build_two_feed_archive(tmp_path)
+    feed_meta = _feed_meta()
+    append_feed_annotation(
+        feeds_dir,
+        feed_meta,
+        {
+            "guid": "g1",
+            "file": records[0]["file"],
+            "offset": records[0]["offset"],
+            "category": "Tech",
+            "summary": "keep me",
+            "score": 8,
+            "classified_at": "2026-05-02T00:00:00Z",
+        },
+    )
+
+    path = feeds_dir / "feed-1.jsonl"
+    _drop_article_line(path, "g1")
+    after_loss = path.read_bytes()
+
+    stats = repair_indexes(tmp_path / "archive", feeds_dir)
+
+    assert stats == {"articles": 3, "feeds": 2, "appended": 1, "skipped": 2}
+    repaired = path.read_bytes()
+    # Existing bytes stay untouched; the missing record is only appended.
+    assert repaired.startswith(after_loss)
+    header, entries = read_feed_index(path)
+    assert header["title"] == "Example Feed"
+    assert [entry["kind"] for entry in entries] == [
+        "article",
+        "annotation",
+        "article",
+    ]
+    assert [entry["guid"] for entry in entries] == ["g2", "g1", "g1"]
+    annotation = entries[1]
+    assert annotation["summary"] == "keep me"
+    assert annotation["category"] == "Tech"
+    restored = entries[2]
+    assert restored["offset"] == records[0]["offset"]
+    assert restored["length"] == records[0]["length"]
+
+    again = repair_indexes(tmp_path / "archive", feeds_dir)
+    assert again == {"articles": 3, "feeds": 2, "appended": 0, "skipped": 3}
+    assert path.read_bytes() == repaired
+
+
+def test_repair_indexes_recreates_a_missing_index_file(tmp_path):
+    _records, feeds_dir = _build_two_feed_archive(tmp_path)
+    path = feeds_dir / "feed-2.jsonl"
+    path.unlink()
+
+    stats = repair_indexes(tmp_path, feeds_dir)
+
+    assert stats == {"articles": 3, "feeds": 2, "appended": 1, "skipped": 2}
+    header, entries = read_feed_index(path)
+    assert header["kind"] == "feed"
+    assert header["feed_id"] == "feed-2"
+    assert header["title"] == "Other Feed"
+    assert [entry["kind"] for entry in entries] == ["article"]
+    assert entries[0]["guid"] == "g3"
+
+    assert repair_indexes(tmp_path, feeds_dir)["appended"] == 0

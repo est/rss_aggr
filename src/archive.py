@@ -1,11 +1,13 @@
-"""Archive layer: per-day metadata JSONL and metadata-only data-branch snapshots.
+"""LEGACY ADR-016 archive layer: metadata JSONL snapshots.
 
-Raw article bodies must never enter git. Only metadata is archived; the raw
-``content``/``content_length`` fields stay in the Actions cache and in the
-local ``articles.json`` working copy.
+This module is kept only for reading old ADR-016 layouts/tests. The current
+durable archive is ``archive/YYYY/MM/DD.md`` managed by :mod:`src.md_archive`,
+and current runtime state is ``feed_state.json`` / ``article_state.json``.
+Its CLI is disabled unless ``RSS_AGGR_LEGACY_ARCHIVE_TOOL=1`` is set.
 """
 import argparse
 import json
+import os
 import shutil
 import sys
 from datetime import datetime, timezone
@@ -336,6 +338,13 @@ def main(argv: list[str] | None = None) -> int:
         help="Drop partial/invalid lines from per-day JSONL archive files",
     )
     args = parser.parse_args(argv)
+
+    if os.environ.get("RSS_AGGR_LEGACY_ARCHIVE_TOOL") != "1":
+        parser.error(
+            "the ADR-016 archive CLI is disabled; use src.md_archive and "
+            "feed_state.json/article_state.json. Set "
+            "RSS_AGGR_LEGACY_ARCHIVE_TOOL=1 only to inspect old JSONL archives."
+        )
 
     if args.repair:
         removed = repair_archive_dir(args.repair)

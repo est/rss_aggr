@@ -105,20 +105,45 @@ jobs:
           # restore-keys and reports a partial match. Treat validated files as
           # authoritative, and log the exact/partial state for debugging.
           cache_ok=false
-          if [ -f .runtime/state.json ] && [ -f .runtime/articles.json ]; then
-            if validate_json .runtime/state.json && validate_json .runtime/articles.json; then
+          # Accept both the split state files and the pre-split legacy names.
+          # A cache written by an older run has state.json/articles.json only.
+          cache_feed_state=""
+          cache_article_state=""
+          if [ -f .runtime/feed_state.json ]; then
+            cache_feed_state=.runtime/feed_state.json
+          elif [ -f .runtime/state.json ]; then
+            cache_feed_state=.runtime/state.json
+          fi
+          if [ -f .runtime/article_state.json ]; then
+            cache_article_state=.runtime/article_state.json
+          elif [ -f .runtime/articles.json ]; then
+            cache_article_state=.runtime/articles.json
+          fi
+          if [ -n "$cache_feed_state" ] && [ -n "$cache_article_state" ]; then
+            if validate_json "$cache_feed_state" && validate_json "$cache_article_state"; then
               cache_ok=true
               # Metadata validity alone is not enough: archive refs must point
               # at files in this cache, and an archive with articles must have
-              # feed indexes (annotations live there).
-              if ! python - <<'PY'
+              # feed indexes (annotations live there). Article rows are either
+              # the versioned {"v": 1, "articles": [...]} object or a legacy
+              # bare list.
+              if ! python - "$cache_article_state" <<'PY'
           import json
           import sys
           from pathlib import Path
 
           root = Path(".runtime")
-          articles = json.loads((root / "articles.json").read_text(encoding="utf-8"))
-          for article in articles if isinstance(articles, list) else []:
+          data = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          if isinstance(data, dict):
+              rows = data.get("articles")
+          elif isinstance(data, list):
+              rows = data
+          else:
+              rows = None
+          if not isinstance(rows, list):
+              print("cache article metadata is neither a list nor an articles object")
+              sys.exit(1)
+          for article in rows:
               if not isinstance(article, dict):
                   continue
               file = article.get("archive_file")
@@ -169,8 +194,10 @@ jobs:
               fi
 
               # Metadata is replaced by the snapshot; archive/, feeds/ and
-              # output/ are durable append-only trees.
-              for f in state.json articles.json status.json; do
+              # output/ are durable append-only trees. New and legacy names are
+              # both copied, and a normalisation step below writes the split
+              # files when only the legacy ones exist.
+              for f in feed_state.json article_state.json state.json articles.json status.json; do
                 if [ -f ".data/$f" ]; then
                   cp ".data/$f" "./$f"
                 fi
@@ -182,23 +209,21 @@ jobs:
                 fi
               done
 
-              if [ ! -f state.json ] || [ ! -f articles.json ]; then
-                echo "::error::data branch exists but is missing state.json or articles.json"
+              if { [ ! -f feed_state.json ] && [ ! -f state.json ]; } \
+                || { [ ! -f article_state.json ] && [ ! -f articles.json ]; }; then
+                echo "::error::data branch exists but has no feed/article metadata (feed_state.json|state.json and article_state.json|articles.json)"
                 exit 1
               fi
               # Validate before deleting the extracted tree so corruption on
               # the snapshot branch is reported instead of silently ignored.
-              if ! validate_json state.json; then
-                echo "::error::restored state.json is not valid JSON; refusing to start"
-                exit 1
-              fi
-              if ! validate_json articles.json; then
-                echo "::error::restored articles.json is not valid JSON; refusing to start"
-                exit 1
-              fi
+              for f in feed_state.json article_state.json state.json articles.json; do
+                if [ -f "$f" ] && ! validate_json "$f"; then
+                  echo "::error::restored $f is not valid JSON; refusing to start"
+                  exit 1
+                fi
+              done
               if [ -f status.json ] && ! validate_json status.json; then
-                echo "::error::restored status.json is not valid JSON; refusing to start"
-                exit 1
+                echo "::warning::restored status.json is not valid JSON; ignoring derived status"
               fi
 
               if ! has_daily_archive; then
@@ -212,7 +237,7 @@ jobs:
                 fi
               fi
 
-              echo "Restored state/articles/status plus archive/feeds/output from data branch"
+              echo "Restored feed/article metadata (new or legacy names) plus archive/feeds/output from data branch"
               rm -rf .data
             elif [ "$data_rc" -eq 2 ] || { [ "$data_rc" -eq 0 ] && [ -z "$data_heads" ]; }; then
               # One-time migration path for the pre-ADR-016 layout. Raw
@@ -257,8 +282,9 @@ jobs:
           fi
 
           # Never run with corrupt metadata: it would be silently treated as
-          # empty and then written back over the data branch.
-          for f in state.json articles.json status.json; do
+          # empty and then written back over the data branch. New and legacy
+          # names are both checked; the normalisation step below reads them.
+          for f in feed_state.json article_state.json state.json articles.json status.json; do
             if [ -f "$f" ]; then
               if ! validate_json "$f"; then
                 echo "::error::$f is not valid JSON; refusing to start"
@@ -268,6 +294,55 @@ jobs:
           done
 
           echo "Runtime files restored (cache_ok=$cache_ok)"
+
+      # Split the legacy state.json/articles.json pair into the durable
+      # feed_state.json/article_state.json files before any archive work. The
+      # loaders fall back to the legacy names, so this also runs when only one
+      # pair was restored.
+      - name: Migrate runtime state
+        run: |
+          set -euo pipefail
+          validate_json() {
+            python -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' "$1"
+          }
+
+          python -m src.migrate_state
+
+          for f in feed_state.json article_state.json; do
+            if [ ! -f "$f" ]; then
+              echo "::error::$f is missing after state migration; refusing to run"
+              exit 1
+            fi
+            if ! validate_json "$f"; then
+              echo "::error::$f is not valid JSON after state migration; refusing to run"
+              exit 1
+            fi
+          done
+
+          python - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          feed = json.loads(Path("feed_state.json").read_text(encoding="utf-8"))
+          if not isinstance(feed, dict) or not isinstance(feed.get("feeds", {}), dict):
+              sys.exit("feed_state.json does not contain a feeds object")
+
+          article = json.loads(Path("article_state.json").read_text(encoding="utf-8"))
+          if isinstance(article, dict):
+              rows = article.get("articles")
+          elif isinstance(article, list):
+              rows = article
+          else:
+              rows = None
+          if not isinstance(rows, list):
+              sys.exit("article_state.json does not contain an articles array")
+
+          print(
+              f"state migration: {len(feed.get('feeds', {}))} feed(s), "
+              f"{len(rows)} article row(s)"
+          )
+          PY
 
       # A cache hit from the old architecture may carry raw bodies but no
       # Markdown archive; a data branch may be the ADR-016 metadata-only
@@ -279,22 +354,53 @@ jobs:
             [ -n "$(find archive -type f -name '*.md' -print -quit 2>/dev/null)" ]
           }
           articles_have_bodies() {
-            python - <<'PY'
+            python - "$1" <<'PY'
           import json
           import sys
           from pathlib import Path
 
           try:
-              data = json.loads(Path("articles.json").read_text(encoding="utf-8"))
+              data = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
           except (OSError, ValueError):
               sys.exit(1)
-          if not isinstance(data, list):
+          if isinstance(data, dict):
+              rows = data.get("articles")
+          elif isinstance(data, list):
+              rows = data
+          else:
+              rows = None
+          if not isinstance(rows, list):
               sys.exit(1)
           has_body = any(
               isinstance(item, dict) and (item.get("content") or "").strip()
-              for item in data
+              for item in rows
           )
           sys.exit(0 if has_body else 1)
+          PY
+          }
+          normalize_articles() {
+            # src.backfill expects a bare JSON array. Accept the versioned
+            # {"v": 1, "articles": [...]} object as well and write a bare list.
+            python - "$1" "$2" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          try:
+              data = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          except (OSError, ValueError):
+              sys.exit(1)
+          if isinstance(data, dict):
+              rows = data.get("articles")
+          elif isinstance(data, list):
+              rows = data
+          else:
+              rows = None
+          if not isinstance(rows, list):
+              sys.exit(1)
+          Path(sys.argv[2]).write_text(
+              json.dumps(rows, ensure_ascii=False), encoding="utf-8"
+          )
           PY
           }
 
@@ -316,19 +422,34 @@ jobs:
           fi
 
           raw_source=""
-          # 1. The cache itself may predate the Markdown archive and still
-          #    contain raw bodies.
-          if [ -f articles.json ] && articles_have_bodies; then
-            raw_source=articles.json
-            echo "Found raw bodies in the restored cache; backfilling from articles.json"
+          # 1. A cache/data branch may predate the Markdown archive and still
+          #    contain raw bodies. Legacy articles.json is checked first:
+          #    state migration strips bodies before writing article_state.json.
+          if [ -f articles.json ] && articles_have_bodies articles.json; then
+            mkdir -p .backfill
+            if normalize_articles articles.json .backfill/legacy-input.json; then
+              raw_source=.backfill/legacy-input.json
+              echo "Found raw bodies in the restored legacy articles.json; backfilling"
+            else
+              echo "::warning::legacy articles.json could not be normalised for backfill; ignoring it"
+            fi
+          elif [ -f article_state.json ] && articles_have_bodies article_state.json; then
+            mkdir -p .backfill
+            if normalize_articles article_state.json .backfill/legacy-input.json; then
+              raw_source=.backfill/legacy-input.json
+              echo "Found raw bodies in article_state.json; backfilling from a normalised copy"
+            else
+              echo "::warning::article_state.json could not be normalised for backfill; ignoring it"
+            fi
           fi
           # 2. A legacy gh-pages capture from the restore step.
           if [ -z "$raw_source" ] && [ -f .legacy/articles.json ]; then
-            if python -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' .legacy/articles.json; then
-              raw_source=.legacy/articles.json
+            mkdir -p .backfill
+            if normalize_articles .legacy/articles.json .backfill/legacy-input.json; then
+              raw_source=.backfill/legacy-input.json
               echo "Using legacy articles captured from gh-pages for backfill"
             else
-              echo "::warning::legacy gh-pages articles.json is not valid JSON; ignoring it"
+              echo "::warning::legacy gh-pages articles.json is not a valid article state; ignoring it"
             fi
           fi
           # 3. The data branch restored only metadata, but gh-pages may still
@@ -339,15 +460,15 @@ jobs:
             site_heads="$(git ls-remote --exit-code --heads origin gh-pages 2>/dev/null)" || site_rc=$?
             if [ "$site_rc" -eq 0 ] && [ -n "$site_heads" ]; then
               if git fetch --depth=1 origin gh-pages; then
-                mkdir -p .legacy
+                mkdir -p .legacy .backfill
                 for name in articles.json cache.json; do
                   if git cat-file -e "FETCH_HEAD:$name" 2>/dev/null; then
                     git show "FETCH_HEAD:$name" > .legacy/articles.json
-                    if python -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' .legacy/articles.json; then
-                      raw_source=.legacy/articles.json
+                    if normalize_articles .legacy/articles.json .backfill/legacy-input.json; then
+                      raw_source=.backfill/legacy-input.json
                       echo "Fetched legacy $name from gh-pages for one-time backfill"
                     else
-                      echo "::warning::legacy gh-pages $name is not valid JSON; ignoring it"
+                      echo "::warning::legacy gh-pages $name is not a valid article state; ignoring it"
                       rm -f .legacy/articles.json
                     fi
                     break
@@ -385,9 +506,9 @@ jobs:
             # archive offsets produced by the backfill. Records that only exist
             # in the legacy file are appended as pending.
             python - <<'PY'
-          from src.articles import archive_fields, article_keys, load_articles, save_articles
+          from src.article_state import archive_fields, article_keys, load_articles, save_articles
 
-          existing = load_articles("articles.json")
+          existing = load_articles("article_state.json")
           migrated = load_articles(".backfill/articles.json")
           by_key = {}
           for record in migrated:
@@ -423,7 +544,7 @@ jobs:
           for record in migrated:
               if id(record) not in used:
                   merged.append(record)
-          save_articles(merged, "articles.json")
+          save_articles(merged, "article_state.json")
           print(f"backfill merge: {len(existing)} existing, {len(migrated)} migrated, {len(merged)} total")
           PY
             rm -rf .backfill
@@ -439,10 +560,10 @@ jobs:
             # the refs so the forced fetch can archive the bodies again; the
             # pending metadata itself is preserved.
             python - <<'PY'
-          from src.articles import STATUS_CLASSIFIED, STATUS_SKIPPED, STATUS_UNCLASSIFIED, load_articles, save_articles
+          from src.article_state import STATUS_CLASSIFIED, STATUS_SKIPPED, STATUS_UNCLASSIFIED, load_articles, save_articles
 
           done = {STATUS_CLASSIFIED, STATUS_SKIPPED, STATUS_UNCLASSIFIED}
-          articles = load_articles("articles.json")
+          articles = load_articles("article_state.json")
           changed = False
           for article in articles:
               if article.get("status") in done:
@@ -458,7 +579,7 @@ jobs:
                       article.pop(field, None)
                       changed = True
           if changed:
-              save_articles(articles, "articles.json")
+              save_articles(articles, "article_state.json")
               print("stripped stale archive refs from pending metadata")
           PY
           fi
@@ -470,10 +591,21 @@ jobs:
           validate_json() {
             python -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' "$1"
           }
-          for f in state.json articles.json status.json; do
-            if [ -f "$f" ] && ! validate_json "$f"; then
+          for f in feed_state.json article_state.json; do
+            if [ ! -f "$f" ]; then
+              echo "::error::$f is missing; refusing to run"
+              exit 1
+            fi
+            if ! validate_json "$f"; then
               echo "::error::$f is not valid JSON; refusing to run"
               exit 1
+            fi
+          done
+          # Legacy names may survive a data-branch restore. They are no longer
+          # authoritative; report corruption but do not fail on it.
+          for f in state.json articles.json status.json; do
+            if [ -f "$f" ] && ! validate_json "$f"; then
+              echo "::warning::legacy $f is not valid JSON; ignoring it"
             fi
           done
 
@@ -496,12 +628,18 @@ jobs:
           # once, drop stale feed records/annotations, and clear dead refs in
           # metadata so fetch can re-archive the bodies.
           if [ -f .cache-restore-miss ] && [ -d feeds ]; then
+            # Non-lossy: append archive records missing from feed indexes while
+            # preserving every existing record and annotation.
+            if ! python -m src.md_archive --repair-indexes archive --feeds feeds; then
+              echo "::error::could not repair missing feed index records; refusing to run"
+              exit 1
+            fi
             python -m src.md_archive --reconcile-indexes archive --feeds feeds
             python - <<'PY'
           from pathlib import Path
 
           from src import md_archive
-          from src.articles import article_archive_ref, load_articles, save_articles
+          from src.article_state import article_archive_ref, load_articles, save_articles
 
           root = Path("archive")
           articles = load_articles()
@@ -626,16 +764,16 @@ jobs:
             echo "::warning::runtime restore did not succeed; skipping cache save"
             exit 0
           fi
-          if [ ! -f state.json ] || [ ! -f articles.json ]; then
-            echo "::warning::state.json or articles.json is missing; skipping cache save"
+          if [ ! -f feed_state.json ] || [ ! -f article_state.json ]; then
+            echo "::warning::feed_state.json or article_state.json is missing; skipping cache save"
             exit 0
           fi
           if [ ! -f output/index.md ]; then
             echo "::warning::output/index.md is missing; skipping cache save"
             exit 0
           fi
-          for f in state.json articles.json status.json; do
-            if [ -f "$f" ] && ! validate_json "$f"; then
+          for f in feed_state.json article_state.json; do
+            if ! validate_json "$f"; then
               echo "::warning::$f is not valid JSON; skipping cache save"
               exit 0
             fi
@@ -685,21 +823,27 @@ jobs:
             exit 0
           fi
 
-          # articles.json is metadata-only. Strip any legacy raw body fields
-          # before they can enter the cache (and later the data branch).
+          # article_state.json is metadata-only. Strip any legacy raw body
+          # fields before they can enter the cache (and later the data branch).
           python - <<'PY'
           import json
           from pathlib import Path
 
-          from src.articles import save_articles
+          from src.article_state import save_articles
 
-          path = Path("articles.json")
+          path = Path("article_state.json")
           data = json.loads(path.read_text(encoding="utf-8"))
-          if not isinstance(data, list):
-              raise SystemExit("articles.json is not a JSON array")
+          if isinstance(data, dict):
+              rows = data.get("articles")
+          elif isinstance(data, list):
+              rows = data
+          else:
+              rows = None
+          if not isinstance(rows, list):
+              raise SystemExit("article_state.json has no articles array")
           cleaned = []
           leaked = 0
-          for item in data:
+          for item in rows:
               if not isinstance(item, dict):
                   continue
               if item.get("content") or "content_length" in item:
@@ -712,14 +856,13 @@ jobs:
                   }
               )
           if leaked:
-              save_articles(cleaned, "articles.json")
+              save_articles(cleaned, "article_state.json")
               print(f"::warning::stripped raw bodies from {leaked} cache articles")
           PY
 
-          cp state.json articles.json .runtime/
-          if [ -f status.json ]; then
-            cp status.json .runtime/
-          fi
+          # status.json is a derived report only; it is intentionally not
+          # cached so a stale status can never be treated as durable state.
+          cp feed_state.json article_state.json .runtime/
           cp -R output .runtime/output
           cp -R archive .runtime/archive
           cp -R feeds .runtime/feeds
@@ -762,16 +905,12 @@ jobs:
             echo "::warning::runtime artifacts were not validated for cache; skipping data snapshot"
             exit 0
           fi
-          if [ ! -f state.json ] || [ ! -f articles.json ]; then
-            echo "::warning::state.json or articles.json is missing; skipping data snapshot"
+          if [ ! -f feed_state.json ] || [ ! -f article_state.json ]; then
+            echo "::warning::feed_state.json or article_state.json is missing; skipping data snapshot"
             exit 0
           fi
-          if ! validate_json state.json || ! validate_json articles.json; then
+          if ! validate_json feed_state.json || ! validate_json article_state.json; then
             echo "::warning::runtime files are not valid JSON; skipping data snapshot"
-            exit 0
-          fi
-          if [ -f status.json ] && ! validate_json status.json; then
-            echo "::warning::status.json is not valid JSON; skipping data snapshot"
             exit 0
           fi
 
@@ -832,11 +971,14 @@ jobs:
             exit 0
           fi
 
-          # Replace managed metadata files but preserve remote append-only
+          # Replace the managed metadata files but preserve remote append-only
           # trees. Local copies are then written over them without deleting
-          # remote files, so a stale cache cannot shrink the archive.
+          # remote files, so a stale cache cannot shrink the archive. The
+          # cleanup also removes legacy state.json/articles.json/status.json;
+          # status.json is derived and must never be snapshotted.
           find .data-push -mindepth 1 -maxdepth 1 \
             ! -name .git ! -name archive ! -name feeds ! -name output -exec rm -rf {} +
+          rm -f .data-push/state.json .data-push/articles.json .data-push/status.json
           mkdir -p .data-push/archive .data-push/feeds
 
           # Append-only trees may only grow. Refuse to overwrite a longer
@@ -881,13 +1023,10 @@ jobs:
           fi
           # output/ is a derived human summary. Keep any existing remote copy
           # but do not overwrite it with a potentially older local tree.
-          cp state.json .data-push/state.json
-          cp articles.json .data-push/articles.json
-          if [ -f status.json ]; then
-            cp status.json .data-push/status.json
-          else
-            rm -f .data-push/status.json
-          fi
+          # status.json is not copied: it is a derived report, not durable state.
+          cp feed_state.json .data-push/feed_state.json
+          cp article_state.json .data-push/article_state.json
+          rm -f .data-push/state.json .data-push/articles.json .data-push/status.json
 
           # The old ADR-016 archive was a flat archive/YYYY-MM-DD.jsonl.
           # Its metadata is superseded by the Markdown archive; keep only the
@@ -904,22 +1043,33 @@ jobs:
           from src import md_archive
 
           root = Path(".data-push")
-          allowed = {"state.json", "articles.json", "status.json", "output", "archive", "feeds"}
+          allowed = {"feed_state.json", "article_state.json", "output", "archive", "feeds"}
           entries = {p.name for p in root.iterdir() if p.name != ".git"}
           extra = entries - allowed
           if extra:
               sys.exit(f"unexpected paths in data snapshot: {sorted(extra)}")
 
-          for name in ("state.json", "articles.json"):
+          for name in ("feed_state.json", "article_state.json"):
               path = root / name
               if not path.is_file():
                   sys.exit(f"missing {name} in data snapshot")
               data = json.loads(path.read_text(encoding="utf-8"))
-              if name == "articles.json":
-                  if not isinstance(data, list):
-                      sys.exit("articles.json is not a JSON array")
+              if name == "feed_state.json":
+                  if not isinstance(data, dict):
+                      sys.exit("feed_state.json is not a JSON object")
+              else:
+                  # Accept the versioned object and, defensively, a legacy
+                  # bare list. Raw bodies are read from the article rows.
+                  if isinstance(data, dict):
+                      rows = data.get("articles")
+                  elif isinstance(data, list):
+                      rows = data
+                  else:
+                      rows = None
+                  if not isinstance(rows, list):
+                      sys.exit("article_state.json has no articles array")
                   leaked = [
-                      item for item in data
+                      item for item in rows
                       if isinstance(item, dict)
                       and (item.get("content") or item.get("content_length"))
                   ]
@@ -930,10 +1080,10 @@ jobs:
                       )
               print(f"{name}: ok")
 
-          status = root / "status.json"
-          if status.exists():
-              json.loads(status.read_text(encoding="utf-8"))
-              print("status.json: ok")
+          # status.json is a derived report. The cleanup above deletes a stale
+          # remote copy; refuse to push if one somehow reappears.
+          if (root / "status.json").exists():
+              sys.exit("status.json must not be part of the data snapshot")
 
           # Repair only incomplete tails on the combined remote+local archive.
           # src.md_archive does not have a Python "repair then validate" entry
@@ -981,8 +1131,8 @@ jobs:
           git -C .data-push commit -q -m "data: snapshot $(date -u +%Y-%m-%d)"
           if ! git -C .data-push push origin data; then
             echo "::warning::data push rejected; rebasing once and retrying"
-            # Note: a concurrent human commit that touches state.json /
-            # articles.json usually conflicts here. That is intentional: the
+            # Note: a concurrent human commit that touches feed_state.json /
+            # article_state.json usually conflicts here. That is intentional: the
             # retry then fails instead of overwriting the remote branch.
             git -C .data-push pull --rebase origin data
             git -C .data-push push origin data

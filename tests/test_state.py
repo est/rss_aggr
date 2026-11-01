@@ -1,18 +1,29 @@
+import json
+import os
+import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
-from src import state as state_mod
-from src.state import (
+from src import feed_state as state_mod
+from src.feed_state import (
     ERROR_BLOCKED,
     ERROR_PARSE,
     ERROR_PERMANENT,
     ERROR_RATE_LIMIT,
     ERROR_TRANSIENT,
+    FEED_STATE_FILE,
+    LEGACY_FEED_STATE_FILE,
     classify_error,
+    collect_feed_urls,
     disable_feed,
+    forget_feed,
     get_due_feeds,
+    load_state,
     mark_failed,
     mark_ok,
+    prune_feeds,
+    save_state,
     state_summary,
 )
 
@@ -282,6 +293,133 @@ class SummaryTests(unittest.TestCase):
         self.assertEqual(stats["total"], 2)
         self.assertEqual(stats["disabled"], 1)
         self.assertEqual(stats["failing"], 1)
+
+
+class StateFileTests(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self._cwd = os.getcwd()
+        os.chdir(self._tmp.name)
+        self.addCleanup(os.chdir, self._cwd)
+
+    def _write_json(self, name, data):
+        Path(name).write_text(json.dumps(data), encoding="utf-8")
+
+    def test_file_constants(self):
+        self.assertEqual(FEED_STATE_FILE, "feed_state.json")
+        self.assertEqual(LEGACY_FEED_STATE_FILE, "state.json")
+        self.assertEqual(state_mod.STATE_FILE, FEED_STATE_FILE)
+
+    def test_load_falls_back_to_legacy_state_json(self):
+        legacy = {"feeds": {"https://a.com/feed": {"last_status": "ok"}}}
+        self._write_json("state.json", legacy)
+
+        self.assertEqual(load_state(), legacy)
+
+    def test_load_prefers_new_file_over_legacy(self):
+        self._write_json("state.json", {"feeds": {"legacy": {}}})
+        new = {"feeds": {"new": {}}}
+        self._write_json("feed_state.json", new)
+
+        self.assertEqual(load_state(), new)
+
+    def test_load_returns_empty_when_no_file_exists(self):
+        self.assertEqual(load_state(), {"feeds": {}})
+
+    def test_save_writes_versioned_new_file_and_not_legacy(self):
+        state = {"feeds": {"https://a.com/feed": {}}, "last_fetch": "2026-01-01T00:00:00+00:00"}
+
+        save_state(state)
+
+        self.assertTrue(Path("feed_state.json").exists())
+        self.assertFalse(Path("state.json").exists())
+        saved = json.loads(Path("feed_state.json").read_text(encoding="utf-8"))
+        self.assertEqual(saved["v"], 1)
+        self.assertEqual(saved["feeds"], state["feeds"])
+        self.assertEqual(saved["last_fetch"], state["last_fetch"])
+
+    def test_save_preserves_extra_top_level_keys(self):
+        state = {"feeds": {}, "last_classify": "x", "custom": {"a": 1}}
+        save_state(state, "custom_state.json")
+
+        saved = json.loads(Path("custom_state.json").read_text(encoding="utf-8"))
+        self.assertEqual(saved["v"], 1)
+        self.assertEqual(saved["last_classify"], "x")
+        self.assertEqual(saved["custom"], {"a": 1})
+
+
+class PruneForgetTests(unittest.TestCase):
+    def test_prune_removes_unknown_and_keeps_known_including_skipped(self):
+        state = {
+            "feeds": {
+                "https://a.com/known": {"last_status": "ok"},
+                "https://a.com/skipped": {"last_status": "ok"},
+                "https://a.com/gone": {"last_status": "error"},
+            },
+            "last_fetch": "2026-01-01T00:00:00+00:00",
+        }
+        known = {"https://a.com/known", "https://a.com/skipped"}
+
+        removed = prune_feeds(state, known)
+
+        self.assertEqual(removed, 1)
+        self.assertEqual(set(state["feeds"]), known)
+        self.assertEqual(state["last_fetch"], "2026-01-01T00:00:00+00:00")
+
+    def test_prune_with_no_unknown_urls_returns_zero(self):
+        state = {"feeds": {"https://a.com/known": {}}}
+        self.assertEqual(prune_feeds(state, {"https://a.com/known"}), 0)
+
+    def test_forget_feed(self):
+        state = _empty_state()
+        url = "https://a.com/feed"
+        mark_ok(state, url)
+
+        self.assertTrue(forget_feed(state, url))
+        self.assertNotIn(url, state["feeds"])
+        self.assertFalse(forget_feed(state, url))
+
+    def test_collect_feed_urls_includes_skipped_entries(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Path(tmp) / "feeds.toml"
+            config.write_text(
+                "\n".join(
+                    [
+                        "[[category]]",
+                        'name = "Blogs"',
+                        "",
+                        "[[category.feed]]",
+                        'title = "Active"',
+                        'url = "https://a.com/active"',
+                        "",
+                        "[[category.feed]]",
+                        'title = "Skipped"',
+                        'url = "https://a.com/skipped"',
+                        "skip = true",
+                        "",
+                        "[[category]]",
+                        'name = "News"',
+                        "",
+                        "[[category.feed]]",
+                        'title = "Other"',
+                        'url = "https://b.com/other"',
+                        "skip = true",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            urls = collect_feed_urls(config)
+
+            self.assertEqual(
+                urls,
+                {
+                    "https://a.com/active",
+                    "https://a.com/skipped",
+                    "https://b.com/other",
+                },
+            )
 
 
 if __name__ == "__main__":

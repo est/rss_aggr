@@ -18,21 +18,23 @@
 | 概念 | 工作区路径（真实文件） | 持久化在哪 | 谁写 | 丢了会怎样 |
 |------|------------------------|------------|------|------------|
 | 归档 | `archive/YYYY/MM/DD.md` | `data` 分支 | `--fetch` | 不能丢，事实来源 |
-| 每 feed 索引 | `feeds/<feed_id>.jsonl` | `data` 分支 | `--fetch` / `--classify` | 可从 archive 重建（annotation 会丢） |
-| 运行时状态 | `state.json`、`articles.json`、`status.json` | `data` 分支 | 各步骤 | 可从 `data` 上一份快照恢复 |
+| 每 feed 索引 | `feeds/<feed_id>.jsonl` | `data` 分支 | `--fetch` / `--classify` | 可从 archive 补回 / 重建（全量重建会丢 annotation） |
+| feed 状态 | `feed_state.json` | `data` 分支 | `--fetch` / `src.feed_state` | 可从 `data` 上一份快照恢复；缺失会重新抓取并重建失败计数 |
+| 文章状态 | `article_state.json`（`{"v":1,"articles":[...]}`；`pending` / `classified` / `skipped` / `unclassified`、attempts、归档坐标、`indexed`） | `data` 分支 | `--fetch` / `--classify` / `--cleanup` | 可从 `data` 上一份快照恢复；缺失会强制重抓窗口 |
+| 运行报告 | `status.json` | 不持久化（仅工作区当轮） | `--report` / `--check` | 可随时重新生成 |
 | 热缓存 | `.runtime/`（CI 内部） | Actions cache | workflow | 能丢，丢了从 `data` 冷启动 |
-| 人工摘要 | `output/` | 工作区/cache；旧 `data` 可保留历史副本（新快照不写入） | `--classify` | 能丢，不是归档 |
+| 人工摘要 | `output/` | 工作区/cache；旧 `data` 可能残留（新快照不写入） | `--classify` | 能丢，不是归档，也不参与去重 |
 | 对外站点 | `_site/` | Pages artifact | `src.render` | 能随时重建 |
 
 - **archive**：按文章发布日期（UTC）写入 `archive/YYYY/MM/DD.md`，append-only，永不修改已有字节。
 - **feeds**：`feeds/<feed_id>.jsonl`，按 feed 聚合；用字节 offset 指向 archive。
-- **data 分支**：持久化 archive、feeds、state 和元数据；分支根目录下就是这些路径。
+- **data 分支**：持久化 `archive/`、`feeds/`、`feed_state.json`、`article_state.json`；分支根目录下就是这些路径。
 - **Actions cache**：只用于加速，不是唯一真相；cache 可能比 `data` 新。
 - **main 分支**：只有代码、配置和文档；本地运行时数据被 `.gitignore` 忽略，本地跑完也不会自动推 `data`。
 
 > 注意：`feeds.toml` 是订阅源清单（在 `main`），`feeds/` 是每 feed 的索引目录（在 `data`），两者不是一回事。
 
-`output/` 是给人看的摘要表格，只是 cache 里的临时产物，不是归档。给其他系统消费请读渲染后的 JSON Feed（`_site/feeds/<id>.json`）；JSON 里只有元数据、摘要和归档坐标（`_archive`），没有全文。全文在 `archive/YYYY/MM/DD.md` 和每日页面里；per-feed 页面会按坐标对 `_site/archive/YYYY/MM/DD.md` 发 HTTP Range 请求，只取需要的那一段。不要直接依赖 `data` 分支的文件布局。
+`output/` 是给人看的摘要表格，派生自文章状态和分类结果；**安全删除**，并且不再是 fetch/classify 的去重依据。它只在工作区/cache，旧 `data` 可能残留历史副本但新快照不会更新。给其他系统消费请读渲染后的 JSON Feed（`_site/feeds/<id>.json`）；JSON 里只有元数据、摘要和归档坐标（`_archive`），没有全文。全文在 `archive/YYYY/MM/DD.md` 和每日页面里；per-feed 页面会按坐标对 `_site/archive/YYYY/MM/DD.md` 发 HTTP Range 请求，只取需要的那一段。不要直接依赖 `data` 分支的文件布局。
 
 完整的“概念 → 路径/分支 → 运行流程”对照见 [docs/ARCHITECTURE-MAP.md](docs/ARCHITECTURE-MAP.md)。
 
@@ -49,8 +51,8 @@ export OPENAI_API_KEY=sk-...
 # 抓取 + 分类 + 清理
 python -m src.main
 
-# 生成静态站点
-python -m src.render --site _site --archive archive --feeds feeds
+# 生成静态站点（feeds.toml 提供当前显示 title/site）
+python -m src.render --site _site --archive archive --feeds feeds --feed-config feeds.toml
 ```
 
 per-feed 页面通过 `fetch` 加载 JSON 和 Markdown 片段，需要通过 HTTP 打开（GitHub Pages 或本地静态服务器）；直接 `file://` 打开会加载失败。
@@ -59,23 +61,23 @@ per-feed 页面通过 `fetch` 加载 JSON 和 Markdown 片段，需要通过 HTT
 
 ```bash
 python -m src.main --sync       # 同步 sources.toml 里的外部源列表
-python -m src.main --fetch      # 抓 RSS，清洗并写入 archive/ 和 feeds/
+python -m src.main --fetch      # 抓 RSS，写 archive/、feeds/、article_state.json、feed_state.json
 python -m src.main --classify   # AI 分类，写 output/ 和 feed annotation
-python -m src.main --cleanup    # 清理 14 天前的 articles.json 元数据
-python -m src.main --report     # 写 status.json
+python -m src.main --cleanup    # 清理 14 天前的 article_state.json 元数据
+python -m src.main --report     # 生成 status.json 派生报告（不进 data/cache）
 python -m src.main --check      # 检查运行时契约
 ```
 
 本地生成的文件都在 `.gitignore` 里，不会进 `main`：
 
 ```text
-archive/   永久归档
-feeds/     per-feed JSONL 索引
-output/    人工摘要
-_site/     渲染结果
-state.json
-articles.json
-status.json
+archive/        永久归档
+feeds/          per-feed JSONL 索引
+output/         人工摘要（派生，可删）
+_site/          渲染结果
+feed_state.json 每 feed 运行状态
+article_state.json  {"v":1,"articles":[...]} 文章处理状态
+status.json     派生报告（可删，不进 data/cache）
 ```
 
 ## 配置
@@ -84,9 +86,14 @@ status.json
 
 | 文件 | 作用 |
 |------|------|
-| `config.toml` | AI、抓取、过滤、限制、存储路径 |
+| `config.toml` | AI、抓取、过滤、限制 |
 | `feeds.toml` | 具体订阅源，按分类组织 |
 | `sources.toml` | 外部 OPML/TOML 源列表，`--sync` 会合并进 `feeds.toml` |
+
+- `feeds.toml` 里的 URL 按 canonical URL 去重（http/https、www、尾斜杠等），**第一次出现的条目胜出**；`--sync` 也会清理 canonical 重复项。
+- 要永久停止一个 feed，保留条目并设 `skip = true`，不要直接删除；直接删除的 URL 只要还在 `sources.toml` 里，下一次 `--sync` 会把它加回来。
+
+存储布局固定为工作区根目录下的 `archive/`、`feeds/`、`output/`（`src/paths.py`）。`config.toml` 里不再有 `[storage]` 覆盖；写了会被拒绝启动。
 
 `config.toml` 常用项：
 
@@ -146,7 +153,9 @@ skip_prompt = "标题以 TIL 开头就设为 skip"
 
 - article 记录负责“这篇文章在哪”。
 - annotation 记录负责“AI 怎么评价”，最新一条胜出。
-- 索引是派生数据，坏了可以从 archive 重建。
+- 索引是派生数据，坏了可以从 archive 补回或重建；`--repair-indexes` 只补缺失记录、保留 annotation，`--rebuild-indexes` 会丢 annotation。
+- 分类时先追加 annotation，再写 `output/`，最后才标记 `classified`；annotation 写入失败的行保持 `pending`（带 `annotation_error`）并在下一轮重试，不会提交 `classified` 状态，也不会为它写 `output/` 行。
+- feed header 里的 title/site 是历史值；`src.render` 默认用 `feeds.toml` 当前配置覆盖显示，不回写 append-only 的 JSONL。新文章用新配置，历史归档记录保留历史元数据。
 
 ## 分支模型
 
@@ -155,10 +164,15 @@ skip_prompt = "标题以 TIL 开头就设为 skip"
 | 分支 | 内容 | 谁写 |
 |------|------|------|
 | `main` | 代码、配置、文档、workflow | 人 + `sync-feeds` |
-| `data` | `archive/`、`feeds/`、`state.json`、`articles.json`、`status.json` | 采集 workflow，每天最多一次普通 commit |
+| `data` | `archive/`、`feeds/`、`feed_state.json`、`article_state.json`（旧快照可能残留 `output/`） | 采集 workflow，每天最多一次普通 commit |
 
 - `data` 是永久归档；`archive/` 和 `feeds/` 只追加。
-- `state.json` / `articles.json` / `status.json` 每轮整体替换。
+- `feed_state.json`（每 feed 的 `last_ok` / `last_attempt` / 失败计数 / `disabled` / `retry_at` / ETag / `is_aggregator`，以及顶层 `last_fetch` / `last_classify`）和 `article_state.json` 每轮整体替换。
+- `status.json` 是 `--report` / `--check` 现算的派生报告，不写入 `data`，也不进 cache。
+- Actions cache 保存 `feed_state.json`、`article_state.json`、`archive/`、`feeds/`、`output/`；不含 `status.json`。
+- `output/` 是派生摘要；旧快照可能保留，新快照不再写入。
+- `state.json` / `articles.json` 只是迁移期旧名：loader 仍能 fallback 读取，`python -m src.migrate_state` 会拆分，下一份 `data` 快照会删除。
+- 每轮 `--fetch` 会按 `feeds.toml` 清理 `feed_state.json` 中已移除的 feed；`skip = true` 的条目会保留。被移除后重新加回的 URL 从干净状态开始。
 - **不需要 `gh-pages`**：GitHub Pages 直接从 Actions artifact 部署。
 - 旧仓库迁移完成后可以删除 `gh-pages`。
 
@@ -171,10 +185,11 @@ skip_prompt = "标题以 TIL 开头就设为 skip"
 
 首次运行如果只有旧 `gh-pages`：
 
-1. 从 `gh-pages` 读取旧的 `state.json`、`output/`、raw `articles.json`；
-2. 用 `src.backfill` 把旧正文清洗后写入新的 `archive/` 和 `feeds/`；
-3. 成功后再创建 `data` 分支；
-4. 确认页面正常后删除旧 `gh-pages`：
+1. 从 `gh-pages` 读取 legacy 的 `state.json` 和 raw `articles.json`（`output/` 只是历史摘要，不参与去重或回填）；
+2. 运行 `python -m src.migrate_state` 把 legacy 状态拆成 `feed_state.json` / `article_state.json`；
+3. 用 `src.backfill` 把旧正文清洗后写入新的 `archive/` 和 `feeds/`；
+4. 成功后再创建 `data` 分支；
+5. 确认页面正常后删除旧 `gh-pages`：
 
 ```bash
 git push origin --delete gh-pages
@@ -186,26 +201,42 @@ git push origin --delete gh-pages
 
 如果不想等 workflow 自动回填：
 
+### 1. 迁移状态文件（legacy）
+
+旧工作区可能只有 `state.json` / `articles.json`。loader 仍会 fallback，但建议显式拆分：
+
+```bash
+python -m src.migrate_state
+# 迁移后删除旧文件：
+python -m src.migrate_state --remove-legacy
+```
+
+结果写入 `feed_state.json` 和 `article_state.json`；下一份 `data` 快照会移除旧文件。
+
+### 2. 回填旧的 raw 正文
+
 ```bash
 python -m src.backfill \
   --articles OLD_ARTICLES_JSON \
   --root . \
   --feeds feeds \
-  --out articles.json
+  --out article_state.json
 ```
 
 或者用包装脚本：
 
 ```bash
-scripts/backfill_archive.sh OLD_ARTICLES_JSON
+scripts/backfill_archive.sh OLD_ARTICLES_JSON --out article_state.json
 ```
+
+`--articles` 读取 legacy 的 bare JSON 数组（如果拿到 `{"v":1,"articles":[...]}`，先取出 `articles` 再传入；CI 会自动做这一步）。
 
 回填会：
 
 - 把 raw HTML 清洗成 Markdown；
 - 写入 `archive/YYYY/MM/DD.md`；
 - 创建/扩展 `feeds/<feed_id>.jsonl`；
-- 输出 metadata-only 的 `articles.json`。
+- 输出 metadata-only 的 `article_state.json`（versioned object：`{"v":1,"articles":[...]}`）。
 
 旧行如果已经有分类结果，会顺便写入 feed annotation。重复执行不会重复归档。
 
@@ -218,18 +249,27 @@ python -m src.md_archive --validate archive
 # 只修复未完成的尾部记录（不会动中间损坏）
 python -m src.md_archive --repair archive
 
-# 从 archive 重建 feed 索引（annotation 会丢）
+# 只补 feed 索引里缺失的记录（保留已有记录和 annotation）
+python -m src.md_archive --repair-indexes archive --feeds feeds
+
+# 从 archive 全量重建 feed 索引（annotation 会丢）
 python -m src.md_archive --rebuild-indexes archive --feeds feeds
 
 # 校验 offset/length/sha，删除失效索引记录
 python -m src.md_archive --reconcile-indexes archive --feeds feeds
+
+# 让单个 feed 忘掉 disabled/ETag/retry，下一轮强制重试
+python -m src.feed_state --forget "https://example.com/rss.xml"
+
+# 按 feeds.toml 清理 feed_state（fetch 每轮也会自动做；skip=true 会保留）
+python -m src.feed_state --prune --feeds-config feeds.toml
 ```
 
 如果 AI 不可用：
 
 - 文章仍然会输出标题和链接；
 - `Category / Summary / Score` 为空；
-- `status.json` 和日志里会有 warning；
+- 本轮的 `status.json` 派生报告和日志里会有 warning；
 - job 不会因为“AI 没配好”而不产出内容。
 
 ## 体积和限制

@@ -1,9 +1,17 @@
-"""Article cache: metadata-only records pending classification.
+"""Article processing state: metadata-only records pending classification.
 
 Raw article bodies live in the durable Markdown archive (see
-:mod:`src.md_archive`). ``articles.json`` only keeps metadata plus the archive
-offset reference; ``content`` is hydrated into memory for classification and
-removed again before the file is written.
+:mod:`src.md_archive`). ``article_state.json`` only keeps metadata plus the
+archive offset reference; ``content`` is hydrated into memory for
+classification and removed again before the file is written.
+
+The file is a versioned object::
+
+    {"v": 1, "articles": [ ... ]}
+
+Legacy ``articles.json`` files that contain a bare JSON list are still read
+(and are used as a fallback when ``article_state.json`` does not exist), but
+they are never written by :func:`save_articles`.
 """
 import json
 from datetime import datetime, timedelta, timezone
@@ -11,7 +19,13 @@ from pathlib import Path
 
 from src.urls import canonical_url
 
-ARTICLES_FILE = "articles.json"
+# New processing-state file. ``ARTICLES_FILE`` stays as a compatibility alias
+# for callers that imported the old constant.
+ARTICLE_STATE_FILE = "article_state.json"
+LEGACY_ARTICLE_STATE_FILE = "articles.json"
+ARTICLE_STATE_VERSION = 1
+
+ARTICLES_FILE = ARTICLE_STATE_FILE
 
 # Article lifecycle statuses.
 STATUS_PENDING = "pending"
@@ -29,7 +43,7 @@ UNCLASSIFIED = STATUS_UNCLASSIFIED
 
 _DONE_STATUSES = {STATUS_CLASSIFIED, STATUS_SKIPPED, STATUS_UNCLASSIFIED}
 
-# Fields copied from an md_archive index record into articles.json.
+# Fields copied from an md_archive index record into the state file.
 ARCHIVE_FIELDS = (
     "archive_file",
     "archive_offset",
@@ -54,6 +68,11 @@ _REFRESHABLE_FIELDS = (
     "site_url",
     "canonical",
 )
+
+# Body fields that must never be persisted in the state file.
+_BODY_FIELDS = ("content", "content_length")
+
+_READ_ERRORS = (json.JSONDecodeError, OSError, UnicodeDecodeError)
 
 
 def _parse_dt(value) -> datetime | None:
@@ -87,8 +106,7 @@ def article_keys(article: dict) -> list[str]:
     """Return archive/index dedup keys (``link:`` canonical and ``guid:``).
 
     The prefix format matches :mod:`src.md_archive` so a feed index can be
-    deduped against fetched entries and articles.json records without any
-    conversion.
+    deduped against fetched entries and state records without any conversion.
     """
     if not isinstance(article, dict):
         return []
@@ -111,18 +129,17 @@ def canonical_article_key(article: dict) -> str:
 
 
 def metadata_only(article: dict) -> dict:
-    """Return a copy of ``article`` without raw body fields."""
+    """Return a copy of ``article`` without raw body fields.
+
+    All other fields (including future flags such as ``indexed``) are kept.
+    """
     if not isinstance(article, dict):
         return {}
-    return {
-        key: value
-        for key, value in article.items()
-        if key not in ("content", "content_length")
-    }
+    return {key: value for key, value in article.items() if key not in _BODY_FIELDS}
 
 
 def archive_fields(record: dict) -> dict:
-    """Map an md_archive index record to articles.json archive fields.
+    """Map an md_archive index record to state-file archive fields.
 
     Accepts both the index-record names (``file``/``offset``/``length``/
     ``body_len``/``sha256``) and the already-mapped article field names.
@@ -192,54 +209,87 @@ def clear_content(article: dict) -> dict:
     return article
 
 
-def validate_articles_file(path: str = ARTICLES_FILE) -> str:
+def _legacy_fallback_path(p: Path) -> Path | None:
+    """Return the legacy sibling path to try when ``p`` is a state file path."""
+    if p.name != ARTICLE_STATE_FILE:
+        return None
+    legacy = p.with_name(LEGACY_ARTICLE_STATE_FILE)
+    return None if legacy == p else legacy
+
+
+def _read_path(p: Path) -> Path | None:
+    """Resolve the file to read: ``p`` if present, else its legacy sibling."""
+    if p.exists():
+        return p
+    legacy = _legacy_fallback_path(p)
+    if legacy is not None and legacy.exists():
+        return legacy
+    return None
+
+
+def _parse_state(data) -> list[dict] | None:
+    """Normalize parsed JSON into a list of articles (``None`` when invalid)."""
+    if isinstance(data, list):
+        # Legacy bare list from articles.json.
+        return [item for item in data if isinstance(item, dict)]
+    if isinstance(data, dict):
+        articles = data.get("articles")
+        if isinstance(articles, list):
+            return [item for item in articles if isinstance(item, dict)]
+    return None
+
+
+def validate_articles_file(path: str = ARTICLE_STATE_FILE) -> str:
     """Return ``missing``, ``ok`` or ``corrupt`` without mutating the file."""
-    p = Path(path)
-    if not p.exists():
+    target = _read_path(Path(path))
+    if target is None:
         return "missing"
     try:
-        data = json.loads(p.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError, UnicodeDecodeError):
+        data = json.loads(target.read_text(encoding="utf-8"))
+    except _READ_ERRORS:
         return "corrupt"
-    return "ok" if isinstance(data, list) else "corrupt"
+    return "ok" if _parse_state(data) is not None else "corrupt"
 
 
-def load_articles(path: str = ARTICLES_FILE) -> list[dict]:
-    """Load cached articles from JSON file."""
-    p = Path(path)
-    if not p.exists():
+def load_articles(path: str = ARTICLE_STATE_FILE) -> list[dict]:
+    """Load processing state from JSON.
+
+    Accepts the versioned object (``{"v": 1, "articles": [...]}``), a legacy
+    bare list, and falls back to ``articles.json`` next to the state file when
+    the state file itself is missing. Returns ``[]`` when nothing is readable.
+    """
+    target = _read_path(Path(path))
+    if target is None:
         return []
     try:
-        data = json.loads(p.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError, UnicodeDecodeError):
+        data = json.loads(target.read_text(encoding="utf-8"))
+    except _READ_ERRORS:
         return []
-    return data if isinstance(data, list) else []
+    articles = _parse_state(data)
+    return articles if articles is not None else []
 
 
-def save_articles(articles: list[dict], path: str = ARTICLES_FILE) -> None:
-    """Save metadata to JSON (atomic write, parent dir created).
+def save_articles(articles: list[dict], path: str = ARTICLE_STATE_FILE) -> None:
+    """Save metadata to the versioned state file (atomic write, dir created).
 
     Raw ``content`` is always stripped here as a final guard: even a caller
     that forgot to call :func:`clear_content` cannot leak article bodies.
+    Unknown fields (for example a future ``indexed`` flag) are preserved.
     """
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
-    clean = [
-        {
-            key: value
-            for key, value in article.items()
-            if key not in ("content", "content_length")
-        }
-        for article in articles
-        if isinstance(article, dict)
-    ]
+    clean = [metadata_only(article) for article in articles if isinstance(article, dict)]
+    payload = {"v": ARTICLE_STATE_VERSION, "articles": clean}
     tmp = p.with_name(p.name + ".tmp")
-    tmp.write_text(json.dumps(clean, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     tmp.replace(p)
 
 
-def append_to_articles(new_articles: list[dict], path: str = ARTICLES_FILE) -> int:
-    """Append new articles to cache, dedup by canonical link. Returns count added."""
+def append_to_articles(new_articles: list[dict], path: str = ARTICLE_STATE_FILE) -> int:
+    """Append new articles to the state, dedup by canonical link.
+
+    Returns the number of records added.
+    """
     existing = load_articles(path)
     existing_keys = {_article_key(a) for a in existing if _article_key(a)}
 
@@ -279,9 +329,9 @@ def _apply_archive_ref(current: dict, incoming: dict) -> bool:
 
 
 def store_fetched_entries(
-    entries: list[dict], path: str = ARTICLES_FILE
+    entries: list[dict], path: str = ARTICLE_STATE_FILE
 ) -> tuple[int, int]:
-    """Merge archive-backed fetched entries into the metadata cache.
+    """Merge archive-backed fetched entries into the state file.
 
     ``entries`` are built by ``step_fetch`` after the body has been appended to
     the Markdown archive, so they carry archive fields but no raw content.
@@ -325,6 +375,7 @@ def store_fetched_entries(
             )
             entry["status"] = STATUS_PENDING
             entry["attempts"] = 0
+            entry["indexed"] = False
             entry["cached_at"] = incoming.get("cached_at") or now
             existing.append(entry)
             for item_key in article_keys(entry):
@@ -349,6 +400,7 @@ def store_fetched_entries(
             changed = True
             current["status"] = STATUS_PENDING
             current["attempts"] = 0
+            current["indexed"] = False
             refreshed += 1
 
         for field in _REFRESHABLE_FIELDS:
@@ -371,7 +423,7 @@ def store_fetched_entries(
 
 
 def merge_fetched_entries(
-    entries: list[dict], path: str = ARTICLES_FILE
+    entries: list[dict], path: str = ARTICLE_STATE_FILE
 ) -> tuple[int, int]:
     """Backward-compatible alias for :func:`store_fetched_entries`.
 
@@ -381,7 +433,7 @@ def merge_fetched_entries(
     return store_fetched_entries(entries, path)
 
 
-def get_pending_articles(limit: int = 0, path: str = ARTICLES_FILE) -> list[dict]:
+def get_pending_articles(limit: int = 0, path: str = ARTICLE_STATE_FILE) -> list[dict]:
     """Return not-yet-classified articles ordered by cached_at (oldest first)."""
     pending = [
         a for a in load_articles(path)
@@ -393,8 +445,8 @@ def get_pending_articles(limit: int = 0, path: str = ARTICLES_FILE) -> list[dict
     return pending
 
 
-def cleanup_articles(keep_days: int = 14, path: str = ARTICLES_FILE) -> int:
-    """Remove expired cache entries.
+def cleanup_articles(keep_days: int = 14, path: str = ARTICLE_STATE_FILE) -> int:
+    """Remove expired state entries.
 
     Classified/skipped entries are removed after one day; everything else
     (pending/failed) after ``keep_days``. ``published`` is used when valid,
@@ -434,8 +486,8 @@ def cleanup_articles(keep_days: int = 14, path: str = ARTICLES_FILE) -> int:
     return removed
 
 
-def get_article_links(path: str = ARTICLES_FILE) -> set[str]:
-    """Get canonical links currently in the articles cache."""
+def get_article_links(path: str = ARTICLE_STATE_FILE) -> set[str]:
+    """Get canonical links currently in the article state."""
     links = set()
     for a in load_articles(path):
         link = a.get("link") or ""
@@ -445,8 +497,8 @@ def get_article_links(path: str = ARTICLES_FILE) -> set[str]:
     return links
 
 
-def summarize_articles(path: str = ARTICLES_FILE) -> dict:
-    """Aggregate article-cache counters for the status report."""
+def summarize_articles(path: str = ARTICLE_STATE_FILE) -> dict:
+    """Aggregate article-state counters for the status report."""
     articles = load_articles(path)
     summary = {
         "total": 0,

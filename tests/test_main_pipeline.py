@@ -8,14 +8,14 @@ from pathlib import Path
 from unittest.mock import patch
 
 from src import md_archive
-from src.articles import (
+from src.article_state import (
     archive_fields,
     article_archive_ref,
     load_articles,
     save_articles,
 )
 from src.classifier import ClassifyStats
-from src.main import step_classify, step_fetch
+from src.main import _storage_paths, step_classify, step_fetch
 
 
 def _fetch_config():
@@ -30,7 +30,7 @@ def _fetch_config():
             "disable_after_failures": 3,
         },
         "storage": {
-            "data_dir": "out",
+            "data_dir": "output",
             "archive_dir": "archive",
             "feeds_dir": "feeds",
         },
@@ -44,7 +44,7 @@ def _classify_config(archive_dir="archive", feeds_dir="feeds"):
         "limits": {"max_articles": 0},
         "fetch": {"keep_days": 3650},
         "storage": {
-            "data_dir": "out",
+            "data_dir": "output",
             "archive_dir": archive_dir,
             "feeds_dir": feeds_dir,
         },
@@ -120,6 +120,15 @@ def _seed_archived(
     return article, record, feed_meta
 
 
+class StorageLayoutTests(unittest.TestCase):
+    def test_fixed_layout_is_default(self):
+        self.assertEqual(_storage_paths({}), ("output", "archive", "feeds"))
+
+    def test_storage_override_is_rejected(self):
+        with self.assertRaisesRegex(RuntimeError, "unsupported"):
+            _storage_paths({"storage": {"archive_dir": "elsewhere"}})
+
+
 class FetchStepTests(unittest.TestCase):
     def test_not_modified_is_treated_as_success(self):
         feed = _feed()
@@ -131,8 +140,7 @@ class FetchStepTests(unittest.TestCase):
                 patch("src.main.load_state", return_value=state), \
                 patch("src.main.save_state") as save_state, \
                 patch("src.main.validate_articles_file", return_value="ok"), \
-                patch("src.fetcher.fetch_all_feeds", return_value=results) as fetch_all, \
-                patch("src.main.load_seen_links", return_value=set()):
+                patch("src.fetcher.fetch_all_feeds", return_value=results) as fetch_all:
             step_fetch()
 
         save_state.assert_called_once()
@@ -154,8 +162,7 @@ class FetchStepTests(unittest.TestCase):
                     patch("src.main.load_state", return_value=state), \
                     patch("src.main.save_state"), \
                     patch("src.main.validate_articles_file", return_value="ok"), \
-                    patch("src.fetcher.fetch_all_feeds", return_value=results), \
-                    patch("src.main.load_seen_links", return_value=set()):
+                    patch("src.fetcher.fetch_all_feeds", return_value=results):
                 step_fetch()
 
             archive_path = Path("archive/2026/11/01.md")
@@ -201,8 +208,7 @@ class FetchStepTests(unittest.TestCase):
                     patch("src.main.load_state", return_value=state), \
                     patch("src.main.save_state"), \
                     patch("src.main.validate_articles_file", return_value="ok"), \
-                    patch("src.fetcher.fetch_all_feeds", return_value=results), \
-                    patch("src.main.load_seen_links", return_value=set()):
+                    patch("src.fetcher.fetch_all_feeds", return_value=results):
                 step_fetch()
 
             self.assertEqual(archive_path.stat().st_size, archive_size)
@@ -229,8 +235,7 @@ class FetchStepTests(unittest.TestCase):
                     patch("src.main.load_state", return_value=state), \
                     patch("src.main.save_state"), \
                     patch("src.main.validate_articles_file", return_value="ok"), \
-                    patch("src.fetcher.fetch_all_feeds", return_value=results), \
-                    patch("src.main.load_seen_links", return_value=set()):
+                    patch("src.fetcher.fetch_all_feeds", return_value=results):
                 step_fetch()
 
             records = list(md_archive.iter_records("archive/2026/11/01.md"))
@@ -251,7 +256,6 @@ class FetchStepTests(unittest.TestCase):
                     patch("src.main.save_state"), \
                     patch("src.main.validate_articles_file", return_value="ok"), \
                     patch("src.fetcher.fetch_all_feeds", return_value=results), \
-                    patch("src.main.load_seen_links", return_value=set()), \
                     patch(
                         "src.main.md_archive.append_articles",
                         side_effect=OSError("disk full"),
@@ -271,7 +275,6 @@ class FetchStepTests(unittest.TestCase):
                     patch("src.main.save_state"), \
                     patch("src.main.validate_articles_file", return_value="ok"), \
                     patch("src.fetcher.fetch_all_feeds", return_value=results), \
-                    patch("src.main.load_seen_links", return_value=set()), \
                     patch(
                         "src.main.md_archive.append_feed_record",
                         side_effect=OSError("index full"),
@@ -291,8 +294,7 @@ class FetchStepTests(unittest.TestCase):
                     patch("src.main.save_state"), \
                     patch("src.main.validate_articles_file", return_value="missing"), \
                     patch("src.main.save_articles") as save_articles, \
-                    patch("src.fetcher.fetch_all_feeds", return_value=results) as fetch_all, \
-                    patch("src.main.load_seen_links", return_value=set()):
+                    patch("src.fetcher.fetch_all_feeds", return_value=results) as fetch_all:
                 step_fetch()
 
             _, kwargs = fetch_all.call_args
@@ -311,8 +313,7 @@ class FetchStepTests(unittest.TestCase):
                 patch("src.main.save_state"), \
                 patch("src.main.validate_articles_file", return_value="ok"), \
                 patch("src.main.get_due_feeds", return_value=[feed]) as due, \
-                patch("src.fetcher.fetch_all_feeds", return_value=results) as fetch_all, \
-                patch("src.main.load_seen_links", return_value=set()):
+                patch("src.fetcher.fetch_all_feeds", return_value=results) as fetch_all:
             step_fetch()
 
         self.assertEqual(due.call_args.args[2], 0)
@@ -328,13 +329,67 @@ class FetchStepTests(unittest.TestCase):
                 patch("src.main.load_state", return_value=state), \
                 patch("src.main.save_state") as save_state, \
                 patch("src.main.validate_articles_file", return_value="ok"), \
-                patch("src.fetcher.fetch_all_feeds", return_value=results), \
-                patch("src.main.load_seen_links", return_value=set()):
+                patch("src.fetcher.fetch_all_feeds", return_value=results):
             with self.assertRaises(RuntimeError):
                 step_fetch()
 
         save_state.assert_called_once()
         self.assertEqual(state["feeds"][feed["xml_url"]]["last_error"], "boom")
+
+    def test_output_is_not_a_dedup_authority(self):
+        feed = _feed()
+        results = [
+            {
+                "feed": feed,
+                "status": "ok",
+                "entries": [_entry(link="https://a.com/post/1")],
+            }
+        ]
+        with tempfile.TemporaryDirectory() as tmp, contextlib.chdir(tmp):
+            Path("output/2026").mkdir(parents=True)
+            Path("output/2026/0101.md").write_text(
+                "# 2026-01-01\n\n"
+                "| Author | Title | Category | Summary | Score |\n"
+                "|--------|-------|----------|---------|-------|\n"
+                "| A | [Post](https://a.com/post/1) | Tech | old | 5 |\n",
+                encoding="utf-8",
+            )
+            with patch("src.main.load_config", return_value=_fetch_config()), \
+                    patch("src.main.parse_feeds", return_value=[feed]), \
+                    patch("src.main.load_state", return_value={"feeds": {}}), \
+                    patch("src.main.save_state"), \
+                    patch("src.main.validate_articles_file", return_value="ok"), \
+                    patch("src.fetcher.fetch_all_feeds", return_value=results):
+                step_fetch()
+
+            rows = load_articles()
+            self.assertEqual(len(rows), 1)
+            self.assertTrue(rows[0]["archive_file"])
+            self.assertTrue(rows[0]["indexed"])
+
+    def test_pending_index_flag_is_repaired_from_archive(self):
+        with tempfile.TemporaryDirectory() as tmp, contextlib.chdir(tmp):
+            article, _record, feed_meta = _seed_archived()
+            article["indexed"] = False
+            save_articles([article])
+            index_path = Path("feeds") / f"{feed_meta['feed_id']}.jsonl"
+            index_path.unlink()
+
+            with patch("src.main.load_config", return_value=_fetch_config()), \
+                    patch("src.main.parse_feeds", return_value=[]), \
+                    patch("src.main.load_state", return_value={"feeds": {}}), \
+                    patch("src.main.save_state"), \
+                    patch("src.main.validate_articles_file", return_value="ok"):
+                step_fetch()
+
+            rows = load_articles()
+            self.assertTrue(rows[0]["indexed"])
+            header, records = md_archive.read_feed_index(index_path)
+            self.assertEqual(header.get("feed_id"), feed_meta["feed_id"])
+            self.assertTrue(
+                any(r.get("guid") == "g-ok" for r in records),
+                records,
+            )
 
 
 class ClassifyStepTests(unittest.TestCase):
@@ -369,7 +424,7 @@ class ClassifyStepTests(unittest.TestCase):
             self.assertTrue(row["classified_at"])
             self.assertNotIn("content", row)
             self.assertNotIn("content_length", row)
-            raw = Path("articles.json").read_text(encoding="utf-8")
+            raw = Path("article_state.json").read_text(encoding="utf-8")
             self.assertNotIn("Hydrated body", raw)
 
             index_path = Path("feeds") / f"{feed_meta['feed_id']}.jsonl"
@@ -385,7 +440,7 @@ class ClassifyStepTests(unittest.TestCase):
             self.assertEqual(annotation["score"], 8)
             self.assertTrue(annotation["classified_at"])
 
-            output = Path("out/2026/1101.md").read_text(encoding="utf-8")
+            output = Path("output/2026/1101.md").read_text(encoding="utf-8")
             self.assertIn("Post", output)
             self.assertIn("Tech", output)
             save_state.assert_called()
@@ -414,8 +469,8 @@ class ClassifyStepTests(unittest.TestCase):
             index_path = Path("feeds") / f"{feed_meta['feed_id']}.jsonl"
             _, records = md_archive.read_feed_index(index_path)
             annotations = [r for r in records if r.get("kind") == "annotation"]
-            self.assertEqual(len(annotations), 1)
-            self.assertEqual(annotations[0]["category"], "")
+            # Title-only rows have no classification to annotate.
+            self.assertEqual(len(annotations), 0)
 
     def test_missing_archive_record_keeps_article_pending(self):
         with tempfile.TemporaryDirectory() as tmp, contextlib.chdir(tmp):
@@ -449,7 +504,6 @@ class ClassifyStepTests(unittest.TestCase):
         with patch("src.main.load_config", return_value=config), \
                 patch("src.main.parse_feeds", return_value=[]), \
                 patch("src.main.load_articles", return_value=cached), \
-                patch("src.main.load_seen_links", return_value=set()), \
                 patch("src.main.load_state", return_value={"feeds": {}}), \
                 patch("src.main.save_state") as save_state, \
                 patch("src.main.classify_articles") as classify, \
@@ -481,7 +535,7 @@ class ClassifyStepTests(unittest.TestCase):
 
             self.assertEqual(load_articles()[0]["status"], "skipped")
 
-    def test_annotation_failure_keeps_output(self):
+    def test_annotation_failure_keeps_article_pending(self):
         out = io.StringIO()
 
         def fake_classify(articles, **kwargs):
@@ -505,10 +559,14 @@ class ClassifyStepTests(unittest.TestCase):
                     ):
                 step_classify()
 
-            self.assertEqual(load_articles()[0]["status"], "classified")
+            row = load_articles()[0]
+            self.assertEqual(row["status"], "pending")
+            self.assertEqual(row["attempts"], 1)
+            self.assertIn("annotation_error", row)
             self.assertIn("WARNING", out.getvalue())
             self.assertIn("disk full", out.getvalue())
-            self.assertTrue(Path("out/2026/1101.md").is_file())
+            # No output row is committed without its annotation.
+            self.assertFalse(Path("output/2026/1101.md").is_file())
 
     def test_archive_error_is_reported_in_articles_json(self):
         with tempfile.TemporaryDirectory() as tmp, contextlib.chdir(tmp):
@@ -521,7 +579,7 @@ class ClassifyStepTests(unittest.TestCase):
                     patch("src.main.classify_articles"):
                 step_classify()
 
-            data = json.loads(Path("articles.json").read_text(encoding="utf-8"))
+            data = json.loads(Path("article_state.json").read_text(encoding="utf-8"))["articles"]
             self.assertEqual(data[0]["status"], "pending")
             self.assertIn("archive_error", data[0])
             self.assertNotIn("content", data[0])

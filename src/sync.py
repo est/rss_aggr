@@ -5,6 +5,8 @@ from pathlib import Path
 
 import requests
 
+from src.urls import canonical_url
+
 try:
     import tomllib
 except ModuleNotFoundError:
@@ -133,6 +135,33 @@ def _write_mapping(lines: list[str], mapping: dict, skip: set[str] | None = None
         lines.append(f"{key} = {encoded}")
 
 
+def dedupe_feeds(data: dict) -> int:
+    """Remove canonical duplicate feed entries in place.
+
+    An active entry wins over a ``skip = true`` duplicate; otherwise the first
+    occurrence wins. Returns the number of removed entries.
+    """
+    seen: dict[str, tuple[list[dict], int]] = {}
+    removed = 0
+    for cat in data.get("category", []):
+        kept: list[dict] = []
+        for feed in cat.get("feed", []):
+            url = (feed.get("url") or "").strip()
+            key = canonical_url(url) or url
+            if key and key in seen:
+                previous, index = seen[key]
+                if previous[index].get("skip") and not feed.get("skip"):
+                    previous[index] = feed
+                removed += 1
+                continue
+            if key:
+                seen[key] = (kept, len(kept))
+            kept.append(feed)
+        if "feed" in cat:
+            cat["feed"] = kept
+    return removed
+
+
 def save_feeds_toml(data: dict, path: Path):
     """Save feeds.toml in human-readable format with escaped values."""
     lines = []
@@ -166,11 +195,12 @@ def sync(sources_path: str = "sources.toml", feeds_path: str = "feeds.toml", use
     existing_feeds_by_url: dict[str, dict] = {}
     for cat in existing.get("category", []):
         for feed in cat.get("feed", []):
-            url = feed.get("url", "")
+            url = (feed.get("url") or "").strip()
             if url:
-                existing_feeds_by_url[url] = feed
+                key = canonical_url(url) or url
+                existing_feeds_by_url.setdefault(key, feed)
 
-    new_by_cat: dict[str, list[dict]] = {}
+    new_by_cat: dict[str, list[str]] = {}
     total_new = 0
     total_skipped = 0
 
@@ -179,21 +209,25 @@ def sync(sources_path: str = "sources.toml", feeds_path: str = "feeds.toml", use
         target_cat = source.get("category", "Imported")
 
         for f in feeds:
-            if f["url"] in existing_feeds_by_url:
+            url = (f.get("url") or "").strip()
+            if not url:
+                continue
+            key = canonical_url(url) or url
+            if key in existing_feeds_by_url:
                 total_skipped += 1
                 continue
-            existing_feeds_by_url[f["url"]] = {
+            existing_feeds_by_url[key] = {
                 "title": f["title"],
-                "url": f["url"],
+                "url": url,
                 "site": f.get("site", ""),
                 "priority": source.get("priority", 10),
             }
-            new_by_cat.setdefault(target_cat, []).append(f["url"])
+            new_by_cat.setdefault(target_cat, []).append(key)
             total_new += 1
 
-    for cat_name, new_urls in new_by_cat.items():
-        for url in new_urls:
-            feed = existing_feeds_by_url[url]
+    for cat_name, new_keys in new_by_cat.items():
+        for key in new_keys:
+            feed = existing_feeds_by_url[key]
             found = False
             for cat in existing.get("category", []):
                 if cat["name"] == cat_name:
@@ -206,8 +240,13 @@ def sync(sources_path: str = "sources.toml", feeds_path: str = "feeds.toml", use
                     "feed": [feed],
                 })
 
+    removed = dedupe_feeds(existing)
     save_feeds_toml(existing, Path(feeds_path))
-    print(f"\n[sync] Done: +{total_new} new, {total_skipped} skipped (dup), {len(existing_feeds_by_url)} total")
+    print(
+        f"\n[sync] Done: +{total_new} new, {total_skipped} skipped (dup), "
+        f"{removed} removed (canonical dup), "
+        f"{len(existing_feeds_by_url)} total"
+    )
 
 
 if __name__ == "__main__":

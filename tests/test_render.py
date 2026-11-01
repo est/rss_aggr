@@ -204,3 +204,65 @@ def test_empty_archive_produces_valid_index(tmp_path):
     assert "No feed indexes yet." in index
     assert index.rstrip().endswith("</html>")
     assert "<script" not in index.lower()
+
+
+def test_feed_config_overlays_current_title_and_site(tmp_path):
+    _build_archive(tmp_path)
+    config = tmp_path / "feeds.toml"
+    config.write_text(
+        '[[category]]\n'
+        'name = "Test"\n'
+        "\n"
+        "[[category.feed]]\n"
+        'title = "Renamed Feed"\n'
+        'url = "https://example.com/feed.xml"\n'
+        'site = "https://new.example.org"\n',
+        encoding="utf-8",
+    )
+    jsonl_path = tmp_path / "feeds" / "feed-1.jsonl"
+    original_jsonl = jsonl_path.read_bytes()
+
+    site = tmp_path / "_site_with_config"
+    render_site(
+        site,
+        tmp_path / "archive",
+        tmp_path / "feeds",
+        feed_config=config,
+    )
+
+    # Rendering never rewrites the append-only JSONL header.
+    assert jsonl_path.read_bytes() == original_jsonl
+
+    index = (site / "index.html").read_text(encoding="utf-8")
+    assert "Renamed Feed" in index
+    assert "Example Feed" not in index
+
+    feed_page = (site / "feeds" / "feed-1.html").read_text(encoding="utf-8")
+    assert "<title>Renamed Feed</title>" in feed_page
+    assert 'href="https://new.example.org"' in feed_page
+    assert "Example Feed" not in feed_page
+
+    daily = (site / "2026" / "05" / "01.html").read_text(encoding="utf-8")
+    assert "Renamed Feed" in daily
+    assert "Example Feed" not in daily
+    assert 'href="../../feeds/feed-1.html"' in daily
+
+    data = json.loads((site / "feeds" / "feed-1.json").read_text(encoding="utf-8"))
+    assert data["title"] == "Renamed Feed"
+    assert data["home_page_url"] == "https://new.example.org"
+    assert data["feed_url"] == "https://new.example.org/feeds/feed-1.json"
+
+    # Without a feed config the archived header remains authoritative.
+    plain_site = tmp_path / "_site_without_config"
+    render_site(plain_site, tmp_path / "archive", tmp_path / "feeds")
+
+    plain_index = (plain_site / "index.html").read_text(encoding="utf-8")
+    assert "Example Feed" in plain_index
+    assert "Renamed Feed" not in plain_index
+
+    plain_data = json.loads(
+        (plain_site / "feeds" / "feed-1.json").read_text(encoding="utf-8")
+    )
+    assert plain_data["title"] == "Example Feed"
+    assert plain_data["home_page_url"] == "https://example.com"
+    assert jsonl_path.read_bytes() == original_jsonl

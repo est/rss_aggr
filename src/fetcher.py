@@ -152,7 +152,7 @@ def fetch_feed(feed_info: dict, timeout: int | tuple | None = None,
     """Fetch a single RSS feed, return entries within keep_days, filtered by rules.
 
     Args:
-        feed_state: dict from state.json for this feed (stores etag/last_modified).
+        feed_state: dict from feed_state.json for this feed (stores etag/last_modified).
         max_entries_per_feed: cap on returned entries (0 = unlimited). Entries
             are sorted newest-first before the cap is applied.
     """
@@ -283,7 +283,7 @@ def fetch_all_feeds(feeds: list[dict], timeout: int = 15, keep_days: int = DEFAU
 
     Args:
         max_workers: number of parallel threads.
-        feeds_state: dict of {url: feed_state} from state.json for conditional requests.
+        feeds_state: dict of {url: feed_state} from feed_state.json for conditional requests.
         max_entries_per_feed: per-feed entry cap (0 = unlimited).
     """
     total = len(feeds)

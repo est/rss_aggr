@@ -1,12 +1,13 @@
 import json
+import os
 import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from src.articles import save_articles
+from src.article_state import save_articles
+from src.feed_state import save_state
 from src.report import build_status, check_status, print_summary, write_status
-from src.state import save_state
 
 
 def _iso(days: float = 0) -> str:
@@ -24,7 +25,7 @@ class BuildStatusTests(unittest.TestCase):
             (data_dir / "2026" / "1029.md").write_text("| a |\n", encoding="utf-8")
             (data_dir / "index.md").write_text("# index\n", encoding="utf-8")
 
-            state_path = root / "state.json"
+            feed_state_path = root / "feed_state.json"
             save_state({
                 "feeds": {
                     "https://a.com/feed": {
@@ -33,21 +34,21 @@ class BuildStatusTests(unittest.TestCase):
                     },
                     "https://b.com/feed": {"disabled": True},
                 }
-            }, str(state_path))
+            }, str(feed_state_path))
 
-            articles_path = root / "articles.json"
+            article_state_path = root / "article_state.json"
             save_articles([
                 {"link": "https://a.com/1", "status": "pending"},
                 {"link": "https://a.com/2", "status": "classified",
                  "classified_at": _iso(-1)},
                 {"link": "https://a.com/3", "status": "skipped",
                  "classified_at": _iso(0)},
-            ], str(articles_path))
+            ], str(article_state_path))
 
             status = build_status(
                 data_dir=str(data_dir),
-                state_path=str(state_path),
-                articles_path=str(articles_path),
+                feed_state_path=str(feed_state_path),
+                article_state_path=str(article_state_path),
             )
 
             self.assertEqual(status["feeds"]["total"], 2)
@@ -66,22 +67,73 @@ class BuildStatusTests(unittest.TestCase):
             data_dir = root / "output"
             data_dir.mkdir()
             (data_dir / "index.md").write_text("# index\n", encoding="utf-8")
-            state_path = root / "state.json"
+            feed_state_path = root / "feed_state.json"
             feeds = {
                 f"https://f{i}.com/feed": {"disabled": i < 9, "last_attempt": _iso(0)}
                 for i in range(10)
             }
-            save_state({"feeds": feeds}, str(state_path))
+            save_state({"feeds": feeds}, str(feed_state_path))
+            article_state_path = root / "article_state.json"
+            save_articles([], str(article_state_path))
+
+            status = build_status(
+                data_dir=str(data_dir),
+                feed_state_path=str(feed_state_path),
+                article_state_path=str(article_state_path),
+            )
+            self.assertTrue(status["warnings"])
+            self.assertEqual(check_status(status), [])
+
+    def test_legacy_keyword_aliases_still_work(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "output"
+            data_dir.mkdir()
+            (data_dir / "index.md").write_text("# index\n", encoding="utf-8")
+
+            state_path = root / "state.json"
+            save_state({"feeds": {"https://a.com/feed": {"last_ok": _iso(0)}}},
+                       str(state_path))
             articles_path = root / "articles.json"
-            save_articles([], str(articles_path))
+            save_articles([{"link": "https://a.com/1", "status": "pending"}],
+                          str(articles_path))
 
             status = build_status(
                 data_dir=str(data_dir),
                 state_path=str(state_path),
                 articles_path=str(articles_path),
             )
-            self.assertTrue(status["warnings"])
-            self.assertEqual(check_status(status), [])
+
+            self.assertEqual(status["feeds"]["total"], 1)
+            self.assertEqual(status["articles"]["total"], 1)
+            self.assertEqual(status["articles"]["pending"], 1)
+
+    def test_legacy_files_are_read_when_new_files_are_absent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "output"
+            data_dir.mkdir()
+            (data_dir / "index.md").write_text("# index\n", encoding="utf-8")
+
+            old_cwd = Path.cwd()
+            try:
+                # The loaders only fall back to legacy names for default
+                # relative paths, so run from the temporary directory.
+                os.chdir(root)
+                save_state({"feeds": {"https://a.com/feed": {"last_ok": _iso(0)}}},
+                           "state.json")
+                save_articles([{"link": "https://a.com/1", "status": "pending"}],
+                              "articles.json")
+
+                status = build_status(data_dir=str(data_dir))
+            finally:
+                os.chdir(old_cwd)
+
+            self.assertFalse((root / "feed_state.json").exists())
+            self.assertFalse((root / "article_state.json").exists())
+            self.assertEqual(status["feeds"]["total"], 1)
+            self.assertEqual(status["articles"]["total"], 1)
+            self.assertEqual(status["articles"]["pending"], 1)
 
 
 class CheckStatusTests(unittest.TestCase):

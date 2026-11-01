@@ -56,6 +56,13 @@ case "${1:-}" in
     ;;
 esac
 
+if [ "$APPLY" = true ] && [ "${RSS_AGGR_ALLOW_LEGACY_MIGRATION:-}" != "1" ]; then
+  echo "error: --apply is disabled for the current ADR-017 layout." >&2
+  echo "       Use the collect workflow + src.migrate_state instead." >&2
+  echo "       Set RSS_AGGR_ALLOW_LEGACY_MIGRATION=1 only to recover an old ADR-015 checkout." >&2
+  exit 1
+fi
+
 if ! git rev-parse --git-dir >/dev/null 2>&1; then
   echo "error: run this script inside the repository" >&2
   exit 1

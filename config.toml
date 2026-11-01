@@ -37,12 +37,9 @@ freshness_hours = 24     # max age of last fetch/classify before --check fails
 fetch_interval_hours = 12  # skip feeds fetched within this window
 disable_after_failures = 3 # auto-disable feed after N consecutive failures
 
-# Storage
-[storage]
-data_dir = "output"
-archive_dir = "archive"
-feeds_dir = "feeds"
-keep_days = 0          # 0 = never delete old output
+# Storage layout is fixed by src/paths.py and the deploy workflow:
+#   archive/  feeds/  output/  feed_state.json  article_state.json
+# Do not add path overrides here; CI validates the fixed layout.
 
 # Classification categories (passed to AI)
 [[category]]

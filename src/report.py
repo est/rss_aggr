@@ -4,8 +4,12 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from src.articles import load_articles, summarize_articles
-from src.state import load_state, state_summary
+from src.article_state import (
+    ARTICLE_STATE_FILE,
+    load_articles,
+    summarize_articles,
+)
+from src.feed_state import FEED_STATE_FILE, load_state, state_summary
 
 
 def _parse_dt(value) -> datetime | None:
@@ -76,14 +80,28 @@ def _last_classified(articles: list[dict]) -> str:
 
 def build_status(
     data_dir: str = "output",
-    state_path: str = "state.json",
-    articles_path: str = "articles.json",
+    feed_state_path: str = FEED_STATE_FILE,
+    article_state_path: str = ARTICLE_STATE_FILE,
+    *,
+    state_path: str | None = None,
+    articles_path: str | None = None,
 ) -> dict:
-    """Build a status snapshot from runtime state and the article cache."""
-    state = load_state(state_path)
-    articles = load_articles(articles_path)
+    """Build a status snapshot from runtime state and the article cache.
+
+    ``state_path`` and ``articles_path`` are legacy aliases for
+    ``feed_state_path`` and ``article_state_path``. They only apply when the
+    corresponding new argument is left at its default, so callers can migrate
+    incrementally without changing behaviour.
+    """
+    if state_path is not None and feed_state_path == FEED_STATE_FILE:
+        feed_state_path = state_path
+    if articles_path is not None and article_state_path == ARTICLE_STATE_FILE:
+        article_state_path = articles_path
+
+    state = load_state(feed_state_path)
+    articles = load_articles(article_state_path)
     feeds = state_summary(state)
-    article_summary = summarize_articles(articles_path)
+    article_summary = summarize_articles(article_state_path)
     output = _output_stats(data_dir)
     warnings = []
 

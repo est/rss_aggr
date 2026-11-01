@@ -836,6 +836,109 @@ def feed_meta_from_meta(meta: dict) -> dict:
     }
 
 
+def _repair_feed_meta(meta: dict) -> dict:
+    """Feed metadata derived from one archive record header."""
+    title = _text(meta.get("feed_title"))
+    return {
+        "feed_id": _text(meta.get("feed_id")),
+        "feed_url": _text(meta.get("feed_url")),
+        "site_url": _text(meta.get("site_url")),
+        "feed_title": title,
+        "title": title,
+    }
+
+
+def _existing_article_keys(path: Path) -> set[str]:
+    """Dedup keys already present in one feed index (header may be absent)."""
+    if not path.exists():
+        return set()
+    try:
+        _header, records = read_feed_index(path)
+    except (OSError, ValueError):
+        try:
+            raw = path.read_bytes()
+        except OSError:
+            return set()
+        records = _parse_jsonl_lines(_truncate_partial_line(raw))
+    keys: set[str] = set()
+    for record in records:
+        if record.get("kind", "article") == "article":
+            keys.update(_article_keys(record))
+    return keys
+
+
+def repair_indexes(
+    archive_root: str | os.PathLike, feeds_dir: str | os.PathLike
+) -> dict:
+    """Append only the article records missing from feed indexes.
+
+    Existing indexes are never rewritten or shrunk: article records already
+    present (by guid or canonical link) are left untouched, annotations stay in
+    place, and missing records are appended through :func:`append_feed_record`
+    (which also creates a missing index/header). Running it twice appends
+    nothing the second time.
+    """
+    archive_dir = _resolve_archive_root(archive_root)
+    files = _archive_files(archive_dir)
+    groups: dict[str, dict] = {}
+
+    for path in files:
+        for record in iter_records(path):
+            meta = record["meta"]
+            identifier = _text(meta.get("feed_id")) or feed_id(
+                _text(meta.get("feed_url")),
+                _text(meta.get("site_url")),
+                _text(meta.get("title")),
+            )
+            group = groups.setdefault(
+                identifier,
+                {"meta": _repair_feed_meta(meta), "articles": []},
+            )
+            candidate = feed_meta_from_meta(meta)
+            for field in ("feed_url", "site_url", "title"):
+                if not group["meta"].get(field) and candidate.get(field):
+                    group["meta"][field] = candidate[field]
+            group["articles"].append(
+                {
+                    "kind": "article",
+                    "v": 1,
+                    "feed_id": identifier,
+                    "file": _file_relpath(path, archive_dir),
+                    "offset": record["offset"],
+                    "length": record["length"],
+                    "body_offset": record["body_offset"],
+                    "body_len": record["body_len"],
+                    "sha256": record["sha256"],
+                    "guid": _text(meta.get("guid")),
+                    "link": _text(meta.get("link")),
+                    "title": _text(meta.get("title")),
+                    "author": _text(meta.get("author")),
+                    "published": _text(meta.get("published")),
+                }
+            )
+
+    directory = Path(feeds_dir)
+    stats = {
+        "articles": 0,
+        "feeds": len(groups),
+        "appended": 0,
+        "skipped": 0,
+    }
+    for identifier in sorted(groups):
+        group = groups[identifier]
+        seen = _existing_article_keys(directory / f"{identifier}.jsonl")
+        for index_record in group["articles"]:
+            stats["articles"] += 1
+            keys = _article_keys(index_record)
+            if any(key in seen for key in keys):
+                stats["skipped"] += 1
+                continue
+            append_feed_record(directory, group["meta"], index_record)
+            seen.update(keys)
+            stats["appended"] += 1
+    return stats
+
+
 def _index_record_path(archive_dir: Path, value: str) -> Path:
     path = Path(value or "")
     if path.is_absolute():
@@ -852,8 +955,8 @@ def reconcile_indexes(
 
     Annotations are kept only for articles that remain valid. This is the
     recovery path for a missing/truncated daily file or a stale cache; the
-    caller should also clear the corresponding archive refs in articles.json
-    so fetch can re-archive the body.
+    caller should also clear the corresponding archive refs in
+    article_state.json so fetch can re-archive the body.
     """
     archive_dir = _resolve_archive_root(archive_root)
     directory = Path(feeds_dir)
@@ -982,6 +1085,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repair", metavar="ARCHIVE_ROOT")
     parser.add_argument("--rebuild-indexes", metavar="ARCHIVE_ROOT")
     parser.add_argument("--reconcile-indexes", metavar="ARCHIVE_ROOT")
+    parser.add_argument("--repair-indexes", metavar="ARCHIVE_ROOT")
     parser.add_argument("--feeds", default="feeds")
     args = parser.parse_args(argv)
 
@@ -1012,8 +1116,16 @@ def main(argv: list[str] | None = None) -> int:
             )
         )
         return 0
+    if args.repair_indexes:
+        print(
+            json.dumps(
+                repair_indexes(args.repair_indexes, args.feeds), sort_keys=True
+            )
+        )
+        return 0
     parser.error(
-        "one of --validate, --repair, --rebuild-indexes or --reconcile-indexes is required"
+        "one of --validate, --repair, --rebuild-indexes, --reconcile-indexes "
+        "or --repair-indexes is required"
     )
     return 2
 

@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from src import md_archive
-from src.articles import load_articles
+from src.article_state import load_articles
 from src.backfill import backfill, main
 
 

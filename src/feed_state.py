@@ -1,10 +1,27 @@
-"""State tracking: per-feed status, failure counting, auto-disable."""
+"""Feed state tracking: per-feed status, failure counting, auto-disable.
+
+This module stores runtime state for individual feeds (last attempt, failure
+counters, backoff/disable bookkeeping). It is distinct from any other runtime
+state (e.g. fetch/classify timestamps), which live in their own files.
+"""
+import argparse
 import json
 import re
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-STATE_FILE = "state.json"
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python < 3.11
+    import tomli as tomllib
+
+FEED_STATE_FILE = "feed_state.json"
+LEGACY_FEED_STATE_FILE = "state.json"
+# Kept for callers that imported the old constant.
+STATE_FILE = FEED_STATE_FILE
+
+STATE_VERSION = 1
 
 # Error kinds used to decide retry/disable behaviour.
 ERROR_PERMANENT = "permanent"
@@ -88,18 +105,70 @@ def classify_error(error: str) -> str:
     return ERROR_TRANSIENT
 
 
-def load_state(path: str = STATE_FILE) -> dict:
-    if not Path(path).exists():
-        return {"feeds": {}}
-    return json.loads(Path(path).read_text(encoding="utf-8"))
+def load_state(path: str = FEED_STATE_FILE) -> dict:
+    """Load feed state, falling back to the legacy ``state.json``.
 
-
-def save_state(state: dict, path: str = STATE_FILE):
-    """Save state to JSON file (atomic write)."""
+    The fallback only applies when the requested path is the default/new file
+    and it does not exist yet. An explicitly requested path is used as-is.
+    """
     p = Path(path)
+    if not p.exists() and path == FEED_STATE_FILE:
+        legacy = Path(LEGACY_FEED_STATE_FILE)
+        if legacy.exists():
+            p = legacy
+    if not p.exists():
+        return {"feeds": {}}
+    return json.loads(p.read_text(encoding="utf-8"))
+
+
+def save_state(state: dict, path: str = FEED_STATE_FILE):
+    """Save feed state to JSON (atomic write) with a schema version.
+
+    All existing top-level keys are preserved; ``v`` is added/updated.
+    """
+    p = Path(path)
+    data = {"v": STATE_VERSION, **state}
     tmp = p.with_suffix(".tmp")
-    tmp.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
+    tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
     tmp.rename(p)
+
+
+def prune_feeds(state: dict, known_urls: set[str]) -> int:
+    """Drop feed entries whose URL is no longer configured.
+
+    Top-level keys other than ``feeds`` are preserved. Returns the number of
+    removed entries.
+    """
+    feeds = state.get("feeds")
+    if not isinstance(feeds, dict):
+        return 0
+    unknown = [url for url in feeds if url not in known_urls]
+    for url in unknown:
+        del feeds[url]
+    return len(unknown)
+
+
+def forget_feed(state: dict, url: str) -> bool:
+    """Remove a single feed entry; return whether it existed."""
+    feeds = state.get("feeds")
+    if not isinstance(feeds, dict) or url not in feeds:
+        return False
+    del feeds[url]
+    return True
+
+
+def collect_feed_urls(config_path: str | Path = "feeds.toml") -> set[str]:
+    """Return every feed URL in a feeds TOML file, including ``skip = true``."""
+    with open(config_path, "rb") as f:
+        data = tomllib.load(f)
+
+    urls: set[str] = set()
+    for cat in data.get("category", []):
+        for feed in cat.get("feed", []):
+            url = feed.get("url")
+            if url:
+                urls.add(url)
+    return urls
 
 
 def _get_feed(state: dict, url: str) -> dict:
@@ -314,3 +383,59 @@ def state_summary(state: dict) -> dict:
             summary["retry_pending"] += 1
 
     return summary
+
+
+def _cmd_prune(args) -> int:
+    known = collect_feed_urls(args.feeds_config)
+    state = load_state(args.state_file)
+    removed = prune_feeds(state, known)
+    save_state(state, args.state_file)
+    print(
+        f"pruned {removed} feed(s) not in {args.feeds_config} "
+        f"({len(known)} known, {len(state.get('feeds', {}))} remaining)"
+    )
+    return 0
+
+
+def _cmd_forget(args) -> int:
+    state = load_state(args.state_file)
+    existed = forget_feed(state, args.forget)
+    save_state(state, args.state_file)
+    print(f"forgot {args.forget}" if existed else f"not found: {args.forget}")
+    return 0 if existed else 1
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Inspect and maintain feed runtime state."
+    )
+    parser.add_argument(
+        "--state-file",
+        default=FEED_STATE_FILE,
+        help=f"state file to operate on (default: {FEED_STATE_FILE})",
+    )
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        "--prune",
+        action="store_true",
+        help="remove feed entries not present in the feeds config",
+    )
+    group.add_argument(
+        "--forget",
+        metavar="URL",
+        help="remove a single feed entry by URL",
+    )
+    parser.add_argument(
+        "--feeds-config",
+        default="feeds.toml",
+        help="feeds TOML file used by --prune (default: feeds.toml)",
+    )
+    args = parser.parse_args(argv)
+
+    if args.prune:
+        return _cmd_prune(args)
+    return _cmd_forget(args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
