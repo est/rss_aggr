@@ -6345,6 +6345,7 @@ site = "https://dingzeyu.li/blog/"
 title = "墙外看的博客"
 url = "https://qiangwaikan.com/feed/"
 site = "https://qiangwaikan.com/"
+skip = true
 
 [[category.feed]]
 title = "kirito的博客"
@@ -6596,6 +6597,7 @@ site = "https://www.kxit.net/"
 title = "Java for You"
 url = "https://java4u.cn/feed"
 site = "http://java4u.cn/"
+skip = true
 
 [[category.feed]]
 title = "偕臧的小站"
