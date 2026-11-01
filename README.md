@@ -231,6 +231,7 @@ python -m src.md_archive --reconcile-indexes archive --feeds feeds
 ## 测试
 
 ```bash
+pip install -r requirements-dev.txt
 python3.12 -m pytest -q
 ruff check .
 ```
