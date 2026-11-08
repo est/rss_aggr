@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
+from urllib.parse import urlparse
 
 import requests
 
@@ -22,6 +23,7 @@ class ClassifierConfig:
     max_batch_size: int = 10          # Max articles per batch (avoid semantic drift)
     max_input_tokens: int = 8000      # Target input token budget per batch
     max_article_chars: int = 10000    # Articles longer than this go solo
+    max_content_chars: int = 20000    # Hard cap on content sent per article
 
     # Token estimation overheads
     system_overhead: int = 500        # System prompt tokens
@@ -107,13 +109,25 @@ def _estimate_tokens(text: str) -> int:
     return cn_chars * CONFIG.cn_tokens_per_char + int(en_words * CONFIG.en_tokens_per_word)
 
 
+def _truncate_content(content: str) -> str:
+    """Cap article content before it is sent to the model."""
+    limit = CONFIG.max_content_chars
+    if limit and len(content) > limit:
+        omitted = len(content) - limit
+        return (
+            f"{content[:limit]}\n\n"
+            f"[... content truncated: {omitted} characters omitted ...]"
+        )
+    return content
+
+
 def _dynamic_batch(articles: list[dict]) -> list[list[dict]]:
     """Dynamic batching: sort by length, fill batches up to token budget.
 
     Rules:
     - Max batch size: CONFIG.max_batch_size (default 10)
     - Long articles (> CONFIG.max_article_chars): single article per batch
-    - No truncation: full content sent to AI
+    - Content is truncated to CONFIG.max_content_chars when sent
     """
     long_articles = []
     normal_articles = []
@@ -388,7 +402,7 @@ class BaseClassifier(ABC):
         for a in articles:
             if not a.get('link'):
                 continue
-            content = (a.get("content") or "").replace('\n', '\n> ')
+            content = _truncate_content(a.get("content") or "").replace('\n', '\n> ')
             item = [a['link'], f"Title: {a['title']}"]
             if skip_prompt:
                 item.append(f"Special rule: {skip_prompt}. If the article matches this rule, set category to 'skip'.")
@@ -418,6 +432,24 @@ class BaseClassifier(ABC):
 # OpenAI-compatible classifier
 # =============================================================================
 
+class ClassifierAuthError(RuntimeError):
+    """Non-retryable authentication/authorization failure (401/403)."""
+
+
+def _is_secure_base_url(base_url: str) -> bool:
+    """Whether it is safe to send an API key to this base URL.
+
+    HTTPS is always allowed. Plain HTTP is only allowed for local endpoints
+    used by tests/development (localhost, 127.0.0.1, ::1).
+    """
+    parsed = urlparse(base_url or "")
+    if parsed.scheme == "https":
+        return True
+    if parsed.scheme == "http":
+        return (parsed.hostname or "").lower() in ("localhost", "127.0.0.1", "::1")
+    return False
+
+
 class OpenAICompatibleClassifier(BaseClassifier):
     """Classifier for any OpenAI-compatible API (OpenAI, OpenRouter, vLLM, Ollama, etc.)."""
 
@@ -430,6 +462,11 @@ class OpenAICompatibleClassifier(BaseClassifier):
         self.model = model
         self.base_url = (base_url or "https://api.openai.com/v1").rstrip("/")
         self.api_key = api_key
+        if self.api_key and not _is_secure_base_url(self.base_url):
+            raise ValueError(
+                "Refusing to send an API key to an insecure base_url "
+                f"(use https or localhost): {self.base_url}"
+            )
         self.session = requests.Session()
         if self.api_key:
             self.session.headers["Authorization"] = f"Bearer {self.api_key}"
@@ -437,16 +474,27 @@ class OpenAICompatibleClassifier(BaseClassifier):
     def _call_api(self, messages: list[dict], max_tokens: int, timeout: int) -> str:
         last_error = None
         for attempt in range(CONFIG.max_retries + 1):
-            resp = self.session.post(
-                f"{self.base_url}/chat/completions",
-                json={
-                    "model": self.model,
-                    "messages": messages,
-                    "temperature": CONFIG.temperature,
-                    "max_tokens": max_tokens,
-                },
-                timeout=timeout,
-            )
+            try:
+                resp = self.session.post(
+                    f"{self.base_url}/chat/completions",
+                    json={
+                        "model": self.model,
+                        "messages": messages,
+                        "temperature": CONFIG.temperature,
+                        "max_tokens": max_tokens,
+                    },
+                    timeout=timeout,
+                )
+            except requests.RequestException as exc:
+                last_error = exc
+                if attempt < CONFIG.max_retries:
+                    time.sleep(_retry_delay(attempt))
+                    continue
+                raise
+            if resp.status_code in (401, 403):
+                raise ClassifierAuthError(
+                    f"API auth error {resp.status_code}: {resp.text[:200]}"
+                )
             if resp.status_code == 429 or resp.status_code >= 500:
                 last_error = RuntimeError(
                     f"API error {resp.status_code}: {resp.text[:200]}"
@@ -473,22 +521,48 @@ class OpenAICompatibleClassifier(BaseClassifier):
 class ClaudeClassifier(BaseClassifier):
     """Classifier for Anthropic Claude API."""
 
-    def __init__(self, model: str = "claude-3-haiku-20240307"):
+    def __init__(self, model: str = "claude-3-haiku-20240307", api_key: str | None = None):
         import anthropic
-        self.client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"), timeout=CONFIG.timeout)
+        if api_key is None:
+            api_key = os.environ.get("ANTHROPIC_API_KEY")
+        self.api_key = api_key
+        self.client = anthropic.Anthropic(api_key=api_key, timeout=CONFIG.timeout)
         self.model = model
 
     def _call_api(self, messages: list[dict], max_tokens: int, timeout: int) -> str:
         import anthropic
 
+        # Anthropic expects the system prompt separately; passing a message with
+        # role="system" in `messages` is rejected by the API.
+        system_parts = []
+        chat_messages = []
+        for message in messages:
+            if message.get("role") == "system":
+                content = message.get("content") or ""
+                if content:
+                    system_parts.append(content)
+            else:
+                chat_messages.append(message)
+
+        kwargs = {
+            "model": self.model,
+            "max_tokens": max_tokens,
+            "messages": chat_messages,
+            "timeout": timeout,
+        }
+        if system_parts:
+            kwargs["system"] = "\n\n".join(system_parts)
+
         last_error = None
         for attempt in range(CONFIG.max_retries + 1):
             try:
-                resp = self.client.messages.create(
-                    model=self.model, max_tokens=max_tokens, messages=messages, timeout=timeout,
-                )
+                resp = self.client.messages.create(**kwargs)
             except anthropic.APIStatusError as exc:
                 status = getattr(exc, "status_code", None)
+                if status in (401, 403):
+                    raise ClassifierAuthError(
+                        f"API auth error {status}: {exc}"
+                    ) from exc
                 if status == 429 or (status is not None and status >= 500):
                     last_error = exc
                     if attempt < CONFIG.max_retries:
@@ -514,13 +588,17 @@ def get_classifier(provider: str = "openai", model: str | None = None,
     """Get classifier instance based on provider configuration."""
     if provider == "claude":
         env_key = api_key_env or "ANTHROPIC_API_KEY"
-        if not os.environ.get(env_key):
+        api_key = os.environ.get(env_key, "")
+        if not api_key:
             print(f"  WARNING: {env_key} not set, skipping AI classification", flush=True)
             return None
-        return ClaudeClassifier(model=model or "claude-3-haiku-20240307")
+        return ClaudeClassifier(
+            model=model or "claude-3-haiku-20240307", api_key=api_key
+        )
 
-    # OpenAI-compatible providers
-    env_key = api_key_env or ("OPENAI_API_KEY" if provider != "custom" else "")
+    # OpenAI-compatible providers. Custom endpoints also default to
+    # OPENAI_API_KEY but remain usable without a key (e.g. local servers).
+    env_key = api_key_env or "OPENAI_API_KEY"
     api_key = os.environ.get(env_key, "") if env_key else ""
 
     if not api_key and provider in ("openai", "openrouter"):
@@ -577,6 +655,7 @@ def classify_articles(
     print(f"  {len(articles)} articles, {len(batches)} batches (dynamic), provider={provider}, model={stats.model}", flush=True)
 
     api_errors = 0
+    auth_failed = False
     for batch_num, batch in enumerate(batches, 1):
         try:
             results = classifier.classify_batch(batch, cats, skip_prompt=skip_prompt)
@@ -592,6 +671,16 @@ def classify_articles(
                 else f"OK {matched}/{len(batch)}, {unmatched} unmatched"
             )
             print(f"  [{batch_num}/{len(batches)}] {status}", flush=True)
+        except ClassifierAuthError as e:
+            # Bad credentials affect the whole provider, so retrying each
+            # article would only produce the same failure N times.
+            print(
+                f"  [{batch_num}/{len(batches)}] Auth error ({e}), "
+                "aborting classification",
+                flush=True,
+            )
+            auth_failed = True
+            break
         except Exception as e:
             print(f"  [{batch_num}/{len(batches)}] Batch failed ({type(e).__name__}: {e}), retrying individually...", flush=True)
             for a in batch:
@@ -605,12 +694,20 @@ def classify_articles(
                     stats.unmatched += unmatched
                     if unmatched:
                         print(f"    SKIP {a.get('title', '')[:50]}: unmatched", flush=True)
+                except ClassifierAuthError as e2:
+                    print(f"    Auth error ({e2}), aborting classification", flush=True)
+                    auth_failed = True
+                    break
                 except Exception as e2:
                     api_errors += 1
                     stats.unmatched += 1
                     print(f"    SKIP {a.get('title', '')[:50]}: {type(e2).__name__}: {e2}", flush=True)
+            if auth_failed:
+                break
 
     stats.failed = max(0, stats.articles - stats.classified - stats.skipped)
+    if auth_failed:
+        stats.provider_failed = True
     if (
         stats.classified == 0
         and stats.skipped == 0

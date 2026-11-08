@@ -110,6 +110,8 @@ def load_state(path: str = FEED_STATE_FILE) -> dict:
 
     The fallback only applies when the requested path is the default/new file
     and it does not exist yet. An explicitly requested path is used as-is.
+    Raises ``ValueError`` when the file is not structurally a feed-state object
+    so corrupt state fails closed instead of being silently rewritten.
     """
     p = Path(path)
     if not p.exists() and path == FEED_STATE_FILE:
@@ -118,7 +120,19 @@ def load_state(path: str = FEED_STATE_FILE) -> dict:
             p = legacy
     if not p.exists():
         return {"feeds": {}}
-    return json.loads(p.read_text(encoding="utf-8"))
+    data = json.loads(p.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError(f"{p}: feed state must be a JSON object")
+    if "feeds" in data:
+        feeds = data["feeds"]
+        if not isinstance(feeds, dict):
+            raise ValueError(f"{p}: 'feeds' must be a JSON object")
+        for url, info in feeds.items():
+            if not isinstance(info, dict):
+                raise ValueError(
+                    f"{p}: feed entry {url!r} must be a JSON object"
+                )
+    return data
 
 
 def save_state(state: dict, path: str = FEED_STATE_FILE):
@@ -245,6 +259,49 @@ def disable_feed(state: dict, url: str, reason: str = "too many failures",
     feed["disabled_at"] = _iso(now)
     feed["disabled_reason"] = reason
     feed["disabled_until"] = _iso(until)
+
+
+def record_content_lengths(
+    state: dict,
+    url: str,
+    lengths: list[int],
+    *,
+    min_chars: int = 500,
+    max_short: int = 5,
+    disable_days: int = 3650,
+) -> bool:
+    """Track whether a feed consistently publishes only short excerpts.
+
+    Only *newly archived* article bodies are passed here, so a feed with no
+    new posts does not age toward a disable. One substantive article resets
+    the streak. After ``max_short`` consecutive short bodies the feed is
+    disabled (for a long quarantine) with reason ``rss does not provide full
+    text``; ``src.feed_state --forget URL`` or a successful manual fetch can
+    re-enable it.
+    """
+    if not lengths:
+        return False
+    feed = _get_feed(state, url)
+    short = sum(1 for length in lengths if length < min_chars)
+    if short < len(lengths):
+        # At least one full-text article: this feed does produce full content.
+        if feed.get("short_content_streak"):
+            feed["short_content_streak"] = 0
+        return False
+
+    streak = int(feed.get("short_content_streak") or 0) + short
+    feed["short_content_streak"] = streak
+    if max_short > 0 and streak >= max_short:
+        disable_feed(
+            state,
+            url,
+            "rss does not provide full text",
+            disabled_until=_now() + timedelta(days=disable_days),
+        )
+        feed["error_kind"] = "no_full_text"
+        feed["short_content_streak"] = 0
+        return True
+    return False
 
 
 def is_disabled(state: dict, url: str) -> bool:

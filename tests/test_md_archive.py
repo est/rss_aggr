@@ -448,7 +448,13 @@ def test_repair_indexes_restores_missing_article_and_preserves_annotations(tmp_p
 
     stats = repair_indexes(tmp_path / "archive", feeds_dir)
 
-    assert stats == {"articles": 3, "feeds": 2, "appended": 1, "skipped": 2}
+    assert stats == {
+        "articles": 3,
+        "feeds": 2,
+        "appended": 1,
+        "skipped": 2,
+        "headers_repaired": 0,
+    }
     repaired = path.read_bytes()
     # Existing bytes stay untouched; the missing record is only appended.
     assert repaired.startswith(after_loss)
@@ -468,7 +474,13 @@ def test_repair_indexes_restores_missing_article_and_preserves_annotations(tmp_p
     assert restored["length"] == records[0]["length"]
 
     again = repair_indexes(tmp_path / "archive", feeds_dir)
-    assert again == {"articles": 3, "feeds": 2, "appended": 0, "skipped": 3}
+    assert again == {
+        "articles": 3,
+        "feeds": 2,
+        "appended": 0,
+        "skipped": 3,
+        "headers_repaired": 0,
+    }
     assert path.read_bytes() == repaired
 
 
@@ -479,7 +491,13 @@ def test_repair_indexes_recreates_a_missing_index_file(tmp_path):
 
     stats = repair_indexes(tmp_path, feeds_dir)
 
-    assert stats == {"articles": 3, "feeds": 2, "appended": 1, "skipped": 2}
+    assert stats == {
+        "articles": 3,
+        "feeds": 2,
+        "appended": 1,
+        "skipped": 2,
+        "headers_repaired": 0,
+    }
     header, entries = read_feed_index(path)
     assert header["kind"] == "feed"
     assert header["feed_id"] == "feed-2"
@@ -488,3 +506,89 @@ def test_repair_indexes_recreates_a_missing_index_file(tmp_path):
     assert entries[0]["guid"] == "g3"
 
     assert repair_indexes(tmp_path, feeds_dir)["appended"] == 0
+
+
+def test_repair_indexes_batches_missing_records_into_one_append(tmp_path, monkeypatch):
+    _records, feeds_dir = _build_two_feed_archive(tmp_path)
+    path = feeds_dir / "feed-1.jsonl"
+    _drop_article_line(path, "g1")
+    _drop_article_line(path, "g2")
+
+    from src import md_archive
+
+    calls = []
+    original = md_archive._append_feed_lines
+
+    def spy(directory, feed_meta, batch, dedup):
+        calls.append((len(batch), dedup))
+        return original(directory, feed_meta, batch, dedup)
+
+    monkeypatch.setattr(md_archive, "_append_feed_lines", spy)
+
+    stats = repair_indexes(tmp_path / "archive", feeds_dir)
+
+    assert calls == [(2, True)]
+    assert stats == {
+        "articles": 3,
+        "feeds": 2,
+        "appended": 2,
+        "skipped": 1,
+        "headers_repaired": 0,
+    }
+    header, entries = read_feed_index(path)
+    assert header["kind"] == "feed"
+    assert sorted(entry["guid"] for entry in entries) == ["g1", "g2"]
+
+
+def test_repair_indexes_repairs_headerless_index_preserving_records(tmp_path):
+    records, feeds_dir = _build_two_feed_archive(tmp_path)
+    feed_meta = _feed_meta()
+    append_feed_annotation(
+        feeds_dir,
+        feed_meta,
+        {
+            "guid": "g2",
+            "file": records[1]["file"],
+            "offset": records[1]["offset"],
+            "category": "Tech",
+            "summary": "keep me",
+            "score": 8,
+            "classified_at": "2026-05-02T00:00:00Z",
+        },
+    )
+
+    path = feeds_dir / "feed-1.jsonl"
+    _drop_article_line(path, "g1")
+    lines = path.read_text(encoding="utf-8").splitlines()
+    assert json.loads(lines[0])["kind"] == "feed"
+    path.write_text("\n".join(lines[1:]) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="not a feed header"):
+        read_feed_index(path)
+
+    stats = repair_indexes(tmp_path / "archive", feeds_dir)
+
+    assert stats == {
+        "articles": 3,
+        "feeds": 2,
+        "appended": 1,
+        "skipped": 2,
+        "headers_repaired": 1,
+    }
+    header, entries = read_feed_index(path)
+    assert header["kind"] == "feed"
+    assert header["feed_id"] == "feed-1"
+    assert header["title"] == "Example Feed"
+    assert [(entry["kind"], entry.get("guid")) for entry in entries] == [
+        ("article", "g2"),
+        ("annotation", "g2"),
+        ("article", "g1"),
+    ]
+    assert entries[1]["summary"] == "keep me"
+    assert entries[2]["offset"] == records[0]["offset"]
+
+    repaired = path.read_bytes()
+    again = repair_indexes(tmp_path / "archive", feeds_dir)
+    assert again["appended"] == 0
+    assert again["headers_repaired"] == 0
+    assert path.read_bytes() == repaired

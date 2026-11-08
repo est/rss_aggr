@@ -19,10 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout main
+      - name: Checkout event SHA
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -48,10 +48,10 @@ jobs:
       pages: write
       id-token: write
     steps:
-      - name: Checkout main
+      - name: Checkout event SHA
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -73,7 +73,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: .runtime
-          key: rss-runtime-${{ github.run_id }}
+          key: rss-runtime-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
             rss-runtime-
 
@@ -101,7 +101,7 @@ jobs:
           fi
 
           # cache-hit is "true" only for an exact key match. The key contains
-          # run_id, so a normal run restores a previous cache through
+          # run_id + run_attempt, so a normal run restores a previous cache through
           # restore-keys and reports a partial match. Treat validated files as
           # authoritative, and log the exact/partial state for debugging.
           cache_ok=false
@@ -193,9 +193,11 @@ jobs:
                 exit 1
               fi
 
-              # Metadata is replaced by the snapshot; archive/, feeds/ and
-              # output/ are durable append-only trees. New and legacy names are
-              # both copied, and a normalisation step below writes the split
+              # Metadata is replaced by the snapshot; archive/ and feeds/ are
+              # durable append-only trees. output/ is legacy-only: it is still
+              # restored for compatibility with old snapshots, but new
+              # snapshots no longer contain it. New and legacy metadata names
+              # are both copied, and a normalisation step below writes the split
               # files when only the legacy ones exist.
               for f in feed_state.json article_state.json state.json articles.json status.json; do
                 if [ -f ".data/$f" ]; then
@@ -237,7 +239,7 @@ jobs:
                 fi
               fi
 
-              echo "Restored feed/article metadata (new or legacy names) plus archive/feeds/output from data branch"
+              echo "Restored feed/article metadata (new or legacy names) plus archive/feeds from data branch (legacy output restored if present)"
               rm -rf .data
             elif [ "$data_rc" -eq 2 ] || { [ "$data_rc" -eq 0 ] && [ -z "$data_heads" ]; }; then
               # One-time migration path for the pre-ADR-016 layout. Raw
@@ -726,6 +728,18 @@ jobs:
           python -m src.render --site _site --archive archive --feeds feeds
           --base-url "${{ vars.PAGES_BASE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}"
 
+      # status.json is a derived counts/warnings report with no secrets. Publish
+      # it alongside the site so operators can inspect run health over HTTPS.
+      - name: Publish derived health document
+        run: |
+          set -euo pipefail
+          if [ -f status.json ]; then
+            cp status.json _site/health.json
+            echo "Published _site/health.json"
+          else
+            echo "::warning::status.json is missing; skipping health.json"
+          fi
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -877,12 +891,13 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: .runtime
-          key: rss-runtime-${{ github.run_id }}
+          key: rss-runtime-${{ github.run_id }}-${{ github.run_attempt }}
 
-      # The data branch is the durable archive. archive/, feeds/ and output/
-      # are append-only and preserved from the remote branch; state/articles/
-      # status are replaced by this run. A normal fast-forward push is used so
-      # a human commit on data is never silently overwritten.
+      # The data branch is the durable archive. archive/ and feeds/ are
+      # append-only and preserved from the remote branch; state/articles are
+      # replaced by this run. output/ is no longer preserved or written. A
+      # normal fast-forward push is used so a human commit on data is never
+      # silently overwritten.
       - name: Snapshot archive to data branch
         if: always()
         env:
@@ -925,7 +940,7 @@ jobs:
               exit 1
             fi
           else
-            echo "::warning::no daily Markdown archive; snapshot will contain metadata/output only"
+            echo "::warning::no daily Markdown archive; snapshot will contain metadata only"
           fi
 
           REMOTE="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
@@ -954,14 +969,28 @@ jobs:
             snapshot_due=true
             echo "Snapshot forced by workflow_dispatch input"
           else
-            last_epoch="$(git -C .data-push log -1 --format=%ct)"
-            now_epoch="$(date -u +%s)"
-            age=$(( now_epoch - last_epoch ))
-            if [ "$age" -ge 72000 ]; then
+            # Only snapshot commits drive the cadence. A human commit on data
+            # (or a retried/partial push) must not reset the 20h timer.
+            last_epoch="$(git -C .data-push log -1 --grep='^data: snapshot ' --format=%ct)"
+            if [ -z "$last_epoch" ] \
+              && [ "$(git -C .data-push rev-parse --is-shallow-repository 2>/dev/null || echo false)" = "true" ]; then
+              # The depth-1 clone may hide the last snapshot behind a human
+              # commit; deepen a bounded amount to find it.
+              git -C .data-push fetch --deepen=50 origin || true
+              last_epoch="$(git -C .data-push log -1 --grep='^data: snapshot ' --format=%ct)"
+            fi
+            if [ -z "$last_epoch" ]; then
               snapshot_due=true
-              echo "Last data snapshot is ${age}s old; due"
+              echo "No prior 'data: snapshot' commit; snapshot is due"
             else
-              echo "Last data snapshot is ${age}s old; not due"
+              now_epoch="$(date -u +%s)"
+              age=$(( now_epoch - last_epoch ))
+              if [ "$age" -ge 72000 ]; then
+                snapshot_due=true
+                echo "Last data snapshot is ${age}s old; due"
+              else
+                echo "Last data snapshot is ${age}s old; not due"
+              fi
             fi
           fi
 
@@ -974,10 +1003,11 @@ jobs:
           # Replace the managed metadata files but preserve remote append-only
           # trees. Local copies are then written over them without deleting
           # remote files, so a stale cache cannot shrink the archive. The
-          # cleanup also removes legacy state.json/articles.json/status.json;
-          # status.json is derived and must never be snapshotted.
+          # cleanup also removes legacy state.json/articles.json/status.json
+          # and the stale output/ tree; status.json is derived and must never
+          # be snapshotted.
           find .data-push -mindepth 1 -maxdepth 1 \
-            ! -name .git ! -name archive ! -name feeds ! -name output -exec rm -rf {} +
+            ! -name .git ! -name archive ! -name feeds -exec rm -rf {} +
           rm -f .data-push/state.json .data-push/articles.json .data-push/status.json
           mkdir -p .data-push/archive .data-push/feeds
 
@@ -1021,9 +1051,14 @@ jobs:
           if [ -d feeds ]; then
             cp -R feeds/. .data-push/feeds/
           fi
-          # output/ is a derived human summary. Keep any existing remote copy
-          # but do not overwrite it with a potentially older local tree.
-          # status.json is not copied: it is a derived report, not durable state.
+          # Pin LF for archive/feeds so byte offsets survive checkout. The data
+          # branch is orphan, so it does not inherit main's .gitattributes.
+          if [ -f .gitattributes ]; then
+            cp .gitattributes .data-push/.gitattributes
+          fi
+          # output/ is a stale derived summary and is no longer written to the
+          # data branch. status.json is not copied: it is a derived report, not
+          # durable state.
           cp feed_state.json .data-push/feed_state.json
           cp article_state.json .data-push/article_state.json
           rm -f .data-push/state.json .data-push/articles.json .data-push/status.json
@@ -1043,7 +1078,7 @@ jobs:
           from src import md_archive
 
           root = Path(".data-push")
-          allowed = {"feed_state.json", "article_state.json", "output", "archive", "feeds"}
+          allowed = {".gitattributes", "feed_state.json", "article_state.json", "archive", "feeds"}
           entries = {p.name for p in root.iterdir() if p.name != ".git"}
           extra = entries - allowed
           if extra:
@@ -1080,10 +1115,13 @@ jobs:
                       )
               print(f"{name}: ok")
 
-          # status.json is a derived report. The cleanup above deletes a stale
-          # remote copy; refuse to push if one somehow reappears.
+          # status.json is a derived report and output/ is a stale derived
+          # summary. The cleanup above deletes remote copies; refuse to push if
+          # either somehow reappears (the allowlist check also catches output/).
           if (root / "status.json").exists():
               sys.exit("status.json must not be part of the data snapshot")
+          if (root / "output").exists():
+              sys.exit("output/ must not be part of the data snapshot")
 
           # Repair only incomplete tails on the combined remote+local archive.
           # src.md_archive does not have a Python "repair then validate" entry
@@ -1131,6 +1169,9 @@ jobs:
           git -C .data-push commit -q -m "data: snapshot $(date -u +%Y-%m-%d)"
           if ! git -C .data-push push origin data; then
             echo "::warning::data push rejected; rebasing once and retrying"
+            # The clone is shallow (depth=1). Unshallow first so a remote that
+            # advanced by more than one commit can still be rebased.
+            git -C .data-push fetch --unshallow origin data || true
             # Note: a concurrent human commit that touches feed_state.json /
             # article_state.json usually conflicts here. That is intentional: the
             # retry then fails instead of overwriting the remote branch.

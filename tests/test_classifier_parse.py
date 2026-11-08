@@ -1,13 +1,22 @@
+import os
+import sys
 import unittest
-from unittest.mock import patch
+from types import SimpleNamespace
+from unittest.mock import MagicMock, patch
+
+import requests
 
 from src.classifier import (
     BATCH_PROMPT,
+    CONFIG,
     BaseClassifier,
+    ClassifierAuthError,
     ClassifyStats,
+    ClaudeClassifier,
     OpenAICompatibleClassifier,
     _parse_blocks,
     classify_articles,
+    get_classifier,
 )
 
 
@@ -248,6 +257,182 @@ class ApiRetryTests(unittest.TestCase):
                 classifier._call_api([], max_tokens=10, timeout=5)
         self.assertEqual(classifier.session.calls, 1)
         sleep.assert_not_called()
+
+
+class _FlakySession:
+    def __init__(self, errors=(), response=None):
+        self.errors = list(errors)
+        self.response = response
+        self.calls = 0
+
+    def post(self, *args, **kwargs):
+        self.calls += 1
+        if self.errors:
+            raise self.errors.pop(0)
+        return self.response
+
+
+class NetworkErrorTests(unittest.TestCase):
+    def _classifier(self):
+        return OpenAICompatibleClassifier(model="m", base_url="https://api.test/v1")
+
+    def test_retries_connection_error_then_succeeds(self):
+        classifier = self._classifier()
+        classifier.session = _FlakySession(
+            [requests.ConnectionError("boom")], _Response(200, content="done")
+        )
+        with patch("src.classifier.time.sleep") as sleep:
+            result = classifier._call_api([], max_tokens=10, timeout=5)
+        self.assertEqual(result, "done")
+        self.assertEqual(classifier.session.calls, 2)
+        self.assertEqual(sleep.call_count, 1)
+
+    def test_raises_after_exhausting_network_retries(self):
+        classifier = self._classifier()
+        classifier.session = _FlakySession([
+            requests.ConnectionError("a"),
+            requests.Timeout("b"),
+            requests.ConnectionError("c"),
+        ])
+        with patch("src.classifier.time.sleep") as sleep:
+            with self.assertRaises(requests.RequestException):
+                classifier._call_api([], max_tokens=10, timeout=5)
+        self.assertEqual(classifier.session.calls, CONFIG.max_retries + 1)
+        self.assertEqual(sleep.call_count, CONFIG.max_retries)
+
+    def test_auth_error_is_not_retried(self):
+        classifier = self._classifier()
+        classifier.session = _FlakySession([], _Response(401, content="nope"))
+        with patch("src.classifier.time.sleep") as sleep:
+            with self.assertRaises(ClassifierAuthError):
+                classifier._call_api([], max_tokens=10, timeout=5)
+        self.assertEqual(classifier.session.calls, 1)
+        sleep.assert_not_called()
+
+
+class _AuthFailClassifier:
+    model = "auth-model"
+
+    def __init__(self):
+        self.calls = 0
+
+    def classify_batch(self, articles, categories, skip_prompt=""):
+        self.calls += 1
+        raise ClassifierAuthError("invalid api key")
+
+
+class AuthFailFastTests(unittest.TestCase):
+    def test_auth_error_does_not_fan_out_to_individual_articles(self):
+        articles = [
+            _article("https://example.com/a"),
+            _article("https://example.com/b"),
+            _article("https://example.com/c"),
+        ]
+        fake = _AuthFailClassifier()
+        with patch("src.classifier.get_classifier", return_value=fake):
+            stats = classify_articles(articles, provider="custom")
+
+        self.assertEqual(fake.calls, 1)
+        self.assertTrue(stats.provider_failed)
+        self.assertEqual(stats.failed, 3)
+        self.assertEqual(stats.classified, 0)
+
+
+def _fake_anthropic(response_text="ok"):
+    create = MagicMock(return_value=SimpleNamespace(
+        content=[SimpleNamespace(text=response_text)]
+    ))
+    anthropic_cls = MagicMock()
+    anthropic_cls.return_value.messages.create = create
+    module = SimpleNamespace(
+        Anthropic=anthropic_cls,
+        APIStatusError=type("APIStatusError", (Exception,), {}),
+    )
+    return module, anthropic_cls, create
+
+
+class ClaudeClassifierTests(unittest.TestCase):
+    def test_extracts_system_messages_and_passes_custom_key(self):
+        module, anthropic_cls, create = _fake_anthropic("done")
+        with patch.dict(sys.modules, {"anthropic": module}):
+            classifier = ClaudeClassifier(model="claude-test", api_key="secret-key")
+            result = classifier._call_api([
+                {"role": "system", "content": "system one"},
+                {"role": "system", "content": "system two"},
+                {"role": "user", "content": "hello"},
+            ], max_tokens=10, timeout=5)
+
+        self.assertEqual(result, "done")
+        self.assertEqual(anthropic_cls.call_args.kwargs["api_key"], "secret-key")
+        kwargs = create.call_args.kwargs
+        self.assertEqual(kwargs["system"], "system one\n\nsystem two")
+        self.assertEqual(kwargs["messages"], [{"role": "user", "content": "hello"}])
+
+    def test_get_classifier_honors_custom_api_key_env(self):
+        module, anthropic_cls, _ = _fake_anthropic()
+        with patch.dict(sys.modules, {"anthropic": module}), \
+                patch.dict(os.environ, {"MY_CLAUDE_KEY": "k"}, clear=False):
+            classifier = get_classifier("claude", api_key_env="MY_CLAUDE_KEY")
+
+        self.assertIsNotNone(classifier)
+        self.assertEqual(anthropic_cls.call_args.kwargs["api_key"], "k")
+
+
+class ApiKeyHandlingTests(unittest.TestCase):
+    def test_custom_provider_defaults_to_openai_key_env(self):
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test"}, clear=False):
+            classifier = get_classifier("custom", base_url="https://api.test/v1")
+
+        self.assertIsNotNone(classifier)
+        self.assertEqual(
+            classifier.session.headers.get("Authorization"), "Bearer sk-test"
+        )
+
+    def test_custom_provider_honors_api_key_env(self):
+        with patch.dict(os.environ, {"MY_KEY": "sk-custom"}, clear=False):
+            classifier = get_classifier(
+                "custom", base_url="https://api.test/v1", api_key_env="MY_KEY"
+            )
+
+        self.assertIsNotNone(classifier)
+        self.assertEqual(
+            classifier.session.headers.get("Authorization"), "Bearer sk-custom"
+        )
+
+    def test_keyless_custom_insecure_remote_sends_no_header(self):
+        with patch.dict(os.environ, {"OPENAI_API_KEY": ""}, clear=False):
+            classifier = get_classifier("custom", base_url="http://api.test/v1")
+
+        self.assertIsNotNone(classifier)
+        self.assertNotIn("Authorization", classifier.session.headers)
+
+    def test_refuses_key_for_insecure_non_local_url(self):
+        with self.assertRaises(ValueError):
+            OpenAICompatibleClassifier(
+                model="m", base_url="http://api.test/v1", api_key="secret"
+            )
+
+    def test_allows_key_for_local_http_url(self):
+        classifier = OpenAICompatibleClassifier(
+            model="m", base_url="http://127.0.0.1:8080/v1", api_key="secret"
+        )
+        self.assertEqual(
+            classifier.session.headers.get("Authorization"), "Bearer secret"
+        )
+
+
+class TruncationTests(unittest.TestCase):
+    def test_long_content_is_truncated_with_marker(self):
+        article = _article(content="x" * 500)
+        classifier = CaptureClassifier(article["link"])
+        with patch.object(CONFIG, "max_content_chars", 100):
+            classifier.classify_batch([article], ["Tech"])
+
+        user = classifier.seen_messages[0][1]["content"]
+        self.assertIn("x" * 100, user)
+        self.assertNotIn("x" * 101, user)
+        self.assertIn("content truncated", user)
+        self.assertIn("400 characters omitted", user)
 
 
 if __name__ == "__main__":

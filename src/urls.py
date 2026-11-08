@@ -1,4 +1,5 @@
 """URL helpers: canonical dedup keys and safety checks for untrusted links."""
+import ipaddress
 from urllib.parse import parse_qsl, urlencode, urlsplit
 
 TRACKING_PARAMS = {"fbclid", "gclid", "ref", "source", "spm"}
@@ -99,3 +100,58 @@ def is_safe_http_url(url: str) -> bool:
     if not parsed.hostname:
         return False
     return True
+
+
+_INTERNAL_HOSTNAMES = frozenset(
+    {
+        "localhost",
+        "localhost.localdomain",
+        "metadata",
+        "metadata.google.internal",
+        "instance-data",
+    }
+)
+_INTERNAL_HOST_SUFFIXES = (".localhost", ".local", ".internal")
+
+
+def is_safe_public_http_url(url: str) -> bool:
+    """Whether ``url`` is an http(s) URL pointing at a public internet host.
+
+    This is a syntactic SSRF guard: it never resolves DNS. It rejects missing
+    hosts, obvious internal hostnames (``localhost``, ``*.local``,
+    ``metadata.google.internal``, ...) and IP literals in loopback, private,
+    link-local, reserved, multicast or unspecified ranges.
+    """
+    if not is_safe_http_url(url):
+        return False
+    try:
+        host = (urlsplit(url.strip()).hostname or "").strip().lower()
+    except ValueError:
+        return False
+    host = host.rstrip(".")
+    if not host:
+        return False
+    if host in _INTERNAL_HOSTNAMES or host.endswith(_INTERNAL_HOST_SUFFIXES):
+        return False
+
+    # Alternate IPv4 spellings (``2130706433``, ``0x7f000001``) are not
+    # parsed as addresses by ipaddress but are resolved by many stacks.
+    if host.isdigit() or host.startswith("0x"):
+        return False
+
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        # A regular DNS name; DNS is deliberately not resolved here.
+        return True
+
+    if isinstance(address, ipaddress.IPv6Address) and address.ipv4_mapped:
+        address = address.ipv4_mapped
+    return not (
+        address.is_private
+        or address.is_loopback
+        or address.is_link_local
+        or address.is_reserved
+        or address.is_multicast
+        or address.is_unspecified
+    )

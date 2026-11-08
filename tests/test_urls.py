@@ -1,6 +1,10 @@
 import unittest
 
-from src.urls import canonical_url, is_safe_http_url
+from src.urls import (
+    canonical_url,
+    is_safe_http_url,
+    is_safe_public_http_url,
+)
 
 
 class CanonicalUrlTests(unittest.TestCase):
@@ -37,6 +41,55 @@ class SafeHttpUrlTests(unittest.TestCase):
                     "/relative", "//example.com/x", "ftp://example.com/x", "",
                     "https://exa mple.com", "java\nscript:alert(1)"):
             self.assertFalse(is_safe_http_url(url), url)
+
+
+class SafePublicHttpUrlTests(unittest.TestCase):
+    def test_accepts_public_hosts_and_ipv4_literals(self):
+        for url in (
+            "https://example.com/feed.xml",
+            "http://news.example.org",
+            "https://8.8.8.8/feed",
+            "https://[2001:4860:4860::8888]/feed",
+        ):
+            self.assertTrue(is_safe_public_http_url(url), url)
+
+    def test_rejects_private_loopback_link_local_and_reserved_ips(self):
+        for url in (
+            "http://127.0.0.1/feed",
+            "http://127.1.2.3/feed",
+            "http://10.0.0.5/feed",
+            "http://172.16.0.1/feed",
+            "http://192.168.1.10/feed",
+            "http://169.254.169.254/latest/meta-data/",
+            "http://0.0.0.0/feed",
+            "http://[::1]/feed",
+            "http://[fe80::1]/feed",
+            "http://[::ffff:127.0.0.1]/feed",
+            "http://2130706433/feed",
+            "http://0x7f000001/feed",
+        ):
+            self.assertFalse(is_safe_public_http_url(url), url)
+
+    def test_rejects_internal_hostnames(self):
+        for url in (
+            "http://localhost/feed",
+            "http://localhost.localdomain/feed",
+            "http://printer.local/feed",
+            "http://metadata.google.internal/computeMetadata/v1/",
+            "http://service.internal/feed",
+        ):
+            self.assertFalse(is_safe_public_http_url(url), url)
+
+    def test_rejects_non_http_and_missing_host(self):
+        for url in (
+            "",
+            "ftp://example.com/feed",
+            "file:///etc/passwd",
+            "javascript:alert(1)",
+            "/relative",
+            "https://",
+        ):
+            self.assertFalse(is_safe_public_http_url(url), url)
 
 
 if __name__ == "__main__":

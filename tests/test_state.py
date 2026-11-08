@@ -23,9 +23,11 @@ from src.feed_state import (
     mark_failed,
     mark_ok,
     prune_feeds,
+    record_content_lengths,
     save_state,
     state_summary,
 )
+from src.migrate_state import migrate
 
 
 def _now():
@@ -348,6 +350,42 @@ class StateFileTests(unittest.TestCase):
         self.assertEqual(saved["last_classify"], "x")
         self.assertEqual(saved["custom"], {"a": 1})
 
+    def test_load_state_rejects_non_object_root(self):
+        self._write_json("feed_state.json", ["not", "a", "dict"])
+        with self.assertRaisesRegex(ValueError, "JSON object"):
+            load_state()
+
+    def test_load_state_rejects_non_dict_feeds(self):
+        self._write_json("feed_state.json", {"feeds": []})
+        with self.assertRaisesRegex(ValueError, "'feeds'"):
+            load_state()
+
+    def test_load_state_rejects_non_dict_feed_entry(self):
+        self._write_json(
+            "feed_state.json", {"feeds": {"https://a.com/feed": []}}
+        )
+        with self.assertRaisesRegex(ValueError, "feed entry"):
+            load_state()
+
+    def test_migrate_refuses_corrupt_article_state_without_overwriting(self):
+        Path("article_state.json").write_text(
+            '{"v": 1, "articles": "oops"}', encoding="utf-8"
+        )
+        before = Path("article_state.json").read_text(encoding="utf-8")
+
+        with self.assertRaisesRegex(RuntimeError, "corrupt"):
+            migrate()
+
+        self.assertEqual(
+            Path("article_state.json").read_text(encoding="utf-8"), before
+        )
+        self.assertFalse(Path("feed_state.json").exists())
+
+    def test_migrate_refuses_invalid_feed_state(self):
+        self._write_json("feed_state.json", {"feeds": []})
+        with self.assertRaisesRegex(RuntimeError, "structurally invalid"):
+            migrate()
+
 
 class PruneForgetTests(unittest.TestCase):
     def test_prune_removes_unknown_and_keeps_known_including_skipped(self):
@@ -420,6 +458,38 @@ class PruneForgetTests(unittest.TestCase):
                     "https://b.com/other",
                 },
             )
+
+
+class ContentLengthTests(unittest.TestCase):
+    def test_short_bodies_disable_feed_after_threshold(self):
+        state = _empty_state()
+        url = "https://short.example/feed"
+
+        self.assertFalse(record_content_lengths(state, url, [100, 120], max_short=5))
+        self.assertFalse(record_content_lengths(state, url, [90, 130], max_short=5))
+        self.assertTrue(record_content_lengths(state, url, [80, 110], max_short=5))
+
+        feed = state["feeds"][url]
+        self.assertTrue(feed["disabled"])
+        self.assertEqual(feed["disabled_reason"], "rss does not provide full text")
+        self.assertEqual(feed["error_kind"], "no_full_text")
+        self.assertNotIn(url, [f["xml_url"] for f in get_due_feeds([_feed(url)], state)])
+
+    def test_one_full_text_article_resets_streak(self):
+        state = _empty_state()
+        url = "https://mixed.example/feed"
+        record_content_lengths(state, url, [100, 100], max_short=3)
+        self.assertEqual(state["feeds"][url]["short_content_streak"], 2)
+
+        self.assertFalse(record_content_lengths(state, url, [5000], max_short=3))
+        self.assertEqual(state["feeds"][url]["short_content_streak"], 0)
+        self.assertFalse(state["feeds"][url].get("disabled", False))
+
+    def test_empty_batch_does_not_change_streak(self):
+        state = _empty_state()
+        url = "https://empty.example/feed"
+        self.assertFalse(record_content_lengths(state, url, [], max_short=2))
+        self.assertEqual(state, {"feeds": {}})
 
 
 if __name__ == "__main__":

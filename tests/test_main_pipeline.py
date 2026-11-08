@@ -15,7 +15,7 @@ from src.article_state import (
     save_articles,
 )
 from src.classifier import ClassifyStats
-from src.main import _storage_paths, step_classify, step_fetch
+from src.main import _storage_paths, step_check, step_classify, step_fetch, step_report, step_sync
 
 
 def _fetch_config():
@@ -336,6 +336,55 @@ class FetchStepTests(unittest.TestCase):
         save_state.assert_called_once()
         self.assertEqual(state["feeds"][feed["xml_url"]]["last_error"], "boom")
 
+    def test_feed_with_only_short_excerpts_is_disabled(self):
+        feed = _feed()
+        entries = [
+            _entry(link=f"https://a.com/short/{index}", guid=f"short-{index}", content="tiny")
+            for index in range(5)
+        ]
+        results = [{"feed": feed, "status": "ok", "entries": entries}]
+        state = {"feeds": {}}
+
+        with tempfile.TemporaryDirectory() as tmp, contextlib.chdir(tmp):
+            with patch("src.main.load_config", return_value=_fetch_config()), \
+                    patch("src.main.parse_feeds", return_value=[feed]), \
+                    patch("src.main.load_state", return_value=state), \
+                    patch("src.main.save_state"), \
+                    patch("src.main.validate_articles_file", return_value="ok"), \
+                    patch("src.fetcher.fetch_all_feeds", return_value=results):
+                step_fetch()
+
+            feed_state = state["feeds"][feed["xml_url"]]
+            self.assertTrue(feed_state["disabled"])
+            self.assertEqual(
+                feed_state["disabled_reason"], "rss does not provide full text"
+            )
+            self.assertEqual(len(load_articles()), 5)
+
+    def test_extracted_markdown_replaces_short_feed_body(self):
+        feed = _feed()
+        entry = _entry(link="https://a.com/extracted", content="<p>short</p>")
+        entry["extracted_markdown"] = "# Full title\n\nExtracted paragraph.\n"
+        results = [{"feed": feed, "status": "ok", "entries": [entry]}]
+
+        with tempfile.TemporaryDirectory() as tmp, contextlib.chdir(tmp):
+            with patch("src.main.load_config", return_value=_fetch_config()), \
+                    patch("src.main.parse_feeds", return_value=[feed]), \
+                    patch("src.main.load_state", return_value={"feeds": {}}), \
+                    patch("src.main.save_state"), \
+                    patch("src.main.validate_articles_file", return_value="ok"), \
+                    patch("src.fetcher.fetch_all_feeds", return_value=results):
+                step_fetch()
+
+            row = load_articles()[0]
+            record = md_archive.read_record(
+                Path("archive") / Path(row["archive_file"]).relative_to("archive"),
+                row["archive_offset"],
+                row["archive_length"],
+            )
+            self.assertIn("Extracted paragraph.", record["body"])
+            self.assertNotIn("short", record["body"])
+
     def test_output_is_not_a_dedup_authority(self):
         feed = _feed()
         results = [
@@ -390,6 +439,89 @@ class FetchStepTests(unittest.TestCase):
                 any(r.get("guid") == "g-ok" for r in records),
                 records,
             )
+
+    def test_pending_index_repair_uses_parsed_length(self):
+        with tempfile.TemporaryDirectory() as tmp, contextlib.chdir(tmp):
+            article, record, feed_meta = _seed_archived()
+            article["indexed"] = False
+            article.pop("archive_length", None)
+            save_articles([article])
+            index_path = Path("feeds") / f"{feed_meta['feed_id']}.jsonl"
+            index_path.unlink()
+
+            with patch("src.main.load_config", return_value=_fetch_config()), \
+                    patch("src.main.parse_feeds", return_value=[]), \
+                    patch("src.main.load_state", return_value={"feeds": {}}), \
+                    patch("src.main.save_state"), \
+                    patch("src.main.validate_articles_file", return_value="ok"):
+                step_fetch()
+
+            rows = load_articles()
+            self.assertTrue(rows[0]["indexed"])
+            self.assertEqual(rows[0]["archive_length"], record["length"])
+            _header, records = md_archive.read_feed_index(index_path)
+            self.assertEqual(records[0]["length"], record["length"])
+
+    def test_existing_feed_index_blocks_duplicate_in_other_feed(self):
+        feed_a = _feed("a.com", "A")
+        feed_b = _feed("b.com", "B")
+        a_meta = {
+            "feed_id": md_archive.feed_id(
+                feed_a["xml_url"], feed_a["html_url"], feed_a["title"]
+            ),
+            "feed_url": feed_a["xml_url"],
+            "site_url": feed_a["html_url"],
+            "title": feed_a["title"],
+        }
+
+        with tempfile.TemporaryDirectory() as tmp, contextlib.chdir(tmp):
+            Path("feeds").mkdir()
+            md_archive.append_feed_record(
+                "feeds",
+                a_meta,
+                {
+                    "file": "archive/2026/11/01.md",
+                    "offset": 0,
+                    "length": 10,
+                    "guid": "g-a",
+                    "link": "https://shared.example/post",
+                    "title": "Shared",
+                    "published": "2026-11-01T00:00:00Z",
+                },
+            )
+            # article_state.json is deliberately absent: dedupe must still work
+            # from the durable feed index alone.
+            entry = _entry(link="https://shared.example/post", guid="g-b")
+            results = [{"feed": feed_b, "status": "ok", "entries": [entry]}]
+
+            with patch("src.main.load_config", return_value=_fetch_config()), \
+                    patch("src.main.parse_feeds", return_value=[feed_b]), \
+                    patch("src.main.load_state", return_value={"feeds": {}}), \
+                    patch("src.main.save_state"), \
+                    patch("src.main.validate_articles_file", return_value="ok"), \
+                    patch("src.fetcher.fetch_all_feeds", return_value=results):
+                step_fetch()
+
+            self.assertFalse(Path("archive").exists())
+            self.assertEqual(load_articles(), [])
+            b_id = md_archive.feed_id(
+                feed_b["xml_url"], feed_b["html_url"], feed_b["title"]
+            )
+            self.assertFalse((Path("feeds") / f"{b_id}.jsonl").exists())
+
+    def test_no_due_feeds_does_not_advance_last_fetch(self):
+        feed = _feed()
+        state = {"feeds": {}, "last_fetch": "2026-01-01T00:00:00Z"}
+
+        with patch("src.main.load_config", return_value=_fetch_config()), \
+                patch("src.main.parse_feeds", return_value=[feed]), \
+                patch("src.main.load_state", return_value=state), \
+                patch("src.main.save_state"), \
+                patch("src.main.validate_articles_file", return_value="ok"), \
+                patch("src.main.get_due_feeds", return_value=[]):
+            step_fetch()
+
+        self.assertEqual(state["last_fetch"], "2026-01-01T00:00:00Z")
 
 
 class ClassifyStepTests(unittest.TestCase):
@@ -525,7 +657,7 @@ class ClassifyStepTests(unittest.TestCase):
             return ClassifyStats(articles=len(articles), skipped=len(articles))
 
         with tempfile.TemporaryDirectory() as tmp, contextlib.chdir(tmp):
-            _seed_archived()
+            _article, _record, feed_meta = _seed_archived()
             with patch("src.main.load_config", return_value=_classify_config()), \
                     patch("src.main.parse_feeds", return_value=[]), \
                     patch("src.main.load_state", return_value={"feeds": {}}), \
@@ -534,6 +666,11 @@ class ClassifyStepTests(unittest.TestCase):
                 step_classify()
 
             self.assertEqual(load_articles()[0]["status"], "skipped")
+            index_path = Path("feeds") / f"{feed_meta['feed_id']}.jsonl"
+            _, records = md_archive.read_feed_index(index_path)
+            annotations = [r for r in records if r.get("kind") == "annotation"]
+            self.assertEqual(len(annotations), 1)
+            self.assertEqual(annotations[0]["category"], "skip")
 
     def test_annotation_failure_keeps_article_pending(self):
         out = io.StringIO()
@@ -583,6 +720,68 @@ class ClassifyStepTests(unittest.TestCase):
             self.assertEqual(data[0]["status"], "pending")
             self.assertIn("archive_error", data[0])
             self.assertNotIn("content", data[0])
+
+    def test_ai_disabled_leaves_pending_untouched(self):
+        out = io.StringIO()
+        with tempfile.TemporaryDirectory() as tmp, contextlib.chdir(tmp):
+            _seed_archived()
+            before = Path("article_state.json").read_text(encoding="utf-8")
+            config = _classify_config()
+            config["ai"] = {"enabled": False}
+
+            with contextlib.redirect_stdout(out), \
+                    patch("src.main.load_config", return_value=config), \
+                    patch("src.main.parse_feeds", return_value=[]), \
+                    patch("src.main.load_state", return_value={"feeds": {}}), \
+                    patch("src.main.save_state") as save_state, \
+                    patch("src.main.classify_articles") as classify:
+                step_classify()
+
+            classify.assert_not_called()
+            save_state.assert_not_called()
+            self.assertIn("AI disabled", out.getvalue())
+            self.assertIn("1 pending", out.getvalue())
+            self.assertEqual(
+                Path("article_state.json").read_text(encoding="utf-8"), before
+            )
+            rows = load_articles()
+            self.assertEqual(rows[0]["status"], "pending")
+            self.assertNotIn("classified_at", rows[0])
+            self.assertFalse(Path("output/2026/1101.md").exists())
+
+
+class CheckStepTests(unittest.TestCase):
+    def test_check_fails_on_corrupt_article_state(self):
+        with patch("src.main.load_config", return_value=_fetch_config()), \
+                patch("src.main.validate_articles_file", return_value="corrupt"):
+            with self.assertRaisesRegex(RuntimeError, "corrupt"):
+                step_check()
+
+    def test_report_fails_on_corrupt_article_state(self):
+        with patch("src.main.load_config", return_value=_fetch_config()), \
+                patch("src.main.validate_articles_file", return_value="corrupt"):
+            with self.assertRaisesRegex(RuntimeError, "corrupt"):
+                step_report()
+
+
+class SyncStepTests(unittest.TestCase):
+    def test_sync_source_errors_fail_the_step(self):
+        with patch("src.main.load_config", return_value=_fetch_config()), \
+                patch(
+                    "src.sync.sync",
+                    return_value={"errors": ["source failed"], "warnings": []},
+                ):
+            with self.assertRaisesRegex(RuntimeError, "source failed|sync completed"):
+                step_sync()
+
+    def test_sync_warnings_do_not_fail_the_step(self):
+        with patch("src.main.load_config", return_value=_fetch_config()), \
+                patch(
+                    "src.sync.sync",
+                    return_value={"errors": [], "warnings": ["bad site URL"]},
+                ), contextlib.redirect_stdout(io.StringIO()) as out:
+            step_sync()
+        self.assertIn("sync warning", out.getvalue())
 
 
 class SkipPromptCombinationTests(unittest.TestCase):

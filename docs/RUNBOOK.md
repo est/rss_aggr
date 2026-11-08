@@ -4,7 +4,7 @@
 
 核心模型：
 
-- **`data` 分支** 是持久归档：`archive/YYYY/MM/DD.md`、`feeds/<feed_id>.jsonl`、`feed_state.json`、metadata-only `article_state.json`。`output/` 是派生的摘要，旧快照可能残留但不再更新；`status.json` 不写入 `data`。
+- **`data` 分支** 是持久归档：`archive/YYYY/MM/DD.md`、`feeds/<feed_id>.jsonl`、`feed_state.json`、metadata-only `article_state.json`、`.gitattributes`。`output/` 是派生的摘要，旧快照可能残留，但下一份快照会删除且不再写入；`status.json` 不写入 `data`。
 - **Actions cache** 保存同一套数据的热副本：`feed_state.json`、`article_state.json`、`archive/`、`feeds/`、`output/`；不含 `status.json`。可能被 GitHub 驱逐，但不再是正文的唯一副本。
 - **`archive/` / `feeds/`** 在 `data` 上 append-only；`feed_state.json` / `article_state.json` 每轮整体替换。`status.json` 是当轮派生报告，可删除/重建。
 - 存储布局固定为 `archive/`、`feeds/`、`output/`；`config.toml` 的 `[storage]` 路径覆盖会被拒绝。
@@ -40,7 +40,7 @@ ruff check .
 pytest -q
 ```
 
-修复后重新运行。`test` 只读 `main`，不会碰运行时数据。
+修复后重新运行。`test` 和 `collect` 都 checkout 同一个事件 SHA（`github.sha`），不会碰运行时数据。
 
 ### collect job 失败
 
@@ -53,7 +53,7 @@ pytest -q
 | Migrate legacy articles | 旧 raw `articles.json` 损坏、`src.backfill` 失败 | 检查 `.legacy/`；可手工运行第 5 节回填 |
 | Validate runtime archive | 归档 framing/sha256 错误，或 feed 索引 header 损坏 | 第 4 节 repair/validate；索引损坏按第 6 节修复 |
 | Fetch RSS | `feed_state.json` 或 `article_state.json` 损坏、feeds 配置错误、网络问题 | 校验/恢复状态文件（第 3 节），重跑 |
-| Classify articles | API key 失效、额度不足、`base_url` 错误 | 轮换 key（第 9 节），检查 `config.toml` |
+| Classify articles | `[ai] enabled = true` 时 API key 失效、额度不足、`base_url` 错误 | 轮换 key（第 9 节），检查 `config.toml`；默认 `enabled = false` 时该步骤是 no-op |
 | Cleanup | `article_state.json` 损坏 | 从 cache/`data` 恢复；不要手写空结构覆盖 |
 | Generate run report | `--report` 实现/数据问题 | 查看日志；修复后重跑 |
 | Render archive site | 归档记录损坏、`src.render` 依赖缺失 | 先校验归档（第 4 节），再重跑 |
@@ -64,11 +64,14 @@ pytest -q
 补充：
 
 - 同一 `rss-collect` 组的运行会排队，不会取消正在运行的采集。
+- `limits.max_feeds = 800`：当前活跃源约 1548，每 6 小时一轮，单源实际抓取间隔接近 12 小时。
+- `[fetch] full_text_mode = "off"`（默认）：不抓原文。设为 `"short"` 时，feed 摘要过短会尝试回抓原文；失败只保留原摘要，不会让 fetch 失败。
+- `[filter] skip_no_full_text = true`：新文章连续 `no_full_text_after` 篇正文短于 `min_full_text_chars` 后自动停用该 feed，`disabled_reason` 为 `rss does not provide full text`；用 `python -m src.feed_state --forget URL` 可恢复。
 - fetch/classify 可以安全重跑：`archive/`、`feeds/` 和 `article_state.json` 按归档坐标/链接/guid 去重；`output/` 只是派生摘要，不再作为去重依据。
 - 分类先追加 annotation，再写 `output/`，最后才标记 `classified`。annotation 写入失败的行保持 `pending`（带 `annotation_error`）并在下一轮重试；不会提交 `classified` 状态，也不会为它写 `output/` 行。
 - `--check` 在 Pages 部署之后运行：不回滚已发布内容，但会让 job 失败。
 - 恢复失败时 `.restore-data-ok` 不存在，快照步骤会 warning 并跳过，**这是保护行为，不要绕过**。
-- `data` 使用普通 push；如果被拒绝，工作流自动 `pull --rebase` 重试一次。由于快照会重写 `feed_state.json` / `article_state.json`，并发提交通常会在 rebase 时冲突，此时重试会失败并保持远端不变，需要人工解决或等待下一次快照。不要 force-push。
+- `data` 使用普通 push；如果被拒绝，工作流先 `fetch --unshallow`（clone 是 depth=1），再 `pull --rebase` 重试一次。由于快照会重写 `feed_state.json` / `article_state.json`，并发提交通常会在 rebase 时冲突，此时重试会失败并保持远端不变，需要人工解决或等待下一次快照。不要 force-push。
 
 ## 2. 重新启用被自动禁用的 feed
 
@@ -155,10 +158,11 @@ feed_state.json
 article_state.json
 archive/YYYY/MM/DD.md
 feeds/<feed_id>.jsonl
-output/                 # 旧快照可能残留；派生摘要，可以不存在
+.gitattributes          # 固定 archive/feeds 的 LF
+output/                 # 仅旧快照可能残留；下一份快照会删除
 ```
 
-`article_state.json` 是 `{"v":1,"articles":[...]}`，不应包含 `content` / `content_length`。`status.json` 不在 `data` 分支；不应再有 `state.json` / `articles.json`（下一份快照会删除 legacy 文件）。
+`article_state.json` 是 `{"v":1,"articles":[...]}`，不应包含 `content` / `content_length`。`status.json` 不在 `data` 分支；不应再有 `state.json` / `articles.json`（下一份快照会删除 legacy 文件），新快照也不应再有 `output/`。
 
 ### 分支还在，但元数据文件损坏
 
@@ -230,7 +234,8 @@ legacy 名字 `state.json` / `articles.json` 只用于迁移期 fallback；如�
 ```bash
 git fetch origin
 git ls-tree --name-only origin/data
-# 期望：archive  article_state.json  feed_state.json  feeds  （output 可选，属于旧快照残留）
+# 期望：.gitattributes  archive  article_state.json  feed_state.json  feeds
+# 旧快照可能还有 output/，下一份快照会删除
 # 不应出现：status.json  state.json  articles.json
 ```
 
@@ -386,17 +391,17 @@ PY
 
 快照触发条件：
 
-- `data` 最后一次 commit 超过约 20 小时；或
+- 最近的 `data: snapshot ...` commit 超过约 20 小时；人工 commit 不会重置计时；没有任何 snapshot commit 时视为到期；或
 - 手动触发 `collect` 时勾选 `snapshot=true`。
 
 行为：
 
 1. clone `data`（不存在则 orphan init）；
-2. 保留远端 `archive/`、`feeds/`；本地 append-only 内容只有在“远端内容是本地前缀”时才覆盖，否则 fail closed。`output/` 不参与新快照写入，远端旧副本保留；
-3. 替换 `feed_state.json`、`article_state.json`；不写 `status.json`，并删除 legacy 的 `state.json` / `articles.json` / `status.json`；
+2. 保留远端 `archive/`、`feeds/`；本地 append-only 内容只有在“远端内容是本地前缀”时才覆盖，否则 fail closed。`output/` 不再保留：清理阶段会删除远端旧副本；
+3. 替换 `feed_state.json`、`article_state.json`；写入 `.gitattributes`（`archive/**/*.md`、`feeds/*.jsonl` 固定 LF）；不写 `status.json`，并删除 legacy 的 `state.json` / `articles.json` / `status.json`；
 4. 删除旧 ADR-016 的根级 `archive/*.jsonl`；
-5. 校验归档（repair 尾部后 validate）、索引可解析、`article_state.json` 无正文、有归档时有索引；
-6. 提交 `data: snapshot YYYY-MM-DD`，普通 push；被拒时 `pull --rebase` 重试一次。若选择文件冲突，重试会失败而不是覆盖远端，需要人工解决。
+5. 校验归档（repair 尾部后 validate）、索引可解析、`article_state.json` 无正文、有归档时有索引；`output/` 或 `status.json` 出现即 fail closed；
+6. 提交 `data: snapshot YYYY-MM-DD`，普通 push；被拒时先 `fetch --unshallow` 再 `pull --rebase` 重试一次。若选择文件冲突，重试会失败而不是覆盖远端，需要人工解决。
 
 失败处理：
 
@@ -436,7 +441,8 @@ git ls-tree -r --name-only origin/data | head -40
 ```bash
 git fetch origin
 git ls-tree --name-only origin/data
-# 期望：archive  article_state.json  feed_state.json  feeds  （output 可选，属于旧快照残留）
+# 期望：.gitattributes  archive  article_state.json  feed_state.json  feeds
+# 旧快照可能还有 output/，下一份快照会删除
 # 不应出现：status.json  state.json  articles.json
 git show origin/data:article_state.json | python -c '
 import json, sys
@@ -466,6 +472,8 @@ git push origin --delete backup/gh-pages-<timestamp>
 
 ## 9. 轮换 API key
 
+AI 默认关闭（`config.toml` 的 `[ai] enabled = false`），此时无需 key，`--classify` 是 no-op。只有启用 AI 后才需要以下步骤。
+
 1. 在对应 provider 创建新 key；
 2. GitHub 仓库 **Settings → Secrets and variables → Actions** 更新：
    - `OPENAI_API_KEY`
@@ -494,15 +502,17 @@ git push origin --delete backup/gh-pages-<timestamp>
 4. 进入某天的页面，确认正文、标题链接和 feed 链接可读；
 5. 打开 `feeds/<feed_id>.html`，确认 JS 能加载列表；滚动后正文通过 Range 请求加载（DevTools 里应为 `206`，URL 指向 `archive/YYYY/MM/DD.md`）；
 6. 打开 `feeds/<feed_id>.json`，确认是合法 JSON Feed 1.1，且 item 带 `_archive` 坐标、没有 `content_html` 全文；标题/site 应来自 `feeds.toml` 的当前配置，而不是 JSONL 里冻结的历史 header；
-7. 确认部署来源是 Actions artifact：仓库 **Settings → Pages → Build and deployment → Source = GitHub Actions**；
-8. 确认分支契约：
+7. 打开 `health.json`（由 `status.json` 复制而来），确认是本轮派生的计数/warning 报告，且不含 secret；
+8. 确认部署来源是 Actions artifact：仓库 **Settings → Pages → Build and deployment → Source = GitHub Actions**；
+9. 确认分支契约：
 
    ```bash
    git fetch origin
    git branch -r
    # 期望长期分支只有 origin/main 和 origin/data（backup/* 可临时存在）
    git ls-tree --name-only origin/data
-   # 期望：archive  article_state.json  feed_state.json  feeds  （output 可选）
+   # 期望：.gitattributes  archive  article_state.json  feed_state.json  feeds
+   # 旧快照可能还有 output/，下一份快照会删除
    # 不应出现：status.json  state.json  articles.json
    ```
 
@@ -516,7 +526,7 @@ cache 是热数据，随时可能被 GitHub 驱逐，这是设计内的：
 - **驱逐**：下一轮自动从 `data` 恢复 `archive/`、`feeds/`、`feed_state.json`、`article_state.json`；cache 里的 `output/` 也会恢复；`status.json` 不缓存，由本轮 `--report` 重新生成；正文不再依赖重新抓取。设置 `RSS_FORCE_FETCH=1` 刷新 14 天窗口；
 - **损坏**：恢复步骤检测到非法 JSON 后 warning 并回退 `data`，不会把损坏内容写回；
 - **保存失败**：只影响下一次冷启动成本。日志中 `Prepare runtime cache` 的 `ok=false` 或 `Save runtime cache` 失败都不应手工补 cache；
-- **key**：`rss-runtime-${run_id}`，通过 `rss-runtime-` 前缀恢复最近一份。日常运行是前缀命中，`cache-hit` 通常为 `false`，以恢复后的文件校验为准；
+- **key**：`rss-runtime-${run_id}-${run_attempt}`，通过 `rss-runtime-` 前缀恢复最近一份。包含 `run_attempt` 后，重跑不会精确命中失败尝试的 cache；日常运行是前缀命中，`cache-hit` 通常为 `false`，以恢复后的文件校验为准；
 - **配额**：每轮一个 cache，GitHub 按约 10GB/LRU 管理。频繁冷启动通常是旧 cache 被驱逐；可用 `gh cache list` 查看，并只删除旧的 `rss-runtime-*`，不要无差别删除其他 workflow 的 cache。
 
 常用命令：

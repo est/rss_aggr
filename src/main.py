@@ -32,6 +32,7 @@ from src.feed_state import (
     mark_failed,
     mark_ok,
     prune_feeds,
+    record_content_lengths,
     save_state,
 )
 from src.opml_parser import parse_feeds
@@ -135,12 +136,21 @@ def _repair_pending_indexes(feeds_dir: str) -> int:
                 flush=True,
             )
             continue
+        length = parsed.get("length")
+        if not isinstance(length, int) or isinstance(length, bool) or length < 0:
+            print(
+                f"[{ts()}] WARNING: cannot repair feed index for "
+                f"{ref['path']}@{ref['offset']}: invalid record length",
+                flush=True,
+            )
+            continue
+        offset = parsed.get("offset", ref["offset"])
         meta = parsed.get("meta") or {}
         feed_meta = _feed_meta_for_article(article)
         index_record = {
             "file": ref["path"],
-            "offset": ref["offset"],
-            "length": ref["length"],
+            "offset": offset,
+            "length": length,
             "body_offset": parsed.get("body_offset"),
             "body_len": parsed.get("body_len"),
             "sha256": parsed.get("sha256"),
@@ -159,6 +169,7 @@ def _repair_pending_indexes(feeds_dir: str) -> int:
                 flush=True,
             )
             continue
+        article["archive_length"] = length
         article["indexed"] = True
         repaired += 1
 
@@ -180,6 +191,31 @@ def _load_feed_index_keys(feeds_dir: str, feed_meta: dict) -> tuple[dict, set[st
         if record.get("kind", "article") == "article":
             keys.update(article_keys(record))
     return feed_meta, keys
+
+
+def _load_all_feed_index_keys(feeds_dir: str) -> set[str]:
+    """Load article dedup keys from every existing ``feeds/*.jsonl`` index.
+
+    ``article_state.json`` expires quickly, so a syndicated article would be
+    re-archived when it later appears in another feed. The feed indexes are the
+    durable record of what has already been archived, so seed the run's dedup
+    keys from all of them. Unreadable indexes only warn: a broken index must
+    not abort the fetch.
+    """
+    keys: set[str] = set()
+    base = Path(feeds_dir)
+    if not base.exists():
+        return keys
+    for path in sorted(base.glob("*.jsonl")):
+        try:
+            _header, records = md_archive.read_feed_index(path)
+        except (OSError, ValueError) as exc:
+            print(f"[{ts()}] WARNING: cannot read feed index {path}: {exc}", flush=True)
+            continue
+        for record in records:
+            if record.get("kind", "article") == "article":
+                keys.update(article_keys(record))
+    return keys
 
 
 def _archive_article_meta(entry: dict, feed_meta: dict, fetched_at: str) -> dict:
@@ -349,7 +385,17 @@ def step_sync():
     user_agent = config.get("fetch", {}).get("user_agent", "rss_aggr/1.0")
     print(f"[{ts()}] Syncing external feeds...", flush=True)
     from src.sync import sync
-    sync(user_agent=user_agent)
+    result = sync(user_agent=user_agent)
+    for warning in result.get("warnings") or []:
+        print(f"  sync warning: {warning}", flush=True)
+    errors = result.get("errors") or []
+    if errors:
+        for error in errors:
+            print(f"  sync error: {error}", flush=True)
+        raise RuntimeError(
+            f"feed sync completed with {len(errors)} source/URL error(s); "
+            "review feeds.toml before relying on it"
+        )
     print(f"[{ts()}] Sync done", flush=True)
 
 
@@ -373,6 +419,13 @@ def step_fetch():
     max_workers = limits.get("max_workers", fetch_cfg.get("max_workers", 10))
     max_entries = limits.get("max_entries_per_feed", 0)
     skip_titles = filter_cfg.get("skip_titles", [])
+    skip_no_full_text = bool(filter_cfg.get("skip_no_full_text", True))
+    min_full_text_chars = int(filter_cfg.get("min_full_text_chars", 500))
+    no_full_text_after = int(filter_cfg.get("no_full_text_after", 5))
+    full_text_mode = fetch_cfg.get("full_text_mode", "off")
+    full_text_min_chars = int(fetch_cfg.get("full_text_min_chars", 500))
+    full_text_timeout = int(fetch_cfg.get("full_text_timeout_seconds", 10))
+    full_text_max_per_feed = int(fetch_cfg.get("full_text_max_per_feed", 3))
 
     cache_status = validate_articles_file()
     if cache_status == "corrupt":
@@ -409,14 +462,15 @@ def step_fetch():
     print(f"[{ts()}] Due: {len(due_feeds)}", flush=True)
 
     if not due_feeds:
-        # get_due_feeds() may have auto-disabled or re-enabled feeds.
-        state["last_fetch"] = _now_iso()
+        # get_due_feeds() may have auto-disabled or re-enabled feeds. Do not
+        # advance last_fetch: no fetch happened, so it must not look fresh.
         save_state(state)
         if cache_missing:
             save_articles([])
         print(f"[{ts()}] No feeds to fetch", flush=True)
         return
 
+    existing_index_keys = _load_all_feed_index_keys(feeds_dir)
     results = fetch_all_feeds(
         due_feeds,
         timeout=fetch_cfg.get("timeout_seconds", 15),
@@ -426,6 +480,11 @@ def step_fetch():
         max_workers=max_workers,
         feeds_state={} if force_refresh else state.get("feeds", {}),
         max_entries_per_feed=max_entries,
+        full_text_mode=full_text_mode,
+        full_text_min_chars=full_text_min_chars,
+        full_text_timeout=full_text_timeout,
+        full_text_max_per_feed=full_text_max_per_feed,
+        known_keys=existing_index_keys,
     )
 
     aggregator_feeds = 0
@@ -467,7 +526,10 @@ def step_fetch():
             existing_by_key.setdefault(key, article)
 
     run_links: set[str] = set()
-    run_keys: set[str] = set()
+    # Seed dedup keys from every existing feed index, not just the current
+    # feed's, so an article archived by another feed is skipped even after the
+    # article-state cache has expired.
+    run_keys: set[str] = set(existing_index_keys)
     index_cache: dict[str, tuple[dict, set[str]]] = {}
     metadata_entries: list[dict] = []
     feed_records: list[tuple[dict, dict]] = []
@@ -519,6 +581,11 @@ def step_fetch():
                 entry.get("content") or "",
                 base_url=entry.get("link") or feed_meta.get("site_url") or "",
             )
+            extracted = (entry.get("extracted_markdown") or "").strip()
+            if extracted:
+                # Already Markdown from src.extractor; feeding it through
+                # sanitize_html would flatten paragraph breaks.
+                body = extracted.rstrip() + "\n"
             meta = _archive_article_meta(entry, feed_meta, fetched_at)
             items.append((meta, body))
             queued.append(entry)
@@ -542,6 +609,23 @@ def step_fetch():
                 f"archive append returned {len(records)} record(s) "
                 f"for {len(items)} article(s)"
             )
+
+        if skip_no_full_text:
+            feed_url = feed_meta.get("feed_url") or ""
+            body_lengths = [len(body.strip()) for _meta, body in items]
+            if feed_url and record_content_lengths(
+                state,
+                feed_url,
+                body_lengths,
+                min_chars=min_full_text_chars,
+                max_short=no_full_text_after,
+            ):
+                print(
+                    f"[{ts()}] Disabled feed without full text: "
+                    f"{feed_meta.get('title') or feed_url} "
+                    f"(after {no_full_text_after} short article(s))",
+                    flush=True,
+                )
 
         for entry, record in zip(queued, records):
             metadata_entries.append(
@@ -599,6 +683,7 @@ def step_classify():
     """Classify cached articles, write classified results to output (immutable)."""
     config = load_config()
     ai_cfg = config.get("ai", {})
+    ai_enabled = ai_cfg.get("enabled", True)
     filter_cfg = config.get("filter", {})
     limits = config.get("limits", {})
     categories = [c["name"] for c in config.get("category", [])]
@@ -612,6 +697,20 @@ def step_classify():
         raise RuntimeError(
             "article_state.json is corrupt; restore it from the data branch before classifying"
         )
+
+    if not ai_enabled:
+        # AI is intentionally off: leave pending rows untouched for cleanup to
+        # expire after keep_days. Do not mutate state or refresh last_classify.
+        pending_left = sum(
+            1
+            for a in load_articles()
+            if (a.get("status") or "pending") not in _STATUS_DONE
+        )
+        print(
+            f"[{ts()}] AI disabled; {pending_left} pending article(s) left for cleanup",
+            flush=True,
+        )
+        return
 
     archive_root = _archive_root(archive_dir)
     repaired = _repair_pending_indexes(feeds_dir)
@@ -748,11 +847,13 @@ def step_classify():
                 if is_skip_category(cls.get("category", "")):
                     a["status"] = "skipped"
                     clear_content(a)
+                    to_write.append(a)
                     continue
                 if not is_safe_http_url(a.get("link", "")):
                     a["status"] = "skipped"
                     a["skip_reason"] = "unsafe_link"
                     clear_content(a)
+                    to_write.append(a)
                     continue
                 a["status"] = "classified"
                 clear_content(a)
@@ -776,18 +877,26 @@ def step_classify():
         # Append annotations BEFORE committing "classified" status. If an
         # annotation cannot be written, the row goes back to pending and is
         # retried next run instead of becoming permanently classified without
-        # a summary in the renderer.
+        # a summary in the renderer. Skipped rows also get an annotation
+        # (category="skip") so the renderer can hide them.
         writable = []
         annotation_errors = 0
         for a in to_write:
-            if a.get("status") != "classified":
+            status = a.get("status")
+            if status == "unclassified":
                 writable.append(a)
                 continue
+            if status not in ("classified", "skipped"):
+                writable.append(a)
+                continue
+            annotation = _annotation_for_article(a)
+            if status == "skipped":
+                annotation["category"] = "skip"
             try:
                 md_archive.append_feed_annotation(
                     feeds_dir,
                     _feed_meta_for_article(a),
-                    _annotation_for_article(a),
+                    annotation,
                 )
             except (OSError, ValueError) as exc:
                 annotation_errors += 1
@@ -802,7 +911,8 @@ def step_classify():
                     )
                 continue
             a.pop("annotation_error", None)
-            writable.append(a)
+            if status == "classified":
+                writable.append(a)
 
         # Write output before persisting statuses. If this fails, the rows stay
         # pending and the whole group is retried; annotations are append-only
@@ -875,7 +985,12 @@ def step_report():
 
     config = load_config()
     data_dir, archive_dir, feeds_dir = _storage_paths(config)
-    status = build_status(data_dir=data_dir)
+    if validate_articles_file() == "corrupt":
+        raise RuntimeError(
+            "article_state.json is corrupt; restore it from the data branch before reporting"
+        )
+    ai_enabled = config.get("ai", {}).get("enabled", True)
+    status = build_status(data_dir=data_dir, ai_enabled=ai_enabled)
     if not status["output"]["index_exists"]:
         # The site index must exist even before the first classified article.
         _update_index(
@@ -883,7 +998,7 @@ def step_report():
             last_fetched=status["last_fetch"],
             last_classified=status["last_classify"],
         )
-        status = build_status(data_dir=data_dir)
+        status = build_status(data_dir=data_dir, ai_enabled=ai_enabled)
         # Record the repair so --check does not silently hide the condition.
         status.setdefault("warnings", []).insert(
             0, "output/index.md was missing and has been regenerated"
@@ -919,17 +1034,24 @@ def step_check():
 
     config = load_config()
     limits = config.get("limits", {})
+    ai_enabled = config.get("ai", {}).get("enabled", True)
     data_dir, _archive_dir, _feeds_dir = _storage_paths(config)
+
+    if validate_articles_file() == "corrupt":
+        raise RuntimeError(
+            "article_state.json is corrupt; restore it from the data branch before checking"
+        )
 
     # Always rebuild from the current runtime files. Reading a stale
     # status.json could make --check pass after the data changed.
-    status = build_status(data_dir=data_dir)
+    status = build_status(data_dir=data_dir, ai_enabled=ai_enabled)
     write_status(status, root="status.json", data_dir=data_dir)
 
     violations = check_status(
         status,
         max_backlog=limits.get("max_backlog", 2000),
         freshness_hours=limits.get("freshness_hours", 24),
+        ai_enabled=ai_enabled,
     )
     for warning in status.get("warnings") or []:
         print(f"WARNING: {warning}", flush=True)

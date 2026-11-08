@@ -459,12 +459,23 @@ def _daily_path(day: str) -> str:
     return f"{day[0:4]}/{day[5:7]}/{day[8:10]}.html"
 
 
-def _anchor_id(record: dict, fallback: str = "") -> str:
+def _record_guid(record: dict) -> str:
+    """Return the GUID from a feed-index or daily-archive record."""
     guid = _text(record.get("guid")).strip()
     if not guid:
         meta = record.get("meta")
         if isinstance(meta, dict):
             guid = _text(meta.get("guid")).strip()
+    return guid
+
+
+def _anchor_id(record: dict, fallback: str = "") -> str:
+    """Return the canonical anchor/id for a record.
+
+    The rule is the same for daily pages and JSON Feed items: the GUID when
+    present, otherwise ``article-<archive byte offset>``.
+    """
+    guid = _record_guid(record)
     if guid:
         return guid
     if fallback:
@@ -528,6 +539,68 @@ def _latest_annotations(records: list[dict]) -> dict[str, dict]:
         if previous is None or key > previous[0]:
             latest[guid] = (key, record)
     return {guid: record for guid, (_key, record) in latest.items()}
+
+
+def _is_skip_category(value) -> bool:
+    """Whether an annotation category means the article should be hidden."""
+    return _text(value).strip().casefold() == "skip"
+
+
+def _hidden_guids(feed_indexes: list[FeedIndex]) -> set[str]:
+    """Return GUIDs whose latest annotation classifies them as ``skip``."""
+    hidden: set[str] = set()
+    for feed in feed_indexes:
+        for guid, annotation in _latest_annotations(feed.records).items():
+            if _is_skip_category(annotation.get("category")):
+                hidden.add(guid)
+    return hidden
+
+
+def _filtered_records(records: list[dict], hidden: set[str]) -> list[dict]:
+    if not hidden:
+        return records
+    return [record for record in records if _record_guid(record) not in hidden]
+
+
+def _slice_archive(
+    source: bytes, records: list[dict]
+) -> tuple[bytes, dict[int, dict]]:
+    """Rebuild a daily Markdown file without the removed records.
+
+    Kept records are copied byte-for-byte so their bodies still verify against
+    the per-feed index checksums. The returned map translates each original
+    record offset to its new offset/length inside the filtered file.
+    """
+    chunks: list[bytes] = []
+    mapping: dict[int, dict] = {}
+    position = 0
+    for record in records:
+        offset = record.get("offset")
+        length = record.get("length")
+        if (
+            not isinstance(offset, int)
+            or isinstance(offset, bool)
+            or offset < 0
+            or not isinstance(length, int)
+            or isinstance(length, bool)
+            or length < 0
+        ):
+            continue
+        chunk = source[offset : offset + length]
+        body_offset = record.get("body_offset")
+        relative_body = (
+            body_offset - offset if isinstance(body_offset, int) else 0
+        )
+        mapping[offset] = {
+            "offset": position,
+            "length": len(chunk),
+            "body_offset": position + relative_body,
+            "body_len": record.get("body_len"),
+            "sha256": record.get("sha256"),
+        }
+        chunks.append(chunk)
+        position += len(chunk)
+    return b"".join(chunks), mapping
 
 
 def _slug(value, fallback: str = "feed") -> str:
@@ -735,9 +808,9 @@ def _render_day(
     feed_lookup: dict[str, tuple[str, str]],
 ) -> str:
     articles: list[str] = []
-    for index, record in enumerate(records):
+    for record in records:
         meta = record.get("meta") or {}
-        anchor = _anchor_id(record, f"article-{index}")
+        anchor = _anchor_id(record)
         title = _text(meta.get("title")).strip() or "(untitled)"
         link = _safe_url(meta.get("link"))
         if link:
@@ -877,20 +950,29 @@ def _render_feed(feed: FeedIndex) -> str:
 
 
 def _feed_urls(feed: FeedIndex, base_url: str = "") -> tuple[str, str]:
-    """Return ``(home_page_url, feed_url)`` for the JSON Feed."""
+    """Return ``(home_page_url, feed_url)`` for the JSON Feed.
+
+    ``home_page_url`` describes the source site (the feed's ``site_url``),
+    falling back to the aggregator base URL and then to the relative index.
+    ``feed_url`` always points at this JSON Feed document: an absolute URL
+    under ``base_url`` when configured, otherwise a path relative to the
+    document itself.
+    """
     settings_base = _safe_url(base_url)
     quoted_id = quote(feed.output_id, safe="")
-    if _is_absolute_url(settings_base):
-        home = settings_base.rstrip("/") + "/"
-        feed_url = f"{home}feeds/{quoted_id}.json"
-        return home, feed_url
     site_url = _safe_url(feed.header.get("site_url"))
+
     if _is_absolute_url(site_url):
         home = site_url
-        feed_url = f"{site_url.rstrip('/')}/feeds/{quoted_id}.json"
+    elif _is_absolute_url(settings_base):
+        home = settings_base.rstrip("/") + "/"
+    else:
+        home = "../index.html"
+
+    if _is_absolute_url(settings_base):
+        feed_url = settings_base.rstrip("/") + f"/feeds/{quoted_id}.json"
     else:
         # Relative to the JSON Feed document at <site>/feeds/<id>.json.
-        home = "../index.html"
         feed_url = f"../feeds/{quoted_id}.json"
     return home, feed_url
 
@@ -899,20 +981,25 @@ def _build_json_feed(
     feed: FeedIndex,
     annotations: dict[str, dict],
     base_url: str = "",
+    archive_refs: dict[tuple[str, int], dict] | None = None,
+    hidden: set[str] | None = None,
 ) -> dict:
     home_page_url, feed_url = _feed_urls(feed, base_url)
+    hidden = hidden or set()
     items: list[dict] = []
     for record in _article_records(feed):
+        if _record_guid(record) in hidden:
+            continue
         title = _plain_text(record.get("title")) or "(untitled)"
         link = _safe_url(record.get("link"))
         daily = _daily_href(record, "..")
-        guid = _anchor_id(record)
+        anchor = _anchor_id(record)
         item_id = (
-            _plain_text(guid)
+            _plain_text(anchor)
             or link
             or f"{_text(record.get('file'))}:{_text(record.get('offset'))}"
         )
-        annotation = annotations.get(_text(record.get("guid")).strip(), {})
+        annotation = annotations.get(_record_guid(record), {})
         summary = _plain_text(annotation.get("summary"))
         category = _plain_text(annotation.get("category"))
         score = annotation.get("score")
@@ -946,6 +1033,18 @@ def _build_json_feed(
             "body_len": record.get("body_len"),
             "sha256": _text(record.get("sha256")),
         }
+        if archive_refs:
+            ref = archive_refs.get((archive["file"], record.get("offset")))
+            if ref:
+                archive.update(
+                    {
+                        "offset": ref["offset"],
+                        "length": ref["length"],
+                        "body_offset": ref["body_offset"],
+                        "body_len": ref["body_len"],
+                        "sha256": _text(ref.get("sha256")),
+                    }
+                )
         if archive["file"]:
             item["_archive"] = archive
         if daily:
@@ -982,17 +1081,31 @@ def render_site(
         feed_lookup.setdefault(feed.feed_id, info)
         feed_lookup.setdefault(feed.output_id, info)
 
+    hidden = _hidden_guids(feed_indexes)
+    # Original (file, offset) -> offset inside the filtered Markdown copy.
+    archive_refs: dict[tuple[str, int], dict] = {}
+
     days: list[tuple[str, int]] = []
     for day, path in _daily_files(archive_dir):
-        records = list(md_archive.iter_records(path))
+        all_records = list(md_archive.iter_records(path))
+        records = _filtered_records(all_records, hidden)
         _write(site_dir / _daily_path(day), _render_day(day, records, feed_lookup))
         # Publish the raw daily Markdown too: the per-feed page range-fetches
         # only the bytes needed for one article instead of embedding bodies in
-        # the JSON Feed or the HTML shell.
+        # the JSON Feed or the HTML shell. Skipped records are removed from
+        # this copy, so their bodies never leak to the rendered site.
         md_rel = Path("archive") / Path(_daily_path(day)).with_suffix(".md")
         md_target = site_dir / md_rel
         md_target.parent.mkdir(parents=True, exist_ok=True)
-        md_target.write_bytes(path.read_bytes())
+        source = path.read_bytes()
+        if len(records) == len(all_records):
+            md_target.write_bytes(source)
+        else:
+            filtered, mapping = _slice_archive(source, records)
+            md_target.write_bytes(filtered)
+            md_key = md_rel.as_posix()
+            for offset, ref in mapping.items():
+                archive_refs[(md_key, offset)] = ref
         days.append((day, len(records)))
 
     _write(site_dir / "index.html", _render_index(days, feed_indexes))
@@ -1005,7 +1118,13 @@ def render_site(
     for feed in feed_indexes:
         annotations = _latest_annotations(feed.records)
         _write(site_dir / "feeds" / f"{feed.output_id}.html", _render_feed(feed))
-        feed_json = _build_json_feed(feed, annotations, base_url=base_url)
+        feed_json = _build_json_feed(
+            feed,
+            annotations,
+            base_url=base_url,
+            archive_refs=archive_refs,
+            hidden=hidden,
+        )
         _write(
             site_dir / "feeds" / f"{feed.output_id}.json",
             json.dumps(feed_json, ensure_ascii=False, indent=2) + "\n",

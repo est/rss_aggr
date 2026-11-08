@@ -1,11 +1,16 @@
 """RSS feed fetcher using feedparser."""
 import hashlib
+import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
+from html import unescape
 
 import feedparser
 import requests
+
+from src.article_state import article_keys
+from src.extractor import extract_article_text
 
 DEFAULT_KEEP_DAYS = 7
 MAX_RETRIES = 2
@@ -144,11 +149,24 @@ def _update_conditional_state(feed_state: dict | None, resp: requests.Response):
         feed_state["last_modified"] = last_mod
 
 
+def _visible_length(html: str) -> int:
+    """Approximate the readable text length of feed content."""
+    if not html:
+        return 0
+    text = re.sub(r"<[^>]+>", " ", html)
+    return len(unescape(text).strip())
+
+
 def fetch_feed(feed_info: dict, timeout: int | tuple | None = None,
                keep_days: int = DEFAULT_KEEP_DAYS,
                user_agent: str = "rss_aggr/1.0", skip_titles: list[str] = None,
                feed_state: dict | None = None,
-               max_entries_per_feed: int = 0) -> dict:
+               max_entries_per_feed: int = 0,
+               full_text_mode: str = "off",
+               full_text_min_chars: int = 500,
+               full_text_timeout: int = 10,
+               full_text_max_per_feed: int = 3,
+               known_keys: set[str] | None = None) -> dict:
     """Fetch a single RSS feed, return entries within keep_days, filtered by rules.
 
     Args:
@@ -186,10 +204,9 @@ def fetch_feed(feed_info: dict, timeout: int | tuple | None = None,
             "fetched_at": datetime.now(timezone.utc).isoformat(),
         }
 
-    # Update ETag / Last-Modified from response (including 304).
-    _update_conditional_state(feed_state, resp)
-
     if resp.status_code == 304:
+        # A 304 is still a valid validator refresh; keep the conditional state.
+        _update_conditional_state(feed_state, resp)
         return {
             "feed": feed_info,
             "status": "not_modified",
@@ -206,6 +223,11 @@ def fetch_feed(feed_info: dict, timeout: int | tuple | None = None,
         getattr(parsed, "bozo", False) or not getattr(parsed, "version", "")
     ):
         reason = getattr(parsed, "bozo_exception", None) or "not a feed document"
+        # Do not persist validators from a response we could not parse: they
+        # would make the next request 304 and starve the feed forever.
+        if feed_state is not None:
+            feed_state.pop("etag", None)
+            feed_state.pop("last_modified", None)
         return {
             "feed": feed_info,
             "status": "error",
@@ -213,6 +235,9 @@ def fetch_feed(feed_info: dict, timeout: int | tuple | None = None,
             "entries": [],
             "fetched_at": datetime.now(timezone.utc).isoformat(),
         }
+
+    # Only trust conditional headers from a response that parsed as a feed.
+    _update_conditional_state(feed_state, resp)
 
     now = datetime.now(timezone.utc)
     cutoff = now - timedelta(days=keep_days)
@@ -238,7 +263,10 @@ def fetch_feed(feed_info: dict, timeout: int | tuple | None = None,
         elif hasattr(entry, "description"):
             content = entry.description
 
-        entry_id = entry.get("id", entry.get("link", ""))
+        entry_id = (entry.get("id") or entry.get("link") or "").strip()
+        if not entry_id:
+            # No usable identity means the entry cannot be deduped or rendered.
+            continue
         guid = hashlib.sha256(entry_id.encode()).hexdigest()[:16]
 
         author = entry.get("author", "")
@@ -267,6 +295,31 @@ def fetch_feed(feed_info: dict, timeout: int | tuple | None = None,
     if max_entries_per_feed and max_entries_per_feed > 0:
         entries = entries[:max_entries_per_feed]
 
+    mode = (full_text_mode or "off").strip().lower()
+    if mode in ("short", "always"):
+        limit = full_text_max_per_feed if full_text_max_per_feed > 0 else len(entries)
+        extracted_count = 0
+        for entry in entries:
+            if extracted_count >= limit:
+                break
+            if known_keys and any(key in known_keys for key in article_keys(entry)):
+                # The main fetch step will skip this duplicate; do not fetch
+                # the original page just to throw the body away.
+                continue
+            if mode == "short" and _visible_length(entry.get("content", "")) >= full_text_min_chars:
+                continue
+            link = (entry.get("link") or "").strip()
+            if not link:
+                continue
+            extracted = extract_article_text(
+                link,
+                timeout=full_text_timeout,
+                user_agent=user_agent,
+            )
+            if extracted and len(extracted) > _visible_length(entry.get("content", "")):
+                entry["extracted_markdown"] = extracted
+                extracted_count += 1
+
     return {
         "feed": feed_info,
         "status": "ok",
@@ -278,13 +331,19 @@ def fetch_feed(feed_info: dict, timeout: int | tuple | None = None,
 def fetch_all_feeds(feeds: list[dict], timeout: int = 15, keep_days: int = DEFAULT_KEEP_DAYS,
                     user_agent: str = "rss_aggr/1.0", skip_titles: list[str] = None,
                     max_workers: int = 10, feeds_state: dict | None = None,
-                    max_entries_per_feed: int = 0) -> list[dict]:
+                    max_entries_per_feed: int = 0,
+                    full_text_mode: str = "off",
+                    full_text_min_chars: int = 500,
+                    full_text_timeout: int = 10,
+                    full_text_max_per_feed: int = 3,
+                    known_keys: set[str] | None = None) -> list[dict]:
     """Fetch all feeds in parallel with progress logging.
 
     Args:
         max_workers: number of parallel threads.
         feeds_state: dict of {url: feed_state} from feed_state.json for conditional requests.
         max_entries_per_feed: per-feed entry cap (0 = unlimited).
+        full_text_mode: ``off``, ``short`` or ``always``; see src.extractor.
     """
     total = len(feeds)
     done = 0
@@ -298,7 +357,12 @@ def fetch_all_feeds(feeds: list[dict], timeout: int = 15, keep_days: int = DEFAU
         url = f["xml_url"]
         fs = (feeds_state or {}).get(url)
         return fetch_feed(f, timeout, keep_days, user_agent, skip_titles,
-                          feed_state=fs, max_entries_per_feed=max_entries_per_feed)
+                          feed_state=fs, max_entries_per_feed=max_entries_per_feed,
+                          full_text_mode=full_text_mode,
+                          full_text_min_chars=full_text_min_chars,
+                          full_text_timeout=full_text_timeout,
+                          full_text_max_per_feed=full_text_max_per_feed,
+                          known_keys=known_keys)
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(_fetch_one, f): f for f in feeds}

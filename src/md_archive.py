@@ -848,23 +848,46 @@ def _repair_feed_meta(meta: dict) -> dict:
     }
 
 
-def _existing_article_keys(path: Path) -> set[str]:
-    """Dedup keys already present in one feed index (header may be absent)."""
+def _read_index_state(path: Path) -> tuple[dict | None, list[dict]]:
+    """Return ``(feed_header_or_None, records)`` even for a headerless index.
+
+    ``records`` excludes the header when one is present. Junk/partial lines are
+    ignored, matching :func:`read_feed_index`.
+    """
     if not path.exists():
-        return set()
+        return None, []
     try:
-        _header, records = read_feed_index(path)
-    except (OSError, ValueError):
-        try:
-            raw = path.read_bytes()
-        except OSError:
-            return set()
-        records = _parse_jsonl_lines(_truncate_partial_line(raw))
-    keys: set[str] = set()
-    for record in records:
-        if record.get("kind", "article") == "article":
-            keys.update(_article_keys(record))
-    return keys
+        raw = path.read_bytes()
+    except OSError:
+        return None, []
+    records = _parse_jsonl_lines(_truncate_partial_line(raw))
+    if not records:
+        return None, []
+    if records[0].get("kind") == "feed":
+        return records[0], records[1:]
+    return None, records
+
+
+def _repair_index_header(
+    path: Path,
+    identifier: str,
+    feed_meta: dict,
+    records: list[dict],
+) -> dict:
+    """Atomically prepend a feed header to a headerless index."""
+    header_meta = dict(feed_meta)
+    # Fill gaps from the records that survived without a header.
+    for field in ("feed_url", "site_url", "title"):
+        if header_meta.get(field):
+            continue
+        for record in records:
+            value = _text(record.get(field)).strip()
+            if value:
+                header_meta[field] = value
+                break
+    header = _feed_header(header_meta, identifier)
+    _atomic_write_jsonl(path, [header, *records])
+    return header
 
 
 def repair_indexes(
@@ -872,11 +895,18 @@ def repair_indexes(
 ) -> dict:
     """Append only the article records missing from feed indexes.
 
-    Existing indexes are never rewritten or shrunk: article records already
-    present (by guid or canonical link) are left untouched, annotations stay in
-    place, and missing records are appended through :func:`append_feed_record`
-    (which also creates a missing index/header). Running it twice appends
-    nothing the second time.
+    Existing indexes are normally never rewritten or shrunk: article records
+    already present (by guid or canonical link) are left untouched and
+    annotations stay in place. Missing records for one feed are appended in a
+    single batched write (one read/fsync) instead of one write per record.
+
+    A headerless index (records but no ``kind="feed"`` first line) is repaired
+    by atomically prepending a header derived from the archive rows while
+    preserving every existing record and annotation. Running it twice appends
+    nothing and rewrites nothing the second time.
+
+    Returns counts for ``articles``, ``feeds``, ``appended``, ``skipped`` and
+    ``headers_repaired``.
     """
     archive_dir = _resolve_archive_root(archive_root)
     files = _archive_files(archive_dir)
@@ -923,19 +953,36 @@ def repair_indexes(
         "feeds": len(groups),
         "appended": 0,
         "skipped": 0,
+        "headers_repaired": 0,
     }
     for identifier in sorted(groups):
         group = groups[identifier]
-        seen = _existing_article_keys(directory / f"{identifier}.jsonl")
+        path = directory / f"{identifier}.jsonl"
+        header, existing = _read_index_state(path)
+
+        if existing and header is None:
+            _repair_index_header(path, identifier, group["meta"], existing)
+            stats["headers_repaired"] += 1
+
+        seen: set[str] = set()
+        for record in existing:
+            if record.get("kind", "article") == "article":
+                seen.update(_article_keys(record))
+
+        missing: list[dict] = []
         for index_record in group["articles"]:
             stats["articles"] += 1
             keys = _article_keys(index_record)
             if any(key in seen for key in keys):
                 stats["skipped"] += 1
                 continue
-            append_feed_record(directory, group["meta"], index_record)
             seen.update(keys)
-            stats["appended"] += 1
+            missing.append(index_record)
+
+        if missing:
+            # One read/dedup/fsync for the whole batch instead of one per record.
+            _append_feed_lines(directory, group["meta"], missing, dedup=True)
+            stats["appended"] += len(missing)
     return stats
 
 

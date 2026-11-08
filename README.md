@@ -9,7 +9,7 @@
 3. 可选地用 AI 分类/打分；
 4. 生成每日静态页面、每 feed 的轻量 HTML（JS 读 JSON，再按 Range 拉正文）和 JSON Feed。
 
-> 原文会进入 `data` 分支的 git；AI 只是增强，不是必需品。没有 API key 时仍然会输出标题和链接，只是没有分类、摘要和评分。
+> 原文会进入 `data` 分支的 git；AI 只是增强，不是必需品，且默认关闭（`config.toml` 的 `[ai] enabled = false`）。关闭时 `--classify` 是 no-op：文章仍然输出标题和链接，只是没有分类、摘要和评分，也不会产生分类器 warning/error。
 
 ## 先理解三个概念
 
@@ -23,7 +23,7 @@
 | 文章状态 | `article_state.json`（`{"v":1,"articles":[...]}`；`pending` / `classified` / `skipped` / `unclassified`、attempts、归档坐标、`indexed`） | `data` 分支 | `--fetch` / `--classify` / `--cleanup` | 可从 `data` 上一份快照恢复；缺失会强制重抓窗口 |
 | 运行报告 | `status.json` | 不持久化（仅工作区当轮） | `--report` / `--check` | 可随时重新生成 |
 | 热缓存 | `.runtime/`（CI 内部） | Actions cache | workflow | 能丢，丢了从 `data` 冷启动 |
-| 人工摘要 | `output/` | 工作区/cache；旧 `data` 可能残留（新快照不写入） | `--classify` | 能丢，不是归档，也不参与去重 |
+| 人工摘要 | `output/` | 工作区/cache；旧 `data` 可能残留（下一份快照删除） | `--classify` | 能丢，不是归档，也不参与去重 |
 | 对外站点 | `_site/` | Pages artifact | `src.render` | 能随时重建 |
 
 - **archive**：按文章发布日期（UTC）写入 `archive/YYYY/MM/DD.md`，append-only，永不修改已有字节。
@@ -34,7 +34,7 @@
 
 > 注意：`feeds.toml` 是订阅源清单（在 `main`），`feeds/` 是每 feed 的索引目录（在 `data`），两者不是一回事。
 
-`output/` 是给人看的摘要表格，派生自文章状态和分类结果；**安全删除**，并且不再是 fetch/classify 的去重依据。它只在工作区/cache，旧 `data` 可能残留历史副本但新快照不会更新。给其他系统消费请读渲染后的 JSON Feed（`_site/feeds/<id>.json`）；JSON 里只有元数据、摘要和归档坐标（`_archive`），没有全文。全文在 `archive/YYYY/MM/DD.md` 和每日页面里；per-feed 页面会按坐标对 `_site/archive/YYYY/MM/DD.md` 发 HTTP Range 请求，只取需要的那一段。不要直接依赖 `data` 分支的文件布局。
+`output/` 是给人看的摘要表格，派生自文章状态和分类结果；**安全删除**，并且不再是 fetch/classify 的去重依据。它只在工作区/cache，旧 `data` 可能残留历史副本，但新快照不会写入并会删除它。给其他系统消费请读渲染后的 JSON Feed（`_site/feeds/<id>.json`）；JSON 里只有元数据、摘要和归档坐标（`_archive`），没有全文。全文在 `archive/YYYY/MM/DD.md` 和每日页面里；per-feed 页面会按坐标对 `_site/archive/YYYY/MM/DD.md` 发 HTTP Range 请求，只取需要的那一段。不要直接依赖 `data` 分支的文件布局。
 
 完整的“概念 → 路径/分支 → 运行流程”对照见 [docs/ARCHITECTURE-MAP.md](docs/ARCHITECTURE-MAP.md)。
 
@@ -45,7 +45,7 @@ python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-# 可选：配置 AI
+# 可选：配置 AI（同时在 config.toml 设 [ai] enabled = true）
 export OPENAI_API_KEY=sk-...
 
 # 抓取 + 分类 + 清理
@@ -99,18 +99,28 @@ status.json     派生报告（可删，不进 data/cache）
 
 ```toml
 [ai]
-provider = "openai"       # openai | claude | openrouter | custom
+enabled = false           # 默认关闭；关闭时 --classify 为 no-op
+provider = "openai"       # 仅 enabled = true 时生效
 model = "gpt-4o-mini"
 
 [fetch]
 keep_days = 14
+# 短正文回抓原文：off | short（只处理正文小于阈值的条目）| always
+full_text_mode = "off"
+full_text_min_chars = 500
+full_text_timeout_seconds = 10
+full_text_max_per_feed = 3
 
 [filter]
 skip_titles = ["周报", "newsletter", "weekly digest"]
 skip_prompt = "如果是新闻汇总、链接合集、个人日记，category 设为 skip"
+# 如果 feed 只输出短摘要，连续 N 篇短正文后自动停用该源
+skip_no_full_text = true
+min_full_text_chars = 500
+no_full_text_after = 5
 
 [limits]
-max_feeds = 500           # 每轮最多抓多少个源
+max_feeds = 800           # 每轮最多抓多少个源（活跃源约 1548，6 小时一轮 → 实际间隔接近 12 小时）
 max_articles = 200        # 每轮最多分类多少篇
 max_entries_per_feed = 50 # 单个源每轮最多取多少篇
 max_backlog = 5000        # pending+failed 超过这个数 --check 会失败
@@ -164,13 +174,14 @@ skip_prompt = "标题以 TIL 开头就设为 skip"
 | 分支 | 内容 | 谁写 |
 |------|------|------|
 | `main` | 代码、配置、文档、workflow | 人 + `sync-feeds` |
-| `data` | `archive/`、`feeds/`、`feed_state.json`、`article_state.json`（旧快照可能残留 `output/`） | 采集 workflow，每天最多一次普通 commit |
+| `data` | `archive/`、`feeds/`、`feed_state.json`、`article_state.json`、`.gitattributes`（旧快照可能残留 `output/`，下一份快照会删除） | 采集 workflow，每天最多一次普通 commit |
 
 - `data` 是永久归档；`archive/` 和 `feeds/` 只追加。
 - `feed_state.json`（每 feed 的 `last_ok` / `last_attempt` / 失败计数 / `disabled` / `retry_at` / ETag / `is_aggregator`，以及顶层 `last_fetch` / `last_classify`）和 `article_state.json` 每轮整体替换。
-- `status.json` 是 `--report` / `--check` 现算的派生报告，不写入 `data`，也不进 cache。
-- Actions cache 保存 `feed_state.json`、`article_state.json`、`archive/`、`feeds/`、`output/`；不含 `status.json`。
-- `output/` 是派生摘要；旧快照可能保留，新快照不再写入。
+- `status.json` 是 `--report` / `--check` 现算的派生报告，不写入 `data`，也不进 cache；部署时复制为站点上的 `_site/health.json`。
+- Actions cache 保存 `feed_state.json`、`article_state.json`、`archive/`、`feeds/`、`output/`；不含 `status.json`。cache key 为 `rss-runtime-<run_id>-<run_attempt>`，重跑不会命中失败尝试的精确 key。
+- `output/` 是派生摘要；新快照不再写入，并会删除旧快照残留的 `output/`。
+- `data` 快照节奏按最近的 `data: snapshot ...` commit 计算（约 20 小时）；人工 commit 不会重置计时。`data` 上带 `.gitattributes` 固定 `archive/**/*.md` 和 `feeds/*.jsonl` 的 LF。
 - `state.json` / `articles.json` 只是迁移期旧名：loader 仍能 fallback 读取，`python -m src.migrate_state` 会拆分，下一份 `data` 快照会删除。
 - 每轮 `--fetch` 会按 `feeds.toml` 清理 `feed_state.json` 中已移除的 feed；`skip = true` 的条目会保留。被移除后重新加回的 URL 从干净状态开始。
 - **不需要 `gh-pages`**：GitHub Pages 直接从 Actions artifact 部署。
@@ -180,7 +191,7 @@ skip_prompt = "标题以 TIL 开头就设为 skip"
 
 | Workflow | 触发 | 做什么 |
 |----------|------|--------|
-| `collect.yml` | 每 6 小时 + 手动 | 恢复 cache/data → 抓取 → 清洗归档 → AI 分类 → 渲染 → 部署 Pages → 保存 cache → 每天一次 data 快照 |
+| `collect.yml` | 每 6 小时 + 手动 | 恢复 cache/data → 抓取 → 清洗归档 → AI 分类（默认 no-op）→ 渲染 → 发布 health.json → 部署 Pages → 保存 cache → 每天一次 data 快照 |
 | `sync-feeds.yml` | 每周一 + 手动 | 同步外部源列表，只提交 `feeds.toml` |
 
 首次运行如果只有旧 `gh-pages`：
@@ -265,12 +276,15 @@ python -m src.feed_state --forget "https://example.com/rss.xml"
 python -m src.feed_state --prune --feeds-config feeds.toml
 ```
 
-如果 AI 不可用：
+AI 默认关闭（`[ai] enabled = false`），此时 `--classify` 是 no-op：
 
 - 文章仍然会输出标题和链接；
 - `Category / Summary / Score` 为空；
-- 本轮的 `status.json` 派生报告和日志里会有 warning；
-- job 不会因为“AI 没配好”而不产出内容。
+- 不会产生分类器 warning/error，`status.json` 只反映抓取/归档计数；
+- 需要分类时再设 `enabled = true` 并配置 provider/model/key；job 不会因为“AI 没配好”而不产出内容。
+- 分类结果为 `skip` 的文章会写入一条 `category=skip` 的 annotation；渲染每日页、feed JSON 和 Range 用的 Markdown 时会隐藏它，但 archive 本身仍保留。
+- 原文回抓默认关闭（`full_text_mode = "off"`）。需要时设为 `"short"`：feed 正文短于 `full_text_min_chars` 的条目会尝试回抓原文（trafilatura），成功则用提取后的 Markdown 覆盖 feed 摘要；失败则保留原内容。单 feed 每轮最多回抓 `full_text_max_per_feed` 条。
+- `skip_no_full_text = true`（默认）时，如果某个 feed 的新文章连续 `no_full_text_after` 篇正文都短于 `min_full_text_chars`，会自动停用该 feed，`disabled_reason` 为 `rss does not provide full text`；以后不再抓取，直到用 `python -m src.feed_state --forget URL` 重新启用。只要有一篇长文就会把连续计数清零。
 
 ## 体积和限制
 

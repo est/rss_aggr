@@ -9,7 +9,7 @@
 
 ```text
 main  = 代码和配置
-data  = 数据分支；分支根目录下是 archive/、feeds/、feed_state.json、article_state.json
+data  = 数据分支；分支根目录下是 archive/、feeds/、feed_state.json、article_state.json、.gitattributes
 cache = data 的热副本（.runtime/），只加速，不是事实来源
 Pages = 从 archive + feeds 渲染出来的站点和 JSON Feed，不是数据源
 status.json = 当轮派生报告，不进 data、不进 cache
@@ -41,12 +41,13 @@ data
 ├── feeds/example.com-1a2b3c4d5e6f.jsonl
 ├── feed_state.json          # 每 feed 运行状态
 ├── article_state.json       # {"v":1,"articles":[...]}，待分类/已处理元数据
-└── output/                  # 旧数据可能残留；派生物，新快照不再写入
+├── .gitattributes           # 固定 archive/**/*.md、feeds/*.jsonl 的 LF
+└── output/                  # 仅旧数据可能残留；下一份快照会删除
 ```
 
-> `status.json` **不在** `data` 分支：它由 `--report` / `--check` 从 `feed_state.json` + `article_state.json` 现算，是当轮派生报告。
+> `status.json` **不在** `data` 分支：它由 `--report` / `--check` 从 `feed_state.json` + `article_state.json` 现算，是当轮派生报告；部署时复制为 `_site/health.json`。
 > `state.json` / `articles.json` 只是旧名字：loader 仍能读取，`python -m src.migrate_state` 会拆分，下一份 `data` 快照会删除。
-> `output/` 是给人看的摘要，不参与去重/分类决策；旧 `data` 上的副本会保留，但不会被新快照更新。
+> `output/` 是给人看的摘要，不参与去重/分类决策；新快照不再写入，并会删除旧 `data` 上的副本。
 
 > 容易混的一点：`feeds.toml` 和 `feeds/` 不是一回事。
 > `feeds.toml` 是订阅源清单，放 `main`；`feeds/` 是每 feed 的 JSONL 索引，放 `data`。
@@ -64,8 +65,8 @@ data
 | **每 feed 索引** | `feeds/<feed_id>.jsonl` | `--fetch` 写 header/article；`--classify` 追加 annotation；`--repair-indexes` 补缺失记录 | append-only | `data` | `src.render`、抓取去重、feed 聚合 |
 | feed 抓取状态 | `feed_state.json` | `--fetch` / `src.feed_state` | 整体替换 | `data` | 到期判断、自动禁用、`--report` |
 | 待分类元数据 | `article_state.json`（`{"v":1,"articles":[...]}`） | `--fetch` / `--classify` / `--cleanup` | 整体替换 | `data` | 分类队列、状态统计、索引补全 |
-| 运行状态报告 | `status.json` | `--report` / `--check` | 整体替换 | **不持久化**：仅工作区当轮，不进 cache、不进 `data` | 运维、健康检查 |
-| 人工摘要 | `output/` | `--classify` → `src.storage.save_daily_results` | 按天重写 | 派生；仅工作区/cache，旧 `data` 可能残留 | 人看；**不参与去重/分类** |
+| 运行状态报告 | `status.json` | `--report` / `--check` | 整体替换 | **不持久化**：仅工作区当轮，不进 cache、不进 `data`；部署时复制为 `_site/health.json` | 运维、健康检查 |
+| 人工摘要 | `output/` | `--classify` → `src.storage.save_daily_results` | 按天重写 | 派生；仅工作区/cache，旧 `data` 可能残留，下一份快照删除 | 人看；**不参与去重/分类** |
 | 热数据 | `.runtime/` | workflow 的 Prepare runtime cache | 整目录 | Actions cache | 下一轮恢复 |
 | 静态站点 | `_site/` | `python -m src.render` | 每次重建 | Pages artifact | 浏览器、JSON Feed 消费者 |
 | 旧站点 | `gh-pages` | 旧架构遗留 | — | 旧分支 | 迁移用，最终删除 |
@@ -82,6 +83,7 @@ feeds.toml / sources.toml（main）
    feeds.toml（main）
         │
         │  --fetch：HTTP 抓取 → sanitize → Markdown
+        │           （full_text_mode=short 时，短摘要会先尝试回抓原文；默认 off）
         ├──────────────► archive/YYYY/MM/DD.md      （正文，append-only）
         ├──────────────► feeds/<feed_id>.jsonl       （article 记录）
         ├──────────────► article_state.json          （metadata-only + 归档坐标 + indexed）
@@ -98,9 +100,9 @@ feeds.toml / sources.toml（main）
         ├──────────────► _site/feeds/<id>.html        （轻量 JS 壳）
         └──────────────► _site/feeds/<id>.json        （JSON Feed 1.1，元数据+摘要+_archive）
         │
-        ├──► Actions artifact → GitHub Pages
+        ├──► Actions artifact → GitHub Pages（含由 status.json 复制的 health.json）
         ├──► Actions cache（.runtime/：feed_state + article_state + archive/feeds/output）
-        └──► data 分支（feed_state/article_state + archive/feeds，约每天一次；无 status.json）
+        └──► data 分支（feed_state/article_state + archive/feeds + .gitattributes，约每天一次；无 status.json/output）
 ```
 
 关键点：
@@ -110,8 +112,8 @@ feeds.toml / sources.toml（main）
 - 分类时不重新抓网页，而是用 `article_state.json` 里的 `archive_offset` / `archive_length` 从归档里读正文。
 - 写入顺序是 `archive → article_state → feeds index`；索引写失败的行保留 `indexed=false`，下一轮 `--fetch` 从归档补写，不重复写正文。
 - 分类时先追加 annotation，再写 `output/`，最后才标记 `classified`；任何一步失败都会保持 pending 重试，不会出现“已分类但没有摘要”的静默状态。
-- `status.json` 是 `--report` / `--check` 从 `feed_state.json` + `article_state.json` 现算的报告，不是运行输入，也不会进入快照。
-- `output/` 是给人看的 Markdown 表格；冷启动缺失不会影响分类，也不要把它当归档。
+- `status.json` 是 `--report` / `--check` 从 `feed_state.json` + `article_state.json` 现算的报告，不是运行输入，也不会进入快照；部署时复制为 `_site/health.json`。
+- `output/` 是给人看的 Markdown 表格；冷启动缺失不会影响分类，也不要把它当归档；新 `data` 快照不再包含它。
 - `feeds.toml` 的 title/site 在 render 时覆盖 JSONL header 的显示值；索引文件本身仍保持 append-only 的历史 header。
 - 对外消费用的是 `_site/feeds/<id>.json`，不是 `data` 分支本身。
 - JSON 里的 `_archive` 给出 `file` / `body_offset` / `body_len` / `sha256`；per-feed 页面用这些坐标对 `_site/archive/...md` 发 Range 请求，只取目标正文。
@@ -160,31 +162,31 @@ per-feed 页面依赖 `fetch`，请通过 HTTP 访问（Pages 或本地静态服
 - 本地第一次跑时没有 `feed_state.json`，会把所有 feed 当成到期源；`article_state.json` 缺失会强制全量刷新窗口。
 - 旧工作区只有 `state.json` / `articles.json` 时，loader 会 fallback；显式运行 `python -m src.migrate_state` 可写成新文件名。
 - 存储路径固定为 `archive/`、`feeds/`、`output/`（`src/paths.py`）；在 `config.toml` 里改 `[storage]` 会直接报错。
-- AI 没配好不会中断产出：文章仍会以标题 + 链接写入，分类字段为空，状态记为 `unclassified`。
+- AI 默认关闭（`[ai] enabled = false`），`--classify` 是 no-op：文章仍会以标题 + 链接写入，分类字段为空，且不会产生分类器 warning/error。需要分类时再启用并配置 provider/model/key。
 
 ## 5. CI 怎么跑
 
 `.github/workflows/collect.yml`，每 6 小时一次，也可以手动触发。
 
 ```text
-test（ruff + pytest，只读 main）
+test（ruff + pytest，checkout 事件 SHA）
   │
   ▼
-collect
-  1. checkout main
-  2. 恢复 cache：.runtime/ → 工作区
-  3. 如果 cache 无效/不存在：从 data 分支恢复
-  4. 运行 src.migrate_state，把旧 state.json/articles.json 拆成新文件
-  5. 校验归档和索引（修尾部 / reconcile / repair-indexes / fail closed）
-  6. --fetch（按 feeds.toml 对账 feed_state，补 indexed=false 的索引）
-  7. --classify（annotation → output → classified，失败保持 pending）
-  8. --cleanup
-  9. --report（生成 status.json，仅当轮工作区）
- 10. src.render → _site
+collect（checkout 同一个事件 SHA）
+  1. 恢复 cache：.runtime/ → 工作区（key 含 run_id + run_attempt）
+  2. 如果 cache 无效/不存在：从 data 分支恢复
+  3. 运行 src.migrate_state，把旧 state.json/articles.json 拆成新文件
+  4. 校验归档和索引（修尾部 / reconcile / repair-indexes / fail closed）
+  5. --fetch（按 feeds.toml 对账 feed_state，补 indexed=false 的索引；max_feeds=800）
+  6. --classify（annotation → output → classified；默认 enabled=false，为 no-op）
+  7. --cleanup
+  8. --report（生成 status.json，仅当轮工作区）
+  9. src.render → _site
+ 10. status.json → _site/health.json
  11. upload-pages-artifact + deploy-pages
  12. --check
  13. Prepare runtime cache → Save runtime cache（不含 status.json）
- 14. Snapshot 到 data 分支（约每 20 小时一次，或手动勾选 snapshot）
+ 14. Snapshot 到 data 分支（距最近 data: snapshot commit ≥ 20 小时，或手动勾选 snapshot）
 ```
 
 恢复优先级和写回位置：
@@ -192,10 +194,10 @@ collect
 ```text
 读：有效 cache  >  data 分支  >  空状态
 写：cache（每轮，校验通过后；feed_state/article_state/archive/feeds/output）
-    data（校验通过 + 距上次快照 ≥ 20 小时，或手动强制；feed_state/article_state/archive/feeds）
+    data（校验通过 + 距最近 snapshot commit ≥ 20 小时，或手动强制；feed_state/article_state/archive/feeds/.gitattributes）
 ```
 
-因此要记住：**cache 可能比 `data` 新**。`data` 是每日快照，不是实时状态；cache 被驱逐时，最近不到 20 小时的增量需要从 `data` 冷启动并重新抓取窗口内内容。`status.json` 和 `output/` 都不属于持久运行状态：前者不写 cache/data，后者只是派生摘要。
+因此要记住：**cache 可能比 `data` 新**。`data` 是每日快照，不是实时状态；cache 被驱逐时，最近不到 20 小时的增量需要从 `data` 冷启动并重新抓取窗口内内容。`status.json` 和 `output/` 都不属于持久运行状态：前者不写 cache/data（只发布为 `health.json`），后者只是派生摘要且新快照会删除。
 
 ## 6. 给别的系统读取时，读什么？
 
@@ -246,14 +248,14 @@ JSON Feed **不包含** `content_html` 全文，也不包含归档正文。全�
 | `output/` 决定文章是否已存在 | 不是；去重看 `archive/` 引用、`article_state.json` 和 `feeds/*.jsonl`，`output/` 不参与 |
 | `state.json` / `articles.json` 是当前状态 | 不是；它们只是迁移期旧名，新文件是 `feed_state.json` / `article_state.json` |
 | `status.json` 是持久运行状态 | 不是；它由本轮 `--report` / `--check` 现算，不进 cache、不进 `data` |
-| `data` 快照包含 `status.json` | 不包含；快照只写 `feed_state.json`、`article_state.json`、`archive/`、`feeds/` |
+| `data` 快照包含 `status.json` / `output/` | 都不包含；快照只写 `feed_state.json`、`article_state.json`、`archive/`、`feeds/`、`.gitattributes` |
 | 改 `config.toml [storage]` 能挪目录 | 不能；布局固定为 `archive/`、`feeds/`、`output/`，覆盖会被拒绝 |
 | JSON Feed 里有全文 | 没有；全文在 `archive/` 和每日页面，JSON 只有元数据、摘要和 `_archive` 坐标 |
 | 改 `feeds.toml` 的 title/site 不会更新页面 | 会更新；render 时用 `feeds.toml` 叠加显示值，JSONL header 只保留历史 |
 | 从 `feeds.toml` 删 feed 就彻底停止 | 不够；`--sync` 可能加回来，应保留条目并设 `skip = true` |
 | 重建索引和修复索引一样 | 不一样；`--repair-indexes` 只补缺失记录并保留 annotation，`--rebuild-indexes` 会丢 annotation |
 | cache 是唯一数据源 | 不是；cache 可丢，`data` 才是持久归档 |
-| `data` 每轮都更新 | 约每 20 小时一次，或手动强制；中间状态只在 cache |
+| `data` 每轮都更新 | 距最近 `data: snapshot` commit 约 20 小时一次，或手动强制；人工 commit 不重置计时；中间状态只在 cache |
 | `python -m src.main` 会发布站点 | 不会；要单独跑 `src.render` 和部署步骤 |
 | Pages 从 `gh-pages` 部署 | 不是；Pages 从 Actions artifact 部署，`gh-pages` 是旧遗留 |
 | 归档按“抓取日”分文件 | 按文章发布日期（UTC）分；缺失时回退 `fetched_at` |

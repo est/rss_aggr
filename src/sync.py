@@ -1,11 +1,12 @@
 """Sync external feed lists into feeds.toml."""
 import json
-import xml.etree.ElementTree as ET
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import requests
 
-from src.urls import canonical_url
+from src.opml_parser import parse_opml_bytes
+from src.urls import canonical_url, is_safe_public_http_url
 
 try:
     import tomllib
@@ -13,74 +14,94 @@ except ModuleNotFoundError:
     import tomli as tomllib
 
 
-def parse_opml_bytes(content: bytes) -> list[dict]:
-    """Parse OPML content and return flat feed list."""
-    root = ET.fromstring(content)
-    feeds = []
+class SyncSourceError(RuntimeError):
+    """A remote feed-list source could not be fetched or parsed."""
 
-    # Case 1: feeds nested inside category outlines
-    for outline in root.findall(".//outline"):
-        category = outline.get("text", "Uncategorized")
-        for feed in outline.findall("outline[@type='rss']"):
-            xml_url = feed.get("xmlUrl", "")
-            if xml_url:
-                feeds.append({
-                    "title": feed.get("text", feed.get("title", "")),
-                    "url": xml_url,
-                    "site": feed.get("htmlUrl", ""),
-                    "source_category": category,
-                })
 
-    # Case 2: flat structure, feeds directly under body
-    if not feeds:
-        for feed in root.findall(".//outline[@type='rss']"):
-            xml_url = feed.get("xmlUrl", "")
-            if xml_url:
-                feeds.append({
-                    "title": feed.get("text", feed.get("title", "")),
-                    "url": xml_url,
-                    "site": feed.get("htmlUrl", ""),
-                    "source_category": "",
-                })
+def _source_label(source: dict) -> str:
+    name = str(source.get("name") or "").strip()
+    url = str(source.get("url") or "").strip()
+    return name or url or "source"
 
+
+def _looks_like_opml(content: bytes, url_path: str) -> bool:
+    """Decide OPML vs TOML from the URL suffix, then from the content."""
+    path = (url_path or "").lower()
+    if path.endswith((".opml", ".xml")):
+        return True
+    if path.endswith(".toml"):
+        return False
+    head = content[:2000]
+    if head.startswith(b"\xef\xbb\xbf"):
+        head = head[3:]
+    head = head.lstrip()
+    return head.startswith(b"<") or b"<opml" in head.lower()
+
+
+def _parse_toml_feeds(content: bytes) -> list[dict]:
+    try:
+        data = tomllib.loads(content.decode("utf-8-sig"))
+    except (UnicodeDecodeError, ValueError) as exc:
+        raise SyncSourceError(f"invalid TOML feed list: {exc}") from exc
+    if not isinstance(data, dict):
+        raise SyncSourceError("invalid TOML feed list: top level is not a table")
+
+    feeds: list[dict] = []
+    for cat in data.get("category", []) or []:
+        if not isinstance(cat, dict):
+            continue
+        for feed in cat.get("feed", []) or []:
+            if not isinstance(feed, dict):
+                continue
+            feeds.append(
+                {
+                    "title": feed.get("title", ""),
+                    "url": feed.get("url", ""),
+                    "site": feed.get("site", ""),
+                    "source_category": cat.get("name", ""),
+                }
+            )
     return feeds
 
 
 def parse_remote(source: dict, user_agent: str = "rss_aggr/1.0") -> list[dict]:
-    """Fetch and parse a remote feed list (OPML or TOML)."""
-    url = source["url"]
-    print(f"  Fetching {source['name']}... ", end="", flush=True)
+    """Fetch and parse a remote feed list (OPML or TOML).
 
+    Raises :class:`SyncSourceError` when the source URL is not a public
+    http(s) URL, the request fails, the payload cannot be parsed, or the
+    payload contains no feeds. It never silently returns an empty list.
+    """
+    url = str(source.get("url") or "").strip()
+    label = _source_label(source)
+    if not is_safe_public_http_url(url):
+        raise SyncSourceError(
+            f"{label}: invalid or non-public source URL: {url!r}"
+        )
+
+    print(f"  Fetching {label}... ", end="", flush=True)
     try:
         resp = requests.get(url, timeout=30, headers={"User-Agent": user_agent})
         resp.raise_for_status()
-    except Exception as e:
-        print(f"FAILED: {e}")
-        return []
+    except requests.RequestException as exc:
+        print("FAILED")
+        raise SyncSourceError(f"{label}: fetch failed: {exc}") from exc
 
     content = resp.content
-    name = source["name"].lower()
-
-    if name.endswith(".opml") or name.endswith(".xml") or b"<opml" in content[:500]:
-        feeds = parse_opml_bytes(content)
-    elif name.endswith(".toml"):
-        data = tomllib.loads(content.decode())
-        feeds = []
-        for cat in data.get("category", []):
-            for f in cat.get("feed", []):
-                feeds.append({
-                    "title": f.get("title", ""),
-                    "url": f.get("url", ""),
-                    "site": f.get("site", ""),
-                    "source_category": cat.get("name", ""),
-                })
-    else:
-        # Try OPML as default
-        try:
+    try:
+        if _looks_like_opml(content, urlsplit(url).path):
             feeds = parse_opml_bytes(content)
-        except ET.ParseError:
-            print("FAILED: unknown format")
-            return []
+        else:
+            feeds = _parse_toml_feeds(content)
+    except SyncSourceError:
+        print("FAILED")
+        raise
+    except Exception as exc:  # XML/TOML parser errors are source-specific
+        print("FAILED")
+        raise SyncSourceError(f"{label}: cannot parse feed list: {exc}") from exc
+
+    if not feeds:
+        print("FAILED")
+        raise SyncSourceError(f"{label}: source contained no feeds")
 
     print(f"{len(feeds)} feeds")
     return feeds
@@ -179,18 +200,35 @@ def save_feeds_toml(data: dict, path: Path):
     tmp.replace(path)
 
 
-def sync(sources_path: str = "sources.toml", feeds_path: str = "feeds.toml", user_agent: str = "rss_aggr/1.0"):
-    """Main sync: fetch external sources → merge into feeds.toml."""
+def sync(
+    sources_path: str = "sources.toml",
+    feeds_path: str = "feeds.toml",
+    user_agent: str = "rss_aggr/1.0",
+) -> dict:
+    """Fetch external sources, merge into feeds.toml and return stats.
+
+    Source failures are isolated: the remaining sources are still processed
+    and feeds.toml is still written for the sources that succeeded.
+
+    Returns a dict with ``new``, ``skipped``, ``removed``, ``total``,
+    ``errors`` (source-level failures; fatal for the sync step) and
+    ``warnings`` (individual invalid/empty entries that were skipped).
+    """
     with open(sources_path, "rb") as f:
         config = tomllib.load(f)
 
     sources = config.get("source", [])
-    if not sources:
-        print("No sources configured")
-        return
-
-    print(f"[sync] {len(sources)} sources to sync")
     existing = load_feeds_toml(Path(feeds_path))
+    errors: list[str] = []
+    warnings: list[str] = []
+    stats = {
+        "new": 0,
+        "skipped": 0,
+        "removed": 0,
+        "total": 0,
+        "errors": errors,
+        "warnings": warnings,
+    }
 
     existing_feeds_by_url: dict[str, dict] = {}
     for cat in existing.get("category", []):
@@ -199,31 +237,60 @@ def sync(sources_path: str = "sources.toml", feeds_path: str = "feeds.toml", use
             if url:
                 key = canonical_url(url) or url
                 existing_feeds_by_url.setdefault(key, feed)
+    stats["total"] = len(existing_feeds_by_url)
+
+    if not sources:
+        print("No sources configured")
+        return stats
+
+    print(f"[sync] {len(sources)} sources to sync")
 
     new_by_cat: dict[str, list[str]] = {}
-    total_new = 0
-    total_skipped = 0
 
     for source in sources:
-        feeds = parse_remote(source, user_agent)
-        target_cat = source.get("category", "Imported")
+        label = _source_label(source)
+        try:
+            feeds = parse_remote(source, user_agent)
+        except Exception as exc:  # keep syncing the remaining sources
+            message = str(exc) or f"{label}: unknown error"
+            if not message.startswith(label):
+                message = f"{label}: {message}"
+            errors.append(message)
+            print(f"  {message}")
+            continue
 
+        target_cat = source.get("category", "Imported")
         for f in feeds:
             url = (f.get("url") or "").strip()
             if not url:
+                warnings.append(f"{label}: skipped feed with no URL")
                 continue
+            if not is_safe_public_http_url(url):
+                warnings.append(
+                    f"{label}: skipped invalid or non-public feed URL: {url!r}"
+                )
+                continue
+
+            site = (f.get("site") or "").strip()
+            if site and not is_safe_public_http_url(site):
+                warnings.append(
+                    f"{label}: dropped invalid or non-public site URL "
+                    f"for {url!r}: {site!r}"
+                )
+                site = ""
+
             key = canonical_url(url) or url
             if key in existing_feeds_by_url:
-                total_skipped += 1
+                stats["skipped"] += 1
                 continue
             existing_feeds_by_url[key] = {
-                "title": f["title"],
+                "title": f.get("title", ""),
                 "url": url,
-                "site": f.get("site", ""),
+                "site": site,
                 "priority": source.get("priority", 10),
             }
             new_by_cat.setdefault(target_cat, []).append(key)
-            total_new += 1
+            stats["new"] += 1
 
     for cat_name, new_keys in new_by_cat.items():
         for key in new_keys:
@@ -240,13 +307,18 @@ def sync(sources_path: str = "sources.toml", feeds_path: str = "feeds.toml", use
                     "feed": [feed],
                 })
 
-    removed = dedupe_feeds(existing)
+    stats["removed"] = dedupe_feeds(existing)
+    stats["total"] = sum(
+        len(cat.get("feed", [])) for cat in existing.get("category", [])
+    )
     save_feeds_toml(existing, Path(feeds_path))
     print(
-        f"\n[sync] Done: +{total_new} new, {total_skipped} skipped (dup), "
-        f"{removed} removed (canonical dup), "
-        f"{len(existing_feeds_by_url)} total"
+        f"\n[sync] Done: +{stats['new']} new, {stats['skipped']} skipped (dup), "
+        f"{stats['removed']} removed (canonical dup), "
+        f"{stats['total']} total, {len(errors)} errors, "
+        f"{len(warnings)} warnings"
     )
+    return stats
 
 
 if __name__ == "__main__":

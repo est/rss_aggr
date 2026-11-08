@@ -69,7 +69,11 @@ class BuildStatusTests(unittest.TestCase):
             (data_dir / "index.md").write_text("# index\n", encoding="utf-8")
             feed_state_path = root / "feed_state.json"
             feeds = {
-                f"https://f{i}.com/feed": {"disabled": i < 9, "last_attempt": _iso(0)}
+                f"https://f{i}.com/feed": {
+                    "disabled": i < 9,
+                    "last_attempt": _iso(0),
+                    "last_ok": _iso(0),
+                }
                 for i in range(10)
             }
             save_state({"feeds": feeds}, str(feed_state_path))
@@ -135,6 +139,77 @@ class BuildStatusTests(unittest.TestCase):
             self.assertEqual(status["articles"]["total"], 1)
             self.assertEqual(status["articles"]["pending"], 1)
 
+    def test_ai_disabled_does_not_warn_about_unclassified(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "output"
+            data_dir.mkdir()
+            (data_dir / "index.md").write_text("# index\n", encoding="utf-8")
+            feed_state_path = root / "feed_state.json"
+            save_state({"feeds": {}}, str(feed_state_path))
+            article_state_path = root / "article_state.json"
+            save_articles([
+                {"link": "https://a.com/1", "status": "unclassified",
+                 "classified_at": _iso(0)},
+            ], str(article_state_path))
+
+            enabled = build_status(
+                data_dir=str(data_dir),
+                feed_state_path=str(feed_state_path),
+                article_state_path=str(article_state_path),
+                ai_enabled=True,
+            )
+            disabled = build_status(
+                data_dir=str(data_dir),
+                feed_state_path=str(feed_state_path),
+                article_state_path=str(article_state_path),
+                ai_enabled=False,
+            )
+
+            self.assertTrue(
+                any("without AI" in warning for warning in enabled["warnings"])
+            )
+            self.assertEqual(disabled["warnings"], [])
+
+    def test_last_fetch_fallback_ignores_failed_attempts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "output"
+            data_dir.mkdir()
+            (data_dir / "index.md").write_text("# index\n", encoding="utf-8")
+            feed_state_path = root / "feed_state.json"
+            article_state_path = root / "article_state.json"
+            save_articles([], str(article_state_path))
+
+            save_state(
+                {"feeds": {"https://a.com/feed": {"last_attempt": _iso(0)}}},
+                str(feed_state_path),
+            )
+            failed_only = build_status(
+                data_dir=str(data_dir),
+                feed_state_path=str(feed_state_path),
+                article_state_path=str(article_state_path),
+            )
+            self.assertEqual(failed_only["last_fetch"], "")
+
+            save_state(
+                {
+                    "feeds": {
+                        "https://a.com/feed": {
+                            "last_attempt": _iso(0),
+                            "last_ok": _iso(-1),
+                        }
+                    }
+                },
+                str(feed_state_path),
+            )
+            with_success = build_status(
+                data_dir=str(data_dir),
+                feed_state_path=str(feed_state_path),
+                article_state_path=str(article_state_path),
+            )
+            self.assertTrue(with_success["last_fetch"])
+
 
 class CheckStatusTests(unittest.TestCase):
     def test_all_feeds_disabled_is_a_violation(self):
@@ -185,6 +260,31 @@ class CheckStatusTests(unittest.TestCase):
             "last_classify": _iso(0),
         }
         self.assertEqual(check_status(status), [])
+
+    def test_ai_disabled_ignores_pending_backlog_and_classify_freshness(self):
+        status = {
+            "feeds": {"total": 1},
+            "articles": {"pending": 5000, "failed": 0},
+            "output": {"index_exists": True},
+            "last_fetch": _iso(0),
+            "last_classify": "",
+        }
+        self.assertEqual(
+            check_status(status, max_backlog=10, ai_enabled=False), []
+        )
+
+    def test_ai_disabled_still_counts_real_failures(self):
+        status = {
+            "feeds": {"total": 1},
+            "articles": {"pending": 5000, "failed": 20},
+            "output": {"index_exists": True},
+            "last_fetch": _iso(0),
+            "last_classify": "",
+        }
+        violations = check_status(status, max_backlog=10, ai_enabled=False)
+        self.assertEqual(len(violations), 1)
+        self.assertIn("backlog", violations[0])
+        self.assertIn("20 failed", violations[0])
 
 
 class WriteStatusTests(unittest.TestCase):

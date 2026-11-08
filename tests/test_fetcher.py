@@ -5,6 +5,7 @@ from unittest import mock
 import requests
 
 from src import fetcher
+from src.article_state import article_keys
 from src.fetcher import _parse_entry_published, _request_with_retry, fetch_feed
 
 
@@ -199,6 +200,170 @@ class FetchFeedTests(unittest.TestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["status"], "ok")
         self.assertEqual(len(results[0]["entries"]), 2)
+
+    def test_empty_guid_with_link_is_kept_and_missing_identity_is_skipped(self):
+        body = (
+            '<?xml version="1.0" encoding="utf-8"?>'
+            '<rss version="2.0"><channel><title>Test</title>'
+            "<item><title>with link</title>"
+            "<link>https://example.com/one</link><guid></guid></item>"
+            "<item><title>no identity</title></item>"
+            "</channel></rss>"
+        )
+        with mock.patch(
+            "src.fetcher._request_with_retry",
+            return_value=_response(200, body=body),
+        ):
+            result = fetch_feed(FEED, keep_days=3650)
+
+        self.assertEqual(result["status"], "ok")
+        self.assertEqual(
+            [e["link"] for e in result["entries"]],
+            ["https://example.com/one"],
+        )
+        self.assertTrue(result["entries"][0]["guid"])
+
+    def test_parse_error_does_not_persist_conditional_headers(self):
+        html = _response(
+            200,
+            {
+                "ETag": '"bad"',
+                "Last-Modified": "Wed, 01 Jan 2025 00:00:00 GMT",
+            },
+            body="<html><body>blocked</body></html>",
+        )
+        good = _response(
+            200,
+            body=_rss([
+                {"title": "item", "link": "https://example.com/1",
+                 "published": "Wed, 01 Jan 2025 00:00:00 GMT"},
+            ]),
+        )
+        feed_state = {
+            "etag": '"old"',
+            "last_modified": "Tue, 31 Dec 2024 00:00:00 GMT",
+        }
+        with mock.patch(
+            "src.fetcher._request_with_retry", side_effect=[html, good]
+        ) as request:
+            first = fetch_feed(FEED, feed_state=feed_state)
+            self.assertEqual(first["status"], "error")
+            self.assertNotIn("etag", feed_state)
+            self.assertNotIn("last_modified", feed_state)
+
+            second = fetch_feed(FEED, feed_state=feed_state)
+
+        self.assertEqual(second["status"], "ok")
+        second_headers = request.call_args_list[1].args[1]
+        self.assertNotIn("If-None-Match", second_headers)
+        self.assertNotIn("If-Modified-Since", second_headers)
+
+
+class FullTextExtractionTests(unittest.TestCase):
+    def _rss_with_descriptions(self, pairs):
+        parts = [
+            '<?xml version="1.0" encoding="utf-8"?>',
+            "<rss version=\"2.0\"><channel><title>Test</title>",
+        ]
+        for link, description in pairs:
+            parts.append("<item>")
+            parts.append(f"<title>{link}</title>")
+            parts.append(f"<link>{link}</link>")
+            parts.append(f"<guid>{link}</guid>")
+            parts.append(f"<description>{description}</description>")
+            parts.append("</item>")
+        parts.append("</channel></rss>")
+        return "".join(parts)
+
+    def test_short_feed_body_uses_extracted_markdown(self):
+        body = self._rss_with_descriptions([
+            ("https://example.com/short", "tiny summary"),
+        ])
+        with mock.patch(
+            "src.fetcher._request_with_retry",
+            return_value=_response(200, body=body),
+        ), mock.patch(
+            "src.fetcher.extract_article_text",
+            return_value="# Full article\n\n" + "x" * 600,
+        ) as extract:
+            result = fetch_feed(FEED, keep_days=3650, full_text_mode="short")
+
+        self.assertEqual(result["status"], "ok")
+        entry = result["entries"][0]
+        self.assertIn("Full article", entry["extracted_markdown"])
+        extract.assert_called_once()
+
+    def test_long_feed_body_is_not_refetched(self):
+        body = self._rss_with_descriptions([
+            ("https://example.com/long", "y" * 700),
+        ])
+        with mock.patch(
+            "src.fetcher._request_with_retry",
+            return_value=_response(200, body=body),
+        ), mock.patch("src.fetcher.extract_article_text") as extract:
+            result = fetch_feed(
+                FEED,
+                keep_days=3650,
+                full_text_mode="short",
+                full_text_min_chars=500,
+            )
+
+        self.assertNotIn("extracted_markdown", result["entries"][0])
+        extract.assert_not_called()
+
+    def test_full_text_mode_off_does_not_fetch(self):
+        body = self._rss_with_descriptions([
+            ("https://example.com/short", "tiny"),
+        ])
+        with mock.patch(
+            "src.fetcher._request_with_retry",
+            return_value=_response(200, body=body),
+        ), mock.patch("src.fetcher.extract_article_text") as extract:
+            fetch_feed(FEED, keep_days=3650, full_text_mode="off")
+        extract.assert_not_called()
+
+    def test_known_duplicate_is_not_refetched_for_full_text(self):
+        body = self._rss_with_descriptions([
+            ("https://example.com/short", "tiny"),
+        ])
+        known = set(article_keys({"link": "https://example.com/short"}))
+        with mock.patch(
+            "src.fetcher._request_with_retry",
+            return_value=_response(200, body=body),
+        ), mock.patch("src.fetcher.extract_article_text") as extract:
+            result = fetch_feed(
+                FEED,
+                keep_days=3650,
+                full_text_mode="short",
+                known_keys=known,
+            )
+        extract.assert_not_called()
+        self.assertNotIn("extracted_markdown", result["entries"][0])
+
+    def test_full_text_per_feed_cap(self):
+        body = self._rss_with_descriptions([
+            ("https://example.com/a", "a"),
+            ("https://example.com/b", "b"),
+        ])
+        with mock.patch(
+            "src.fetcher._request_with_retry",
+            return_value=_response(200, body=body),
+        ), mock.patch(
+            "src.fetcher.extract_article_text",
+            side_effect=lambda url, **kwargs: "# " + url + "\n\n" + "z" * 600,
+        ) as extract:
+            result = fetch_feed(
+                FEED,
+                keep_days=3650,
+                full_text_mode="short",
+                full_text_max_per_feed=1,
+            )
+
+        self.assertEqual(extract.call_count, 1)
+        self.assertEqual(
+            sum(1 for entry in result["entries"] if "extracted_markdown" in entry),
+            1,
+        )
 
 
 if __name__ == "__main__":

@@ -14,6 +14,7 @@ from src.article_state import (
     LEGACY_ARTICLE_STATE_FILE,
     load_articles,
     save_articles,
+    validate_articles_file,
 )
 from src.feed_state import (
     FEED_STATE_FILE,
@@ -24,7 +25,17 @@ from src.feed_state import (
 
 
 def migrate(remove_legacy: bool = False) -> tuple[int, int]:
-    state = load_state()
+    # Fail closed: never overwrite a corrupt article state with an empty list.
+    if validate_articles_file() == "corrupt":
+        raise RuntimeError(
+            "article_state.json is corrupt; refusing to migrate and overwrite it"
+        )
+    try:
+        state = load_state()
+    except ValueError as exc:
+        raise RuntimeError(
+            f"feed state is structurally invalid; refusing to migrate: {exc}"
+        ) from exc
     articles = load_articles()
     save_state(state)
     save_articles(articles)

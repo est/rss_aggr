@@ -135,7 +135,7 @@ def test_render_site_pages_json_feed_and_safety(tmp_path):
     assert data["version"] == "https://jsonfeed.org/version/1.1"
     assert data["title"] == "Example Feed"
     assert data["home_page_url"] == "https://example.com"
-    assert data["feed_url"] == "https://example.com/feeds/feed-1.json"
+    assert data["feed_url"] == "../feeds/feed-1.json"
     assert len(data["items"]) == 2
 
     items = {item["id"]: item for item in data["items"]}
@@ -250,7 +250,7 @@ def test_feed_config_overlays_current_title_and_site(tmp_path):
     data = json.loads((site / "feeds" / "feed-1.json").read_text(encoding="utf-8"))
     assert data["title"] == "Renamed Feed"
     assert data["home_page_url"] == "https://new.example.org"
-    assert data["feed_url"] == "https://new.example.org/feeds/feed-1.json"
+    assert data["feed_url"] == "../feeds/feed-1.json"
 
     # Without a feed config the archived header remains authoritative.
     plain_site = tmp_path / "_site_without_config"
@@ -266,3 +266,125 @@ def test_feed_config_overlays_current_title_and_site(tmp_path):
     assert plain_data["title"] == "Example Feed"
     assert plain_data["home_page_url"] == "https://example.com"
     assert jsonl_path.read_bytes() == original_jsonl
+
+
+def test_skip_annotation_hides_article_from_daily_and_feed(tmp_path):
+    records = _build_archive(tmp_path)
+    feeds = tmp_path / "feeds"
+    append_feed_annotation(
+        str(feeds),
+        _feed_meta(),
+        {
+            "guid": "guid-1",
+            "file": records[0]["file"],
+            "offset": records[0]["offset"],
+            "category": " Skip ",
+            "summary": "Hidden summary",
+            "score": 1,
+            "classified_at": "2026-05-04T00:00:00Z",
+        },
+    )
+
+    site = tmp_path / "_site_skip"
+    summary = render_site(site, tmp_path / "archive", tmp_path / "feeds")
+
+    assert summary == {"days": 1, "articles": 1, "feeds": 1}
+    index = (site / "index.html").read_text(encoding="utf-8")
+    assert "1 article" in index
+
+    daily = (site / "2026" / "05" / "01.html").read_text(encoding="utf-8")
+    assert 'id="guid-1"' not in daily
+    assert "Safe &amp; Sound" not in daily
+    assert 'id="guid-2"' in daily
+    assert "Evil &amp; Co" in daily
+
+    data = json.loads((site / "feeds" / "feed-1.json").read_text(encoding="utf-8"))
+    assert {item["id"] for item in data["items"]} == {"guid-2"}
+
+    # The published Markdown copy must not leak the skipped record either.
+    md_text = (site / "archive" / "2026" / "05" / "01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "guid-1" not in md_text
+    assert "Safe & Sound" not in md_text
+    assert "guid-2" in md_text
+
+    # Offsets in the JSON Feed are translated to the filtered Markdown file.
+    item = data["items"][0]
+    md_bytes = (site / "archive" / "2026" / "05" / "01.md").read_bytes()
+    ref = item["_archive"]
+    body = md_bytes[ref["body_offset"] : ref["body_offset"] + ref["body_len"]]
+    assert b"Hello" in body
+
+    # A newer annotation can make the article visible again.
+    append_feed_annotation(
+        str(feeds),
+        _feed_meta(),
+        {
+            "guid": "guid-1",
+            "file": records[0]["file"],
+            "offset": records[0]["offset"],
+            "category": "Tech",
+            "summary": "Visible again",
+            "score": 8,
+            "classified_at": "2026-05-05T00:00:00Z",
+        },
+    )
+
+    visible_site = tmp_path / "_site_visible"
+    visible_summary = render_site(
+        visible_site, tmp_path / "archive", tmp_path / "feeds"
+    )
+    assert visible_summary == {"days": 1, "articles": 2, "feeds": 1}
+
+    visible_daily = (visible_site / "2026" / "05" / "01.html").read_text(
+        encoding="utf-8"
+    )
+    assert 'id="guid-1"' in visible_daily
+    assert "Safe &amp; Sound" in visible_daily
+
+    visible_data = json.loads(
+        (visible_site / "feeds" / "feed-1.json").read_text(encoding="utf-8")
+    )
+    assert {item["id"] for item in visible_data["items"]} == {"guid-1", "guid-2"}
+
+
+def test_feed_urls_use_base_url_for_feed_document(tmp_path):
+    _build_archive(tmp_path)
+    site = tmp_path / "_site"
+    render_site(
+        site,
+        tmp_path / "archive",
+        tmp_path / "feeds",
+        base_url="https://aggregator.example/",
+    )
+
+    data = json.loads((site / "feeds" / "feed-1.json").read_text(encoding="utf-8"))
+    # home_page_url stays the source site; feed_url points at the aggregator.
+    assert data["home_page_url"] == "https://example.com"
+    assert data["feed_url"] == "https://aggregator.example/feeds/feed-1.json"
+
+
+def test_guidless_record_anchor_matches_json_item_id(tmp_path):
+    records = append_articles(
+        str(tmp_path),
+        [
+            (
+                _meta(guid="", link="https://example.com/no-guid", title="No GUID"),
+                "# No guid\n\nBody text.\n",
+            )
+        ],
+    )
+    feeds = tmp_path / "feeds"
+    append_feed_record(str(feeds), _feed_meta(), records[0])
+
+    site = tmp_path / "_site"
+    render_site(site, tmp_path / "archive", tmp_path / "feeds")
+
+    anchor = f"article-{records[0]['offset']}"
+    daily = (site / "2026" / "05" / "01.html").read_text(encoding="utf-8")
+    assert f'id="{anchor}"' in daily
+
+    data = json.loads((site / "feeds" / "feed-1.json").read_text(encoding="utf-8"))
+    assert data["items"][0]["id"] == anchor
+    assert data["items"][0]["_daily_url"].endswith(f"#{anchor}")

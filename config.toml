@@ -1,11 +1,15 @@
 # RSS Aggregator Configuration
 
+# AI is optional and disabled by default. When enabled = false, --classify is
+# a no-op: articles stay title-only and no classifier warnings/errors are
+# emitted. provider/model/base_url below only apply when enabled = true.
 # AI Provider: openai | claude | openrouter | custom
 # - openai: OpenAI API (default base_url: https://api.openai.com/v1)
 # - openrouter: OpenRouter (default base_url: https://openrouter.ai/api/v1)
 # - custom: Any OpenAI-compatible API (requires base_url)
 # - claude: Anthropic Claude (requires anthropic SDK)
 [ai]
+enabled = false
 provider = "custom"
 model = "mimo-v2.5-free"
 # base_url = ""  # Optional: custom API endpoint for openai/openrouter/custom
@@ -19,16 +23,27 @@ keep_days = 14
 user_agent = "rss_aggr/1.0 (https://github.com/est/rss_aggr/)"
 # Fallback only: limits.max_workers takes precedence when set.
 max_workers = 10
+# Best-effort full-text capture when a feed only publishes an excerpt.
+# off | short (only bodies below full_text_min_chars) | always
+full_text_mode = "off"
+full_text_min_chars = 500
+full_text_timeout_seconds = 10
+full_text_max_per_feed = 3
 
 # Filters: deterministic rules (free, fast) + AI prompt (cheap)
 [filter]
 skip_titles = ["weekly digest", "周报", "link list", "newsletter", "周刊", "每日速递", "月报", "monthly", "daily links", "资源汇总", "合集", "值得阅读", "本周推荐", "reading list"]
 skip_prompt = "If this article is a news digest, link roundup, personal diary, or off-topic life update, set category to 'skip'. Only classify substantive technical articles, business insights, or thoughtful personal essays."
+# If a feed only ever publishes short excerpts, disable it after N newly
+# archived short bodies. Set skip_no_full_text = false to keep fetching them.
+skip_no_full_text = true
+min_full_text_chars = 500
+no_full_text_after = 5
 
 # Limits: control per-run scope (0 = no limit)
 # max_workers and max_articles are wired into fetch/classify.
 [limits]
-max_feeds = 500          # max feeds to fetch per run
+max_feeds = 800          # max feeds to fetch per run (active feeds ~1548; with 6h runs this brings the effective interval closer to 12h)
 max_articles = 200       # max articles to classify per run
 max_workers = 10         # parallel fetch workers
 max_entries_per_feed = 50  # cap entries returned per feed (0 = unlimited)
