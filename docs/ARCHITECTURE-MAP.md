@@ -108,7 +108,9 @@ feeds.toml / sources.toml（main）
 关键点：
 
 - `archive/` 是事实来源；`feeds/`（annotation 除外）和 `_site/` 可以从它重新生成；`output/` 是分类结果的派生摘要，丢失后不会自动重算。
-- 去重只看 `archive/` 引用、`article_state.json` 和 `feeds/*.jsonl`；`output/` **不再**参与 fetch/classify 的跳过判断。
+- 去重只看 `archive/` 引用、`article_state.json` 和 `feeds/*.jsonl`；`output/` **不再**参与 fetch/classify 的跳过判断；跨 feed 去重会扫描全部 feed 索引，不受 `article_state.json` 过期影响。
+- `feeds.toml` 中只输出短摘要的 feed 会被 `skip_no_full_text` 自动停用（`disabled_reason=rss does not provide full text`）；只有 `full_text_mode` 开启并成功回抓原文时才不会被计入短正文。
+- AI 判定为 `skip` 的文章仍留在 archive，但不会出现在每日页、JSON Feed 和 Range 使用的 Markdown 副本里。
 - 分类时不重新抓网页，而是用 `article_state.json` 里的 `archive_offset` / `archive_length` 从归档里读正文。
 - 写入顺序是 `archive → article_state → feeds index`；索引写失败的行保留 `indexed=false`，下一轮 `--fetch` 从归档补写，不重复写正文。
 - 分类时先追加 annotation，再写 `output/`，最后才标记 `classified`；任何一步失败都会保持 pending 重试，不会出现“已分类但没有摘要”的静默状态。
@@ -132,7 +134,7 @@ python -m src.main
 python -m src.main --sync       # sources.toml → feeds.toml
 python -m src.main --fetch      # RSS → archive/ + feeds/ + article_state.json + feed_state.json
 python -m src.main --classify   # article_state → archive → AI → annotation + output/
-python -m src.main --cleanup    # 清理 14 天前的 article_state.json 条目
+python -m src.main --cleanup    # 清理过期 article_state（done 1 天；pending/failed 按 keep_days）
 python -m src.main --report     # → status.json（派生报告，不进 data/cache）
 python -m src.main --check      # 校验 backlog / freshness 契约
 
@@ -253,6 +255,9 @@ JSON Feed **不包含** `content_html` 全文，也不包含归档正文。全�
 | JSON Feed 里有全文 | 没有；全文在 `archive/` 和每日页面，JSON 只有元数据、摘要和 `_archive` 坐标 |
 | 改 `feeds.toml` 的 title/site 不会更新页面 | 会更新；render 时用 `feeds.toml` 叠加显示值，JSONL header 只保留历史 |
 | 从 `feeds.toml` 删 feed 就彻底停止 | 不够；`--sync` 可能加回来，应保留条目并设 `skip = true` |
+| AI 默认开启 | 默认关闭；`--classify` 是 no-op，pending 文章留在状态里等待清理/以后启用 |
+| AI 判定 skip 的文章仍会出现在站点 | 不会；会写 `category=skip` annotation，渲染时隐藏，archive 仍保留 |
+| RSS 只输出摘要也会一直抓 | 默认不会；连续 `no_full_text_after` 篇短正文后自动停用，可用 `skip_no_full_text` 关闭 |
 | 重建索引和修复索引一样 | 不一样；`--repair-indexes` 只补缺失记录并保留 annotation，`--rebuild-indexes` 会丢 annotation |
 | cache 是唯一数据源 | 不是；cache 可丢，`data` 才是持久归档 |
 | `data` 每轮都更新 | 距最近 `data: snapshot` commit 约 20 小时一次，或手动强制；人工 commit 不重置计时；中间状态只在 cache |

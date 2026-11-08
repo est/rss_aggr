@@ -224,6 +224,8 @@ feeds_dir = "feeds"
 
 ### 7.2 仍然存在 / 已知限制
 
+> **2026-11-08 更新：** 本节是 11-01 时点的记录；AI、skip、全文判定、同步、data 快照和 legacy 模块等已有变化，见第 8 节。
+
 | 问题 | 现状 | 影响 / 处理建议 |
 |------|------|-----------------|
 | `data` 分支与 cache 存在时间差 | cache 可能比 `data` 新；`data` 最多约 20 小时快照一次 | 手工改 `data` 上的状态前先删 `rss-runtime-*` cache，否则会被下一轮热副本覆盖；不要把 `data` 当实时接口 |
@@ -236,3 +238,33 @@ feeds_dir = "feeds"
 ### 7.3 一句话更新
 
 > 正文、去重、分类写入、feed 运行状态和存储路径已经收敛到明确权威；`status.json` 和 `output/` 已降级为纯派生。剩余风险主要是 **cache 领先于 data 的只读快照语义**、**`--sync` 的追加语义**，以及**尚未清理的 legacy 工具**。
+
+## 8. 2026-11-08 复核
+
+本节记录 2026-11-01 之后的变更，不重写前面的历史发现。对应决策记录见 ADR-018 至 ADR-026。
+
+### 8.1 已收敛
+
+- **AI 可选**：`[ai] enabled = false` 时 `--classify` 是 no-op，文章保持 pending 到 cleanup；`--check` 不要求分类新鲜度，`status.json` 增加 `ai_enabled`。
+- **正文来源可控**：`full_text_mode` 默认 `off`；需要时可回抓原文。`skip_no_full_text` 会在连续多篇短正文后自动停用只输出摘要的 feed。
+- **skip 真正生效**：skip 分类会写 `category=skip` annotation，渲染时从每日页、JSON Feed 和 Range Markdown 中隐藏。
+- **JSON Feed 契约**：`home_page_url` 指向源站，`feed_url` 指向聚合站 JSON；无 GUID 记录的锚点和 item id 统一。
+- **跨 feed 去重**：fetch 从全部 `feeds/*.jsonl` 建 key，不再依赖 1 天后过期的 `article_state.json`。
+- **状态安全**：`article_state.json` / `feed_state.json` 结构损坏时 fail closed；migrate/report/check 不会静默写成空状态；解析失败的 feed 不持久化 ETag。
+- **同步安全**：`--sync` 源站失败会失败退出，单个非法 URL 只 warning；导入 URL 做公共地址校验；OPML 支持嵌套/顶层混排。
+- **索引恢复**：`--repair-indexes` 批量补记录，并能修复缺 header 的索引文件，保留 annotation。
+- **data 分支**：快照写入 `.gitattributes`，不再保留 `output/`；快照计时只看 `data: snapshot` commit；cache key 带 `run_attempt`。
+- **可观测性**：`status.json` 复制为 `_site/health.json`；`status.json` 显示 AI 是否启用。
+- **清理**：删除未接入主流程的 `src/aliveness.py`、`src/feed_health.py`、`src/quality.py`；修复 `src/aggregator.py` 的判定逻辑。
+
+### 8.2 仍然存在
+
+| 问题 | 现状 | 处理建议 |
+|------|------|----------|
+| data 快照仍有时间差 | cache 可能比 data 新，快照约 20 小时一次 | 手工改 data 前先删对应 cache；不要把 data 当实时接口 |
+| `--sync` 仍是追加语义 | 不删除、不更新已有条目；上游还在列表里的 URL 会被加回 | 永久停止用 `skip = true`；需要声明式同步时才改 |
+| 无全文判定是启发式 | 正文长度受 Markdown 链接/图片影响；微博客可能被误停用 | 调 `min_full_text_chars` / `no_full_text_after`，或设 `skip_no_full_text = false` |
+| AI provider 未验证 | AI 默认关闭；即使启用，当前 config 里的 model/base_url 仍可能不可用 | 启用前先配好可用的 provider/model/key，并手动跑一次 classify |
+| `output/` 不能反向重建 | 只是派生摘要 | 不影响正确性；需要时从旧 cache/data 副本取回 |
+| 索引全量重建会丢 annotation | `--rebuild-indexes` 仍是全量 | 优先 `--repair-indexes`；必须 rebuild 时先备份 |
+| legacy 工具仍在 | `src/archive.py`、`scripts/migrate_branches.sh`、远端 `gh-pages` | 迁移稳定后删除远端 `gh-pages`，再决定是否移除 legacy 模块/脚本 |

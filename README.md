@@ -9,7 +9,7 @@
 3. 可选地用 AI 分类/打分；
 4. 生成每日静态页面、每 feed 的轻量 HTML（JS 读 JSON，再按 Range 拉正文）和 JSON Feed。
 
-> 原文会进入 `data` 分支的 git；AI 只是增强，不是必需品，且默认关闭（`config.toml` 的 `[ai] enabled = false`）。关闭时 `--classify` 是 no-op：文章仍然输出标题和链接，只是没有分类、摘要和评分，也不会产生分类器 warning/error。
+> feed 提供的正文（多数情况下是清洗后的 Markdown，也可能是摘要）会进入 `data` 分支的 git；AI 只是增强，不是必需品，且默认关闭（`config.toml` 的 `[ai] enabled = false`）。关闭时 `--classify` 是 no-op：文章仍然输出标题和链接，只是没有分类、摘要和评分，也不会产生分类器 warning/error。
 
 ## 先理解三个概念
 
@@ -23,7 +23,7 @@
 | 文章状态 | `article_state.json`（`{"v":1,"articles":[...]}`；`pending` / `classified` / `skipped` / `unclassified`、attempts、归档坐标、`indexed`） | `data` 分支 | `--fetch` / `--classify` / `--cleanup` | 可从 `data` 上一份快照恢复；缺失会强制重抓窗口 |
 | 运行报告 | `status.json` | 不持久化（仅工作区当轮） | `--report` / `--check` | 可随时重新生成 |
 | 热缓存 | `.runtime/`（CI 内部） | Actions cache | workflow | 能丢，丢了从 `data` 冷启动 |
-| 人工摘要 | `output/` | 工作区/cache；旧 `data` 可能残留（下一份快照删除） | `--classify` | 能丢，不是归档，也不参与去重 |
+| 人工摘要 | `output/` | 工作区/cache；旧 `data` 可能残留（下一份快照删除） | `--classify`（仅 AI 开启时） | 能丢，不是归档，也不参与去重 |
 | 对外站点 | `_site/` | Pages artifact | `src.render` | 能随时重建 |
 
 - **archive**：按文章发布日期（UTC）写入 `archive/YYYY/MM/DD.md`，append-only，永不修改已有字节。
@@ -62,8 +62,8 @@ per-feed 页面通过 `fetch` 加载 JSON 和 Markdown 片段，需要通过 HTT
 ```bash
 python -m src.main --sync       # 同步 sources.toml 里的外部源列表
 python -m src.main --fetch      # 抓 RSS，写 archive/、feeds/、article_state.json、feed_state.json
-python -m src.main --classify   # AI 分类，写 output/ 和 feed annotation
-python -m src.main --cleanup    # 清理 14 天前的 article_state.json 元数据
+python -m src.main --classify   # AI 分类（默认 no-op）；写 output/ 和 feed annotation
+python -m src.main --cleanup    # 清理过期 article_state（done 1 天；pending/failed 按 keep_days）
 python -m src.main --report     # 生成 status.json 派生报告（不进 data/cache）
 python -m src.main --check      # 检查运行时契约
 ```
@@ -92,6 +92,7 @@ status.json     派生报告（可删，不进 data/cache）
 
 - `feeds.toml` 里的 URL 按 canonical URL 去重（http/https、www、尾斜杠等），**第一次出现的条目胜出**；`--sync` 也会清理 canonical 重复项。
 - 要永久停止一个 feed，保留条目并设 `skip = true`，不要直接删除；直接删除的 URL 只要还在 `sources.toml` 里，下一次 `--sync` 会把它加回来。
+- `--sync` 会拒绝非 http(s)/内网地址；源站抓取或解析失败会让本次同步失败，单个非法 feed URL 只记 warning 并跳过。
 
 存储布局固定为工作区根目录下的 `archive/`、`feeds/`、`output/`（`src/paths.py`）。`config.toml` 里不再有 `[storage]` 覆盖；写了会被拒绝启动。
 
@@ -123,7 +124,7 @@ no_full_text_after = 5
 max_feeds = 800           # 每轮最多抓多少个源（活跃源约 1548，6 小时一轮 → 实际间隔接近 12 小时）
 max_articles = 200        # 每轮最多分类多少篇
 max_entries_per_feed = 50 # 单个源每轮最多取多少篇
-max_backlog = 5000        # pending+failed 超过这个数 --check 会失败
+max_backlog = 5000        # pending+failed 超过这个数 --check 失败（AI 关闭时只计 failed）
 ```
 
 单篇 feed 的过滤规则可以直接写：
@@ -165,6 +166,7 @@ skip_prompt = "标题以 TIL 开头就设为 skip"
 - annotation 记录负责“AI 怎么评价”，最新一条胜出。
 - 索引是派生数据，坏了可以从 archive 补回或重建；`--repair-indexes` 只补缺失记录、保留 annotation，`--rebuild-indexes` 会丢 annotation。
 - 分类时先追加 annotation，再写 `output/`，最后才标记 `classified`；annotation 写入失败的行保持 `pending`（带 `annotation_error`）并在下一轮重试，不会提交 `classified` 状态，也不会为它写 `output/` 行。
+- AI 判定为 `skip` 的文章会追加一条 `category=skip` 的 annotation；渲染每日页、feed JSON 和 Range 用的 Markdown 副本时会隐藏它，archive 本身仍保留。
 - feed header 里的 title/site 是历史值；`src.render` 默认用 `feeds.toml` 当前配置覆盖显示，不回写 append-only 的 JSONL。新文章用新配置，历史归档记录保留历史元数据。
 
 ## 分支模型
@@ -174,10 +176,10 @@ skip_prompt = "标题以 TIL 开头就设为 skip"
 | 分支 | 内容 | 谁写 |
 |------|------|------|
 | `main` | 代码、配置、文档、workflow | 人 + `sync-feeds` |
-| `data` | `archive/`、`feeds/`、`feed_state.json`、`article_state.json`、`.gitattributes`（旧快照可能残留 `output/`，下一份快照会删除） | 采集 workflow，每天最多一次普通 commit |
+| `data` | `archive/`、`feeds/`、`feed_state.json`、`article_state.json`、`.gitattributes`（旧快照可能残留 `output/`，下一份快照会删除） | 采集 workflow，约每 20 小时最多一次普通 commit |
 
 - `data` 是永久归档；`archive/` 和 `feeds/` 只追加。
-- `feed_state.json`（每 feed 的 `last_ok` / `last_attempt` / 失败计数 / `disabled` / `retry_at` / ETag / `is_aggregator`，以及顶层 `last_fetch` / `last_classify`）和 `article_state.json` 每轮整体替换。
+- `feed_state.json`（每 feed 的 `last_ok` / `last_attempt` / 失败计数 / `disabled` / `retry_at` / ETag / `is_aggregator` / `short_content_streak`，以及顶层 `last_fetch` / `last_classify`）和 `article_state.json` 每轮整体替换。
 - `status.json` 是 `--report` / `--check` 现算的派生报告，不写入 `data`，也不进 cache；部署时复制为站点上的 `_site/health.json`。
 - Actions cache 保存 `feed_state.json`、`article_state.json`、`archive/`、`feeds/`、`output/`；不含 `status.json`。cache key 为 `rss-runtime-<run_id>-<run_attempt>`，重跑不会命中失败尝试的精确 key。
 - `output/` 是派生摘要；新快照不再写入，并会删除旧快照残留的 `output/`。
@@ -191,7 +193,7 @@ skip_prompt = "标题以 TIL 开头就设为 skip"
 
 | Workflow | 触发 | 做什么 |
 |----------|------|--------|
-| `collect.yml` | 每 6 小时 + 手动 | 恢复 cache/data → 抓取 → 清洗归档 → AI 分类（默认 no-op）→ 渲染 → 发布 health.json → 部署 Pages → 保存 cache → 每天一次 data 快照 |
+| `collect.yml` | 每 6 小时 + 手动 | 恢复 cache/data → 抓取 → 清洗归档 → AI 分类（默认 no-op）→ 渲染 → 发布 health.json → 部署 Pages → 保存 cache → 约每 20 小时一次 data 快照 |
 | `sync-feeds.yml` | 每周一 + 手动 | 同步外部源列表，只提交 `feeds.toml` |
 
 首次运行如果只有旧 `gh-pages`：
@@ -280,7 +282,7 @@ AI 默认关闭（`[ai] enabled = false`），此时 `--classify` 是 no-op：
 
 - 文章仍然会输出标题和链接；
 - `Category / Summary / Score` 为空；
-- 不会产生分类器 warning/error，`status.json` 只反映抓取/归档计数；
+- 不会产生分类器 warning/error；`status.json` 仍会统计 pending/classified/skipped/unclassified/failed、output 状态和其他非分类 warning，并记录 `ai_enabled: false`；
 - 需要分类时再设 `enabled = true` 并配置 provider/model/key；job 不会因为“AI 没配好”而不产出内容。
 - 分类结果为 `skip` 的文章会写入一条 `category=skip` 的 annotation；渲染每日页、feed JSON 和 Range 用的 Markdown 时会隐藏它，但 archive 本身仍保留。
 - 原文回抓默认关闭（`full_text_mode = "off"`）。需要时设为 `"short"`：feed 正文短于 `full_text_min_chars` 的条目会尝试回抓原文（trafilatura），成功则用提取后的 Markdown 覆盖 feed 摘要；失败则保留原内容。单 feed 每轮最多回抓 `full_text_max_per_feed` 条。
@@ -288,7 +290,7 @@ AI 默认关闭（`[ai] enabled = false`），此时 `--classify` 是 no-op：
 
 ## 体积和限制
 
-- 原文永久保留，所以仓库会增长；按当前数据估算，年增量在**数百 MB/年**量级，抓取量大时可能接近 1GB/年。
+- feed 正文/摘要永久保留，所以仓库会增长；按当前数据估算，年增量在**数百 MB/年**量级，抓取量大时可能接近 1GB/年。
 - Markdown 比 gzip/SQLite 更适合 git：diff 可读、delta 压缩有效。
 - 旧 `gh-pages` / 旧历史里的正文不会自动消失；要立刻缩小仓库需要重写历史或重建仓库。
 - 当前 Actions cache 会复制完整 `archive/` + `feeds/`；归档很大后，cache 传输和 10GB 配额会成为下一个瓶颈，后续可以改成只缓存最近窗口或增量渲染。
@@ -297,7 +299,7 @@ AI 默认关闭（`[ai] enabled = false`），此时 `--classify` 是 no-op：
 ## 测试
 
 ```bash
-pip install -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt
 python3.12 -m pytest -q
 ruff check .
 ```

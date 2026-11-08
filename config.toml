@@ -47,10 +47,10 @@ max_feeds = 800          # max feeds to fetch per run (active feeds ~1548; with 
 max_articles = 200       # max articles to classify per run
 max_workers = 10         # parallel fetch workers
 max_entries_per_feed = 50  # cap entries returned per feed (0 = unlimited)
-max_backlog = 5000       # max pending+failed articles before --check fails
-freshness_hours = 24     # max age of last fetch/classify before --check fails
+max_backlog = 5000       # max pending+failed before --check fails (only failed when AI is disabled)
+freshness_hours = 24     # max age of last fetch, and of last classify when AI backlog exists
 fetch_interval_hours = 12  # skip feeds fetched within this window
-disable_after_failures = 3 # auto-disable feed after N consecutive failures
+disable_after_failures = 3 # quarantine permanent/parse errors after N consecutive failures
 
 # Storage layout is fixed by src/paths.py and the deploy workflow:
 #   archive/  feeds/  output/  feed_state.json  article_state.json

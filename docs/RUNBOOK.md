@@ -138,7 +138,9 @@ gh workflow run "RSS Collection & Classification"
 - `skip = true` 的条目会保留在 `feed_state.json`；直接删除的条目会在下一轮 `--fetch` 被自动 prune；
 - 被 prune 后重新加回的 URL 从干净状态开始，不需要手工清理旧失败计数；
 - `feeds.toml` 按 canonical URL 去重（http/https、www、尾斜杠等），第一次出现的条目胜出；`--sync` 也会清理 canonical 重复项；
-- 仅改 `feed_state.json` 不够，下一次 `sync-feeds` 或手工加回后它仍会被抓取。
+- 仅从 `feeds.toml` 删除不够：只要 URL 还在 `sources.toml` 里，下一次 `--sync` 会把它加回；旧的禁用状态也仍在 `feed_state.json`。要彻底停止应保留条目并设 `skip = true`，要重新启用则按上面的 `--forget` + 冷启动流程。
+- 如果 `disabled_reason` 是 `rss does not provide full text`，说明该 feed 连续多篇新文章都只有短摘要，已被 `[filter] skip_no_full_text` 自动停用；确认仍需要它时，用上面的 `--forget` 流程恢复，或临时把 `skip_no_full_text` 设为 `false`。
+- `sync-feeds` 的源站抓取/解析失败会让 job 失败并不提交 `feeds.toml`；单个非法/内网 feed URL 只记 warning 并跳过。需要手工检查时可先运行 `python -m src.main --sync` 看完整日志。
 
 ## 3. 恢复 data 分支
 
@@ -331,7 +333,7 @@ python -m src.md_archive --validate archive
 python -m src.md_archive --repair-indexes archive --feeds feeds
 ```
 
-它只追加缺失的 article 记录，保留已有记录和全部 annotation；重复执行不会重复追加。CI 冷启动会先跑 `--repair-indexes`，再跑 `--reconcile-indexes`。`--fetch` 也会从归档补写 `article_state.json` 中标记为 `indexed=false` 的行。
+它只追加缺失的 article 记录，保留已有记录和全部 annotation；重复执行不会重复追加。缺失记录会按 feed 批量写入，避免逐条重读/fsync。若索引有记录但首行不是 `kind=feed` header，`--repair-indexes` 会原子地补上 header 并保留原有记录/annotation。CI 冷启动会先跑 `--repair-indexes`，再跑 `--reconcile-indexes`。`--fetch` 也会从归档补写 `article_state.json` 中标记为 `indexed=false` 的行。
 
 ### 索引完全丢失
 
@@ -487,6 +489,7 @@ AI 默认关闭（`config.toml` 的 `[ai] enabled = false`），此时无需 key
 
 - 不要把 key 写进 `config.toml` 或提交到仓库；
 - 使用 `config.toml` 的 `api_key_env` 时，确认环境变量名与 secret 名一致；
+- `full_text_mode` 和 `skip_no_full_text` 是 fetch 阶段的独立开关，不受 AI 是否启用影响；默认不抓原文，并会自动停用只输出短摘要的 feed；
 - 日志不应输出 key；如果怀疑泄露，先吊销再排查。
 
 ## 10. 验证 Pages
