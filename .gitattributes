@@ -1,0 +1,4 @@
+# Byte offsets in the Markdown archive and feed indexes depend on stable LF
+# bytes. Never let checkout/commit rewrite these files.
+archive/**/*.md text eol=lf
+feeds/*.jsonl text eol=lf
