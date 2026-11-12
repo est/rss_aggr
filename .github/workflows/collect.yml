@@ -746,7 +746,7 @@ jobs:
           path: _site
 
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
       # Run after deploy so a backlog/freshness contract breach alerts the
       # maintainer without blocking publication of already-valid content.
