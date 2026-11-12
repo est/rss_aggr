@@ -70,7 +70,7 @@ jobs:
         # A cache outage must not block collection: the data branch is the
         # fallback. Invalid/partial restores are rejected by the next step.
         continue-on-error: true
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: .runtime
           key: rss-runtime-${{ github.run_id }}-${{ github.run_attempt }}
@@ -888,7 +888,7 @@ jobs:
       - name: Save runtime cache
         if: always() && steps.prepare-runtime-cache.outputs.ok == 'true'
         continue-on-error: true
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: .runtime
           key: rss-runtime-${{ github.run_id }}-${{ github.run_attempt }}
