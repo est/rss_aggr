@@ -95,7 +95,7 @@ feeds.toml / sources.toml（main）
         └──────────────► article_state.json          （最后标记 classified；失败保持 pending）
         │
         │  src.render：archive + feeds，叠加 feeds.toml 当前 title/site
-        ├──────────────► _site/YYYY/MM/DD.html        （每日页，含渲染后的正文）
+        ├──────────────► _site/YYYY/MM/DD.html        （每日页，正文按标题折叠）
         ├──────────────► _site/archive/YYYY/MM/DD.md  （原文副本，供 Range 请求）
         ├──────────────► _site/feeds/<id>.html        （轻量 JS 壳）
         └──────────────► _site/feeds/<id>.json        （JSON Feed 1.1，元数据+摘要+_archive）
@@ -227,6 +227,8 @@ https://est.github.io/rss_aggr/feeds/example.com-1a2b3c4d5e6f.json
 JSON Feed **不包含** `content_html` 全文，也不包含归档正文。全文在 `archive/YYYY/MM/DD.md`、`_site/archive/YYYY/MM/DD.md`，以及渲染出的每日页面；JSON 只是索引、短摘要和归档坐标。
 
 `_site/feeds/<id>.html` 是一个轻量壳：JS 先加载同名 JSON，再按 `_archive.body_offset` / `body_len` 对 Markdown 发 HTTP Range 请求，只取目标正文。GitHub Pages 返回 `206` 时直接使用；如果服务器忽略 Range 返回 `200`，JS 会取整文件后按字节切片兜底。
+
+页面上的每篇文章都是一个 `<details>` 折叠块：标题就是折叠把手，正文默认收起，展开时才请求/显示正文；`assets/site.js` 提供“Expand all / Collapse all”，并把深链指向的那一条自动展开。
 
 `<output_id>` 通常等于 `feeds/<feed_id>.jsonl` 的文件名；渲染时会对文件名做 slug 化和重名后缀处理。需要发现有哪些 feed，可以看 `_site/index.html` 或 `feeds/` 目录。
 

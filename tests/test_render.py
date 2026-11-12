@@ -111,7 +111,10 @@ def test_render_site_pages_json_feed_and_safety(tmp_path):
     assert 'id="guid-1"' in daily
     assert 'id="guid-2"' in daily
     assert "&lt;script&gt;" in daily
-    assert "<script" not in daily.lower()
+    # Article content never contributes a script tag: the only one on the
+    # page is the site's own asset.
+    assert daily.count("<script") == 1
+    assert '<script src="../../assets/site.js" defer></script>' in daily
     assert "javascript:alert" not in daily
     assert "<strong>bold</strong>" in daily
     assert "https://example.com/a" in daily
@@ -169,6 +172,53 @@ def test_render_site_pages_json_feed_and_safety(tmp_path):
     # The feed records point back to the exact archived offsets.
     assert records[0]["offset"] != records[1]["offset"]
     assert records[1]["file"] == "archive/2026/05/01.md"
+
+
+def test_daily_page_folds_articles_behind_details(tmp_path):
+    _build_archive(tmp_path)
+    site = tmp_path / "_site"
+    render_site(site, tmp_path / "archive", tmp_path / "feeds")
+
+    daily = (site / "2026" / "05" / "01.html").read_text(encoding="utf-8")
+
+    # Every article is a foldable block; the anchor still points at it.
+    assert '<details class="article foldable" id="guid-1">' in daily
+    assert '<details class="article foldable" id="guid-2">' in daily
+    assert "<article" not in daily
+
+    # The title is the summary, the body is folded away below it. The title
+    # itself is plain text: a link inside <summary> would navigate instead of
+    # unfolding the entry.
+    assert "<summary>" in daily
+    assert '<h2 class="title">Safe &amp; Sound</h2>' in daily
+    assert '<a href="https://example.com/a">Original</a>' in daily
+    assert daily.index("<summary>") < daily.index('<div class="body">')
+    assert '<div class="body">' in daily
+    assert "<strong>bold</strong>" in daily
+
+    # Fold controls stay hidden until site.js takes over.
+    assert '<div class="toolbar" id="fold-controls" hidden>' in daily
+    assert '<script src="../../assets/site.js" defer></script>' in daily
+
+    site_js = (site / "assets" / "site.js").read_text(encoding="utf-8")
+    assert "data-fold" in site_js
+    assert "openFromHash" in site_js
+
+
+def test_feed_page_folds_entries_and_loads_body_on_expand(tmp_path):
+    _build_archive(tmp_path)
+    site = tmp_path / "_site"
+    render_site(site, tmp_path / "archive", tmp_path / "feeds")
+
+    feed_page = (site / "feeds" / "feed-1.html").read_text(encoding="utf-8")
+    assert '<div class="toolbar" id="fold-controls" hidden>' in feed_page
+    assert '<script src="../assets/site.js" defer></script>' in feed_page
+
+    feed_js = (site / "assets" / "feed.js").read_text(encoding="utf-8")
+    assert 'node("details", "item foldable")' in feed_js
+    assert 'details.addEventListener("toggle"' in feed_js
+    # Bodies are no longer preloaded while scrolling past a collapsed entry.
+    assert "IntersectionObserver" not in feed_js
 
 
 def test_render_is_deterministic(tmp_path):

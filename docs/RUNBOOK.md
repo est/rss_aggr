@@ -502,8 +502,8 @@ AI 默认关闭（`config.toml` 的 `[ai] enabled = false`），此时无需 key
    ```
 
 3. 首页应列出最近的日期和 feed；日期链接指向 `YYYY/MM/DD.html`；
-4. 进入某天的页面，确认正文、标题链接和 feed 链接可读；
-5. 打开 `feeds/<feed_id>.html`，确认 JS 能加载列表；滚动后正文通过 Range 请求加载（DevTools 里应为 `206`，URL 指向 `archive/YYYY/MM/DD.md`）；
+4. 进入某天的页面，确认标题行可以点开/收起正文，标题链接（Original）和 feed 链接可读；
+5. 打开 `feeds/<feed_id>.html`，确认 JS 能加载列表；展开某一条后正文通过 Range 请求加载（DevTools 里应为 `206`，URL 指向 `archive/YYYY/MM/DD.md`）；
 6. 打开 `feeds/<feed_id>.json`，确认是合法 JSON Feed 1.1，且 item 带 `_archive` 坐标、没有 `content_html` 全文；标题/site 应来自 `feeds.toml` 的当前配置，而不是 JSONL 里冻结的历史 header；
 7. 打开 `health.json`（由 `status.json` 复制而来），确认是本轮派生的计数/warning 报告，且不含 secret；
 8. 确认部署来源是 Actions artifact：仓库 **Settings → Pages → Build and deployment → Source = GitHub Actions**；

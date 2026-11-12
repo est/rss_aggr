@@ -12,6 +12,11 @@ the per-feed HTML.
 All article text is untrusted. Titles, authors, summaries and URLs are
 HTML-escaped; article bodies are converted from Markdown and then passed
 through bleach with the same allowlist used by the ingest sanitizer.
+
+Every article is rendered as a ``<details>`` block: the title (plus its meta
+line) is the summary, the body stays hidden until the entry is unfolded.
+``assets/site.js`` reveals the expand/collapse-all controls and unfolds the
+entry a deep link points at.
 """
 from __future__ import annotations
 
@@ -83,14 +88,36 @@ h1 { margin-bottom: 0.25rem; }
 h2 { margin: 1.75rem 0 0.5rem; }
 nav { margin-bottom: 1.5rem; }
 .meta, .count { color: var(--muted); font-size: 0.9rem; }
-article {
-  margin: 0 0 2rem;
-  padding: 1rem 1.1rem;
+details.article {
+  margin: 0 0 1.25rem;
+  padding: 0.6rem 1.1rem 0.9rem;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--panel);
 }
-article h2 { margin-top: 0; }
+.foldable > summary {
+  cursor: pointer;
+  list-style-position: inside;
+}
+.foldable > summary h2 {
+  display: inline;
+  margin: 0;
+  font-size: 1.15rem;
+}
+.foldable > summary .meta { display: block; }
+.foldable[open] > summary { margin-bottom: 0.6rem; }
+summary::marker { color: var(--muted); }
+.toolbar { display: flex; gap: 0.5rem; margin: 0 0 1rem; }
+.toolbar[hidden] { display: none; }
+.toolbar button {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
 .feed-item {
   margin: 0 0 1.5rem;
   padding: 1rem 1.1rem;
@@ -129,6 +156,46 @@ article h2 { margin-top: 0; }
 .body th, .body td { border: 1px solid var(--border); padding: 0.3rem 0.5rem; }
 ul.plain { padding-left: 1.2rem; }
 .empty { color: var(--muted); font-style: italic; }
+"""
+
+SITE_JS = """\
+(() => {
+  "use strict";
+  const foldables = () => Array.from(document.querySelectorAll("details.foldable"));
+
+  const toolbar = document.getElementById("fold-controls");
+  if (toolbar) {
+    toolbar.hidden = false;
+    toolbar.addEventListener("click", (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      const button = target && target.closest("button[data-fold]");
+      if (!button) return;
+      const open = button.getAttribute("data-fold") === "open";
+      for (const details of foldables()) details.open = open;
+    });
+  }
+
+  // Deep links (for example from a per-feed page) point at a single article
+  // anchor; open the folded entry so the target is actually visible.
+  const openFromHash = () => {
+    const raw = (location.hash || "").replace(/^#/, "");
+    if (!raw) return;
+    let id = raw;
+    try {
+      id = decodeURIComponent(raw);
+    } catch (_) {
+      // Keep the raw fragment when it is not valid percent-encoding.
+    }
+    const target = document.getElementById(id);
+    if (!target) return;
+    const details = target.closest("details");
+    if (details) details.open = true;
+    target.scrollIntoView();
+  };
+
+  window.addEventListener("hashchange", openFromHash);
+  openFromHash();
+})();
 """
 
 FEED_JS = """\
@@ -262,9 +329,11 @@ FEED_JS = """\
   const renderItem = (item) => {
     const entry = { item, loaded: false, loading: false };
     const li = node("li", "feed-item");
-    const heading = node("h2");
-    heading.append(link(item.url, text(item.title) || "(untitled)"));
-    li.append(heading);
+    const details = node("details", "item foldable");
+    const summary = node("summary");
+    const heading = node("h2", "title");
+    heading.textContent = text(item.title) || "(untitled)";
+    summary.append(heading);
 
     const metaParts = [];
     if (item.date_published) metaParts.push(text(item.date_published));
@@ -272,9 +341,20 @@ FEED_JS = """\
       metaParts.push(item.tags.map(text).join(", "));
     }
     if (item._score != null) metaParts.push(`Score: ${text(item._score)}`);
-    if (metaParts.length) li.append(node("p", "meta", metaParts.join(" \\u00b7 ")));
+    // The title folds the entry, so the source link lives in the meta line.
+    const meta = node("span", "meta");
+    metaParts.forEach((part, index) => {
+      if (index) meta.append(document.createTextNode(" \\u00b7 "));
+      meta.append(document.createTextNode(part));
+    });
+    if (item.url) {
+      if (metaParts.length) meta.append(document.createTextNode(" \\u00b7 "));
+      meta.append(link(item.url, "Original"));
+    }
+    if (meta.childNodes.length) summary.append(meta);
+    details.append(summary);
 
-    if (item.summary) li.append(node("p", "summary", text(item.summary)));
+    if (item.summary) details.append(node("p", "summary", text(item.summary)));
 
     const links = node("p", "links");
     const daily = dailyHref(item);
@@ -283,34 +363,28 @@ FEED_JS = """\
       if (links.childNodes.length) links.append(document.createTextNode(" \\u00b7 "));
       links.append(link(item.url, "Original"));
     }
-    if (links.childNodes.length) li.append(links);
+    if (links.childNodes.length) details.append(links);
 
     entry.body = node("pre", "body-text");
     entry.body.hidden = true;
-    li.append(entry.body);
+    details.append(entry.body);
 
     entry.button = node("button", "", "Load full text");
     entry.button.type = "button";
     entry.button.addEventListener("click", () => loadBody(entry));
-    li.append(entry.button);
+    details.append(entry.button);
+
+    // The body is only fetched once the entry is unfolded, so collapsed
+    // entries cost nothing but their metadata.
+    details.addEventListener("toggle", () => {
+      if (details.open && !entry.loaded) loadBody(entry);
+    });
+
+    li.append(details);
     entry.li = li;
+    entry.details = details;
     return entry;
   };
-
-  const observer =
-    "IntersectionObserver" in window
-      ? new IntersectionObserver(
-          (entries) => {
-            for (const observation of entries) {
-              if (!observation.isIntersecting) continue;
-              observer.unobserve(observation.target);
-              const entry = observation.target._feedEntry;
-              if (entry) loadBody(entry);
-            }
-          },
-          { rootMargin: "300px" }
-        )
-      : null;
 
   const main = async () => {
     const response = await fetch(jsonUrl, { cache: "no-cache" });
@@ -328,9 +402,7 @@ FEED_JS = """\
     status.textContent = `${items.length} articles`;
     for (const item of items) {
       const entry = renderItem(item);
-      entry.li._feedEntry = entry;
       list.append(entry.li);
-      if (observer) observer.observe(entry.li);
     }
   };
 
@@ -802,6 +874,20 @@ def _apply_feed_config(
 # ---------------------------------------------------------------------------
 # Page rendering
 # ---------------------------------------------------------------------------
+def _fold_toolbar() -> str:
+    """Return the expand/collapse-all controls.
+
+    The toolbar stays hidden until ``site.js`` takes over, so a page without
+    JavaScript never shows controls that cannot work.
+    """
+    return (
+        '<div class="toolbar" id="fold-controls" hidden>\n'
+        '<button type="button" data-fold="open">Expand all</button>\n'
+        '<button type="button" data-fold="close">Collapse all</button>\n'
+        "</div>"
+    )
+
+
 def _render_day(
     day: str,
     records: list[dict],
@@ -813,10 +899,9 @@ def _render_day(
         anchor = _anchor_id(record)
         title = _text(meta.get("title")).strip() or "(untitled)"
         link = _safe_url(meta.get("link"))
-        if link:
-            title_html = f'<a href="{_attr(link)}">{_escape(title)}</a>'
-        else:
-            title_html = _escape(title)
+        # The title is the fold handle, so it stays plain text: a link inside
+        # <summary> would navigate instead of unfolding the entry.
+        title_html = _escape(title)
 
         author = _text(meta.get("author")).strip()
         published = _text(meta.get("published")).strip()
@@ -845,8 +930,12 @@ def _render_day(
                 )
             else:
                 meta_parts.append(_escape(feed_title))
+        if link:
+            meta_parts.append(f'<a href="{_attr(link)}">Original</a>')
         meta_html = (
-            f'<p class="meta">{" · ".join(meta_parts)}</p>' if meta_parts else ""
+            f'<span class="meta">{" · ".join(meta_parts)}</span>'
+            if meta_parts
+            else ""
         )
 
         body = record.get("body", "")
@@ -854,11 +943,13 @@ def _render_day(
         body_block = f'<div class="body">{body_html}</div>' if body_html else ""
 
         articles.append(
-            f'<article id="{_attr(anchor)}">\n'
-            f"<h2>{title_html}</h2>\n"
+            f'<details class="article foldable" id="{_attr(anchor)}">\n'
+            "<summary>\n"
+            f'<h2 class="title">{title_html}</h2>\n'
             f"{meta_html}\n"
+            "</summary>\n"
             f"{body_block}\n"
-            f"</article>"
+            f"</details>"
         )
 
     if articles:
@@ -872,8 +963,10 @@ def _render_day(
         f"<h1>{_escape(day)}</h1>\n"
         f'<p class="meta">{_plural(len(records), "article")}</p>\n'
         "</header>\n"
+        f"{_fold_toolbar()}\n"
         f"{content}\n"
-        "</main>"
+        "</main>\n"
+        '<script src="../../assets/site.js" defer></script>'
     )
     return _document(day, body)
 
@@ -942,8 +1035,10 @@ def _render_feed(feed: FeedIndex) -> str:
         f"{header_meta}\n"
         "</header>\n"
         '<p id="status" class="meta">Loading feed...</p>\n'
+        f"{_fold_toolbar()}\n"
         '<ul id="items" class="plain"></ul>\n'
         "</main>\n"
+        '<script src="../assets/site.js" defer></script>\n'
         '<script src="../assets/feed.js" defer></script>'
     )
     return _document(feed.title, body)
@@ -1110,10 +1205,11 @@ def render_site(
 
     _write(site_dir / "index.html", _render_index(days, feed_indexes))
 
+    assets = site_dir / "assets"
+    assets.mkdir(parents=True, exist_ok=True)
+    (assets / "site.js").write_text(SITE_JS, encoding="utf-8")
     if feed_indexes:
-        asset = site_dir / "assets" / "feed.js"
-        asset.parent.mkdir(parents=True, exist_ok=True)
-        asset.write_text(FEED_JS, encoding="utf-8")
+        (assets / "feed.js").write_text(FEED_JS, encoding="utf-8")
 
     for feed in feed_indexes:
         annotations = _latest_annotations(feed.records)

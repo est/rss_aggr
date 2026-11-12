@@ -36,6 +36,8 @@
 
 `output/` 是给人看的摘要表格，派生自文章状态和分类结果；**安全删除**，并且不再是 fetch/classify 的去重依据。它只在工作区/cache，旧 `data` 可能残留历史副本，但新快照不会写入并会删除它。给其他系统消费请读渲染后的 JSON Feed（`_site/feeds/<id>.json`）；JSON 里只有元数据、摘要和归档坐标（`_archive`），没有全文。全文在 `archive/YYYY/MM/DD.md` 和每日页面里；per-feed 页面会按坐标对 `_site/archive/YYYY/MM/DD.md` 发 HTTP Range 请求，只取需要的那一段。不要直接依赖 `data` 分支的文件布局。
 
+页面上的每篇文章都是一个 `<details>` 折叠块：标题就是折叠把手，正文默认收起，点标题展开；每日页还有 “Expand all / Collapse all”。per-feed 页面的正文在展开那一条时才去请求。
+
 完整的“概念 → 路径/分支 → 运行流程”对照见 [docs/ARCHITECTURE-MAP.md](docs/ARCHITECTURE-MAP.md)。
 
 ## 快速开始（本地）
