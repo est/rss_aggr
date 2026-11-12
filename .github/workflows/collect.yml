@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout event SHA
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
 
@@ -49,7 +49,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout event SHA
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
 
